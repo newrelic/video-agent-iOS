@@ -191,6 +191,8 @@
 
 #pragma mark - Tracker Method
 
+// TODO: Resume and seek start/end events.
+
 - (void)sendBufferEnd {
     if (self.isBuffering) {
         self.isBuffering = NO;
