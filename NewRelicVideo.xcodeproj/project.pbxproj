@@ -40,7 +40,6 @@
 		9C414832212D7B4C00850636 /* EventDefs.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EventDefs.h; sourceTree = "<group>"; };
 		9C414834212D7C9000850636 /* NewRelicVideoAgent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoAgent.h; sourceTree = "<group>"; };
 		9C414835212D7C9000850636 /* NewRelicVideoAgent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NewRelicVideoAgent.m; sourceTree = "<group>"; };
-		9C414839212D7E6800850636 /* NewRelicAgent.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NewRelicAgent.framework; path = ../SampleNewRelicObjC/NewRelicAgent/NewRelicAgent.framework; sourceTree = "<group>"; };
 		9C41483B212D7E8000850636 /* NewRelicAgent.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicAgent.framework; sourceTree = "<group>"; };
 		9C41483D212D7F0F00850636 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9C41483F212D7F1B00850636 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -120,7 +119,6 @@
 				9C41483F212D7F1B00850636 /* libc++.tbd */,
 				9C41483D212D7F0F00850636 /* libz.tbd */,
 				9C41483B212D7E8000850636 /* NewRelicAgent.framework */,
-				9C414839212D7E6800850636 /* NewRelicAgent.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
