@@ -13,5 +13,6 @@
 #define CONTENT_REQUEST     @"CONTENT_REQUEST"
 #define CONTENT_START       @"CONTENT_START"
 #define CONTENT_END         @"CONTENT_END"
+#define CONTENT_ERROR       @"CONTENT_ERROR"
 
 #endif /* EventDefs_h */

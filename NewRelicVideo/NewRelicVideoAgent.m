@@ -117,8 +117,8 @@
         [self sendStart];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
-        // TODO: send event?
         [self resetState];
+        [self sendError];
     }
 }
 
@@ -129,29 +129,11 @@
     [self sendEnd];
 }
 
-#pragma mark - misc
-
-- (void)sendAction:(NSString *)name {
-    [self sendAction:name attr:nil];
-}
-
-- (void)sendAction:(NSString *)name attr:(NSDictionary *)dic {
-    
-    NSLog(@"sendAction name = %@, attr = %@", name, dic ? dic : @{});
-    
-    NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
-    [ops addEntriesFromDictionary:dic];
-    
-    if ([NewRelicAgent currentSessionId]) {
-        [NewRelic recordCustomEvent:VIDEO_EVENT
-                         attributes:ops];
-    }
-    else {
-        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
-    }
-}
-
 #pragma mark - Tracker Method
+
+- (void)sendError {
+    [self sendAction:CONTENT_ERROR];
+}
 
 - (void)sendRequest {
     [self sendAction:CONTENT_REQUEST];
@@ -165,6 +147,30 @@
 
 - (void)sendEnd {
     [self sendAction:CONTENT_END];
+}
+
+#pragma mark - SendAction
+
+- (void)sendAction:(NSString *)name {
+    [self sendAction:name attr:nil];
+}
+
+- (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
+    
+    dict = dict ? dict : @{};
+    
+    NSLog(@"sendAction name = %@, attr = %@", name, dict);
+    
+    NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
+    [ops addEntriesFromDictionary:dict];
+    
+    if ([NewRelicAgent currentSessionId]) {
+        [NewRelic recordCustomEvent:VIDEO_EVENT
+                         attributes:ops];
+    }
+    else {
+        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+    }
 }
 
 @end
