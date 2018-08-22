@@ -31,6 +31,8 @@
 @property (nonatomic) NSTimeInterval playActionTime;
 // Time of actual play start
 @property (nonatomic) NSTimeInterval actualPlayStartTime;
+// Is buffering?
+@property (nonatomic) BOOL isBuffering;
 
 @end
 
@@ -54,6 +56,7 @@
     self.playActionRequested = NO;
     self.playActionTime = 0;
     self.actualPlayStartTime = 0;
+    self.isBuffering = NO;
 }
 
 - (void)endPlayback {
@@ -87,6 +90,18 @@
                                              selector:@selector(itemDidPlayToEndTimeNotification:)
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
+    
+    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty"
+                                 options:NSKeyValueObservingOptionNew
+                                 context:NULL];
+    
+    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferFull"
+                                 options:NSKeyValueObservingOptionNew
+                                 context:NULL];
+    
+    [self.player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
+                                 options:NSKeyValueObservingOptionNew
+                                 context:NULL];
 }
 
 #pragma mark - Item Handlers
@@ -129,7 +144,66 @@
     [self sendEnd];
 }
 
+// KVO observer method
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSString *,id> *)change
+                       context:(void *)context {
+    
+    if ([keyPath isEqualToString:@"rate"]) {
+        
+        float rate = [(NSNumber *)change[NSKeyValueChangeNewKey] floatValue];
+        
+        if (rate == 0.0) {
+            NSLog(@"Video Rate Log: Stopped Playback");
+            
+            if (self.player.error != nil) {
+                NSLog(@"  -> Playback Failed");
+            }
+            
+            if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+                NSLog(@"  -> Playback Reached the End");
+            }
+            else if (!self.player.currentItem.playbackLikelyToKeepUp) {
+                NSLog(@"  -> Playback Waiting Data");
+            }
+        }
+        else if (rate == 1.0) {
+            NSLog(@"Video Rate Log: Normal Playback");
+        }
+        else if (rate == -1.0) {
+            NSLog(@"Video Rate Log: Reverse Playback");
+        }
+    }
+    else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
+        NSLog(@"Video Playback Buffer Empty");
+        [self sendBufferStart];
+    }
+    else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
+        NSLog(@"Video Playback Likely To Keep Up");
+        [self sendBufferEnd];
+    }
+    else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
+        NSLog(@"Video Playback Buffer Full");
+        [self sendBufferEnd];
+    }
+}
+
 #pragma mark - Tracker Method
+
+- (void)sendBufferEnd {
+    if (self.isBuffering) {
+        self.isBuffering = NO;
+        [self sendAction:CONTENT_BUFFER_END];
+    }
+}
+
+- (void)sendBufferStart {
+    if (!self.isBuffering) {
+        self.isBuffering = YES;
+        [self sendAction:CONTENT_BUFFER_START];
+    }
+}
 
 - (void)sendError {
     [self sendAction:CONTENT_ERROR];
