@@ -116,6 +116,10 @@
         self.actualPlayStartTime = [self epoch];
         [self sendStart];
     }
+    else if (p.status == AVPlayerItemStatusFailed) {
+        // TODO: send event?
+        [self resetState];
+    }
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
