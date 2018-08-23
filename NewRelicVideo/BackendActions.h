@@ -10,13 +10,15 @@
 
 @interface BackendActions : NSObject
 
-- (void)sendResume;
-- (void)sendPause;
-- (void)sendBufferEnd;
-- (void)sendBufferStart;
-- (void)sendError;
 - (void)sendRequest;
 - (void)sendStart:(NSTimeInterval)timeToStart;
 - (void)sendEnd;
+- (void)sendPause;
+- (void)sendResume;
+- (void)sendSeekStart;
+- (void)sendSeekEnd;
+- (void)sendBufferStart;
+- (void)sendBufferEnd;
+- (void)sendError;
 
 @end

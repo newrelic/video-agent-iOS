@@ -86,7 +86,7 @@
 
 - (void)performTransitionInStateStarting:(TrackerTransition)tt {
     if (tt == TrackerTransitionFrameShown) {
-        [self.actions sendStart:[self timestamp] - self.stateStartingTimestamp];
+        [self.actions sendStart:self.timestamp - self.stateStartingTimestamp];
         [self moveState:TrackerStatePlaying];
     }
 }

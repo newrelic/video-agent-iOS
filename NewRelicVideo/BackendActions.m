@@ -14,28 +14,6 @@
 
 #pragma mark - Tracker Method
 
-// TODO: seek start/end events.
-
-- (void)sendResume {
-    [self sendAction:CONTENT_RESUME];
-}
-
-- (void)sendPause {
-    [self sendAction:CONTENT_PAUSE];
-}
-
-- (void)sendBufferEnd {
-    [self sendAction:CONTENT_BUFFER_END];
-}
-
-- (void)sendBufferStart {
-    [self sendAction:CONTENT_BUFFER_START];
-}
-
-- (void)sendError {
-    [self sendAction:CONTENT_ERROR];
-}
-
 - (void)sendRequest {
     [self sendAction:CONTENT_REQUEST];
 }
@@ -47,6 +25,34 @@
 
 - (void)sendEnd {
     [self sendAction:CONTENT_END];
+}
+
+- (void)sendPause {
+    [self sendAction:CONTENT_PAUSE];
+}
+
+- (void)sendResume {
+    [self sendAction:CONTENT_RESUME];
+}
+
+- (void)sendSeekStart {
+    [self sendAction:CONTENT_SEEK_START];
+}
+
+- (void)sendSeekEnd {
+    [self sendAction:CONTENT_SEEK_END];
+}
+
+- (void)sendBufferStart {
+    [self sendAction:CONTENT_BUFFER_START];
+}
+
+- (void)sendBufferEnd {
+    [self sendAction:CONTENT_BUFFER_END];
+}
+
+- (void)sendError {
+    [self sendAction:CONTENT_ERROR];
 }
 
 #pragma mark - SendAction
