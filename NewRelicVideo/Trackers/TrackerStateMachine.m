@@ -25,6 +25,8 @@
 
 @implementation TrackerStateMachine
 
+#pragma mark - Public
+
 - (instancetype)init {
     if (self = [super init]) {
         self.state = TrackerStateStopped;
@@ -71,9 +73,7 @@
     }
 }
 
-- (NSTimeInterval)timestamp {
-    return [[NSDate date] timeIntervalSince1970];
-}
+#pragma mark - State handlers
 
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
@@ -91,11 +91,11 @@
     }
 }
 
-- (void)performTransitionInStatePaused:(TrackerTransition)tt {
+- (void)performTransitionInStatePlaying:(TrackerTransition)tt {
     // TODO
 }
 
-- (void)performTransitionInStatePlaying:(TrackerTransition)tt {
+- (void)performTransitionInStatePaused:(TrackerTransition)tt {
     // TODO
 }
 
@@ -106,6 +106,8 @@
 - (void)performTransitionInStateSeeking:(TrackerTransition)tt {
     // TODO
 }
+
+#pragma mark - Utils
 
 - (void)moveState:(TrackerState)newState {
     self.state = newState;
@@ -121,6 +123,10 @@
     if (prevState) {
         self.state = prevState.unsignedIntegerValue;
     }
+}
+
+- (NSTimeInterval)timestamp {
+    return [[NSDate date] timeIntervalSince1970];
 }
 
 @end
