@@ -8,26 +8,28 @@
 
 #import <Foundation/Foundation.h>
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, TrackerState) {
     TrackerStateStopped = 0,
+    TrackerStateStarting,
     TrackerStatePlaying,
     TrackerStatePaused,
     TrackerStateBuffering,
     TrackerStateSeeking
-} TrackerState;
+};
 
-typedef enum {
+typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionAutoplay = 0,
     TrackerTransitionClickPlay,
     TrackerTransitionClickPause,
     TrackerTransitionClickStop,
+    TrackerTransitionFrameShown,
     TrackerTransitionBufferEmpty,
     TrackerTransitionBufferFull,
     TrackerTransitionVideoFinished,
     TrackerTransitionErrorPlaying,
     TrackerTransitionInitDraggingSlider,
     TrackerTransitionEndDraggingSlider
-} TrackerTransition;
+};
 
 @interface TrackerStateMachine : NSObject
 

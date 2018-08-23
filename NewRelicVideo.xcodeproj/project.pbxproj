@@ -24,6 +24,8 @@
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */; };
 		9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */; };
+		9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */; };
+		9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +59,8 @@
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerStateMachine.h; sourceTree = "<group>"; };
 		9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerStateMachine.m; sourceTree = "<group>"; };
+		9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Stack.h"; sourceTree = "<group>"; };
+		9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Stack.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,6 +109,7 @@
 		9C41481A212D7AD400850636 /* NewRelicVideo */ = {
 			isa = PBXGroup;
 			children = (
+				9CE5D72C212EF39900B89D07 /* Utils */,
 				9CE5D721212ED8E900B89D07 /* Trackers */,
 				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C41481C212D7AD400850636 /* Info.plist */,
@@ -157,6 +162,15 @@
 			path = AVPlayer;
 			sourceTree = "<group>";
 		};
+		9CE5D72C212EF39900B89D07 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */,
+				9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -170,6 +184,7 @@
 				9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
+				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,6 +285,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
+				9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */,
 				9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */,

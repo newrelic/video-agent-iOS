@@ -14,7 +14,7 @@
 
 #pragma mark - Tracker Method
 
-// TODO: Resume and seek start/end events.
+// TODO: seek start/end events.
 
 - (void)sendResume {
     [self sendAction:CONTENT_RESUME];

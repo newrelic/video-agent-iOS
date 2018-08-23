@@ -7,11 +7,19 @@
 //
 
 #import "TrackerStateMachine.h"
+#import "NSMutableArray+Stack.h"
+#import "BackendActions.h"
 
 @interface TrackerStateMachine ()
 
+// Public (readonly)
 @property (nonatomic) TrackerState state;
-@property (nonatomic) TrackerState prevState;
+
+// Private
+@property (nonatomic) BackendActions *actions;
+@property (nonatomic) NSMutableArray<NSNumber *> *stateStack;
+@property (nonatomic) NSString *videoId;
+@property (nonatomic) NSTimeInterval stateStartingTimestamp;
 
 @end
 
@@ -20,7 +28,10 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.state = TrackerStateStopped;
-        self.prevState = TrackerStateStopped;
+        self.stateStack = @[].mutableCopy;
+        self.actions = [[BackendActions alloc] init];
+        self.stateStartingTimestamp = 0;
+        self.videoId = @"";
     }
     return self;
 }
@@ -30,6 +41,11 @@
         default:
         case TrackerStateStopped: {
             [self performTransitionInStateStopped:tt];
+            break;
+        }
+            
+        case TrackerStateStarting: {
+            [self performTransitionInStateStarting:tt];
             break;
         }
             
@@ -55,8 +71,24 @@
     }
 }
 
+- (NSTimeInterval)timestamp {
+    return [[NSDate date] timeIntervalSince1970];
+}
+
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
-    // TODO
+    if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
+        self.stateStartingTimestamp  = [self timestamp];
+        // TODO: generate VIDEO ID and pass it to BackendActions instance
+        [self.actions sendRequest];
+        [self moveState:TrackerStateStarting];
+    }
+}
+
+- (void)performTransitionInStateStarting:(TrackerTransition)tt {
+    if (tt == TrackerTransitionFrameShown) {
+        [self.actions sendStart:[self timestamp] - self.stateStartingTimestamp];
+        [self moveState:TrackerStatePlaying];
+    }
 }
 
 - (void)performTransitionInStatePaused:(TrackerTransition)tt {
@@ -73,6 +105,22 @@
 
 - (void)performTransitionInStateSeeking:(TrackerTransition)tt {
     // TODO
+}
+
+- (void)moveState:(TrackerState)newState {
+    self.state = newState;
+}
+
+- (void)moveStateAndPush:(TrackerState)newState {
+    [self.stateStack push:@(self.state)];
+    self.state = newState;
+}
+
+- (void)backToState {
+    NSNumber *prevState = [self.stateStack pop];
+    if (prevState) {
+        self.state = prevState.unsignedIntegerValue;
+    }
 }
 
 @end
