@@ -51,6 +51,14 @@
     [self sendAction:CONTENT_BUFFER_END];
 }
 
+- (void)sendHeartbeat {
+    [self sendAction:CONTENT_HEARTBEAT];
+}
+
+- (void)sendRenditionChange {
+    [self sendAction:CONTENT_RENDITION_CHANGE];
+}
+
 - (void)sendError {
     [self sendAction:CONTENT_ERROR];
 }

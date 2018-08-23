@@ -19,6 +19,8 @@
 - (void)sendSeekEnd;
 - (void)sendBufferStart;
 - (void)sendBufferEnd;
+- (void)sendHeartbeat;
+- (void)sendRenditionChange;
 - (void)sendError;
 
 @end

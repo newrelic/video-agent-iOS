@@ -39,41 +39,58 @@
 }
 
 - (void)transition:(TrackerTransition)tt {
-    switch (self.state) {
-        default:
-        case TrackerStateStopped: {
-            [self performTransitionInStateStopped:tt];
-            break;
-        }
-            
-        case TrackerStateStarting: {
-            [self performTransitionInStateStarting:tt];
-            break;
-        }
-            
-        case TrackerStatePaused: {
-            [self performTransitionInStatePaused:tt];
-            break;
-        }
-            
-        case TrackerStatePlaying: {
-            [self performTransitionInStatePlaying:tt];
-            break;
-        }
-            
-        case TrackerStateBuffering: {
-            [self performTransitionInStateBuffering:tt];
-            break;
-        }
-            
-        case TrackerStateSeeking: {
-            [self performTransitionInStateSeeking:tt];
-            break;
+    
+    if ([self handleGenericTransition:tt]) {
+        switch (self.state) {
+            default:
+            case TrackerStateStopped: {
+                [self performTransitionInStateStopped:tt];
+                break;
+            }
+                
+            case TrackerStateStarting: {
+                [self performTransitionInStateStarting:tt];
+                break;
+            }
+                
+            case TrackerStatePaused: {
+                [self performTransitionInStatePaused:tt];
+                break;
+            }
+                
+            case TrackerStatePlaying: {
+                [self performTransitionInStatePlaying:tt];
+                break;
+            }
+                
+            case TrackerStateBuffering: {
+                [self performTransitionInStateBuffering:tt];
+                break;
+            }
+                
+            case TrackerStateSeeking: {
+                [self performTransitionInStateSeeking:tt];
+                break;
+            }
         }
     }
 }
 
 #pragma mark - State handlers
+
+- (BOOL)handleGenericTransition:(TrackerTransition)tt {
+    if (tt ==  TrackerTransitionHeartbeat) {
+        [self.actions sendHeartbeat];
+        return NO;
+    }
+    else if (tt ==  TrackerTransitionRenditionChanged) {
+        [self.actions sendRenditionChange];
+        return NO;
+    }
+    else {
+        return YES;
+    }
+}
 
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {

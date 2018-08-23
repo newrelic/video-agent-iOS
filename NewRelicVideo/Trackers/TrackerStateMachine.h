@@ -28,7 +28,9 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionVideoFinished,
     TrackerTransitionErrorPlaying,
     TrackerTransitionInitDraggingSlider,
-    TrackerTransitionEndDraggingSlider
+    TrackerTransitionEndDraggingSlider,
+    TrackerTransitionHeartbeat,
+    TrackerTransitionRenditionChanged
 };
 
 @interface TrackerStateMachine : NSObject
