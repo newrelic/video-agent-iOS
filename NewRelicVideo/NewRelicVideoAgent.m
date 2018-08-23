@@ -9,12 +9,12 @@
 #import "NewRelicVideoAgent.h"
 #import "BackendActions.h"
 
-// TODO: simulate slow network, see what happens with the timeSinceRequest
-// TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
-// TODO: every time the playback ends, we need to create a new "video event id"
+/***********************************************************************************************************************
+// TODO: make it Tracker independant. Move all Tracker dependant code to a separate classe in Trackers/WhateverTracker/
+***********************************************************************************************************************/
 
-// DONE: Autoplay, what happens with the request and start events?
-// DONE: check if NewRelicAgent exist and is init
+// TODO: every time the playback ends, we need to create a new "VIDEO EVENT ID"
+// TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
 
 @import AVKit;
 

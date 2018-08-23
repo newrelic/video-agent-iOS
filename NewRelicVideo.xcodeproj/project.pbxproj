@@ -20,6 +20,10 @@
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
 		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
 		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
+		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; };
+		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
+		9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */; };
+		9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -49,6 +53,10 @@
 		9C414843212D7F2C00850636 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		9CE5D71D212EC9CB00B89D07 /* BackendActions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendActions.h; sourceTree = "<group>"; };
 		9CE5D71E212EC9CB00B89D07 /* BackendActions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BackendActions.m; sourceTree = "<group>"; };
+		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
+		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
+		9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerStateMachine.h; sourceTree = "<group>"; };
+		9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerStateMachine.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +105,7 @@
 		9C41481A212D7AD400850636 /* NewRelicVideo */ = {
 			isa = PBXGroup;
 			children = (
+				9CE5D721212ED8E900B89D07 /* Trackers */,
 				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C41481C212D7AD400850636 /* Info.plist */,
 				9C414832212D7B4C00850636 /* EventDefs.h */,
@@ -129,6 +138,25 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		9CE5D721212ED8E900B89D07 /* Trackers */ = {
+			isa = PBXGroup;
+			children = (
+				9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */,
+				9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */,
+				9CE5D727212EE92F00B89D07 /* AVPlayer */,
+			);
+			path = Trackers;
+			sourceTree = "<group>";
+		};
+		9CE5D727212EE92F00B89D07 /* AVPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */,
+				9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */,
+			);
+			path = AVPlayer;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -137,7 +165,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
+				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
+				9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 			);
@@ -241,6 +271,8 @@
 			files = (
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
+				9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */,
+				9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
