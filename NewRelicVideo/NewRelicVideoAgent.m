@@ -91,6 +91,13 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
+    // Register KVO events for "rate" events
+    
+    [self.player addObserver:self
+                  forKeyPath:@"rate"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
     [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty"
                                  options:NSKeyValueObservingOptionNew
                                  context:NULL];
