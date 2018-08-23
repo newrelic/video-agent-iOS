@@ -69,18 +69,6 @@
 
 - (void)setupPlayerEventHandlers {
     
-    [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
-        //double currentTime = (double)time.value / (double)time.timescale;
-        //NSLog(@"Current playback time = %lf", currentTime);
-        
-        // User click "play" (What about the autoplay?)
-        if (!self.playActionRequested) {
-            self.playActionRequested = YES;
-            self.playActionTime = [self epoch];
-            [self sendRequest];
-        }
-    }];
-    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(itemTimeJumpedNotification:)
                                                  name:AVPlayerItemTimeJumpedNotification
@@ -177,6 +165,12 @@
         }
         else if (rate == 1.0) {
             NSLog(@"Video Rate Log: Normal Playback");
+            
+            if (!self.playActionRequested) {
+                self.playActionRequested = YES;
+                self.playActionTime = [self epoch];
+                [self sendRequest];
+            }
         }
         else if (rate == -1.0) {
             NSLog(@"Video Rate Log: Reverse Playback");
