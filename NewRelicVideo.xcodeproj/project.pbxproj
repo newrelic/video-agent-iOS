@@ -18,6 +18,8 @@
 		9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483F212D7F1B00850636 /* libc++.tbd */; };
 		9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414841212D7F2300850636 /* SystemConfiguration.framework */; };
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
+		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
+		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -45,6 +47,8 @@
 		9C41483F212D7F1B00850636 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9C414841212D7F2300850636 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9C414843212D7F2C00850636 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		9CE5D71D212EC9CB00B89D07 /* BackendActions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendActions.h; sourceTree = "<group>"; };
+		9CE5D71E212EC9CB00B89D07 /* BackendActions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BackendActions.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +102,8 @@
 				9C414832212D7B4C00850636 /* EventDefs.h */,
 				9C414834212D7C9000850636 /* NewRelicVideoAgent.h */,
 				9C414835212D7C9000850636 /* NewRelicVideoAgent.m */,
+				9CE5D71D212EC9CB00B89D07 /* BackendActions.h */,
+				9CE5D71E212EC9CB00B89D07 /* BackendActions.m */,
 			);
 			path = NewRelicVideo;
 			sourceTree = "<group>";
@@ -133,6 +139,7 @@
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
+				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -232,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

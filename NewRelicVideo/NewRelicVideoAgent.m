@@ -7,8 +7,7 @@
 //
 
 #import "NewRelicVideoAgent.h"
-#import "EventDefs.h"
-#import <NewRelicAgent/NewRelic.h>
+#import "BackendActions.h"
 
 // TODO: simulate slow network, see what happens with the timeSinceRequest
 // TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
@@ -20,6 +19,8 @@
 @import AVKit;
 
 @interface NewRelicVideoAgent ()
+
+@property (nonatomic) BackendActions *actions;
 
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
@@ -33,6 +34,8 @@
 @property (nonatomic) NSTimeInterval actualPlayStartTime;
 // Is buffering?
 @property (nonatomic) BOOL isBuffering;
+// Is it paused?
+@property (nonatomic) BOOL isPaused;
 
 @end
 
@@ -43,7 +46,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[NewRelicVideoAgent alloc] init];
-        // First time inits here
+        sharedInstance.actions = [BackendActions new];
     });
     
     sharedInstance.player = player;
@@ -57,6 +60,7 @@
     self.playActionTime = 0;
     self.actualPlayStartTime = 0;
     self.isBuffering = NO;
+    self.isPaused = NO;
 }
 
 - (void)endPlayback {
@@ -69,6 +73,8 @@
 
 - (void)setupPlayerEventHandlers {
     
+    // Register NSNotification listeners
+    
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(itemTimeJumpedNotification:)
                                                  name:AVPlayerItemTimeJumpedNotification
@@ -79,10 +85,9 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
-    // Register KVO events for "rate" events
+    // Register KVO events
     
-    [self.player addObserver:self
-                  forKeyPath:@"rate"
+    [self.player addObserver:self forKeyPath:@"rate"
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
@@ -124,11 +129,11 @@
     if (!self.isPlaying && p.status == AVPlayerItemStatusReadyToPlay) {
         self.isPlaying = YES;
         self.actualPlayStartTime = [self epoch];
-        [self sendStart];
+        [self.actions sendStart:self.actualPlayStartTime - self.playActionTime];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
         [self resetState];
-        [self sendError];
+        [self.actions sendError];
     }
 }
 
@@ -136,7 +141,7 @@
     
     NSLog(@"ItemDidPlayToEndTimeNotification");
     [self endPlayback];
-    [self sendEnd];
+    [self.actions sendEnd];
 }
 
 // KVO observer method
@@ -155,12 +160,16 @@
             if (self.player.error != nil) {
                 NSLog(@"  -> Playback Failed");
             }
-            
-            if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+            else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 NSLog(@"  -> Playback Reached the End");
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 NSLog(@"  -> Playback Waiting Data");
+            }
+            else {
+                // User paused the video
+                self.isPaused = YES;
+                [self.actions sendPause];
             }
         }
         else if (rate == 1.0) {
@@ -169,7 +178,11 @@
             if (!self.playActionRequested) {
                 self.playActionRequested = YES;
                 self.playActionTime = [self epoch];
-                [self sendRequest];
+                [self.actions sendRequest];
+            }
+            else if (self.isPaused) {
+                self.isPaused = NO;
+                [self.actions sendResume];
             }
         }
         else if (rate == -1.0) {
@@ -178,75 +191,24 @@
     }
     else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
         NSLog(@"Video Playback Buffer Empty");
-        [self sendBufferStart];
+        if (!self.isBuffering) {
+            self.isBuffering = YES;
+            [self.actions sendBufferStart];
+        }
     }
     else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
         NSLog(@"Video Playback Likely To Keep Up");
-        [self sendBufferEnd];
+        if (self.isBuffering) {
+            self.isBuffering = NO;
+            [self.actions sendBufferEnd];
+        }
     }
     else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
         NSLog(@"Video Playback Buffer Full");
-        [self sendBufferEnd];
-    }
-}
-
-#pragma mark - Tracker Method
-
-// TODO: Resume and seek start/end events.
-
-- (void)sendBufferEnd {
-    if (self.isBuffering) {
-        self.isBuffering = NO;
-        [self sendAction:CONTENT_BUFFER_END];
-    }
-}
-
-- (void)sendBufferStart {
-    if (!self.isBuffering) {
-        self.isBuffering = YES;
-        [self sendAction:CONTENT_BUFFER_START];
-    }
-}
-
-- (void)sendError {
-    [self sendAction:CONTENT_ERROR];
-}
-
-- (void)sendRequest {
-    [self sendAction:CONTENT_REQUEST];
-}
-
-- (void)sendStart {
-    NSTimeInterval timeToStart = self.actualPlayStartTime - self.playActionTime;
-    timeToStart = timeToStart < 0 ? 0 : timeToStart;
-    [self sendAction:CONTENT_START attr:@{@"timeSinceRequested": @(timeToStart * 1000.0f)}];
-}
-
-- (void)sendEnd {
-    [self sendAction:CONTENT_END];
-}
-
-#pragma mark - SendAction
-
-- (void)sendAction:(NSString *)name {
-    [self sendAction:name attr:nil];
-}
-
-- (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
-    
-    dict = dict ? dict : @{};
-    
-    NSLog(@"sendAction name = %@, attr = %@", name, dict);
-    
-    NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
-    [ops addEntriesFromDictionary:dict];
-    
-    if ([NewRelicAgent currentSessionId]) {
-        [NewRelic recordCustomEvent:VIDEO_EVENT
-                         attributes:ops];
-    }
-    else {
-        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+        if (self.isBuffering) {
+            self.isBuffering = NO;
+            [self.actions sendBufferEnd];
+        }
     }
 }
 
