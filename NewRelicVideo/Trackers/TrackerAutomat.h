@@ -38,5 +38,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 @property (nonatomic, readonly) TrackerState state;
 
 - (void)transition:(TrackerTransition)tt;
+- (void)force:(TrackerState)state;
 
 @end

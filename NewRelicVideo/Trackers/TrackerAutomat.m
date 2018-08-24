@@ -71,6 +71,11 @@
     }
 }
 
+- (void)force:(TrackerState)state {
+    [self.stateStack removeAllObjects];
+    [self moveState:state];
+}
+
 #pragma mark - State handlers
 
 // Handle transitions that can happen at any time, independently of current state
