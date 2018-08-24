@@ -23,6 +23,7 @@
     if (self = [super init]) {
         self.viewId = @"";
         self.viewIdIndex = 0;
+        [self generateViewId];
     }
     return self;
 }
@@ -37,7 +38,6 @@
 #pragma mark - Tracker Method
 
 - (void)sendRequest {
-    [self generateViewId];
     [self sendAction:CONTENT_REQUEST];
 }
 
@@ -48,6 +48,7 @@
 
 - (void)sendEnd {
     [self sendAction:CONTENT_END];
+    [self generateViewId];
 }
 
 - (void)sendPause {
@@ -95,9 +96,6 @@
 - (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
     
     dict = dict ? dict : @{};
-    
-    NSLog(@"sendAction name = %@, attr = %@", name, dict);
-    
     NSMutableDictionary *ops = @{@"actionName": name, @"viewId": self.viewId}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     
@@ -108,6 +106,8 @@
     else {
         NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
     }
+    
+    NSLog(@"sendAction name = %@, attr = %@", name, ops);
 }
 
 @end
