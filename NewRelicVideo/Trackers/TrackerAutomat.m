@@ -66,11 +66,10 @@
                 break;
             }
                 
-                //            case TrackerStateBuffering: {
-                //                [self performTransitionInStateBuffering:tt];
-                //                break;
-                //            }
-                //
+            case TrackerStateBuffering: {
+                [self performTransitionInStateBuffering:tt];
+                break;
+            }
         }
     }
 }

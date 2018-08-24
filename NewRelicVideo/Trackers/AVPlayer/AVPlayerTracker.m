@@ -17,6 +17,7 @@
 
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
+
 // Is it playing?
 @property (nonatomic) BOOL isPlaying;
 // Did user press play?
