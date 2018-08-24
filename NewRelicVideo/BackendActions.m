@@ -10,7 +10,29 @@
 #import "BackendActions.h"
 #import "EventDefs.h"
 
+@interface BackendActions ()
+
+@property (nonatomic) NSString *videoId;
+@property (nonatomic) int videoIdIndex;
+
+@end
+
 @implementation BackendActions
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.videoId = @"";
+        self.videoIdIndex = 0;
+    }
+    return self;
+}
+
+- (void)generateVideoId {
+    if ([NewRelicAgent currentSessionId]) {
+        self.videoId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.videoIdIndex];
+        self.videoIdIndex ++;
+    }
+}
 
 #pragma mark - Tracker Method
 

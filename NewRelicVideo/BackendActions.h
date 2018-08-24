@@ -10,6 +10,7 @@
 
 @interface BackendActions : NSObject
 
+- (void)generateVideoId;
 - (void)sendRequest;
 - (void)sendStart:(NSTimeInterval)timeToStart;
 - (void)sendEnd;
