@@ -1,16 +1,16 @@
 //
-//  TrackerStateMachine.m
+//  TrackerAutomat.m
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 23/08/2018.
 //  Copyright © 2018 New Relic Inc. All rights reserved.
 //
 
-#import "TrackerStateMachine.h"
+#import "TrackerAutomat.h"
 #import "NSMutableArray+Stack.h"
 #import "BackendActions.h"
 
-@interface TrackerStateMachine ()
+@interface TrackerAutomat ()
 
 // Public (readonly)
 @property (nonatomic) TrackerState state;
@@ -23,7 +23,7 @@
 
 @end
 
-@implementation TrackerStateMachine
+@implementation TrackerAutomat
 
 #pragma mark - Public
 

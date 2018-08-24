@@ -22,8 +22,8 @@
 		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
-		9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */; };
-		9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */; };
+		9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */; };
+		9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */; };
 		9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */; };
 		9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */; };
 /* End PBXBuildFile section */
@@ -57,8 +57,8 @@
 		9CE5D71E212EC9CB00B89D07 /* BackendActions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BackendActions.m; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
-		9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerStateMachine.h; sourceTree = "<group>"; };
-		9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerStateMachine.m; sourceTree = "<group>"; };
+		9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerAutomat.h; sourceTree = "<group>"; };
+		9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerAutomat.m; sourceTree = "<group>"; };
 		9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Stack.h"; sourceTree = "<group>"; };
 		9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Stack.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -146,8 +146,8 @@
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
-				9CE5D728212EE9BB00B89D07 /* TrackerStateMachine.h */,
-				9CE5D729212EE9BB00B89D07 /* TrackerStateMachine.m */,
+				9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */,
+				9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */,
 				9CE5D727212EE92F00B89D07 /* AVPlayer */,
 			);
 			path = Trackers;
@@ -181,7 +181,7 @@
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
-				9CE5D72A212EE9BB00B89D07 /* TrackerStateMachine.h in Headers */,
+				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
@@ -287,7 +287,7 @@
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
 				9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
-				9CE5D72B212EE9BB00B89D07 /* TrackerStateMachine.m in Sources */,
+				9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */,
 				9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

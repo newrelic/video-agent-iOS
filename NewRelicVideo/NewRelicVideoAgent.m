@@ -11,7 +11,7 @@
 
 /***********************************************************************************************************************
 // TODO: make it Tracker independant. Move all Tracker dependant code to a separate classe in Trackers/WhateverTracker/
-//       and use the TrackerStateMachine to report video actions.
+//       and use the TrackerAutomat to report video actions.
 ***********************************************************************************************************************/
 
 // TODO: what if we have multiple players instantiated, what happens with the NSNotifications?

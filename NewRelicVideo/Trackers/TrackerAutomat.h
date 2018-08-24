@@ -1,5 +1,5 @@
 //
-//  TrackerStateMachine.h
+//  TrackerAutomat.h
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 23/08/2018.
@@ -33,7 +33,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionRenditionChanged
 };
 
-@interface TrackerStateMachine : NSObject
+@interface TrackerAutomat : NSObject
 
 @property (nonatomic, readonly) TrackerState state;
 
