@@ -12,8 +12,8 @@
 
 @interface BackendActions ()
 
-@property (nonatomic) NSString *videoId;
-@property (nonatomic) int videoIdIndex;
+@property (nonatomic) NSString *viewId;
+@property (nonatomic) int viewIdIndex;
 
 @end
 
@@ -21,22 +21,23 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.videoId = @"";
-        self.videoIdIndex = 0;
+        self.viewId = @"";
+        self.viewIdIndex = 0;
     }
     return self;
 }
 
-- (void)generateVideoId {
+- (void)generateViewId {
     if ([NewRelicAgent currentSessionId]) {
-        self.videoId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.videoIdIndex];
-        self.videoIdIndex ++;
+        self.viewId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.viewIdIndex];
+        self.viewIdIndex ++;
     }
 }
 
 #pragma mark - Tracker Method
 
 - (void)sendRequest {
+    [self generateViewId];
     [self sendAction:CONTENT_REQUEST];
 }
 
@@ -97,7 +98,7 @@
     
     NSLog(@"sendAction name = %@, attr = %@", name, dict);
     
-    NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
+    NSMutableDictionary *ops = @{@"actionName": name, @"viewId": self.viewId}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     
     if ([NewRelicAgent currentSessionId]) {
