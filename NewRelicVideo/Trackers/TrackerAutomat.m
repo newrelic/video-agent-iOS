@@ -12,10 +12,7 @@
 
 @interface TrackerAutomat ()
 
-// Public (readonly)
 @property (nonatomic) TrackerState state;
-
-// Private
 @property (nonatomic) BackendActions *actions;
 @property (nonatomic) NSMutableArray<NSNumber *> *stateStack;
 @property (nonatomic) NSTimeInterval stateStartingTimestamp;

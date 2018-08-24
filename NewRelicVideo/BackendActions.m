@@ -33,6 +33,9 @@
         self.viewId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.viewIdIndex];
         self.viewIdIndex ++;
     }
+    else {
+        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+    }
 }
 
 #pragma mark - Tracker Method
