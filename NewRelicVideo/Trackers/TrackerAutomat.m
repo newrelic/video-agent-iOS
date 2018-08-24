@@ -18,7 +18,6 @@
 // Private
 @property (nonatomic) BackendActions *actions;
 @property (nonatomic) NSMutableArray<NSNumber *> *stateStack;
-@property (nonatomic) NSString *videoId;
 @property (nonatomic) NSTimeInterval stateStartingTimestamp;
 
 @end
@@ -33,14 +32,13 @@
         self.stateStack = @[].mutableCopy;
         self.actions = [[BackendActions alloc] init];
         self.stateStartingTimestamp = 0;
-        self.videoId = @"";
     }
     return self;
 }
 
 - (void)transition:(TrackerTransition)tt {
     
-    if ([self handleGenericTransition:tt]) {
+    if (![self handleStateIndependantTransition:tt]) {
         switch (self.state) {
             default:
             case TrackerStateStopped: {
@@ -62,40 +60,74 @@
                 [self performTransitionInStatePlaying:tt];
                 break;
             }
-                
-            case TrackerStateBuffering: {
-                [self performTransitionInStateBuffering:tt];
-                break;
-            }
-                
+            
             case TrackerStateSeeking: {
                 [self performTransitionInStateSeeking:tt];
                 break;
             }
+                
+                //            case TrackerStateBuffering: {
+                //                [self performTransitionInStateBuffering:tt];
+                //                break;
+                //            }
+                //
         }
     }
 }
 
 #pragma mark - State handlers
 
-- (BOOL)handleGenericTransition:(TrackerTransition)tt {
-    if (tt ==  TrackerTransitionHeartbeat) {
-        [self.actions sendHeartbeat];
-        return NO;
-    }
-    else if (tt ==  TrackerTransitionRenditionChanged) {
-        [self.actions sendRenditionChange];
-        return NO;
-    }
-    else {
-        return YES;
+// Handle transitions that can happen at any time, independently of current state
+- (BOOL)handleStateIndependantTransition:(TrackerTransition)tt {
+    switch (tt) {
+        case TrackerTransitionHeartbeat: {
+            [self.actions sendHeartbeat];
+            return YES;
+        }
+            
+        case TrackerTransitionRenditionChanged: {
+            [self.actions sendRenditionChange];
+            return YES;
+        }
+            
+        case TrackerTransitionInitDraggingSlider: {
+            [self moveStateAndPush:TrackerStateSeeking];
+            [self.actions sendSeekStart];
+            return YES;
+        }
+            
+        case TrackerTransitionEndDraggingSlider: {
+            [self backToState];
+            [self.actions sendSeekEnd];
+            return YES;
+        }
+            
+        case TrackerTransitionInitBuffering: {
+            [self moveStateAndPush:TrackerStateBuffering];
+            [self.actions sendBufferStart];
+            return YES;
+        }
+            
+        case TrackerTransitionEndBuffering: {
+            [self backToState];
+            [self.actions sendBufferEnd];
+            return YES;
+        }
+            
+        case TrackerTransitionErrorPlaying: {
+            [self endState];
+            [self.actions sendError];
+            return YES;
+        }
+            
+        default:
+            return NO;
     }
 }
 
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
         self.stateStartingTimestamp  = [self timestamp];
-        // TODO: generate VIDEO ID and pass it to BackendActions instance
         [self.actions sendRequest];
         [self moveState:TrackerStateStarting];
     }
@@ -109,20 +141,33 @@
 }
 
 - (void)performTransitionInStatePlaying:(TrackerTransition)tt {
-    // TODO
+    if (tt == TrackerTransitionClickPause) {
+        [self.actions sendPause];
+        [self moveState:TrackerStatePaused];
+    }
+    else if (tt == TrackerTransitionVideoFinished) {
+        [self.actions sendEnd];
+        [self endState];
+    }
 }
 
 - (void)performTransitionInStatePaused:(TrackerTransition)tt {
-    // TODO
-}
-
-- (void)performTransitionInStateBuffering:(TrackerTransition)tt {
-    // TODO
+    if (tt == TrackerTransitionClickPlay) {
+        [self.actions sendResume];
+        [self moveState:TrackerStatePlaying];
+    }
 }
 
 - (void)performTransitionInStateSeeking:(TrackerTransition)tt {
-    // TODO
+    if (tt == TrackerTransitionVideoFinished) {
+        [self.actions sendEnd];
+        [self endState];
+    }
 }
+
+//- (void)performTransitionInStateBuffering:(TrackerTransition)tt {
+//    // TODO
+//}
 
 #pragma mark - Utils
 
@@ -140,6 +185,14 @@
     if (prevState) {
         self.state = prevState.unsignedIntegerValue;
     }
+    else {
+        NSLog(@"STATE STACK UNDERUN!");
+    }
+}
+
+- (void)endState {
+    [self.stateStack removeAllObjects];
+    [self moveState:TrackerStateStopped];
 }
 
 - (NSTimeInterval)timestamp {
