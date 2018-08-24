@@ -7,7 +7,12 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "TrackerProtocol.h"
 
-@interface AVPlayerTracker : NSObject
+@class AVPlayer;
+
+@interface AVPlayerTracker : NSObject <TrackerProtocol>
+
+- (instancetype)initWithAVPlayer:(AVPlayer *)player;
 
 @end

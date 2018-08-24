@@ -91,32 +91,20 @@
         }
             
         case TrackerTransitionInitDraggingSlider: {
-            [self moveStateAndPush:TrackerStateSeeking];
             [self.actions sendSeekStart];
-            return YES;
-        }
-            
-        case TrackerTransitionEndDraggingSlider: {
-            [self backToState];
-            [self.actions sendSeekEnd];
+            [self moveStateAndPush:TrackerStateSeeking];
             return YES;
         }
             
         case TrackerTransitionInitBuffering: {
-            [self moveStateAndPush:TrackerStateBuffering];
             [self.actions sendBufferStart];
-            return YES;
-        }
-            
-        case TrackerTransitionEndBuffering: {
-            [self backToState];
-            [self.actions sendBufferEnd];
+            [self moveStateAndPush:TrackerStateBuffering];
             return YES;
         }
             
         case TrackerTransitionErrorPlaying: {
-            [self endState];
             [self.actions sendError];
+            [self endState];
             return YES;
         }
             
@@ -163,11 +151,18 @@
         [self.actions sendEnd];
         [self endState];
     }
+    else if (tt == TrackerTransitionEndDraggingSlider) {
+        [self.actions sendSeekEnd];
+        [self backToState];
+    }
 }
 
-//- (void)performTransitionInStateBuffering:(TrackerTransition)tt {
-//    // TODO
-//}
+- (void)performTransitionInStateBuffering:(TrackerTransition)tt {
+    if (tt == TrackerTransitionEndBuffering) {
+        [self.actions sendBufferEnd];
+        [self backToState];
+    }
+}
 
 #pragma mark - Utils
 

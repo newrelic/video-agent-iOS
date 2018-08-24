@@ -8,15 +8,13 @@
 
 #import <Foundation/Foundation.h>
 
-@class AVPlayer;
-
 @interface NewRelicVideoAgent : NSObject
 
 /*!
- Starts New Relic Video data collection for AVPlayer class.
+ Starts New Relic Video data collection for "player"
  
  Call this after having initialized the NewRelicAgent.
  */
-+ (void)startWithAVPlayer:(AVPlayer *)player;
++ (void)startWithPlayer:(id)player;
 
 @end

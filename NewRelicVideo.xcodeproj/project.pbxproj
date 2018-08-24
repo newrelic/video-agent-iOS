@@ -26,6 +26,7 @@
 		9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */; };
 		9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */; };
 		9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */; };
+		9CE5D73621301E3C00B89D07 /* TrackerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerAutomat.m; sourceTree = "<group>"; };
 		9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Stack.h"; sourceTree = "<group>"; };
 		9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Stack.m"; sourceTree = "<group>"; };
+		9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerProtocol.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +150,7 @@
 			children = (
 				9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */,
 				9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */,
+				9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */,
 				9CE5D727212EE92F00B89D07 /* AVPlayer */,
 			);
 			path = Trackers;
@@ -183,6 +186,7 @@
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
+				9CE5D73621301E3C00B89D07 /* TrackerProtocol.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
 			);
