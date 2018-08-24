@@ -10,7 +10,8 @@
 #import "TrackerAutomat.h"
 
 // TODO: if autoplay, qe have to manually send the transition AUTOPLAY
-// BUG: if we seek until the end, the VIDEO FINISHED never arrives.
+// TODO: if time period event arrives (addPeriodicTimeObserverForInterval) and rate == 0 we are seeking??
+// BUG: if we seek until the end, the VIDEO FINISHED never arrives. Possible workaround: after getting a timevent with rate = 0, wait for a timevent with rate = 1, if timeout fire the video finshed event.
 
 @import AVKit;
 
@@ -43,7 +44,7 @@
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         double currentTime = (double)time.value / (double)time.timescale;
-        NSLog(@"Current playback time = %lf", currentTime);
+        NSLog(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
     }];
     
     // Register NSNotification listeners
@@ -77,45 +78,8 @@
                                  context:NULL];
 }
 
-- (void)endPlayback {
-    [self reset];
-}
-
 - (NSTimeInterval)epoch {
     return [[NSDate date] timeIntervalSince1970];
-}
-
-- (void)setupPlayerEventHandlers {
-    
-    // Register NSNotification listeners
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(itemTimeJumpedNotification:)
-                                                 name:AVPlayerItemTimeJumpedNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(itemDidPlayToEndTimeNotification:)
-                                                 name:AVPlayerItemDidPlayToEndTimeNotification
-                                               object:nil];
-    
-    // Register KVO events
-    
-    [self.player addObserver:self forKeyPath:@"rate"
-                     options:NSKeyValueObservingOptionNew
-                     context:NULL];
-    
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
-    
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferFull"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
-    
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
 }
 
 #pragma mark - Item Handlers
@@ -152,7 +116,6 @@
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
     
     NSLog(@"ItemDidPlayToEndTimeNotification");
-    [self endPlayback];
 
     NSLog(@"#### FINISHED PLAYING");
 }
