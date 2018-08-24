@@ -9,6 +9,9 @@
 #import "AVPlayerTracker.h"
 #import "TrackerAutomat.h"
 
+// TODO: if autoplay, qe have to manually send the transition AUTOPLAY
+// BUG: if we seek until the end, the VIDEO FINISHED never arrives.
+
 @import AVKit;
 
 @interface AVPlayerTracker ()
@@ -18,18 +21,7 @@
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
 
-// Is it playing?
-@property (nonatomic) BOOL isPlaying;
-// Did user press play?
-@property (nonatomic) BOOL playActionRequested;
-// Time of play press event
-@property (nonatomic) NSTimeInterval playActionTime;
-// Time of actual play start
-@property (nonatomic) NSTimeInterval actualPlayStartTime;
-// Is buffering?
 @property (nonatomic) BOOL isBuffering;
-// Is it paused?
-@property (nonatomic) BOOL isPaused;
 
 @end
 
@@ -44,12 +36,7 @@
 }
 
 - (void)reset {
-    self.isPlaying = NO;
-    self.playActionRequested = NO;
-    self.playActionTime = 0;
-    self.actualPlayStartTime = 0;
     self.isBuffering = NO;
-    self.isPaused = NO;
 }
 
 - (void)setup {
@@ -152,12 +139,8 @@
     }
     NSLog(@"ItemTimeJumpedNotification = %@", statusStr);
     
-    // If not playing and status is ReadyToPlay, we are starting actual playback
-    if (!self.isPlaying && p.status == AVPlayerItemStatusReadyToPlay) {
-        self.isPlaying = YES;
-        self.actualPlayStartTime = [self epoch];
-    
-        NSLog(@"#### CLICK PLAY OR AUTOPLAY");
+    if (p.status == AVPlayerItemStatusReadyToPlay) {
+        [self.automat transition:TrackerTransitionFrameShown];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
         [self reset];
@@ -192,31 +175,21 @@
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 NSLog(@"  -> Playback Reached the End");
+                [self.automat transition:TrackerTransitionVideoFinished];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 NSLog(@"  -> Playback Waiting Data");
             }
             else {
-                // User paused the video
-                self.isPaused = YES;
-                
-                NSLog(@"#### PAUSE");
+                // Click Pause
+                [self.automat transition:TrackerTransitionClickPause];
             }
         }
         else if (rate == 1.0) {
             NSLog(@"Video Rate Log: Normal Playback");
             
-            if (!self.playActionRequested) {
-                self.playActionRequested = YES;
-                self.playActionTime = [self epoch];
-                
-                NSLog(@"#### VIDEO START PLAYING");
-            }
-            else if (self.isPaused) {
-                self.isPaused = NO;
-                
-                NSLog(@"#### RESUME");
-            }
+            // Click Play
+            [self.automat transition:TrackerTransitionClickPlay];
         }
         else if (rate == -1.0) {
             NSLog(@"Video Rate Log: Reverse Playback");

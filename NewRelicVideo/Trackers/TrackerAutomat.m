@@ -35,6 +35,8 @@
 
 - (void)transition:(TrackerTransition)tt {
     
+    NSLog(@">>>> TRANSITION %lu", (unsigned long)tt);
+    
     if (![self handleStateIndependantTransition:tt]) {
         switch (self.state) {
             default:
