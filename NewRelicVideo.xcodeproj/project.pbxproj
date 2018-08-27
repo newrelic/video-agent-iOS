@@ -67,7 +67,7 @@
 		9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerProtocol.h; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
 		9CE5D7382133F58F00B89D07 /* LOG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LOG.m; sourceTree = "<group>"; };
-		9CE5D73B2133F61E00B89D07 /* NewRelicVideo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NewRelicVideo-Prefix.pch"; sourceTree = "<group>"; };
+		9CE5D73B2133F61E00B89D07 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,7 +124,7 @@
 				9CE5D721212ED8E900B89D07 /* Trackers */,
 				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C41481C212D7AD400850636 /* Info.plist */,
-				9CE5D73B2133F61E00B89D07 /* NewRelicVideo-Prefix.pch */,
+				9CE5D73B2133F61E00B89D07 /* PrefixHeader.pch */,
 				9C414832212D7B4C00850636 /* EventDefs.h */,
 			);
 			path = NewRelicVideo;
@@ -455,7 +455,7 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/NewRelicVideo-Prefix.pch";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -484,7 +484,7 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/NewRelicVideo-Prefix.pch";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
