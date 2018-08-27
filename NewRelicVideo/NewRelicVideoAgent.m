@@ -34,6 +34,10 @@
     if ([player isKindOfClass:[AVPlayer class]]) {
         [[self sharedInstance] setTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
     }
+    else {
+        [[self sharedInstance] setTracker:nil];
+        NSLog(@"⚠️ Not recognized player class. ⚠️");
+    }
     
     if ([[self sharedInstance] tracker]) {
         [[[self sharedInstance] tracker] reset];
