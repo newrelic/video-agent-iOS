@@ -29,6 +29,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionErrorPlaying,
     TrackerTransitionInitDraggingSlider,
     TrackerTransitionEndDraggingSlider,
+    // TODO: Those two underneath not used yet
     TrackerTransitionHeartbeat,
     TrackerTransitionRenditionChanged
 };
