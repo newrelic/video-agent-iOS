@@ -22,8 +22,6 @@
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
 
-@property (nonatomic) BOOL isBuffering;
-
 @end
 
 @implementation AVPlayerTracker
@@ -36,11 +34,11 @@
     return self;
 }
 
-- (void)reset {
-    self.isBuffering = NO;
-}
+- (void)reset {}
 
 - (void)setup {
+    
+    // Register periodic time observer (an event every 1/2 seconds)
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         double currentTime = (double)time.value / (double)time.timescale;
@@ -107,7 +105,6 @@
         [self.automat transition:TrackerTransitionFrameShown];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
-        [self reset];
         
         NSLog(@"#### ERROR WHILE PLAYING");
     }
@@ -160,27 +157,21 @@
     }
     else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
         NSLog(@"Video Playback Buffer Empty");
-        if (!self.isBuffering) {
-            self.isBuffering = YES;
-            
-            NSLog(@"#### VIDEO STARTED BUFFERING");
-        }
+        
+        [self.automat transition:TrackerTransitionInitBuffering];
     }
     else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
         NSLog(@"Video Playback Likely To Keep Up");
-        if (self.isBuffering) {
-            self.isBuffering = NO;
-            
-            NSLog(@"#### VIDEO ENDED BUFFERING (I)");
-        }
+        
+        [self.automat transition:TrackerTransitionEndBuffering];
     }
     else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
         NSLog(@"Video Playback Buffer Full");
-        if (self.isBuffering) {
-            self.isBuffering = NO;
-            
-            NSLog(@"#### VIDEO ENDED BUFFERING (II)");
-        }
+
+        [self.automat transition:TrackerTransitionEndBuffering];
+    }
+    else {
+        NSLog(@"OBSERVER unknown = %@", keyPath);
     }
 }
 
