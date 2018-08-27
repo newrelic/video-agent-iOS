@@ -105,16 +105,15 @@
         [self.automat transition:TrackerTransitionFrameShown];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
-        
         NSLog(@"#### ERROR WHILE PLAYING");
+        // NOTE: this is probably redundant and already catched in "rate" KVO when self.player.error != nil
     }
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
-    
     NSLog(@"ItemDidPlayToEndTimeNotification");
-
     NSLog(@"#### FINISHED PLAYING");
+    // NOTE: this is redundant and already catched in "rate" KVO
 }
 
 // KVO observer method
@@ -132,12 +131,14 @@
             
             if (self.player.error != nil) {
                 NSLog(@"  -> Playback Failed");
+                [self.automat transition:TrackerTransitionErrorPlaying];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 NSLog(@"  -> Playback Reached the End");
                 [self.automat transition:TrackerTransitionVideoFinished];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
+                // NOTE: it never happens
                 NSLog(@"  -> Playback Waiting Data");
             }
             else {
