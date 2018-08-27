@@ -35,7 +35,7 @@
 
 - (void)transition:(TrackerTransition)tt {
     
-    NSLog(@">>>> TRANSITION %lu", (unsigned long)tt);
+    AV_LOG(@">>>> TRANSITION %lu", (unsigned long)tt);
     
     if (![self handleStateIndependantTransition:tt]) {
         switch (self.state) {
@@ -184,7 +184,7 @@
         self.state = prevState.unsignedIntegerValue;
     }
     else {
-        NSLog(@"STATE STACK UNDERUN!");
+        AV_LOG(@"STATE STACK UNDERUN!");
     }
 }
 

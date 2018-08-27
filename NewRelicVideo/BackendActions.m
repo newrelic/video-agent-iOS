@@ -110,7 +110,7 @@
         NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
     }
     
-    NSLog(@"sendAction name = %@, attr = %@", name, ops);
+    AV_LOG(@"sendAction name = %@, attr = %@", name, ops);
 }
 
 @end

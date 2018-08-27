@@ -27,6 +27,8 @@
 		9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */; };
 		9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */; };
 		9CE5D73621301E3C00B89D07 /* TrackerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */; };
+		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
+		9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D7382133F58F00B89D07 /* LOG.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -63,6 +65,9 @@
 		9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Stack.h"; sourceTree = "<group>"; };
 		9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Stack.m"; sourceTree = "<group>"; };
 		9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerProtocol.h; sourceTree = "<group>"; };
+		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
+		9CE5D7382133F58F00B89D07 /* LOG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LOG.m; sourceTree = "<group>"; };
+		9CE5D73B2133F61E00B89D07 /* NewRelicVideo-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NewRelicVideo-Prefix.pch"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,15 +116,16 @@
 		9C41481A212D7AD400850636 /* NewRelicVideo */ = {
 			isa = PBXGroup;
 			children = (
-				9CE5D72C212EF39900B89D07 /* Utils */,
-				9CE5D721212ED8E900B89D07 /* Trackers */,
-				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
-				9C41481C212D7AD400850636 /* Info.plist */,
-				9C414832212D7B4C00850636 /* EventDefs.h */,
 				9C414834212D7C9000850636 /* NewRelicVideoAgent.h */,
 				9C414835212D7C9000850636 /* NewRelicVideoAgent.m */,
 				9CE5D71D212EC9CB00B89D07 /* BackendActions.h */,
 				9CE5D71E212EC9CB00B89D07 /* BackendActions.m */,
+				9CE5D72C212EF39900B89D07 /* Utils */,
+				9CE5D721212ED8E900B89D07 /* Trackers */,
+				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
+				9C41481C212D7AD400850636 /* Info.plist */,
+				9CE5D73B2133F61E00B89D07 /* NewRelicVideo-Prefix.pch */,
+				9C414832212D7B4C00850636 /* EventDefs.h */,
 			);
 			path = NewRelicVideo;
 			sourceTree = "<group>";
@@ -170,6 +176,8 @@
 			children = (
 				9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */,
 				9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */,
+				9CE5D7372133F58F00B89D07 /* LOG.h */,
+				9CE5D7382133F58F00B89D07 /* LOG.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -181,6 +189,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
@@ -288,6 +297,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
 				9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
@@ -444,6 +454,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/NewRelicVideo-Prefix.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -471,6 +483,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/NewRelicVideo-Prefix.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (

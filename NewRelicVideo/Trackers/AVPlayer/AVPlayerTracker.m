@@ -44,7 +44,7 @@
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         double currentTime = (double)time.value / (double)time.timescale;
-        NSLog(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
+        AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
     }];
     
     // Register NSNotification listeners
@@ -101,20 +101,20 @@
         default:
             break;
     }
-    NSLog(@"ItemTimeJumpedNotification = %@", statusStr);
+    AV_LOG(@"ItemTimeJumpedNotification = %@", statusStr);
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
         [self.automat transition:TrackerTransitionFrameShown];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
-        NSLog(@"#### ERROR WHILE PLAYING");
+        AV_LOG(@"#### ERROR WHILE PLAYING");
         // NOTE: this is probably redundant and already catched in "rate" KVO when self.player.error != nil
     }
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
-    NSLog(@"ItemDidPlayToEndTimeNotification");
-    NSLog(@"#### FINISHED PLAYING");
+    AV_LOG(@"ItemDidPlayToEndTimeNotification");
+    AV_LOG(@"#### FINISHED PLAYING");
     // NOTE: this is redundant and already catched in "rate" KVO
 }
 
@@ -129,19 +129,19 @@
         float rate = [(NSNumber *)change[NSKeyValueChangeNewKey] floatValue];
         
         if (rate == 0.0) {
-            NSLog(@"Video Rate Log: Stopped Playback");
+            AV_LOG(@"Video Rate Log: Stopped Playback");
             
             if (self.player.error != nil) {
-                NSLog(@"  -> Playback Failed");
+                AV_LOG(@"  -> Playback Failed");
                 [self.automat transition:TrackerTransitionErrorPlaying];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
-                NSLog(@"  -> Playback Reached the End");
+                AV_LOG(@"  -> Playback Reached the End");
                 [self.automat transition:TrackerTransitionVideoFinished];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 // NOTE: it never happens
-                NSLog(@"  -> Playback Waiting Data");
+                AV_LOG(@"  -> Playback Waiting Data");
             }
             else {
                 // Click Pause
@@ -149,32 +149,32 @@
             }
         }
         else if (rate == 1.0) {
-            NSLog(@"Video Rate Log: Normal Playback");
+            AV_LOG(@"Video Rate Log: Normal Playback");
             
             // Click Play
             [self.automat transition:TrackerTransitionClickPlay];
         }
         else if (rate == -1.0) {
-            NSLog(@"Video Rate Log: Reverse Playback");
+            AV_LOG(@"Video Rate Log: Reverse Playback");
         }
     }
     else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
-        NSLog(@"Video Playback Buffer Empty");
+        AV_LOG(@"Video Playback Buffer Empty");
         
         [self.automat transition:TrackerTransitionInitBuffering];
     }
     else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
-        NSLog(@"Video Playback Likely To Keep Up");
+        AV_LOG(@"Video Playback Likely To Keep Up");
         
         [self.automat transition:TrackerTransitionEndBuffering];
     }
     else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
-        NSLog(@"Video Playback Buffer Full");
+        AV_LOG(@"Video Playback Buffer Full");
 
         [self.automat transition:TrackerTransitionEndBuffering];
     }
     else {
-        NSLog(@"OBSERVER unknown = %@", keyPath);
+        AV_LOG(@"OBSERVER unknown = %@", keyPath);
     }
 }
 
