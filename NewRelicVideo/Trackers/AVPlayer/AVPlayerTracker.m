@@ -9,7 +9,7 @@
 #import "AVPlayerTracker.h"
 #import "TrackerAutomat.h"
 
-// TODO: if autoplay, qe have to manually send the transition AUTOPLAY
+// TODO: if autoplay, we have to manually send the transition AUTOPLAY
 // TODO: if time period event arrives (addPeriodicTimeObserverForInterval) and rate == 0 we are seeking??
 // BUG: if we seek until the end, the VIDEO FINISHED never arrives. Possible workaround: after getting a timevent with rate = 0, wait for a timevent with rate = 1, if timeout fire the video finshed event.
 // BUG: is video is not playing (is buffering), seeking doesn't produce time observer events wiith rate == 0.
@@ -43,7 +43,7 @@
     // Register periodic time observer (an event every 1/2 seconds)
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
-        double currentTime = (double)time.value / (double)time.timescale;
+        double currentTime = CMTimeGetSeconds(time);
         AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
     }];
     
