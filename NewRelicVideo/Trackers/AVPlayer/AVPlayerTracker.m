@@ -140,7 +140,7 @@
                 [self.automat transition:TrackerTransitionVideoFinished];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
-                // NOTE: it never happens
+                // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
                 AV_LOG(@"  -> Playback Waiting Data");
             }
             else {
