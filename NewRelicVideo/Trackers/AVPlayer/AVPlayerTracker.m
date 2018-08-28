@@ -166,7 +166,6 @@
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
                 [self.automat transition:TrackerTransitionVideoFinished];
-                
                 [self abortPlayerStateObserverTimer];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
@@ -228,18 +227,12 @@
 }
 
 - (void)playerObserverMethod:(NSTimer *)timer {
-    // TODO
-    AV_LOG(@"PLAYER STATE {");
-    AV_LOG(@"Rate = %f", self.player.rate);
-    AV_LOG(@"Status = %d", self.player.status);
-    AV_LOG(@"currentItem.isPlaybackBufferFull = %d", self.player.currentItem.isPlaybackBufferFull);
-    AV_LOG(@"currentItem.isPlaybackBufferEmpty = %d", self.player.currentItem.isPlaybackBufferEmpty);
-    AV_LOG(@"currentItem.isPlaybackBufferFull = %d", self.player.currentItem.isPlaybackBufferFull);
-    if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
-        AV_LOG(@"Playback Reached the End");
-    }
-    AV_LOG(@"}");
     
+    if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+        AV_LOG(@"Timeout, video ended but no event received.");
+        [self.automat transition:TrackerTransitionVideoFinished];
+        [self abortPlayerStateObserverTimer];
+    }
 }
 
 @end

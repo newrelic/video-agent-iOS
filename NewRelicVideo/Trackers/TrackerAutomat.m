@@ -111,6 +111,12 @@
             return YES;
         }
             
+        case TrackerTransitionVideoFinished: {
+            [self.actions sendEnd];
+            [self endState];
+            return YES;
+        }
+            
         default:
             return NO;
     }
@@ -136,10 +142,6 @@
         [self.actions sendPause];
         [self moveState:TrackerStatePaused];
     }
-    else if (tt == TrackerTransitionVideoFinished) {
-        [self.actions sendEnd];
-        [self endState];
-    }
 }
 
 - (void)performTransitionInStatePaused:(TrackerTransition)tt {
@@ -150,11 +152,7 @@
 }
 
 - (void)performTransitionInStateSeeking:(TrackerTransition)tt {
-    if (tt == TrackerTransitionVideoFinished) {
-        [self.actions sendEnd];
-        [self endState];
-    }
-    else if (tt == TrackerTransitionEndDraggingSlider) {
+    if (tt == TrackerTransitionEndDraggingSlider) {
         [self.actions sendSeekEnd];
         [self backToState];
     }
