@@ -31,6 +31,7 @@
 
 //@property (nonatomic) double lastPlayhead;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
+@property (nonatomic) int numZeroRates;
 
 @end
 
@@ -44,32 +45,35 @@
     return self;
 }
 
-- (void)reset {}
+- (void)reset {
+    self.numZeroRates = 0;
+}
 
 - (void)setup {
     
     // Register periodic time observer (an event every 1/2 seconds)
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
-        double currentTime = CMTimeGetSeconds(time);
-        AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
+        //double currentTime = CMTimeGetSeconds(time);
+        //AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
         
-//        // TEST: Nice People At Work Method
-//        // NOTE: sometimes, when seeking while video is paused or seeking backward, this method doesn't work well.
-//        if (self.lastPlayhead != 0) {
-//            double distance = ABS(self.lastPlayhead - currentTime);
-//            if (distance > INTERVAL_SEEK * 2) {
-//                // Distance is very big -> seeking
-//                //[self seekingHandler];
-//                AV_LOG(@"#### SEEKING (I)");
-//            }
-//        }
-//        self.lastPlayhead = currentTime;
+        // KNOWN PROBLEMS:
+        // * It send a pause right before seek start and a resume right after seek end
+        // * If seeked while paused, the seek end is sent only when user resumes the video.
         
-        // TODO: My Method
-        // NOTE: this method works better than the NPAW, with only one exception: when video is paused, it's fired once, causing a false positive.
         if (self.player.rate == 0) {
-            AV_LOG(@"#### SEEKING (II)");
+            self.numZeroRates ++;
+            
+            if (self.numZeroRates == 2) {
+                [self.automat transition:TrackerTransitionInitDraggingSlider];
+            }
+        }
+        else {
+            if (self.numZeroRates > 2) {
+                [self.automat transition:TrackerTransitionEndDraggingSlider];
+                [self.automat transition:TrackerTransitionClickPlay];
+            }
+            self.numZeroRates = 0;
         }
     }];
     
