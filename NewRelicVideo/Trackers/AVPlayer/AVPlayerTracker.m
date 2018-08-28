@@ -71,7 +71,7 @@
         else {
             if (self.numZeroRates > 2) {
                 [self.automat transition:TrackerTransitionEndDraggingSlider];
-                [self.automat transition:TrackerTransitionClickPlay];
+                [self.automat transition:TrackerTransitionClickPlay];           // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
             }
             self.numZeroRates = 0;
         }
