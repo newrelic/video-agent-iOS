@@ -9,6 +9,9 @@
 #import "AVPlayerTracker.h"
 #import "TrackerAutomat.h"
 
+#define INTERVAL_SEEK           0.5
+#define OBSERVATION_TIME        10.0f
+
 // TODO: SEEK start/end
 
 // NOTE: if autoplay, we have to manually send the transition AUTOPLAY
@@ -25,6 +28,9 @@
 
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
+
+@property (nonatomic) double lastPlayhead;
+@property (nonatomic) NSTimer *playerStateObserverTimer;
 
 @end
 
@@ -47,6 +53,24 @@
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         double currentTime = CMTimeGetSeconds(time);
         AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
+        
+        // TEST: Nice People At Work Method
+        // NOTE: sometimes, when seeking while video is paused or seeking backward, this method doesn't work well.
+        if (self.lastPlayhead != 0) {
+            double distance = ABS(self.lastPlayhead - currentTime);
+            if (distance > INTERVAL_SEEK * 2) {
+                // Distance is very big -> seeking
+                //[self seekingHandler];
+                AV_LOG(@"#### SEEKING (I)");
+            }
+        }
+        self.lastPlayhead = currentTime;
+        
+        // TODO: My Method
+        // NOTE: this method works better than the NPAW, with only one exception: when video is paused, it's fired once, causing a false positive.
+        if (self.player.rate == 0) {
+            AV_LOG(@"#### SEEKING (II)");
+        }
     }];
     
     // Register NSNotification listeners
@@ -136,10 +160,14 @@
             if (self.player.error != nil) {
                 AV_LOG(@"  -> Playback Failed");
                 [self.automat transition:TrackerTransitionErrorPlaying];
+                
+                [self abortPlayerStateObserverTimer];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
                 [self.automat transition:TrackerTransitionVideoFinished];
+                
+                [self abortPlayerStateObserverTimer];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
@@ -155,6 +183,8 @@
             
             // Click Play
             [self.automat transition:TrackerTransitionClickPlay];
+            
+            [self startPlayerStateObserverTimer];
         }
         else if (rate == -1.0) {
             AV_LOG(@"Video Rate Log: Reverse Playback");
@@ -178,6 +208,38 @@
     else {
         AV_LOG(@"OBSERVER unknown = %@", keyPath);
     }
+}
+
+- (void)startPlayerStateObserverTimer {
+    if (self.playerStateObserverTimer) {
+        [self abortPlayerStateObserverTimer];
+    }
+    
+    self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
+                                                                     target:self
+                                                                   selector:@selector(playerObserverMethod:)
+                                                                   userInfo:nil
+                                                                    repeats:YES];
+}
+
+- (void)abortPlayerStateObserverTimer {
+    [self.playerStateObserverTimer invalidate];
+    self.playerStateObserverTimer = nil;
+}
+
+- (void)playerObserverMethod:(NSTimer *)timer {
+    // TODO
+    AV_LOG(@"PLAYER STATE {");
+    AV_LOG(@"Rate = %f", self.player.rate);
+    AV_LOG(@"Status = %d", self.player.status);
+    AV_LOG(@"currentItem.isPlaybackBufferFull = %d", self.player.currentItem.isPlaybackBufferFull);
+    AV_LOG(@"currentItem.isPlaybackBufferEmpty = %d", self.player.currentItem.isPlaybackBufferEmpty);
+    AV_LOG(@"currentItem.isPlaybackBufferFull = %d", self.player.currentItem.isPlaybackBufferFull);
+    if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+        AV_LOG(@"Playback Reached the End");
+    }
+    AV_LOG(@"}");
+    
 }
 
 @end
