@@ -9,8 +9,10 @@
 #import "AVPlayerTracker.h"
 #import "TrackerAutomat.h"
 
-// TODO: if autoplay, we have to manually send the transition AUTOPLAY
-// TODO: if time period event arrives (addPeriodicTimeObserverForInterval) and rate == 0 we are seeking??
+// TODO: SEEK start/end
+
+// NOTE: if autoplay, we have to manually send the transition AUTOPLAY
+// NOTE: if time period event arrives (addPeriodicTimeObserverForInterval) and rate == 0 we are seeking??
 // BUG: if we seek until the end, the VIDEO FINISHED never arrives. Possible workaround: after getting a timevent with rate = 0, wait for a timevent with rate = 1, if timeout fire the video finshed event.
 // BUG: is video is not playing (is buffering), seeking doesn't produce time observer events wiith rate == 0.
 // BUG: buffering events are not always triggered by AVPlayer.
