@@ -110,7 +110,8 @@
             [self endState];
             return YES;
         }
-            
+        
+        // NOTE: this should happend only while playing or seeking, but the event is too important and strange things could happen in the state machine (specially with AVPlayer).
         case TrackerTransitionVideoFinished: {
             [self.actions sendEnd];
             [self endState];

@@ -99,7 +99,9 @@
 - (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
     
     dict = dict ? dict : @{};
-    NSMutableDictionary *ops = @{@"actionName": name, @"viewId": self.viewId}.mutableCopy;
+    NSMutableDictionary *ops = @{@"actionName": name,
+                                 @"viewId": self.viewId,
+                                 @"viewSession": [NewRelicAgent currentSessionId]}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     
     if ([NewRelicAgent currentSessionId]) {

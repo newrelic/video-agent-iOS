@@ -29,7 +29,7 @@
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
 
-@property (nonatomic) double lastPlayhead;
+//@property (nonatomic) double lastPlayhead;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 
 @end
@@ -54,17 +54,17 @@
         double currentTime = CMTimeGetSeconds(time);
         AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
         
-        // TEST: Nice People At Work Method
-        // NOTE: sometimes, when seeking while video is paused or seeking backward, this method doesn't work well.
-        if (self.lastPlayhead != 0) {
-            double distance = ABS(self.lastPlayhead - currentTime);
-            if (distance > INTERVAL_SEEK * 2) {
-                // Distance is very big -> seeking
-                //[self seekingHandler];
-                AV_LOG(@"#### SEEKING (I)");
-            }
-        }
-        self.lastPlayhead = currentTime;
+//        // TEST: Nice People At Work Method
+//        // NOTE: sometimes, when seeking while video is paused or seeking backward, this method doesn't work well.
+//        if (self.lastPlayhead != 0) {
+//            double distance = ABS(self.lastPlayhead - currentTime);
+//            if (distance > INTERVAL_SEEK * 2) {
+//                // Distance is very big -> seeking
+//                //[self seekingHandler];
+//                AV_LOG(@"#### SEEKING (I)");
+//            }
+//        }
+//        self.lastPlayhead = currentTime;
         
         // TODO: My Method
         // NOTE: this method works better than the NPAW, with only one exception: when video is paused, it's fired once, causing a false positive.
