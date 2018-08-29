@@ -208,6 +208,7 @@
     }
 }
 
+// Time Evenent, called by a timer in the superclass, every OBSERVATION_TIME seconds
 - (void)timeEvent {
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         AV_LOG(@"Timeout, video ended but no event received.");
@@ -219,15 +220,16 @@
 }
 
 - (void)setupBitrateOptions {
+    // Update the bitrate with last logevent information
     AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
     [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
     
-    // Initialize num log events
+    // Initialize num logevents
     if (self.numLogEvents == 0) {
         self.numLogEvents = self.player.currentItem.accessLog.events.count;
     }
     
-    // If num log events changed, rendition changed as well
+    // If num logevents changed, rendition changed as well
     if (self.player.currentItem.accessLog.events.count != self.numLogEvents) {
         [self sendRenditionChange];
         self.numLogEvents = self.player.currentItem.accessLog.events.count;
