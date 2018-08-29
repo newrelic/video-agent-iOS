@@ -1,19 +1,16 @@
 //
-//  TrackerProtocol.h
+//  VideoTracker.h
 //  NewRelicVideo
 //
-//  Created by Andreu Santaren on 24/08/2018.
+//  Created by Andreu Santaren on 29/08/2018.
 //  Copyright © 2018 New Relic Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@protocol TrackerProtocol <NSObject>
+@interface VideoTracker : NSObject
 
-@required
 - (void)reset;
 - (void)setup;
-
-@optional
 
 @end

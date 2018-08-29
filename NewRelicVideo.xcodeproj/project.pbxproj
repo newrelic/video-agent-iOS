@@ -18,6 +18,8 @@
 		9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483F212D7F1B00850636 /* libc++.tbd */; };
 		9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414841212D7F2300850636 /* SystemConfiguration.framework */; };
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
+		9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DDFC2136960D00205DC4 /* VideoTracker.h */; };
+		9CA3DDFF2136960D00205DC4 /* VideoTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DDFD2136960D00205DC4 /* VideoTracker.m */; };
 		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
 		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; };
@@ -26,7 +28,6 @@
 		9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */; };
 		9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */; };
 		9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */; };
-		9CE5D73621301E3C00B89D07 /* TrackerProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */; };
 		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
 		9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D7382133F58F00B89D07 /* LOG.m */; };
 /* End PBXBuildFile section */
@@ -56,6 +57,8 @@
 		9C41483F212D7F1B00850636 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9C414841212D7F2300850636 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9C414843212D7F2C00850636 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		9CA3DDFC2136960D00205DC4 /* VideoTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoTracker.h; sourceTree = "<group>"; };
+		9CA3DDFD2136960D00205DC4 /* VideoTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoTracker.m; sourceTree = "<group>"; };
 		9CE5D71D212EC9CB00B89D07 /* BackendActions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendActions.h; sourceTree = "<group>"; };
 		9CE5D71E212EC9CB00B89D07 /* BackendActions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BackendActions.m; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
@@ -64,7 +67,6 @@
 		9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackerAutomat.m; sourceTree = "<group>"; };
 		9CE5D72D212EF3B500B89D07 /* NSMutableArray+Stack.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSMutableArray+Stack.h"; sourceTree = "<group>"; };
 		9CE5D72E212EF3B500B89D07 /* NSMutableArray+Stack.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSMutableArray+Stack.m"; sourceTree = "<group>"; };
-		9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TrackerProtocol.h; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
 		9CE5D7382133F58F00B89D07 /* LOG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LOG.m; sourceTree = "<group>"; };
 		9CE5D73B2133F61E00B89D07 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
@@ -156,7 +158,8 @@
 			children = (
 				9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */,
 				9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */,
-				9CE5D73521301E3C00B89D07 /* TrackerProtocol.h */,
+				9CA3DDFC2136960D00205DC4 /* VideoTracker.h */,
+				9CA3DDFD2136960D00205DC4 /* VideoTracker.m */,
 				9CE5D727212EE92F00B89D07 /* AVPlayer */,
 			);
 			path = Trackers;
@@ -190,12 +193,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
+				9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
-				9CE5D73621301E3C00B89D07 /* TrackerProtocol.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
 			);
@@ -299,6 +302,7 @@
 			files = (
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
+				9CA3DDFF2136960D00205DC4 /* VideoTracker.m in Sources */,
 				9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */,
