@@ -21,7 +21,7 @@
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
 @property (nonatomic) int numZeroRates;
-@property (nonatomic) NSInteger numLogEvents;
+@property (nonatomic) double estimatedBitrate;
 
 @end
 
@@ -43,7 +43,7 @@
 - (void)reset {
     [super reset];
     self.numZeroRates = 0;
-    self.numLogEvents = 0;
+    self.estimatedBitrate = 0;
 }
 
 - (void)setup {
@@ -224,15 +224,20 @@
     AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
     [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
     
-    // Initialize num logevents
-    if (self.numLogEvents == 0) {
-        self.numLogEvents = self.player.currentItem.accessLog.events.count;
-    }
+    // Calc estimated bitrate and send a rendition change event if it changed
     
-    // If num logevents changed, rendition changed as well
-    if (self.player.currentItem.accessLog.events.count != self.numLogEvents) {
+    double numberOfBitsTransferred = (event.numberOfBytesTransferred * 8);
+    double newEstimatedBitrate = numberOfBitsTransferred / event.segmentsDownloadedDuration;
+    
+    if (self.estimatedBitrate == 0) {
+        self.estimatedBitrate = newEstimatedBitrate;
+    }
+    else if (fabs(self.estimatedBitrate - newEstimatedBitrate) >  self.estimatedBitrate * 0.01) {
+        // If bitrate changes more than 1%, rendition change event
         [self sendRenditionChange];
-        self.numLogEvents = self.player.currentItem.accessLog.events.count;
+        self.estimatedBitrate = newEstimatedBitrate;
+        
+        AV_LOG(@"New Rendition Change = %d", newEstimatedBitrate);
     }
 }
 
