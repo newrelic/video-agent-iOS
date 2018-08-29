@@ -21,6 +21,7 @@
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
 @property (nonatomic) int numZeroRates;
+@property (nonatomic) NSInteger numLogEvents;
 
 @end
 
@@ -42,6 +43,7 @@
 - (void)reset {
     [super reset];
     self.numZeroRates = 0;
+    self.numLogEvents = 0;
 }
 
 - (void)setup {
@@ -219,6 +221,17 @@
 - (void)setupBitrateOptions {
     AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
     [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
+    
+    // Initialize num log events
+    if (self.numLogEvents == 0) {
+        self.numLogEvents = self.player.currentItem.accessLog.events.count;
+    }
+    
+    // If num log events changed, rendition changed as well
+    if (self.player.currentItem.accessLog.events.count != self.numLogEvents) {
+        [self sendRenditionChange];
+        self.numLogEvents = self.player.currentItem.accessLog.events.count;
+    }
 }
 
 @end
