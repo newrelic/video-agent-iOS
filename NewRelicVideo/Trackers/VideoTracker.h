@@ -25,5 +25,6 @@
 - (void)sendRenditionChange;
 - (void)sendError;
 - (void)setOptions:(NSDictionary *)opts;
+- (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
 
 @end

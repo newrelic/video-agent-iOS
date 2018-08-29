@@ -23,7 +23,7 @@
 
 - (NSDictionary *)userOptions {
     if (!_userOptions) {
-        _userOptions = @{};
+        _userOptions = @{}.mutableCopy;
     }
     return _userOptions;
 }

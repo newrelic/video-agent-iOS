@@ -82,7 +82,11 @@
 }
 
 - (void)setOptions:(NSDictionary *)opts {
-    self.automat.actions.userOptions = opts;
+    self.automat.actions.userOptions = opts.mutableCopy;
+}
+
+- (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value {
+    [self.automat.actions.userOptions setObject:value forKey:key];
 }
 
 @end

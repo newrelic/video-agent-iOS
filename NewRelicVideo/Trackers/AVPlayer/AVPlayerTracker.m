@@ -8,7 +8,8 @@
 
 #import "AVPlayerTracker.h"
 
-#define OBSERVATION_TIME        2.5f
+#define OBSERVATION_TIME        2.0f
+#define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
 
 // BUG: is video is buffering, seeking doesn't produce time observer events wiith rate == 0.
 // BUG: buffering events are not always triggered by AVPlayer.
@@ -22,6 +23,7 @@
 
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) int numZeroRates;
+@property (nonatomic) int heartbeatCounter;
 
 @end
 
@@ -43,11 +45,14 @@
 - (void)reset {
     [super reset];
     self.numZeroRates = 0;
+    self.heartbeatCounter = 0;
 }
 
 - (void)setup {
     
     [super setup];
+    
+    [self setupBitrateOptions];
     
     // Register periodic time observer (an event every 1/2 seconds)
     
@@ -229,6 +234,19 @@
         [self sendEnd];
         [self abortPlayerStateObserverTimer];
     }
+    
+    [self setupBitrateOptions];
+    
+    self.heartbeatCounter ++;
+    
+    if (self.heartbeatCounter >= HEARTBEAT_COUNT) {
+        self.heartbeatCounter = 0;
+        [self sendHeartbeat];
+    }
 }
 
+- (void)setupBitrateOptions {
+    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
+    [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
+}
 @end
