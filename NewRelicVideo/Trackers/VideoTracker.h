@@ -12,5 +12,17 @@
 
 - (void)reset;
 - (void)setup;
+- (void)sendRequest;
+- (void)sendStart;
+- (void)sendEnd;
+- (void)sendPause;
+- (void)sendResume;
+- (void)sendSeekStart;
+- (void)sendSeekEnd;
+- (void)sendBufferStart;
+- (void)sendBufferEnd;
+- (void)sendHeartbeat;
+- (void)sendRenditionChange;
+- (void)sendError;
 
 @end

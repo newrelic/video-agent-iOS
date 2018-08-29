@@ -7,7 +7,6 @@
 //
 
 #import "AVPlayerTracker.h"
-#import "TrackerAutomat.h"
 
 #define OBSERVATION_TIME        2.5f
 
@@ -20,8 +19,6 @@
 @import AVKit;
 
 @interface AVPlayerTracker ()
-
-@property (nonatomic) TrackerAutomat *automat;
 
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
@@ -36,16 +33,18 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
         self.player = player;
-        self.automat = [[TrackerAutomat alloc] init];
     }
     return self;
 }
 
 - (void)reset {
+    [super reset];
     self.numZeroRates = 0;
 }
 
 - (void)setup {
+    
+    [super setup];
     
     // Register periodic time observer (an event every 1/2 seconds)
     
@@ -61,13 +60,13 @@
             self.numZeroRates ++;
             
             if (self.numZeroRates == 2) {
-                [self.automat transition:TrackerTransitionInitDraggingSlider];
+                [self sendSeekStart];
             }
         }
         else {
             if (self.numZeroRates > 2) {
-                [self.automat transition:TrackerTransitionEndDraggingSlider];
-                [self.automat transition:TrackerTransitionClickPlay];           // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
+                [self sendSeekEnd];
+                [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
             }
             self.numZeroRates = 0;
         }
@@ -130,7 +129,7 @@
     AV_LOG(@"ItemTimeJumpedNotification = %@", statusStr);
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
-        [self.automat transition:TrackerTransitionFrameShown];
+        [self sendStart];
     }
     else if (p.status == AVPlayerItemStatusFailed) {
         AV_LOG(@"#### ERROR WHILE PLAYING");
@@ -159,13 +158,12 @@
             
             if (self.player.error != nil) {
                 AV_LOG(@"  -> Playback Failed");
-                [self.automat transition:TrackerTransitionErrorPlaying];
-                
+                [self sendError];
                 [self abortPlayerStateObserverTimer];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
-                [self.automat transition:TrackerTransitionVideoFinished];
+                [self sendEnd];
                 [self abortPlayerStateObserverTimer];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
@@ -174,15 +172,14 @@
             }
             else {
                 // Click Pause
-                [self.automat transition:TrackerTransitionClickPause];
+                [self sendPause];
             }
         }
         else if (rate == 1.0) {
             AV_LOG(@"Video Rate Log: Normal Playback");
             
             // Click Play
-            [self.automat transition:TrackerTransitionClickPlay];
-            
+            [self sendResume];
             [self startPlayerStateObserverTimer];
         }
         else if (rate == -1.0) {
@@ -191,18 +188,15 @@
     }
     else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
         AV_LOG(@"Video Playback Buffer Empty");
-        
-        [self.automat transition:TrackerTransitionInitBuffering];
+        [self sendBufferStart];
     }
     else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
         AV_LOG(@"Video Playback Likely To Keep Up");
-        
-        [self.automat transition:TrackerTransitionEndBuffering];
+        [self sendBufferEnd];
     }
     else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
         AV_LOG(@"Video Playback Buffer Full");
-
-        [self.automat transition:TrackerTransitionEndBuffering];
+        [self sendBufferEnd];
     }
     else {
         AV_LOG(@"OBSERVER unknown = %@", keyPath);
@@ -230,7 +224,7 @@
     
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         AV_LOG(@"Timeout, video ended but no event received.");
-        [self.automat transition:TrackerTransitionVideoFinished];
+        [self sendEnd];
         [self abortPlayerStateObserverTimer];
     }
 }
