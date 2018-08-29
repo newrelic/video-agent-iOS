@@ -10,9 +10,14 @@
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 
+#define OBSERVATION_TIME        2.0f
+#define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
+
 @interface VideoTracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
+@property (nonatomic) NSTimer *playerStateObserverTimer;
+@property (nonatomic) int heartbeatCounter;
 
 @end
 
@@ -27,7 +32,9 @@
 
 #pragma mark - To be overwritten by subclass
 
-- (void)reset {}
+- (void)reset {
+    self.heartbeatCounter = 0;
+}
 
 - (void)setup {}
 
@@ -88,5 +95,39 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value {
     [self.automat.actions.userOptions setObject:value forKey:key];
 }
+
+#pragma mark - Timer stuff
+
+- (void)startPlayerStateObserverTimer {
+    if (self.playerStateObserverTimer) {
+        [self abortPlayerStateObserverTimer];
+    }
+    
+    self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
+                                                                     target:self
+                                                                   selector:@selector(playerObserverMethod:)
+                                                                   userInfo:nil
+                                                                    repeats:YES];
+}
+
+- (void)abortPlayerStateObserverTimer {
+    [self.playerStateObserverTimer invalidate];
+    self.playerStateObserverTimer = nil;
+}
+
+- (void)playerObserverMethod:(NSTimer *)timer {
+
+    [self timeEvent];
+    
+    self.heartbeatCounter ++;
+    
+    if (self.heartbeatCounter >= HEARTBEAT_COUNT) {
+        self.heartbeatCounter = 0;
+        [self sendHeartbeat];
+    }
+}
+
+// To be overwritten by subclass
+- (void)timeEvent {}
 
 @end

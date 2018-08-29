@@ -20,10 +20,7 @@
 
 // AVPlayer weak reference
 @property (nonatomic, weak) AVPlayer *player;
-
-@property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) int numZeroRates;
-@property (nonatomic) int heartbeatCounter;
 
 @end
 
@@ -45,7 +42,6 @@
 - (void)reset {
     [super reset];
     self.numZeroRates = 0;
-    self.heartbeatCounter = 0;
 }
 
 - (void)setup {
@@ -210,43 +206,19 @@
     }
 }
 
-- (void)startPlayerStateObserverTimer {
-    if (self.playerStateObserverTimer) {
-        [self abortPlayerStateObserverTimer];
-    }
-    
-    self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
-                                                                     target:self
-                                                                   selector:@selector(playerObserverMethod:)
-                                                                   userInfo:nil
-                                                                    repeats:YES];
-}
-
-- (void)abortPlayerStateObserverTimer {
-    [self.playerStateObserverTimer invalidate];
-    self.playerStateObserverTimer = nil;
-}
-
-- (void)playerObserverMethod:(NSTimer *)timer {
-    
+- (void)timeEvent {
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         AV_LOG(@"Timeout, video ended but no event received.");
         [self sendEnd];
         [self abortPlayerStateObserverTimer];
     }
-    
+
     [self setupBitrateOptions];
-    
-    self.heartbeatCounter ++;
-    
-    if (self.heartbeatCounter >= HEARTBEAT_COUNT) {
-        self.heartbeatCounter = 0;
-        [self sendHeartbeat];
-    }
 }
 
 - (void)setupBitrateOptions {
     AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
     [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
 }
+
 @end
