@@ -8,6 +8,7 @@
 
 #import "VideoTracker.h"
 #import "TrackerAutomat.h"
+#import "BackendActions.h"
 
 @interface VideoTracker ()
 
@@ -78,6 +79,10 @@
 
 - (void)sendError {
     [self.automat transition:TrackerTransitionErrorPlaying];
+}
+
+- (void)setOptions:(NSDictionary *)opts {
+    self.automat.actions.userOptions = opts;
 }
 
 @end

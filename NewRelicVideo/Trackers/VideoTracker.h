@@ -24,5 +24,6 @@
 - (void)sendHeartbeat;
 - (void)sendRenditionChange;
 - (void)sendError;
+- (void)setOptions:(NSDictionary *)opts;
 
 @end

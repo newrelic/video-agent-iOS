@@ -19,6 +19,13 @@
 
 @implementation BackendActions
 
+- (NSDictionary *)userOptions {
+    if (!_userOptions) {
+        _userOptions = @{};
+    }
+    return _userOptions;
+}
+
 - (instancetype)init {
     if (self = [super init]) {
         self.viewId = @"";
@@ -103,6 +110,7 @@
                                  @"viewId": self.viewId,
                                  @"viewSession": [NewRelicAgent currentSessionId]}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
+    [ops addEntriesFromDictionary:self.userOptions];
     
     if ([NewRelicAgent currentSessionId]) {
         [NewRelic recordCustomEvent:VIDEO_EVENT

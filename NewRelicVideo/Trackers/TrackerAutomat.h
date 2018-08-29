@@ -29,14 +29,16 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionErrorPlaying,
     TrackerTransitionInitDraggingSlider,
     TrackerTransitionEndDraggingSlider,
-    // TODO: Those two underneath not used yet
     TrackerTransitionHeartbeat,
     TrackerTransitionRenditionChanged
 };
 
+@class BackendActions;
+
 @interface TrackerAutomat : NSObject
 
 @property (nonatomic, readonly) TrackerState state;
+@property (nonatomic, readonly) BackendActions *actions;
 
 - (void)transition:(TrackerTransition)tt;
 - (void)force:(TrackerState)state;

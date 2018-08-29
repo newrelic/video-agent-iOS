@@ -118,16 +118,14 @@
 		9C41481A212D7AD400850636 /* NewRelicVideo */ = {
 			isa = PBXGroup;
 			children = (
+				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C414834212D7C9000850636 /* NewRelicVideoAgent.h */,
 				9C414835212D7C9000850636 /* NewRelicVideoAgent.m */,
-				9CE5D71D212EC9CB00B89D07 /* BackendActions.h */,
-				9CE5D71E212EC9CB00B89D07 /* BackendActions.m */,
 				9CE5D72C212EF39900B89D07 /* Utils */,
+				9CA3DE002136B54F00205DC4 /* Backend */,
 				9CE5D721212ED8E900B89D07 /* Trackers */,
-				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C41481C212D7AD400850636 /* Info.plist */,
 				9CE5D73B2133F61E00B89D07 /* PrefixHeader.pch */,
-				9C414832212D7B4C00850636 /* EventDefs.h */,
 			);
 			path = NewRelicVideo;
 			sourceTree = "<group>";
@@ -151,6 +149,16 @@
 				9C41483B212D7E8000850636 /* NewRelicAgent.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9CA3DE002136B54F00205DC4 /* Backend */ = {
+			isa = PBXGroup;
+			children = (
+				9C414832212D7B4C00850636 /* EventDefs.h */,
+				9CE5D71D212EC9CB00B89D07 /* BackendActions.h */,
+				9CE5D71E212EC9CB00B89D07 /* BackendActions.m */,
+			);
+			path = Backend;
 			sourceTree = "<group>";
 		};
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {

@@ -10,6 +10,8 @@
 
 @interface BackendActions : NSObject
 
+@property (nonatomic) NSDictionary *userOptions;
+
 - (void)sendRequest;
 - (void)sendStart:(NSTimeInterval)timeToStart;
 - (void)sendEnd;
