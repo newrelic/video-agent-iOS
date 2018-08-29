@@ -10,10 +10,7 @@
 
 #define OBSERVATION_TIME        2.5f
 
-// TODO: SEEK start/end
-
-// NOTE: if autoplay, we have to manually send the transition AUTOPLAY
-// BUG: is video is not playing (is buffering), seeking doesn't produce time observer events wiith rate == 0.
+// BUG: is video is buffering, seeking doesn't produce time observer events wiith rate == 0.
 // BUG: buffering events are not always triggered by AVPlayer.
 
 @import AVKit;
