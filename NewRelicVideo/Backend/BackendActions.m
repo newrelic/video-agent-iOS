@@ -9,11 +9,13 @@
 #import <NewRelicAgent/NewRelic.h>
 #import "BackendActions.h"
 #import "EventDefs.h"
+#import "Vars.h"
 
 @interface BackendActions ()
 
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
+@property (nonatomic) int numErrors;
 
 @end
 
@@ -30,15 +32,16 @@
     if (self = [super init]) {
         self.viewId = @"";
         self.viewIdIndex = 0;
-        [self generateViewId];
+        [self playNewVideo];
     }
     return self;
 }
 
-- (void)generateViewId {
+- (void)playNewVideo {
     if ([NewRelicAgent currentSessionId]) {
         self.viewId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.viewIdIndex];
         self.viewIdIndex ++;
+        self.numErrors = 0;
     }
     else {
         NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
@@ -58,7 +61,7 @@
 
 - (void)sendEnd {
     [self sendAction:CONTENT_END];
-    [self generateViewId];
+    [self playNewVideo];
 }
 
 - (void)sendPause {
@@ -95,6 +98,7 @@
 
 - (void)sendError {
     [self sendAction:CONTENT_ERROR];
+    self.numErrors ++;
 }
 
 #pragma mark - SendAction
@@ -108,7 +112,12 @@
     dict = dict ? dict : @{};
     NSMutableDictionary *ops = @{@"actionName": name,
                                  @"viewId": self.viewId,
-                                 @"viewSession": [NewRelicAgent currentSessionId]}.mutableCopy;
+                                 @"numberOfVideos": @(self.viewIdIndex),
+                                 @"coreVersion": [Vars stringFromPlist:@"CFBundleShortVersionString"],
+                                 @"viewSession": [NewRelicAgent currentSessionId],
+                                 @"numberOfErrors": @(self.numErrors),
+                                 @"isAd": @(false)
+                                 }.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     [ops addEntriesFromDictionary:self.userOptions];
     

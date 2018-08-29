@@ -30,6 +30,12 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
         self.player = player;
+        [self setOptions:@{
+                           @"trackerName": @"avplayer",
+                           @"trackerVersion": @"1.0",
+                           @"playerVersion": [[UIDevice currentDevice] systemVersion],       // Actually using the iOS version
+                           @"playerName": @"avplayer",
+                           }];
     }
     return self;
 }
@@ -156,7 +162,6 @@
             if (self.player.error != nil) {
                 AV_LOG(@"  -> Playback Failed");
                 [self sendError];
-                [self abortPlayerStateObserverTimer];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");

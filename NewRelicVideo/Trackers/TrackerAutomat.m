@@ -107,7 +107,6 @@
             
         case TrackerTransitionErrorPlaying: {
             [self.actions sendError];
-            [self endState];
             return YES;
         }
         
