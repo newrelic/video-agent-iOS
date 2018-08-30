@@ -9,6 +9,8 @@
 #import "VideoTracker.h"
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
+#import "Vars.h"
+#import <NewRelicAgent/NewRelic.h>
 
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
@@ -18,6 +20,9 @@
 @property (nonatomic) TrackerAutomat *automat;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) int heartbeatCounter;
+@property (nonatomic) NSString *viewId;
+@property (nonatomic) int viewIdIndex;
+@property (nonatomic) int numErrors;
 
 @end
 
@@ -26,17 +31,22 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.automat = [[TrackerAutomat alloc] init];
-        [self setOptions:@{
-                           @"trackerName": [self getTrackerName],
-                           @"trackerVersion": [self getTrackerVersion],
-                           @"playerVersion": [self getPlayerVersion],
-                           @"playerName": [self getPlayerName]
-                           }];
     }
     return self;
 }
 
 #pragma mark - Utils
+
+- (void)playNewVideo {
+    if ([NewRelicAgent currentSessionId]) {
+        self.viewId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.viewIdIndex];
+        self.viewIdIndex ++;
+        self.numErrors = 0;
+    }
+    else {
+        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+    }
+}
 
 - (void)subclassError:(NSString *)funcName {
     @throw([NSException exceptionWithName:NSGenericException reason:[funcName stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);
@@ -46,13 +56,28 @@
 
 - (void)reset {
     self.heartbeatCounter = 0;
+    self.viewId = @"";
+    self.viewIdIndex = 0;
+    
+    [self playNewVideo];
+    
+    [self setOptions:@{
+                       @"trackerName": [self getTrackerName],
+                       @"trackerVersion": [self getTrackerVersion],
+                       @"playerVersion": [self getPlayerVersion],
+                       @"playerName": [self getPlayerName],
+                       @"viewId": [self getViewId],
+                       @"numberOfVideos": [self getNumberOfVideos],
+                       @"coreVersion": [self getCoreVersion],
+                       @"viewSession": [self getViewSession],
+                       @"numberOfErrors": @(self.numErrors),
+                       @"isAd": [self getIsAd],
+                       @"contentBitrate": [self getBitrate]
+                       }];
 }
 
 - (void)setup {}
 
-// TODO: move it to a protocol? the default implementation doesn't work and must be implemented by subclass
-// Pros: cleaner
-// Cons: mixed strategy, the tracker needs to subclass and implement a protocol, and some of the getters may need a default implementation and other may not.
 #pragma mark - Tracker specific attributers, to be overwritten by subclass
 
 - (NSString *)getTrackerName {
@@ -75,6 +100,38 @@
     return nil;
 }
 
+- (NSNumber *)getBitrate {
+    [self subclassError:NSStringFromSelector(_cmd)];
+    return nil;
+}
+
+#pragma mark - Base Tracker attributers
+
+- (NSString *)getViewId {
+    return self.viewId;
+}
+
+- (NSNumber *)getNumberOfVideos {
+    return @(self.viewIdIndex);
+}
+
+- (NSString *)getCoreVersion {
+    return [Vars stringFromPlist:@"CFBundleShortVersionString"];
+}
+
+- (NSString *)getViewSession {
+    return [NewRelicAgent currentSessionId];
+}
+
+- (NSNumber *)getNumberOfErrors {
+    return @(self.numErrors);
+}
+
+// TODO: implement Ads stuff
+- (NSNumber *)getIsAd {
+    return @(false);
+}
+
 #pragma mark - Send requests and set options
 
 - (void)sendRequest {
@@ -82,11 +139,13 @@
 }
 
 - (void)sendStart {
+    [self setOptionKey:@"contentBitrate" value:[self getBitrate]];
     [self.automat transition:TrackerTransitionFrameShown];
 }
 
 - (void)sendEnd {
     [self.automat transition:TrackerTransitionVideoFinished];
+    [self playNewVideo];
 }
 
 - (void)sendPause {
@@ -123,6 +182,7 @@
 
 - (void)sendError {
     [self.automat transition:TrackerTransitionErrorPlaying];
+    self.numErrors ++;
 }
 
 - (void)setOptions:(NSDictionary *)opts {
@@ -154,6 +214,7 @@
 
 - (void)playerObserverMethod:(NSTimer *)timer {
 
+    [self setOptionKey:@"contentBitrate" value:[self getBitrate]];
     [self timeEvent];
     
     self.heartbeatCounter ++;

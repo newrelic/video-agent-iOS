@@ -119,6 +119,11 @@
     return @"avplayer";
 }
 
+- (NSNumber *)getBitrate {
+    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
+    return @(event.indicatedBitrate);
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
@@ -226,12 +231,8 @@
 }
 
 - (void)setupBitrateOptions {
-    // Update the bitrate with last logevent information
-    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
-    [self setOptionKey:@"contentBitrate" value:@(event.indicatedBitrate)];
-    
     // Calc estimated bitrate and send a rendition change event if it changed
-    
+    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
     double numberOfBitsTransferred = (event.numberOfBytesTransferred * 8);
     double newEstimatedBitrate = numberOfBitsTransferred / event.segmentsDownloadedDuration;
     

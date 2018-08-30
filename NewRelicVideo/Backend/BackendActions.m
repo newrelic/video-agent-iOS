@@ -9,14 +9,8 @@
 #import <NewRelicAgent/NewRelic.h>
 #import "BackendActions.h"
 #import "EventDefs.h"
-#import "Vars.h"
 
 @interface BackendActions ()
-
-@property (nonatomic) NSString *viewId;
-@property (nonatomic) int viewIdIndex;
-@property (nonatomic) int numErrors;
-
 @end
 
 @implementation BackendActions
@@ -30,22 +24,8 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.viewId = @"";
-        self.viewIdIndex = 0;
-        [self playNewVideo];
     }
     return self;
-}
-
-- (void)playNewVideo {
-    if ([NewRelicAgent currentSessionId]) {
-        self.viewId = [[NewRelicAgent currentSessionId] stringByAppendingFormat:@"-%d", self.viewIdIndex];
-        self.viewIdIndex ++;
-        self.numErrors = 0;
-    }
-    else {
-        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
-    }
 }
 
 #pragma mark - Tracker Method
@@ -61,7 +41,6 @@
 
 - (void)sendEnd {
     [self sendAction:CONTENT_END];
-    [self playNewVideo];
 }
 
 - (void)sendPause {
@@ -98,7 +77,6 @@
 
 - (void)sendError {
     [self sendAction:CONTENT_ERROR];
-    self.numErrors ++;
 }
 
 #pragma mark - SendAction
@@ -110,14 +88,7 @@
 - (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
     
     dict = dict ? dict : @{};
-    NSMutableDictionary *ops = @{@"actionName": name,
-                                 @"viewId": self.viewId,
-                                 @"numberOfVideos": @(self.viewIdIndex),
-                                 @"coreVersion": [Vars stringFromPlist:@"CFBundleShortVersionString"],
-                                 @"viewSession": [NewRelicAgent currentSessionId],
-                                 @"numberOfErrors": @(self.numErrors),
-                                 @"isAd": @(false)  // TODO: implement Ads stuff
-                                 }.mutableCopy;
+    NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     [ops addEntriesFromDictionary:self.userOptions];
     
