@@ -66,6 +66,7 @@
                        @"contentRenditionHeight": [self getRenditionHeight],
                        @"contentDuration": [self getDuration],
                        @"contentPlayhead": [self getPlayhead],
+                       @"contentSrc": [self getSrc],
                        }];
 }
 
@@ -82,7 +83,7 @@
 
 - (void)setup {}
 
-#pragma mark - Tracker specific attributers, to be overwritten by subclass
+#pragma mark - Tracker specific attributers, overwriting by subclass REQUIRED
 
 - (NSString *)getTrackerName { OVERWRITE_STUB }
 
@@ -101,6 +102,10 @@
 - (NSNumber *)getDuration { OVERWRITE_STUB }
 
 - (NSNumber *)getPlayhead { OVERWRITE_STUB }
+
+#pragma mark - Tracker specific attributers, overwriting by subclass OPTIONAL
+
+- (NSString *)getSrc { return @""; }
 
 #pragma mark - Base Tracker attributers
 

@@ -152,6 +152,12 @@
     }
 }
 
+- (NSString *)getSrc {
+    AVAsset *currentPlayerAsset = self.player.currentItem.asset;
+    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
+    return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
