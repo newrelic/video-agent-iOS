@@ -207,9 +207,9 @@
 
 #pragma mark - Timer stuff
 
-- (void)startPlayerStateObserverTimer {
+- (void)startTimerEvent {
     if (self.playerStateObserverTimer) {
-        [self abortPlayerStateObserverTimer];
+        [self abortTimerEvent];
     }
     
     self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
@@ -219,7 +219,7 @@
                                                                     repeats:YES];
 }
 
-- (void)abortPlayerStateObserverTimer {
+- (void)abortTimerEvent {
     [self.playerStateObserverTimer invalidate];
     self.playerStateObserverTimer = nil;
 }
