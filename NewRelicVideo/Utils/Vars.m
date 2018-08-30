@@ -10,13 +10,17 @@
 
 @implementation Vars
 
++ (NSBundle *)bundle {
+    return [NSBundle bundleWithIdentifier:@"com.newrelic.NewRelicVideo"];
+}
+
 + (NSString *)stringFromPlist:(NSString *)key {
-    NSString *str = [[NSBundle mainBundle] objectForInfoDictionaryKey:key];
+    NSString *str = [[self bundle] objectForInfoDictionaryKey:key];
     return str;
 }
 
 + (NSURL *)urlFromPlist:(NSString *)key {
-    NSString *urlAddress = [[NSBundle mainBundle] objectForInfoDictionaryKey:key];
+    NSString *urlAddress = [[self bundle] objectForInfoDictionaryKey:key];
     NSURL *url = [NSURL URLWithString:urlAddress];
     return url;
 }
