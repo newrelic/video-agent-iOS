@@ -66,6 +66,7 @@
                        @"contentRenditionWidth": [self getRenditionWidth],
                        @"contentRenditionHeight": [self getRenditionHeight],
                        @"contentDuration": [self getDuration],
+                       @"contentPlayhead": [self getPlayhead],
                        }];
 }
 
@@ -100,6 +101,8 @@
 
 - (NSNumber *)getDuration { OVERWRITE_STUB }
 
+- (NSNumber *)getPlayhead { OVERWRITE_STUB }
+
 #pragma mark - Base Tracker attributers
 
 - (NSString *)getViewId {
@@ -129,54 +132,68 @@
 
 #pragma mark - Send requests and set options
 
+- (void)preSend {
+    [self updateAttributes];
+}
+
 - (void)sendRequest {
+    [self preSend];
     [self.automat transition:TrackerTransitionClickPlay];
 }
 
 - (void)sendStart {
-    [self updateAttributes];
+    [self preSend];
     [self.automat transition:TrackerTransitionFrameShown];
 }
 
 - (void)sendEnd {
+    [self preSend];
     [self.automat transition:TrackerTransitionVideoFinished];
     [self playNewVideo];
 }
 
 - (void)sendPause {
+    [self preSend];
     [self.automat transition:TrackerTransitionClickPause];
 }
 
 - (void)sendResume {
+    [self preSend];
     [self.automat transition:TrackerTransitionClickPlay];
 }
 
 - (void)sendSeekStart {
+    [self preSend];
     [self.automat transition:TrackerTransitionInitDraggingSlider];
 }
 
 - (void)sendSeekEnd {
+    [self preSend];
     [self.automat transition:TrackerTransitionEndDraggingSlider];
 }
 
 - (void)sendBufferStart {
+    [self preSend];
     [self.automat transition:TrackerTransitionInitBuffering];
 }
 
 - (void)sendBufferEnd {
-    [self updateAttributes];
+    [self preSend];
     [self.automat transition:TrackerTransitionEndBuffering];
 }
 
 - (void)sendHeartbeat {
+    [self preSend];
     [self.automat transition:TrackerTransitionHeartbeat];
 }
 
 - (void)sendRenditionChange {
+    [self preSend];
     [self.automat transition:TrackerTransitionRenditionChanged];
 }
 
 - (void)sendError {
+    [self preSend];
     [self.automat transition:TrackerTransitionErrorPlaying];
     self.numErrors ++;
 }

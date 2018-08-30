@@ -142,6 +142,16 @@
     }
 }
 
+- (NSNumber *)getPlayhead {
+    Float64 duration = CMTimeGetSeconds(self.player.currentItem.currentTime);
+    if (isnan(duration)) {
+        return @0;
+    }
+    else {
+        return @(duration * 1000.0f);
+    }
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
