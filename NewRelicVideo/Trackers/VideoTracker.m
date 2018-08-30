@@ -65,6 +65,7 @@
                        @"contentBitrate": [self getBitrate],
                        @"contentRenditionWidth": [self getRenditionWidth],
                        @"contentRenditionHeight": [self getRenditionHeight],
+                       @"contentDuration": [self getDuration],
                        }];
 }
 
@@ -96,6 +97,8 @@
 - (NSNumber *)getRenditionWidth { OVERWRITE_STUB }
 
 - (NSNumber *)getRenditionHeight { OVERWRITE_STUB }
+
+- (NSNumber *)getDuration { OVERWRITE_STUB }
 
 #pragma mark - Base Tracker attributers
 
