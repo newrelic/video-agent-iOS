@@ -68,6 +68,7 @@
                        @"contentPlayhead": [self getPlayhead],
                        @"contentSrc": [self getSrc],
                        @"contentPlayrate": [self getPlayrate],
+                       @"contentFps": [self getFps],
                        }];
 }
 
@@ -83,6 +84,8 @@
 }
 
 - (void)setup {}
+
+// TODO: leave here only the very basic attrbutes, the rest should be optional
 
 #pragma mark - Tracker specific attributers, overwriting by subclass REQUIRED
 
@@ -109,6 +112,8 @@
 - (NSString *)getSrc { return @""; }
 
 - (NSNumber *)getPlayrate { return @1; }
+
+- (NSNumber *)getFps { return @0; }
 
 #pragma mark - Base Tracker attributers
 

@@ -162,6 +162,18 @@
     return @(self.player.rate);
 }
 
+- (NSNumber *)getFps {
+    double fps = 0.0f;
+    AVAsset *asset = self.player.currentItem.asset;
+    if (asset) {
+        AVAssetTrack *videoATrack = [[asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
+        if (videoATrack) {
+            fps = videoATrack.nominalFrameRate;
+        }
+    }
+    return @(fps);
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
