@@ -26,11 +26,17 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.automat = [[TrackerAutomat alloc] init];
+        [self setOptions:@{
+                           @"trackerName": [self getTrackerName],
+                           @"trackerVersion": [self getTrackerVersion],
+                           @"playerVersion": [self getPlayerVersion],
+                           @"playerName": [self getPlayerName]
+                           }];
     }
     return self;
 }
 
-#pragma mark - To be overwritten by subclass
+#pragma mark - Reset and setup, to be overwritten by subclass
 
 - (void)reset {
     self.heartbeatCounter = 0;
@@ -38,7 +44,28 @@
 
 - (void)setup {}
 
-#pragma mark - To be called by subclass
+// TODO: move it to a protocol? the default implementation doesn't work and must be implemented by subclass
+// Pros: cleaner
+// Cons: mixed strategy, the tracker needs to subclass and implement a protocol, and some of the getters may need a default implementation and other may not.
+#pragma mark - Tracker specific attributers, to be overwritten by subclass
+
+- (NSString *)getTrackerName {
+    return nil;
+}
+
+- (NSString *)getTrackerVersion {
+    return nil;
+}
+
+- (NSString *)getPlayerVersion {
+    return nil;
+}
+
+- (NSString *)getPlayerName {
+    return nil;
+}
+
+#pragma mark - Send requests and set options
 
 - (void)sendRequest {
     [self.automat transition:TrackerTransitionClickPlay];

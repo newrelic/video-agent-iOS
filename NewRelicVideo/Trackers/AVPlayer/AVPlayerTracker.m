@@ -30,12 +30,6 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
         self.player = player;
-        [self setOptions:@{
-                           @"trackerName": @"avplayer",
-                           @"trackerVersion": @"1.0",
-                           @"playerVersion": [[UIDevice currentDevice] systemVersion],       // Actually using the iOS version
-                           @"playerName": @"avplayer",
-                           }];
     }
     return self;
 }
@@ -109,8 +103,20 @@
                                  context:NULL];
 }
 
-- (NSTimeInterval)epoch {
-    return [[NSDate date] timeIntervalSince1970];
+- (NSString *)getTrackerName {
+    return @"avplayer";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"1.0";
+}
+
+- (NSString *)getPlayerVersion {
+    return [[UIDevice currentDevice] systemVersion];
+}
+
+- (NSString *)getPlayerName {
+    return @"avplayer";
 }
 
 #pragma mark - Item Handlers

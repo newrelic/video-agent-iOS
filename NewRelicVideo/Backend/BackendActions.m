@@ -116,7 +116,7 @@
                                  @"coreVersion": [Vars stringFromPlist:@"CFBundleShortVersionString"],
                                  @"viewSession": [NewRelicAgent currentSessionId],
                                  @"numberOfErrors": @(self.numErrors),
-                                 @"isAd": @(false)
+                                 @"isAd": @(false)  // TODO: implement Ads stuff
                                  }.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     [ops addEntriesFromDictionary:self.userOptions];
