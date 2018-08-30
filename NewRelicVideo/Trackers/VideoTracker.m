@@ -60,7 +60,7 @@
                        @"numberOfVideos": [self getNumberOfVideos],
                        @"coreVersion": [self getCoreVersion],
                        @"viewSession": [self getViewSession],
-                       @"numberOfErrors": @(self.numErrors),
+                       @"numberOfErrors": [self getNumberOfErrors],
                        @"isAd": [self getIsAd],
                        @"contentBitrate": [self getBitrate],
                        @"contentRenditionWidth": [self getRenditionWidth],
