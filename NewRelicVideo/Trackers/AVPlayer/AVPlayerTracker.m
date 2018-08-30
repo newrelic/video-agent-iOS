@@ -158,6 +158,10 @@
     return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
 }
 
+- (NSNumber *)getPlayrate {
+    return @(self.player.rate);
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {

@@ -67,6 +67,7 @@
                        @"contentDuration": [self getDuration],
                        @"contentPlayhead": [self getPlayhead],
                        @"contentSrc": [self getSrc],
+                       @"contentPlayrate": [self getPlayrate],
                        }];
 }
 
@@ -106,6 +107,8 @@
 #pragma mark - Tracker specific attributers, overwriting by subclass OPTIONAL
 
 - (NSString *)getSrc { return @""; }
+
+- (NSNumber *)getPlayrate { return @1; }
 
 #pragma mark - Base Tracker attributers
 
