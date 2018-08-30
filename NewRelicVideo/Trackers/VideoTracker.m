@@ -52,15 +52,7 @@
     @throw([NSException exceptionWithName:NSGenericException reason:[funcName stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);
 }
 
-#pragma mark - Reset and setup, to be overwritten by subclass
-
-- (void)reset {
-    self.heartbeatCounter = 0;
-    self.viewId = @"";
-    self.viewIdIndex = 0;
-    
-    [self playNewVideo];
-    
+- (void)updateAttributes {
     [self setOptions:@{
                        @"trackerName": [self getTrackerName],
                        @"trackerVersion": [self getTrackerVersion],
@@ -72,8 +64,21 @@
                        @"viewSession": [self getViewSession],
                        @"numberOfErrors": @(self.numErrors),
                        @"isAd": [self getIsAd],
-                       @"contentBitrate": [self getBitrate]
+                       @"contentBitrate": [self getBitrate],
+                       @"contentRenditionWidth": [self getRenditionWidth],
+                       @"contentRenditionHeight": [self getRenditionHeight],
                        }];
+}
+
+#pragma mark - Reset and setup, to be overwritten by subclass
+
+- (void)reset {
+    self.heartbeatCounter = 0;
+    self.viewId = @"";
+    self.viewIdIndex = 0;
+    self.numErrors = 0;
+    [self playNewVideo];
+    [self updateAttributes];
 }
 
 - (void)setup {}
@@ -101,6 +106,16 @@
 }
 
 - (NSNumber *)getBitrate {
+    [self subclassError:NSStringFromSelector(_cmd)];
+    return nil;
+}
+
+- (NSNumber *)getRenditionWidth {
+    [self subclassError:NSStringFromSelector(_cmd)];
+    return nil;
+}
+
+- (NSNumber *)getRenditionHeight {
     [self subclassError:NSStringFromSelector(_cmd)];
     return nil;
 }
@@ -139,7 +154,7 @@
 }
 
 - (void)sendStart {
-    [self setOptionKey:@"contentBitrate" value:[self getBitrate]];
+    [self updateAttributes];
     [self.automat transition:TrackerTransitionFrameShown];
 }
 
@@ -169,6 +184,7 @@
 }
 
 - (void)sendBufferEnd {
+    [self updateAttributes];
     [self.automat transition:TrackerTransitionEndBuffering];
 }
 

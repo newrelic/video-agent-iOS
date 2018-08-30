@@ -124,6 +124,14 @@
     return @(event.indicatedBitrate);
 }
 
+- (NSNumber *)getRenditionWidth {
+    return @(self.player.currentItem.presentationSize.width);
+}
+
+- (NSNumber *)getRenditionHeight {
+    return @(self.player.currentItem.presentationSize.height);
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
