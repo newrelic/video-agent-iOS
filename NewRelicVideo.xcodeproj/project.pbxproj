@@ -18,7 +18,7 @@
 		9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483F212D7F1B00850636 /* libc++.tbd */; };
 		9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414841212D7F2300850636 /* SystemConfiguration.framework */; };
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
-		9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DDFC2136960D00205DC4 /* VideoTracker.h */; };
+		9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DDFC2136960D00205DC4 /* VideoTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CA3DDFF2136960D00205DC4 /* VideoTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DDFD2136960D00205DC4 /* VideoTracker.m */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
