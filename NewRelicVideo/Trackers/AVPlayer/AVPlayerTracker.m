@@ -101,6 +101,8 @@
     [self.player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
                                  options:NSKeyValueObservingOptionNew
                                  context:NULL];
+    
+    AV_LOG(@"Setup AVPlayer events and listener");
 }
 
 - (NSString *)getTrackerName {

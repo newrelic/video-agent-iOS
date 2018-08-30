@@ -11,7 +11,7 @@
 @implementation LOG
 
 void AV_LOG(NSString *format, ...) {
-#if DEBUG
+//#if DEBUG
     NSString *contents;
     va_list args;
     va_start(args, format);
@@ -20,10 +20,10 @@ void AV_LOG(NSString *format, ...) {
     
     // Log the current timestamp
     NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-    contents = [@"" stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+    contents = [@"NewRelicVideo " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
     
     NSLog(@"%@", contents);
-#endif
+//#endif
 }
 
 @end

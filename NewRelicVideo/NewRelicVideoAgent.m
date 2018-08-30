@@ -35,6 +35,7 @@
 + (void)startWithPlayer:(id)player {
     if ([player isKindOfClass:[AVPlayer class]]) {
         [[self sharedInstance] setTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
+        AV_LOG(@"Created AVPlayerTracker");
     }
     else {
         [[self sharedInstance] setTracker:nil];
@@ -42,8 +43,12 @@
     }
     
     if ([[self sharedInstance] tracker]) {
+        AV_LOG(@"Tracker exist, initialize it");
         [[[self sharedInstance] tracker] reset];
         [[[self sharedInstance] tracker] setup];
+    }
+    else {
+        AV_LOG(@"Tracker is nil!");
     }
 }
 
