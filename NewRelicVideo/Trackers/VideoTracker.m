@@ -14,7 +14,8 @@
 
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
-#define OVERWRITE_STUB          [self subclassError:NSStringFromSelector(_cmd)];return nil;
+#define OVERWRITE_STUB          @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
+                                return nil;
 
 @interface VideoTracker ()
 
@@ -47,10 +48,6 @@
     else {
         NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
     }
-}
-
-- (void)subclassError:(NSString *)funcName {
-    @throw([NSException exceptionWithName:NSGenericException reason:[funcName stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);
 }
 
 - (void)updateAttributes {
