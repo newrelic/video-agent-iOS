@@ -10,6 +10,8 @@
 
 @implementation LOG
 
+// TODO: add a key in app's plist to enable debug and show those logs (NRVideoAgentDebug, boolean)
+
 void AV_LOG(NSString *format, ...) {
 //#if DEBUG
     NSString *contents;
