@@ -36,6 +36,12 @@
     return self;
 }
 
+#pragma mark - Utils
+
+- (void)subclassError:(NSString *)funcName {
+    @throw([NSException exceptionWithName:NSGenericException reason:[funcName stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);
+}
+
 #pragma mark - Reset and setup, to be overwritten by subclass
 
 - (void)reset {
@@ -50,18 +56,22 @@
 #pragma mark - Tracker specific attributers, to be overwritten by subclass
 
 - (NSString *)getTrackerName {
+    [self subclassError:NSStringFromSelector(_cmd)];
     return nil;
 }
 
 - (NSString *)getTrackerVersion {
+    [self subclassError:NSStringFromSelector(_cmd)];
     return nil;
 }
 
 - (NSString *)getPlayerVersion {
+    [self subclassError:NSStringFromSelector(_cmd)];
     return nil;
 }
 
 - (NSString *)getPlayerName {
+    [self subclassError:NSStringFromSelector(_cmd)];
     return nil;
 }
 
