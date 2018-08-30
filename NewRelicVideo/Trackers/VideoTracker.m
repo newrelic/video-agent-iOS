@@ -14,6 +14,7 @@
 
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
+#define OVERWRITE_STUB          [self subclassError:NSStringFromSelector(_cmd)];return nil;
 
 @interface VideoTracker ()
 
@@ -85,40 +86,19 @@
 
 #pragma mark - Tracker specific attributers, to be overwritten by subclass
 
-- (NSString *)getTrackerName {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSString *)getTrackerName { OVERWRITE_STUB }
 
-- (NSString *)getTrackerVersion {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSString *)getTrackerVersion { OVERWRITE_STUB }
 
-- (NSString *)getPlayerVersion {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSString *)getPlayerVersion { OVERWRITE_STUB }
 
-- (NSString *)getPlayerName {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSString *)getPlayerName { OVERWRITE_STUB }
 
-- (NSNumber *)getBitrate {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSNumber *)getBitrate { OVERWRITE_STUB }
 
-- (NSNumber *)getRenditionWidth {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSNumber *)getRenditionWidth { OVERWRITE_STUB }
 
-- (NSNumber *)getRenditionHeight {
-    [self subclassError:NSStringFromSelector(_cmd)];
-    return nil;
-}
+- (NSNumber *)getRenditionHeight { OVERWRITE_STUB }
 
 #pragma mark - Base Tracker attributers
 
