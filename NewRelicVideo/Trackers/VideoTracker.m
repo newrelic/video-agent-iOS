@@ -72,6 +72,7 @@
                        @"contentPlayrate": [self getPlayrate],
                        @"contentFps": [self getFps],
                        @"contentIsLive": [self getIsLive],
+                       @"isAd": [self getIsAd],
                        }];
 }
 
@@ -119,6 +120,8 @@
 - (NSNumber *)getFps { return @0; }
 
 - (NSNumber *)getIsLive { return @NO; }
+
+- (NSNumber *)getIsAd { return @NO; }
 
 #pragma mark - Base Tracker attributers
 

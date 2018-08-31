@@ -175,7 +175,13 @@
     return @(fps);
 }
 
+// NOTE: should be handled by a custom tracker, subclassing it
 - (NSNumber *)getIsLive {
+    return @NO;
+}
+
+// NOTE: should be handled by a custom tracker, subclassing it
+- (NSNumber *)getIsAd {
     return @NO;
 }
 

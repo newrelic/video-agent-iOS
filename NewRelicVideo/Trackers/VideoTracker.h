@@ -24,6 +24,7 @@
 - (NSNumber *)getPlayrate;
 - (NSNumber *)getFps;
 - (NSNumber *)getIsLive;
+- (NSNumber *)getIsAd;
 @end
 
 @interface VideoTracker : NSObject
