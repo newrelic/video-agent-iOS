@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "NewRelicVideoAgent.h"
+#import <NewRelicVideo/NewRelicVideoAgent.h>
 
 // TODO: add AVPlayerTracker header and VideoTracker header to build the framework
 
