@@ -30,6 +30,7 @@
 @property (nonatomic) int numErrors;
 @property (nonatomic) NSTimeInterval requestTimestamp;
 @property (nonatomic) NSTimeInterval trackerReadyTimestamp;
+@property (nonatomic) NSTimeInterval heartbeatTimestamp;
 
 @end
 
@@ -128,8 +129,6 @@
  */
 // TIMING
 /*
- timeSinceTrackerReady
- timeSinceLastHeartbeat*
  timeSinceStarted
  timeSincePaused, only RESUME
  timeSinceBufferBegin, only BUFFER_END
@@ -146,6 +145,7 @@
     self.viewIdIndex = 0;
     self.numErrors = 0;
     self.requestTimestamp = 0;
+    self.heartbeatTimestamp = 0;
     [self playNewVideo];
     [self updateAttributes];
 }
@@ -180,6 +180,12 @@
     [self updateAttributes];
     [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (self.timestamp - self.trackerReadyTimestamp))];
     [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    if (self.heartbeatTimestamp > 0) {
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.heartbeatTimestamp))];
+    }
+    else {
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    }
 }
 
 - (void)sendRequest {
@@ -230,6 +236,7 @@
 }
 
 - (void)sendHeartbeat {
+    self.heartbeatTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionHeartbeat];
 }
