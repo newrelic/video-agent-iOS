@@ -8,10 +8,26 @@
 
 #import <Foundation/Foundation.h>
 
-@interface VideoTracker : NSObject
-
+@protocol VideoTrackerProtocol <NSObject>
+@required
 - (void)reset;
 - (void)setup;
+- (NSString *)getTrackerName;
+- (NSString *)getTrackerVersion;
+- (NSString *)getPlayerVersion;
+- (NSString *)getPlayerName;
+- (NSNumber *)getBitrate;
+- (NSNumber *)getRenditionWidth;
+- (NSNumber *)getRenditionHeight;
+- (NSNumber *)getDuration;
+- (NSNumber *)getPlayhead;
+- (NSString *)getSrc;
+- (NSNumber *)getPlayrate;
+- (NSNumber *)getFps;
+@end
+
+@interface VideoTracker : NSObject <VideoTrackerProtocol>
+
 - (void)sendRequest;
 - (void)sendStart;
 - (void)sendEnd;
