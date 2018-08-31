@@ -29,6 +29,7 @@
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
 @property (nonatomic) NSTimeInterval requestTimestamp;
+@property (nonatomic) NSTimeInterval trackerReadyTimestamp;
 
 @end
 
@@ -66,6 +67,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.automat = [[TrackerAutomat alloc] init];
+        self.trackerReadyTimestamp = self.timestamp;
     }
     return self;
 }
@@ -176,6 +178,7 @@
 
 - (void)preSend {
     [self updateAttributes];
+    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (self.timestamp - self.trackerReadyTimestamp))];
     [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
 }
 
