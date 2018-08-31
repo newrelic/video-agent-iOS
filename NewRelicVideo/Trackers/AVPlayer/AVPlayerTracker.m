@@ -174,7 +174,7 @@
             AV_LOG(@"Video Rate Log: Normal Playback");
             
             // Click Play, may be a Request or a Resume
-            if (CMTimeGetSeconds(self.player.currentItem.currentTime) == 0) {
+            if ([self getPlayhead].doubleValue == 0) {
                 [self sendRequest];
             }
             else {
