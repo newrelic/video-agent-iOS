@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 #import "NewRelicVideoAgent.h"
 
+// TODO: add AVPlayerTracker header and VideoTracker header to build the framework
+
 //! Project version number for NewRelicVideo.
 FOUNDATION_EXPORT double NewRelicVideoVersionNumber;
 
