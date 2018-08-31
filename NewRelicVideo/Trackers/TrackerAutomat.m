@@ -15,7 +15,6 @@
 @property (nonatomic) TrackerState state;
 @property (nonatomic) BackendActions *actions;
 @property (nonatomic) NSMutableArray<NSNumber *> *stateStack;
-@property (nonatomic) NSTimeInterval stateStartingTimestamp;
 
 @end
 
@@ -28,7 +27,6 @@
         self.state = TrackerStateStopped;
         self.stateStack = @[].mutableCopy;
         self.actions = [[BackendActions alloc] init];
-        self.stateStartingTimestamp = 0;
     }
     return self;
 }
@@ -124,7 +122,6 @@
 
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
-        self.stateStartingTimestamp  = [self timestamp];
         [self.actions sendRequest];
         [self moveState:TrackerStateStarting];
     }
@@ -132,7 +129,7 @@
 
 - (void)performTransitionInStateStarting:(TrackerTransition)tt {
     if (tt == TrackerTransitionFrameShown) {
-        [self.actions sendStart:self.timestamp - self.stateStartingTimestamp];
+        [self.actions sendStart];
         [self moveState:TrackerStatePlaying];
     }
 }
@@ -189,10 +186,6 @@
 - (void)endState {
     [self.stateStack removeAllObjects];
     [self moveState:TrackerStateStopped];
-}
-
-- (NSTimeInterval)timestamp {
-    return [[NSDate date] timeIntervalSince1970];
 }
 
 @end

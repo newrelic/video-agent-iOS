@@ -41,10 +41,8 @@
     [self sendAction:CONTENT_REQUEST];
 }
 
-// TODO: timeSinceRequested should come from actionOptions
-- (void)sendStart:(NSTimeInterval)timeToStart {
-    timeToStart = timeToStart < 0 ? 0 : timeToStart;
-    [self sendAction:CONTENT_START attr:@{@"timeSinceRequested": @(timeToStart * 1000.0f)}];
+- (void)sendStart {
+    [self sendAction:CONTENT_START];
 }
 
 - (void)sendEnd {

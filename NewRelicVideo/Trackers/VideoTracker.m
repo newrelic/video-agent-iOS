@@ -22,12 +22,13 @@
 @interface VideoTracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
+@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributes;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
-@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributes;
+@property (nonatomic) NSTimeInterval requestTimestamp;
 
 @end
 
@@ -100,6 +101,10 @@
     }
 }
 
+- (NSTimeInterval)timestamp {
+    return [[NSDate date] timeIntervalSince1970];
+}
+
 // ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT":
 // GENERAL ATTRS
 /*
@@ -122,7 +127,6 @@
 // TIMING
 /*
  timeSinceTrackerReady
- timeSinceRequested
  timeSinceLastHeartbeat*
  timeSinceStarted
  timeSincePaused, only RESUME
@@ -139,6 +143,7 @@
     self.viewId = @"";
     self.viewIdIndex = 0;
     self.numErrors = 0;
+    self.requestTimestamp = 0;
     [self playNewVideo];
     [self updateAttributes];
 }
@@ -171,9 +176,11 @@
 
 - (void)preSend {
     [self updateAttributes];
+    [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
 }
 
 - (void)sendRequest {
+    self.requestTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionClickPlay];
 }
@@ -265,7 +272,7 @@
     
     self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
                                                                      target:self
-                                                                   selector:@selector(playerObserverMethod:)
+                                                                   selector:@selector(internalTimerHandler:)
                                                                    userInfo:nil
                                                                     repeats:YES];
 }
@@ -275,7 +282,7 @@
     self.playerStateObserverTimer = nil;
 }
 
-- (void)playerObserverMethod:(NSTimer *)timer {
+- (void)internalTimerHandler:(NSTimer *)timer {
 
     [self updateAttribute:@"contentBitrate"];
     

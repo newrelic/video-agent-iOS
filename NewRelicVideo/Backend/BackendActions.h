@@ -14,7 +14,7 @@
 @property (nonatomic) NSMutableDictionary<NSString *, NSMutableDictionary *> *actionOptions;
 
 - (void)sendRequest;
-- (void)sendStart:(NSTimeInterval)timeToStart;
+- (void)sendStart;
 - (void)sendEnd;
 - (void)sendPause;
 - (void)sendResume;

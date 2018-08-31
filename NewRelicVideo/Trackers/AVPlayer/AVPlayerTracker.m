@@ -173,8 +173,14 @@
         else if (rate == 1.0) {
             AV_LOG(@"Video Rate Log: Normal Playback");
             
-            // Click Play
-            [self sendResume];
+            // Click Play, may be a Request or a Resume
+            if (CMTimeGetSeconds(self.player.currentItem.currentTime) == 0) {
+                [self sendRequest];
+            }
+            else {
+                [self sendResume];
+            }
+            
             [self startTimerEvent];
         }
         else if (rate == -1.0) {
@@ -279,12 +285,12 @@
 }
 
 - (NSNumber *)getPlayhead {
-    Float64 duration = CMTimeGetSeconds(self.player.currentItem.currentTime);
-    if (isnan(duration)) {
+    Float64 pos = CMTimeGetSeconds(self.player.currentItem.currentTime);
+    if (isnan(pos)) {
         return @0;
     }
     else {
-        return @(duration * 1000.0f);
+        return @(pos * 1000.0f);
     }
 }
 
