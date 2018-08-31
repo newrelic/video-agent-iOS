@@ -86,7 +86,7 @@
     
     if ([self respondsToSelector:selector]) {
         IMP imp = [self methodForSelector:selector];
-        id (*func)(id, SEL) = (void *)imp;
+        id<NSCopying> (*func)(id, SEL) = (void *)imp;
         
         [self setOptionKey:attr value:func(self, selector)];
     }
