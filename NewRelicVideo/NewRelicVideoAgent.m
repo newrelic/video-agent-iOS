@@ -34,13 +34,18 @@
 
 + (void)startWithPlayer:(id)player {
     if ([player isKindOfClass:[AVPlayer class]]) {
-        [[self sharedInstance] setTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
+        [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
         AV_LOG(@"Created AVPlayerTracker");
     }
     else {
         [[self sharedInstance] setTracker:nil];
         NSLog(@"⚠️ Not recognized player class. ⚠️");
     }
+}
+
++ (void)startWithTracker:(VideoTracker<VideoTrackerProtocol> *)tracker {
+
+    [[self sharedInstance] setTracker:tracker];
     
     if ([[self sharedInstance] tracker]) {
         AV_LOG(@"Tracker exist, initialize it");

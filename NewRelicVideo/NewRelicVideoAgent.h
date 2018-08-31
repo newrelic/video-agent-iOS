@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class VideoTracker;
+@protocol VideoTrackerProtocol;
+
 @interface NewRelicVideoAgent : NSObject
 
 /*!
@@ -16,5 +19,12 @@
  Call this after having initialized the NewRelicAgent.
  */
 + (void)startWithPlayer:(id)player;
+
+/*!
+ Starts New Relic Video data collection for custom "tracker"
+ 
+ Call this after having initialized the NewRelicAgent.
+ */
++ (void)startWithTracker:(VideoTracker<VideoTrackerProtocol> *)tracker;
 
 @end

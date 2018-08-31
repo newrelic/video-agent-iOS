@@ -12,6 +12,8 @@
 #import "Vars.h"
 #import <NewRelicAgent/NewRelic.h>
 
+// TODO: implement Ads stuff
+
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
 #define OVERWRITE_STUB          @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
@@ -61,7 +63,6 @@
                        @"coreVersion": [self getCoreVersion],
                        @"viewSession": [self getViewSession],
                        @"numberOfErrors": [self getNumberOfErrors],
-                       @"isAd": [self getIsAd],
                        @"contentBitrate": [self getBitrate],
                        @"contentRenditionWidth": [self getRenditionWidth],
                        @"contentRenditionHeight": [self getRenditionHeight],
@@ -70,6 +71,7 @@
                        @"contentSrc": [self getSrc],
                        @"contentPlayrate": [self getPlayrate],
                        @"contentFps": [self getFps],
+                       @"contentIsLive": [self getIsLive],
                        }];
 }
 
@@ -98,6 +100,8 @@
 
 #pragma mark - Tracker specific attributers, overwriting by subclass OPTIONAL
 
+// TODO: if not implemented by subclass, should it be included in the attr?
+
 - (NSNumber *)getBitrate { return @0; }
 
 - (NSNumber *)getRenditionWidth { return @0; }
@@ -110,9 +114,11 @@
 
 - (NSString *)getSrc { return @""; }
 
-- (NSNumber *)getPlayrate { return @1; }
+- (NSNumber *)getPlayrate { return @0; }
 
 - (NSNumber *)getFps { return @0; }
+
+- (NSNumber *)getIsLive { return @NO; }
 
 #pragma mark - Base Tracker attributers
 
@@ -134,11 +140,6 @@
 
 - (NSNumber *)getNumberOfErrors {
     return @(self.numErrors);
-}
-
-// TODO: implement Ads stuff
-- (NSNumber *)getIsAd {
-    return @(false);
 }
 
 #pragma mark - Send requests and set options

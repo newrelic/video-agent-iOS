@@ -175,6 +175,10 @@
     return @(fps);
 }
 
+- (NSNumber *)getIsLive {
+    return @NO;
+}
+
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
