@@ -102,6 +102,8 @@
     AV_LOG(@"Setup AVPlayer events and listener");
 }
 
+#pragma mark - VideoTracker getters
+
 - (NSString *)getTrackerName {
     return @"avplayer";
 }

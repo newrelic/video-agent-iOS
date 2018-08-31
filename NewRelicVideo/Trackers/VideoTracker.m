@@ -86,8 +86,6 @@
 
 - (void)setup {}
 
-// TODO: leave here only the very basic attrbutes, the rest should be optional
-
 #pragma mark - Tracker specific attributers, overwriting by subclass REQUIRED
 
 - (NSString *)getTrackerName { OVERWRITE_STUB }
@@ -98,17 +96,17 @@
 
 - (NSString *)getPlayerName { OVERWRITE_STUB }
 
-- (NSNumber *)getBitrate { OVERWRITE_STUB }
-
-- (NSNumber *)getRenditionWidth { OVERWRITE_STUB }
-
-- (NSNumber *)getRenditionHeight { OVERWRITE_STUB }
-
-- (NSNumber *)getDuration { OVERWRITE_STUB }
-
-- (NSNumber *)getPlayhead { OVERWRITE_STUB }
-
 #pragma mark - Tracker specific attributers, overwriting by subclass OPTIONAL
+
+- (NSNumber *)getBitrate { return @0; }
+
+- (NSNumber *)getRenditionWidth { return @0; }
+
+- (NSNumber *)getRenditionHeight { return @0; }
+
+- (NSNumber *)getDuration { return @0; }
+
+- (NSNumber *)getPlayhead { return @0; }
 
 - (NSString *)getSrc { return @""; }
 
