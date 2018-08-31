@@ -102,89 +102,6 @@
     AV_LOG(@"Setup AVPlayer events and listener");
 }
 
-#pragma mark - VideoTracker getters
-
-- (NSString *)getTrackerName {
-    return @"avplayer";
-}
-
-- (NSString *)getTrackerVersion {
-    return @"1.0";
-}
-
-- (NSString *)getPlayerVersion {
-    return [[UIDevice currentDevice] systemVersion];
-}
-
-- (NSString *)getPlayerName {
-    return @"avplayer";
-}
-
-- (NSNumber *)getBitrate {
-    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
-    return @(event.indicatedBitrate);
-}
-
-- (NSNumber *)getRenditionWidth {
-    return @(self.player.currentItem.presentationSize.width);
-}
-
-- (NSNumber *)getRenditionHeight {
-    return @(self.player.currentItem.presentationSize.height);
-}
-
-- (NSNumber *)getDuration {
-    Float64 duration = CMTimeGetSeconds(self.player.currentItem.duration);
-    if (isnan(duration)) {
-        return @0;
-    }
-    else {
-        return @(duration * 1000.0f);
-    }
-}
-
-- (NSNumber *)getPlayhead {
-    Float64 duration = CMTimeGetSeconds(self.player.currentItem.currentTime);
-    if (isnan(duration)) {
-        return @0;
-    }
-    else {
-        return @(duration * 1000.0f);
-    }
-}
-
-- (NSString *)getSrc {
-    AVAsset *currentPlayerAsset = self.player.currentItem.asset;
-    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
-    return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
-}
-
-- (NSNumber *)getPlayrate {
-    return @(self.player.rate);
-}
-
-- (NSNumber *)getFps {
-    double fps = 0.0f;
-    AVAsset *asset = self.player.currentItem.asset;
-    if (asset) {
-        AVAssetTrack *videoATrack = [[asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
-        if (videoATrack) {
-            fps = videoATrack.nominalFrameRate;
-        }
-    }
-    return @(fps);
-}
-
-// NOTE: should be handled by a custom tracker, subclassing it
-- (NSNumber *)getIsLive {
-    return @NO;
-}
-
-// NOTE: should be handled by a custom tracker, subclassing it
-- (NSNumber *)getIsAd {
-    return @NO;
-}
-
 #pragma mark - Item Handlers
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
@@ -307,6 +224,89 @@
         
         AV_LOG(@"New Rendition Change = %d", newEstimatedBitrate);
     }
+}
+
+#pragma mark - VideoTracker getters
+
+- (NSString *)getTrackerName {
+    return @"avplayer";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"1.0";
+}
+
+- (NSString *)getPlayerVersion {
+    return [[UIDevice currentDevice] systemVersion];
+}
+
+- (NSString *)getPlayerName {
+    return @"avplayer";
+}
+
+- (NSNumber *)getBitrate {
+    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
+    return @(event.indicatedBitrate);
+}
+
+- (NSNumber *)getRenditionWidth {
+    return @(self.player.currentItem.presentationSize.width);
+}
+
+- (NSNumber *)getRenditionHeight {
+    return @(self.player.currentItem.presentationSize.height);
+}
+
+- (NSNumber *)getDuration {
+    Float64 duration = CMTimeGetSeconds(self.player.currentItem.duration);
+    if (isnan(duration)) {
+        return @0;
+    }
+    else {
+        return @(duration * 1000.0f);
+    }
+}
+
+- (NSNumber *)getPlayhead {
+    Float64 duration = CMTimeGetSeconds(self.player.currentItem.currentTime);
+    if (isnan(duration)) {
+        return @0;
+    }
+    else {
+        return @(duration * 1000.0f);
+    }
+}
+
+- (NSString *)getSrc {
+    AVAsset *currentPlayerAsset = self.player.currentItem.asset;
+    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
+    return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
+}
+
+- (NSNumber *)getPlayrate {
+    return @(self.player.rate);
+}
+
+- (NSNumber *)getFps {
+    double fps = 0.0f;
+    AVAsset *asset = self.player.currentItem.asset;
+    if (asset) {
+        AVAssetTrack *videoATrack = [[asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
+        if (videoATrack) {
+            fps = videoATrack.nominalFrameRate;
+        }
+    }
+    return @(fps);
+}
+
+// NOTE: should be handled by a custom tracker, subclassing it
+- (NSNumber *)getIsLive {
+    return @NO;
+}
+
+// NOTE: should be handled by a custom tracker, subclassing it
+- (NSNumber *)getIsAd {
+    return @NO;
 }
 
 @end
