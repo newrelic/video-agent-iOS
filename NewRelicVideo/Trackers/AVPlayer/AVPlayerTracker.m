@@ -7,6 +7,7 @@
 //
 
 #import "AVPlayerTracker.h"
+#import "EventDefs.h"
 
 // BUG: is video is buffering, seeking doesn't produce time observer events wiith rate == 0.
 // BUG: buffering events are not always triggered by AVPlayer.
@@ -218,7 +219,17 @@
         self.estimatedBitrate = newEstimatedBitrate;
     }
     else if (fabs(self.estimatedBitrate - newEstimatedBitrate) >  self.estimatedBitrate * 0.01) {
-        // If bitrate changes more than 1%, rendition change event
+        // If bitrate changed more than 1%, rendition change event
+        
+        if (self.estimatedBitrate - newEstimatedBitrate > 0) {
+            // Lower rendition
+            [self setOptionKey:@"shift" value:@"down" forAction:CONTENT_RENDITION_CHANGE];
+        }
+        else {
+            // Higher rendition
+            [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
+        }
+        
         [self sendRenditionChange];
         self.estimatedBitrate = newEstimatedBitrate;
         

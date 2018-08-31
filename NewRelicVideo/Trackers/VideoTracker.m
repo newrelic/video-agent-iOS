@@ -112,10 +112,6 @@
  contentIsAutoplayed
  contentPreload
  */
-// SPECIAL ATTRS
-/*
- shift, only for RENDITION_CHANGE event
- */
 // PLAY TIME
 /*
  totalPlaytime
@@ -251,6 +247,10 @@
 
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
     NSMutableDictionary *dic = [self.automat.actions.actionOptions objectForKey:action];
+    if (!dic) {
+        dic = @{}.mutableCopy;
+        [self.automat.actions.actionOptions setObject:dic forKey:action];
+    }
     [dic setObject:value forKey:key];
 }
 
