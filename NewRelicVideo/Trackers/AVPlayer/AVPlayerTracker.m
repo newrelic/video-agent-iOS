@@ -8,9 +8,6 @@
 
 #import "AVPlayerTracker.h"
 
-#define OBSERVATION_TIME        2.0f
-#define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
-
 // BUG: is video is buffering, seeking doesn't produce time observer events wiith rate == 0.
 // BUG: buffering events are not always triggered by AVPlayer.
 

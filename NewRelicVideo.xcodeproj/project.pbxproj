@@ -24,7 +24,7 @@
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
 		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
-		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; };
+		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */; };
 		9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */; };
@@ -206,11 +206,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
-				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,

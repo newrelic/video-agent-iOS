@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#define OBSERVATION_TIME        2.0f
-
 @interface VideoTracker : NSObject
 
 - (void)reset;
