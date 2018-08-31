@@ -76,6 +76,42 @@
                        }];
 }
 
+// ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT":
+// GENERAL ATTRS
+/*
+ contentId
+ contentTitle*
+ contentRenditionName
+ contentRenditionBitrate
+ contentLanguage*
+ contentIsFullscreen
+ contentIsMuted
+ contentCdn*
+ contentIsAutoplayed
+ contentPreload
+ */
+// SPECIAL ATTRS
+/*
+ shift, only for RENDITION_CHANGE event
+ */
+// PLAY TIME
+/*
+ totalPlaytime
+ playtimeSinceLastEvent
+ */
+// TIMING
+/*
+ timeSinceTrackerReady
+ timeSinceRequested
+ timeSinceLastHeartbeat*
+ timeSinceStarted
+ timeSincePaused, only RESUME
+ timeSinceBufferBegin, only BUFFER_END
+ timeSinceSeekBegin, only SEEK_END
+ timeSinceLastAd
+ timeSinceLastRenditionChange, only RENDITION_CHANGE
+ */
+
 #pragma mark - Reset and setup, to be overwritten by subclass
 
 - (void)reset {
