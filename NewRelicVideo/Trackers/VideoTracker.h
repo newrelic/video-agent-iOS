@@ -10,8 +10,6 @@
 
 @protocol VideoTrackerProtocol <NSObject>
 @required
-- (void)reset;
-- (void)setup;
 - (NSString *)getTrackerName;
 - (NSString *)getTrackerVersion;
 - (NSString *)getPlayerVersion;
@@ -27,8 +25,10 @@
 - (NSNumber *)getFps;
 @end
 
-@interface VideoTracker : NSObject <VideoTrackerProtocol>
+@interface VideoTracker : NSObject
 
+- (void)reset;
+- (void)setup;
 - (void)sendRequest;
 - (void)sendStart;
 - (void)sendEnd;

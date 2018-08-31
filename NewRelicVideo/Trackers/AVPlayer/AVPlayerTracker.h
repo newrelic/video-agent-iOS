@@ -11,7 +11,7 @@
 
 @class AVPlayer;
 
-@interface AVPlayerTracker : VideoTracker
+@interface AVPlayerTracker : VideoTracker <VideoTrackerProtocol>
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
 

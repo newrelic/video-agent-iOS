@@ -17,7 +17,7 @@
 
 @interface NewRelicVideoAgent ()
 
-@property (nonatomic) id<VideoTrackerProtocol> tracker;
+@property (nonatomic) VideoTracker<VideoTrackerProtocol> *tracker;
 
 @end
 
