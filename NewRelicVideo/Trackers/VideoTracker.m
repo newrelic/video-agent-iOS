@@ -27,10 +27,38 @@
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
+@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributes;
 
 @end
 
 @implementation VideoTracker
+
+- (NSDictionary<NSString *,NSValue *> *)attributes {
+    if (!_attributes) {
+        _attributes = @{
+                        @"trackerName": [NSValue valueWithPointer:@selector(getTrackerName)],
+                        @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
+                        @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
+                        @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+                        @"viewId": [NSValue valueWithPointer:@selector(getViewId)],
+                        @"numberOfVideos": [NSValue valueWithPointer:@selector(getNumberOfVideos)],
+                        @"coreVersion": [NSValue valueWithPointer:@selector(getCoreVersion)],
+                        @"viewSession": [NSValue valueWithPointer:@selector(getViewSession)],
+                        @"numberOfErrors": [NSValue valueWithPointer:@selector(getNumberOfErrors)],
+                        @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
+                        @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
+                        @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
+                        @"contentDuration": [NSValue valueWithPointer:@selector(getDuration)],
+                        @"contentPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
+                        @"contentSrc": [NSValue valueWithPointer:@selector(getSrc)],
+                        @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
+                        @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
+                        @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
+                        @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
+                        };
+    }
+    return _attributes;
+}
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -52,28 +80,22 @@
     }
 }
 
+- (void)updateAttribute:(NSString *)attr {
+    NSValue *value = self.attributes[attr];
+    SEL selector = [value pointerValue];
+    
+    if ([self respondsToSelector:selector]) {
+        IMP imp = [self methodForSelector:selector];
+        id (*func)(id, SEL) = (void *)imp;
+        
+        [self setOptionKey:attr value:func(self, selector)];
+    }
+}
+
 - (void)updateAttributes {
-    [self setOptions:@{
-                       @"trackerName": [self getTrackerName],
-                       @"trackerVersion": [self getTrackerVersion],
-                       @"playerVersion": [self getPlayerVersion],
-                       @"playerName": [self getPlayerName],
-                       @"viewId": [self getViewId],
-                       @"numberOfVideos": [self getNumberOfVideos],
-                       @"coreVersion": [self getCoreVersion],
-                       @"viewSession": [self getViewSession],
-                       @"numberOfErrors": [self getNumberOfErrors],
-                       @"contentBitrate": [self getBitrate],
-                       @"contentRenditionWidth": [self getRenditionWidth],
-                       @"contentRenditionHeight": [self getRenditionHeight],
-                       @"contentDuration": [self getDuration],
-                       @"contentPlayhead": [self getPlayhead],
-                       @"contentSrc": [self getSrc],
-                       @"contentPlayrate": [self getPlayrate],
-                       @"contentFps": [self getFps],
-                       @"contentIsLive": [self getIsLive],
-                       @"isAd": [self getIsAd],
-                       }];
+    for (NSString *key in self.attributes) {
+        [self updateAttribute:key];
+    }
 }
 
 // ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT":
@@ -124,40 +146,6 @@
 }
 
 - (void)setup {}
-
-#pragma mark - Tracker specific attributers, overwriting by subclass REQUIRED
-
-- (NSString *)getTrackerName { OVERWRITE_STUB }
-
-- (NSString *)getTrackerVersion { OVERWRITE_STUB }
-
-- (NSString *)getPlayerVersion { OVERWRITE_STUB }
-
-- (NSString *)getPlayerName { OVERWRITE_STUB }
-
-#pragma mark - Tracker specific attributers, overwriting by subclass OPTIONAL
-
-// TODO: if not implemented by subclass, should it be included in the attr?
-
-- (NSNumber *)getBitrate { return @0; }
-
-- (NSNumber *)getRenditionWidth { return @0; }
-
-- (NSNumber *)getRenditionHeight { return @0; }
-
-- (NSNumber *)getDuration { return @0; }
-
-- (NSNumber *)getPlayhead { return @0; }
-
-- (NSString *)getSrc { return @""; }
-
-- (NSNumber *)getPlayrate { return @0; }
-
-- (NSNumber *)getFps { return @0; }
-
-- (NSNumber *)getIsLive { return @NO; }
-
-- (NSNumber *)getIsAd { return @NO; }
 
 #pragma mark - Base Tracker attributers
 
@@ -278,7 +266,7 @@
 
 - (void)playerObserverMethod:(NSTimer *)timer {
 
-    [self setOptionKey:@"contentBitrate" value:[self getBitrate]];
+    [self updateAttribute:@"contentBitrate"];
     
     if ([(id<VideoTrackerProtocol>)self respondsToSelector:@selector(timeEvent)]) {
         [(id<VideoTrackerProtocol>)self timeEvent];
