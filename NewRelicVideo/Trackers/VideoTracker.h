@@ -16,6 +16,7 @@
 - (NSString *)getTrackerVersion;
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
+@optional
 - (NSNumber *)getBitrate;
 - (NSNumber *)getRenditionWidth;
 - (NSNumber *)getRenditionHeight;
