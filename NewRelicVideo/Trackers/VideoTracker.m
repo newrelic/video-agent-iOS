@@ -243,7 +243,10 @@
 - (void)playerObserverMethod:(NSTimer *)timer {
 
     [self setOptionKey:@"contentBitrate" value:[self getBitrate]];
-    [self timeEvent];
+    
+    if ([(id<VideoTrackerProtocol>)self respondsToSelector:@selector(timeEvent)]) {
+        [(id<VideoTrackerProtocol>)self timeEvent];
+    }
     
     self.heartbeatCounter ++;
     
@@ -252,8 +255,5 @@
         [self sendHeartbeat];
     }
 }
-
-// To be overwritten by subclass
-- (void)timeEvent {}
 
 @end

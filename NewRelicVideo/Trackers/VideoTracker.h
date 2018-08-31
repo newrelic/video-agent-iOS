@@ -15,6 +15,7 @@
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
 @optional
+- (void)timeEvent;
 - (NSNumber *)getBitrate;
 - (NSNumber *)getRenditionWidth;
 - (NSNumber *)getRenditionHeight;
