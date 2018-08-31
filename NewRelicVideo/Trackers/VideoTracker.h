@@ -46,6 +46,8 @@
 - (void)sendError;
 - (void)setOptions:(NSDictionary *)opts;
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
+- (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
+- (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 - (void)startTimerEvent;
 - (void)abortTimerEvent;
 

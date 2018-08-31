@@ -238,11 +238,20 @@
 }
 
 - (void)setOptions:(NSDictionary *)opts {
-    self.automat.actions.userOptions = opts.mutableCopy;
+    self.automat.actions.generalOptions = opts.mutableCopy;
 }
 
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value {
-    [self.automat.actions.userOptions setObject:value forKey:key];
+    [self.automat.actions.generalOptions setObject:value forKey:key];
+}
+
+- (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action {
+    [self.automat.actions.actionOptions setObject:opts.mutableCopy forKey:action];
+}
+
+- (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
+    NSMutableDictionary *dic = [self.automat.actions.actionOptions objectForKey:action];
+    [dic setObject:value forKey:key];
 }
 
 #pragma mark - Timer stuff

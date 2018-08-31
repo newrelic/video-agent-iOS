@@ -15,11 +15,18 @@
 
 @implementation BackendActions
 
-- (NSDictionary *)userOptions {
-    if (!_userOptions) {
-        _userOptions = @{}.mutableCopy;
+- (NSDictionary *)generalOptions {
+    if (!_generalOptions) {
+        _generalOptions = @{}.mutableCopy;
     }
-    return _userOptions;
+    return _generalOptions;
+}
+
+- (NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
+    if (!_actionOptions) {
+        _actionOptions = @{}.mutableCopy;
+    }
+    return _actionOptions;
 }
 
 - (instancetype)init {
@@ -34,6 +41,7 @@
     [self sendAction:CONTENT_REQUEST];
 }
 
+// TODO: timeSinceRequested should come from actionOptions
 - (void)sendStart:(NSTimeInterval)timeToStart {
     timeToStart = timeToStart < 0 ? 0 : timeToStart;
     [self sendAction:CONTENT_START attr:@{@"timeSinceRequested": @(timeToStart * 1000.0f)}];
@@ -90,7 +98,8 @@
     dict = dict ? dict : @{};
     NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
-    [ops addEntriesFromDictionary:self.userOptions];
+    [ops addEntriesFromDictionary:self.generalOptions];
+    [ops addEntriesFromDictionary:[self.actionOptions objectForKey:name]];
     
     if ([NewRelicAgent currentSessionId]) {
         [NewRelic recordCustomEvent:VIDEO_EVENT
