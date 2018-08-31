@@ -36,15 +36,17 @@
 - (NSDictionary<NSString *,NSValue *> *)attributes {
     if (!_attributes) {
         _attributes = @{
-                        @"trackerName": [NSValue valueWithPointer:@selector(getTrackerName)],
-                        @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
-                        @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
-                        @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+                        // Base
                         @"viewId": [NSValue valueWithPointer:@selector(getViewId)],
                         @"numberOfVideos": [NSValue valueWithPointer:@selector(getNumberOfVideos)],
                         @"coreVersion": [NSValue valueWithPointer:@selector(getCoreVersion)],
                         @"viewSession": [NSValue valueWithPointer:@selector(getViewSession)],
                         @"numberOfErrors": [NSValue valueWithPointer:@selector(getNumberOfErrors)],
+                        // Implemented by tracker subclass
+                        @"trackerName": [NSValue valueWithPointer:@selector(getTrackerName)],
+                        @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
+                        @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
+                        @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
                         @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
                         @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
                         @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
@@ -101,7 +103,7 @@
 // ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT":
 // GENERAL ATTRS
 /*
- contentId
+ contentId (?)
  contentTitle*
  contentRenditionName
  contentRenditionBitrate
@@ -143,7 +145,7 @@
 
 - (void)setup {}
 
-#pragma mark - Base Tracker attributers
+#pragma mark - Base Tracker attributes
 
 - (NSString *)getViewId {
     return self.viewId;
