@@ -12,5 +12,6 @@
 
 + (NSString *)string:(NSString *)key;
 + (NSURL *)url:(NSString *)key;
++ (NSNumber *)appNumber:(NSString *)key;
 
 @end

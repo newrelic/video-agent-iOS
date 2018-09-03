@@ -7,25 +7,24 @@
 //
 
 #import "LOG.h"
+#import "Vars.h"
 
 @implementation LOG
 
-// TODO: add a key in app's plist to enable debug and show those logs (NRVideoAgentDebug, boolean)
-
 void AV_LOG(NSString *format, ...) {
-//#if DEBUG
-    NSString *contents;
-    va_list args;
-    va_start(args, format);
-    contents = [[NSString alloc] initWithFormat:format arguments:args];
-    va_end(args);
-    
-    // Log the current timestamp
-    NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-    contents = [@"NewRelicVideo " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
-    
-    NSLog(@"%@", contents);
-//#endif
+    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue]) {
+        NSString *contents;
+        va_list args;
+        va_start(args, format);
+        contents = [[NSString alloc] initWithFormat:format arguments:args];
+        va_end(args);
+        
+        // Log the current timestamp
+        NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
+        contents = [@"NewRelicVideo " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+        
+        NSLog(@"%@", contents);
+    }
 }
 
 @end

@@ -14,6 +14,10 @@
     return [NSBundle bundleWithIdentifier:@"com.newrelic.NewRelicVideo"];
 }
 
++ (NSBundle *)appBundle {
+    return [NSBundle mainBundle];
+}
+
 + (NSString *)string:(NSString *)key {
     NSString *str = [[self bundle] objectForInfoDictionaryKey:key];
     return str;
@@ -23,6 +27,11 @@
     NSString *urlAddress = [[self bundle] objectForInfoDictionaryKey:key];
     NSURL *url = [NSURL URLWithString:urlAddress];
     return url;
+}
+
++ (NSNumber *)appNumber:(NSString *)key {
+    NSNumber *num = [[self appBundle] objectForInfoDictionaryKey:key];
+    return num;
 }
 
 @end
