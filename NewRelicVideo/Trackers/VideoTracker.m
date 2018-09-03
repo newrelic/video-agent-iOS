@@ -22,7 +22,7 @@
 @interface VideoTracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
-@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributes;
+@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributeGetters;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSString *viewId;
@@ -36,9 +36,9 @@
 
 @implementation VideoTracker
 
-- (NSDictionary<NSString *,NSValue *> *)attributes {
-    if (!_attributes) {
-        _attributes = @{
+- (NSDictionary<NSString *,NSValue *> *)attributeGetters {
+    if (!_attributeGetters) {
+        _attributeGetters = @{
                         // Base
                         @"viewId": [NSValue valueWithPointer:@selector(getViewId)],
                         @"numberOfVideos": [NSValue valueWithPointer:@selector(getNumberOfVideos)],
@@ -63,7 +63,7 @@
                         @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
                         };
     }
-    return _attributes;
+    return _attributeGetters;
 }
 
 - (instancetype)init {
@@ -88,7 +88,7 @@
 }
 
 - (void)updateAttribute:(NSString *)attr {
-    NSValue *value = self.attributes[attr];
+    NSValue *value = self.attributeGetters[attr];
     SEL selector = [value pointerValue];
     
     if ([self respondsToSelector:selector]) {
@@ -100,7 +100,7 @@
 }
 
 - (void)updateAttributes {
-    for (NSString *key in self.attributes) {
+    for (NSString *key in self.attributeGetters) {
         [self updateAttribute:key];
     }
 }
