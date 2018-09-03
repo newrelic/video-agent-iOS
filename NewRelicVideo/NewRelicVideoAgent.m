@@ -57,4 +57,8 @@
     }
 }
 
++ (id<VideoTrackerProtocol>)trackerInstance {
+    return [[self sharedInstance] tracker];
+}
+
 @end

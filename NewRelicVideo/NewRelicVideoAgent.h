@@ -27,4 +27,9 @@
  */
 + (void)startWithTracker:(VideoTracker<VideoTrackerProtocol> *)tracker;
 
+/*!
+ Return the tracker instance.
+ */
++ (id<VideoTrackerProtocol>)trackerInstance;
+
 @end

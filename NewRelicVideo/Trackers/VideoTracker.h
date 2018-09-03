@@ -27,6 +27,8 @@
 - (NSNumber *)getIsLive;
 - (NSNumber *)getIsAd;
 - (NSNumber *)getIsMutted;
+- (NSNumber *)getIsAutoplayed;
+- (void)setIsAutoplayed:(NSNumber *)state;
 
 @end
 

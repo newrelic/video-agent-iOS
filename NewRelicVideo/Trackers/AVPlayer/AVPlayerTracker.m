@@ -20,6 +20,7 @@
 @property (nonatomic, weak) AVPlayer *player;
 @property (nonatomic) int numZeroRates;
 @property (nonatomic) double estimatedBitrate;
+@property (nonatomic) BOOL isAutoPlayed;
 
 @end
 
@@ -328,6 +329,14 @@
 
 - (NSNumber *)getIsMutted {
     return @(self.player.muted);
+}
+
+- (NSNumber *)getIsAutoplayed {
+    return @(self.isAutoPlayed);
+}
+
+- (void)setIsAutoplayed:(NSNumber *)state {
+    self.isAutoPlayed = state.boolValue;
 }
 
 @end

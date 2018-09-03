@@ -64,6 +64,7 @@
                         @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
                         @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
                         @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
+                        @"isAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
                         };
     }
     return _attributeGetters;
@@ -122,7 +123,6 @@
  contentLanguage*
  contentIsFullscreen
  contentCdn*
- contentIsAutoplayed
  contentPreload
  */
 // TIMING
