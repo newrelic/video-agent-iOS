@@ -39,6 +39,7 @@
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
 
 @end
 
@@ -133,7 +134,6 @@
 // TIMING
 /*
  timeSinceLastAd
- timeSinceLastRenditionChange, only RENDITION_CHANGE
  */
 
 #pragma mark - Reset and setup, to be overwritten by subclass
@@ -230,6 +230,13 @@
     else {
         [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
     }
+    
+    if (self.timeSinceLastRenditionChangeTimestamp > 0) {
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * (self.timestamp - self.timeSinceLastRenditionChangeTimestamp)) forAction:CONTENT_RENDITION_CHANGE];
+    }
+    else {
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:CONTENT_RENDITION_CHANGE];
+    }
 }
 
 - (void)sendRequest {
@@ -297,6 +304,7 @@
 - (void)sendRenditionChange {
     [self preSend];
     [self.automat transition:TrackerTransitionRenditionChanged];
+    self.timeSinceLastRenditionChangeTimestamp = self.timestamp;
 }
 
 - (void)sendError {
