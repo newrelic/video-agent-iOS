@@ -10,6 +10,7 @@
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 #import "Vars.h"
+#import "EventDefs.h"
 #import <NewRelicAgent/NewRelic.h>
 
 // TODO: implement Ads stuff
@@ -35,6 +36,7 @@
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
+@property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 
 @end
 
@@ -208,6 +210,13 @@
     else {
         [self setOptionKey:@"timeSinceStarted" value:@0];
     }
+    
+    if (self.timeSincePausedTimestamp > 0) {
+        [self setOptionKey:@"timeSincePaused" value:@(1000.0f * (self.timestamp - self.timeSincePausedTimestamp)) forAction:CONTENT_RESUME];
+    }
+    else {
+        [self setOptionKey:@"timeSincePaused" value:@0 forAction:CONTENT_RESUME];
+    }
 }
 
 - (void)sendRequest {
@@ -233,6 +242,7 @@
 }
 
 - (void)sendPause {
+    self.timeSincePausedTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionClickPause];
 }
