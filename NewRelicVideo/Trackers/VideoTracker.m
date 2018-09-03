@@ -60,6 +60,7 @@
                         @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
                         @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
                         @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
+                        @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
                         };
     }
     return _attributes;
@@ -117,7 +118,6 @@
  contentRenditionBitrate
  contentLanguage*
  contentIsFullscreen
- contentIsMuted
  contentCdn*
  contentIsAutoplayed
  contentPreload

@@ -26,6 +26,8 @@
 - (NSNumber *)getFps;
 - (NSNumber *)getIsLive;
 - (NSNumber *)getIsAd;
+- (NSNumber *)getIsMutted;
+
 @end
 
 @interface VideoTracker : NSObject

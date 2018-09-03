@@ -326,4 +326,8 @@
     return @NO;
 }
 
+- (NSNumber *)getIsMutted {
+    return @(self.player.muted);
+}
+
 @end
