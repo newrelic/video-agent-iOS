@@ -21,6 +21,7 @@
 @property (nonatomic) int numZeroRates;
 @property (nonatomic) double estimatedBitrate;
 @property (nonatomic) BOOL isAutoPlayed;
+@property (nonatomic) NSString *videoID;
 
 @end
 
@@ -247,6 +248,7 @@
 - (void)sendEnd {
     [super sendEnd];
     self.isAutoPlayed = NO;
+    self.videoID = nil;
 }
 
 #pragma mark - VideoTracker getters
@@ -268,18 +270,21 @@
 }
 
 - (NSString *)getVideoId {
-    NSString *src = [self getSrc];
-    __block long long val = 0;
-    __block long long lastChar = 0;
-    [src enumerateSubstringsInRange:NSMakeRange(0, src.length)
-                            options:NSStringEnumerationByComposedCharacterSequences
-                         usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-                             long long currChar = [substring characterAtIndex:0];
-                             val += (currChar << (lastChar / 8)) + currChar;
-                             lastChar = currChar;
-                         }];
+    if (!self.videoID) {
+        NSString *src = [self getSrc];
+        __block long long val = 0;
+        __block long long lastChar = 0;
+        [src enumerateSubstringsInRange:NSMakeRange(0, src.length)
+                                options:NSStringEnumerationByComposedCharacterSequences
+                             usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
+                                 long long currChar = [substring characterAtIndex:0];
+                                 val += (currChar << (lastChar / 8)) + currChar;
+                                 lastChar = currChar;
+                             }];
+        self.videoID = @(val).stringValue;
+    }
     
-    return @(val).stringValue;
+    return self.videoID;
 }
 
 - (NSNumber *)getBitrate {
