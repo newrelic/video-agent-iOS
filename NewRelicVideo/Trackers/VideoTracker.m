@@ -38,6 +38,7 @@
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
 
 @end
 
@@ -131,7 +132,6 @@
  */
 // TIMING
 /*
- timeSinceSeekBegin, only SEEK_END
  timeSinceLastAd
  timeSinceLastRenditionChange, only RENDITION_CHANGE
  */
@@ -223,6 +223,13 @@
     else {
         [self setOptionKey:@"timeSinceBufferBegin" value:@0 forAction:CONTENT_BUFFER_END];
     }
+    
+    if (self.timeSinceSeekBeginTimestamp > 0) {
+        [self setOptionKey:@"timeSinceSeekBegin" value:@(1000.0f * (self.timestamp - self.timeSinceSeekBeginTimestamp)) forAction:CONTENT_SEEK_END];
+    }
+    else {
+        [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
+    }
 }
 
 - (void)sendRequest {
@@ -260,6 +267,7 @@
 }
 
 - (void)sendSeekStart {
+    self.timeSinceSeekBeginTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionInitDraggingSlider];
 }
