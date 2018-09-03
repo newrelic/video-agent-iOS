@@ -163,7 +163,7 @@
 }
 
 - (NSString *)getCoreVersion {
-    return [Vars stringFromPlist:@"CFBundleShortVersionString"];
+    return [Vars string:@"CFBundleShortVersionString"];
 }
 
 - (NSString *)getViewSession {

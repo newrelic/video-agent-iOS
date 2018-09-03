@@ -10,7 +10,7 @@
 
 @interface Vars : NSObject
 
-+ (NSString *)stringFromPlist:(NSString *)key;
-+ (NSURL *)urlFromPlist:(NSString *)key;
++ (NSString *)string:(NSString *)key;
++ (NSURL *)url:(NSString *)key;
 
 @end

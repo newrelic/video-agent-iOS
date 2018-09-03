@@ -14,12 +14,12 @@
     return [NSBundle bundleWithIdentifier:@"com.newrelic.NewRelicVideo"];
 }
 
-+ (NSString *)stringFromPlist:(NSString *)key {
++ (NSString *)string:(NSString *)key {
     NSString *str = [[self bundle] objectForInfoDictionaryKey:key];
     return str;
 }
 
-+ (NSURL *)urlFromPlist:(NSString *)key {
++ (NSURL *)url:(NSString *)key {
     NSString *urlAddress = [[self bundle] objectForInfoDictionaryKey:key];
     NSURL *url = [NSURL URLWithString:urlAddress];
     return url;
