@@ -30,6 +30,7 @@
 - (NSNumber *)getIsMutted;
 - (NSNumber *)getIsAutoplayed;
 - (void)setIsAutoplayed:(NSNumber *)state;
+- (NSNumber *)getIsFullscreen;
 
 @end
 

@@ -72,6 +72,7 @@
                         @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
                         @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
                         @"isAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
+                        @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
                         };
     }
     return _attributeGetters;
@@ -127,7 +128,6 @@
  contentRenditionName
  contentRenditionBitrate
  contentLanguage*
- contentIsFullscreen
  contentCdn*
  contentPreload
  */
