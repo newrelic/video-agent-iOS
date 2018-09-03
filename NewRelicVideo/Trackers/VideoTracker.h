@@ -14,6 +14,7 @@
 - (NSString *)getTrackerVersion;
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
+- (NSString *)getVideoId;
 @optional
 - (void)timeEvent;
 - (NSNumber *)getBitrate;

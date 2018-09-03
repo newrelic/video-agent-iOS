@@ -59,6 +59,7 @@
                         @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
                         @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
                         @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+                        @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
                         @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
                         @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
                         @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
@@ -122,7 +123,6 @@
 // ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT":
 // GENERAL ATTRS
 /*
- contentId (?)
  contentTitle*
  contentRenditionName
  contentRenditionBitrate
