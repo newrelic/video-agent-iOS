@@ -37,6 +37,7 @@
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 
 @end
 
@@ -130,8 +131,6 @@
  */
 // TIMING
 /*
- timeSincePaused, only RESUME
- timeSinceBufferBegin, only BUFFER_END
  timeSinceSeekBegin, only SEEK_END
  timeSinceLastAd
  timeSinceLastRenditionChange, only RENDITION_CHANGE
@@ -217,6 +216,13 @@
     else {
         [self setOptionKey:@"timeSincePaused" value:@0 forAction:CONTENT_RESUME];
     }
+    
+    if (self.timeSinceBufferBeginTimestamp > 0) {
+        [self setOptionKey:@"timeSinceBufferBegin" value:@(1000.0f * (self.timestamp - self.timeSinceBufferBeginTimestamp)) forAction:CONTENT_BUFFER_END];
+    }
+    else {
+        [self setOptionKey:@"timeSinceBufferBegin" value:@0 forAction:CONTENT_BUFFER_END];
+    }
 }
 
 - (void)sendRequest {
@@ -264,6 +270,7 @@
 }
 
 - (void)sendBufferStart {
+    self.timeSinceBufferBeginTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionInitBuffering];
 }
