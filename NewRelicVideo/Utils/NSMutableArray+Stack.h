@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface NSMutableArray (Stack)
+@interface NSMutableArray<ObjectType> (Stack)
 
-- (void)push:(id)item;
-- (id)pop;
-- (id)peek;
+- (void)push:(nullable ObjectType)item;
+- (nullable ObjectType)pop;
+- (nullable ObjectType)peek;
 @end
