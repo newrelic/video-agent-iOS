@@ -33,6 +33,7 @@
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
+@property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 
 @end
 
@@ -124,10 +125,6 @@
  contentIsAutoplayed
  contentPreload
  */
-// PLAY TIME
-/*
- playtimeSinceLastEvent
- */
 // TIMING
 /*
  timeSinceStarted
@@ -148,6 +145,7 @@
     self.requestTimestamp = 0;
     self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
+    self.playtimeSinceLastEventTimestamp = 0;
     [self playNewVideo];
     [self updateAttributes];
 }
@@ -180,19 +178,28 @@
 
 - (void)preSend {
     [self updateAttributes];
+    
     [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (self.timestamp - self.trackerReadyTimestamp))];
     [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    
     if (self.heartbeatTimestamp > 0) {
         [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.heartbeatTimestamp))];
     }
     else {
         [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
     }
+    
     if (self.automat.state == TrackerStatePlaying) {
-        self.totalPlaytime += self.timestamp - self.totalPlaytimeTimestamp;
+        
         self.totalPlaytimeTimestamp = self.timestamp;
     }
     [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
+    
+    if (self.playtimeSinceLastEventTimestamp == 0) {
+        self.playtimeSinceLastEventTimestamp = self.timestamp;
+    }
+    [self setOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * (self.timestamp - self.playtimeSinceLastEventTimestamp))];
+    self.playtimeSinceLastEventTimestamp = self.timestamp;
 }
 
 - (void)sendRequest {
