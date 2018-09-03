@@ -201,9 +201,6 @@
         AV_LOG(@"Video Playback Buffer Full");
         [self sendBufferEnd];
     }
-    else {
-        AV_LOG(@"OBSERVER unknown = %@", keyPath);
-    }
 }
 
 // Time Evenent, called by a timer in the superclass, every OBSERVATION_TIME seconds
@@ -362,6 +359,11 @@
 
 - (void)setIsAutoplayed:(NSNumber *)state {
     self.isAutoPlayed = state.boolValue;
+}
+
+// NOTE: should be handled by a custom tracker, subclassing it
+- (NSNumber *)getIsFullscreen {
+    return @NO;
 }
 
 @end
