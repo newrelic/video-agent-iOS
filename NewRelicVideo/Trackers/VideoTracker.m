@@ -34,6 +34,7 @@
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
 
 @end
 
@@ -127,7 +128,6 @@
  */
 // TIMING
 /*
- timeSinceStarted
  timeSincePaused, only RESUME
  timeSinceBufferBegin, only BUFFER_END
  timeSinceSeekBegin, only SEEK_END
@@ -146,6 +146,7 @@
     self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
     self.playtimeSinceLastEventTimestamp = 0;
+    self.timeSinceStartedTimestamp = 0;
     [self playNewVideo];
     [self updateAttributes];
 }
@@ -200,6 +201,13 @@
     }
     [self setOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * (self.timestamp - self.playtimeSinceLastEventTimestamp))];
     self.playtimeSinceLastEventTimestamp = self.timestamp;
+    
+    if (self.timeSinceStartedTimestamp > 0) {
+        [self setOptionKey:@"timeSinceStarted" value:@(1000.0f * (self.timestamp - self.timeSinceStartedTimestamp))];
+    }
+    else {
+        [self setOptionKey:@"timeSinceStarted" value:@0];
+    }
 }
 
 - (void)sendRequest {
@@ -210,6 +218,7 @@
 }
 
 - (void)sendStart {
+    self.timeSinceStartedTimestamp = self.timestamp;
     self.totalPlaytimeTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionFrameShown];
