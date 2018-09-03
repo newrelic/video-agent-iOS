@@ -218,7 +218,9 @@
 }
 
 - (void)sendStart {
-    self.timeSinceStartedTimestamp = self.timestamp;
+    if (self.automat.state == TrackerStateStarting) {
+        self.timeSinceStartedTimestamp = self.timestamp;
+    }
     self.totalPlaytimeTimestamp = self.timestamp;
     [self preSend];
     [self.automat transition:TrackerTransitionFrameShown];
