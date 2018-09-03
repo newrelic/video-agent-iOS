@@ -244,6 +244,11 @@
     }
 }
 
+- (void)sendEnd {
+    [super sendEnd];
+    self.isAutoPlayed = NO;
+}
+
 #pragma mark - VideoTracker getters
 
 - (NSString *)getTrackerName {
