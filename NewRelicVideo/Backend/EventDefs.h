@@ -24,4 +24,21 @@
 #define CONTENT_RENDITION_CHANGE    @"CONTENT_RENDITION_CHANGE"
 #define CONTENT_ERROR               @"CONTENT_ERROR"
 
+#define AD_REQUEST                  @"AD_REQUEST"
+#define AD_START                    @"AD_START"
+#define AD_END                      @"AD_END"
+#define AD_PAUSE                    @"AD_PAUSE"
+#define AD_RESUME                   @"AD_RESUME"
+#define AD_SEEK_START               @"AD_SEEK_START"
+#define AD_SEEK_END                 @"AD_SEEK_END"
+#define AD_BUFFER_START             @"AD_BUFFER_START"
+#define AD_BUFFER_END               @"AD_BUFFER_END"
+#define AD_HEARTBEAT                @"AD_HEARTBEAT"
+#define AD_RENDITION_CHANGE         @"AD_RENDITION_CHANGE"
+#define AD_ERROR                    @"AD_ERROR"
+#define AD_BREAK_START              @"AD_BREAK_START"
+#define AD_BREAK_END                @"AD_BREAK_END"
+#define AD_QUARTILE                 @"AD_QUARTILE"
+#define AD_CLICK                    @"AD_CLICK"
+
 #endif /* EventDefs_h */

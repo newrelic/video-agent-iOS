@@ -29,13 +29,7 @@
     return _actionOptions;
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
-    }
-    return self;
-}
-
-#pragma mark - Tracker Method
+#pragma mark - Tracker Content Events
 
 - (void)sendRequest {
     [self sendAction:CONTENT_REQUEST];
@@ -83,6 +77,72 @@
 
 - (void)sendError {
     [self sendAction:CONTENT_ERROR];
+}
+
+#pragma mark - Tracker Ad Events
+
+- (void)sendAdRequest {
+    [self sendAction:AD_REQUEST];
+}
+
+- (void)sendAdStart {
+    [self sendAction:AD_START];
+}
+
+- (void)sendAdEnd {
+    [self sendAction:AD_END];
+}
+
+- (void)sendAdPause {
+    [self sendAction:AD_PAUSE];
+}
+
+- (void)sendAdResume {
+    [self sendAction:AD_RESUME];
+}
+
+- (void)sendAdSeekStart {
+    [self sendAction:AD_SEEK_START];
+}
+
+- (void)sendAdSeekEnd {
+    [self sendAction:AD_SEEK_END];
+}
+
+- (void)sendAdBufferStart {
+    [self sendAction:AD_BUFFER_START];
+}
+
+- (void)sendAdBufferEnd {
+    [self sendAction:AD_BUFFER_END];
+}
+
+- (void)sendAdHeartbeat {
+    [self sendAction:AD_HEARTBEAT];
+}
+
+- (void)sendAdRenditionChange {
+    [self sendAction:AD_RENDITION_CHANGE];
+}
+
+- (void)sendAdError {
+    [self sendAction:AD_ERROR];
+}
+
+- (void)sendAdBreakStart {
+    [self sendAction:AD_BREAK_START];
+}
+
+- (void)sendAdBreakEnd {
+    [self sendAction:AD_BREAK_END];
+}
+
+- (void)sendAdQuartile {
+    [self sendAction:AD_QUARTILE];
+}
+
+- (void)sendAdClick {
+    [self sendAction:AD_CLICK];
 }
 
 #pragma mark - SendAction
