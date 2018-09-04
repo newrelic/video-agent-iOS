@@ -45,6 +45,8 @@
 
 @implementation VideoTracker
 
+// TODO : separate the content and ad atributes (and common ones)
+
 - (NSDictionary<NSString *,NSValue *> *)attributeGetters {
     if (!_attributeGetters) {
         _attributeGetters = @{
@@ -59,6 +61,8 @@
                         @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
                         @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
                         @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+                        @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
+                        // Content properties
                         @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
                         @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
                         @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
@@ -69,10 +73,10 @@
                         @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
                         @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
                         @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
-                        @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
                         @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
-                        @"isAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
+                        @"contentIsAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
                         @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
+                        // TODO: Ad properties
                         };
     }
     return _attributeGetters;
@@ -178,6 +182,8 @@
 
 #pragma mark - Send requests and set options
 
+// TODO : separate the content and ad atributes (and common ones)
+
 - (void)preSend {
     [self updateAttributes];
     
@@ -238,6 +244,8 @@
         [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:CONTENT_RENDITION_CHANGE];
     }
 }
+
+// TODO: while Ad, use a different TrackerAutomat
 
 - (void)sendRequest {
     self.totalPlaytime = 0;

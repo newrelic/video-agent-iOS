@@ -32,6 +32,8 @@
 - (void)setIsAutoplayed:(NSNumber *)state;
 - (NSNumber *)getIsFullscreen;
 
+// TODO: Asv specific getters and properties
+
 @end
 
 @interface VideoTracker : NSObject
@@ -56,5 +58,7 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 - (void)startTimerEvent;
 - (void)abortTimerEvent;
+
+// TODO: Adv specific methods (send*)
 
 @end

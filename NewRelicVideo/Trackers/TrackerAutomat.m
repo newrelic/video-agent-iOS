@@ -10,6 +10,8 @@
 #import "NSMutableArray+Stack.h"
 #import "BackendActions.h"
 
+// TODO: implement Ads/Contents
+
 @interface TrackerAutomat ()
 
 @property (nonatomic) TrackerState state;
