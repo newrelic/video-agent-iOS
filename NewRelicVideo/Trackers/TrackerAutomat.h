@@ -39,6 +39,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 @property (nonatomic, readonly) TrackerState state;
 @property (nonatomic, readonly) BackendActions *actions;
+@property (nonatomic) BOOL isAd;
 
 - (void)transition:(TrackerTransition)tt;
 - (void)force:(TrackerState)state;

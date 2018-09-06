@@ -13,6 +13,23 @@
 #import "EventDefs.h"
 #import <NewRelicAgent/NewRelic.h>
 
+/*
+ Opció 1:
+ - Agefir metodes send que mirin is isAd i executin el metode que cal al automat.
+ - Posar totes les noves propietats necessaries per a Ads i Contents. Tb usant isAd per discriminar.
+ - Al temporitzador, tb mirar si isAd per fer o no fer coses (bitrate per exemple).
+ 
+ Opció 2:
+ - Crear una classe base VideoTracker comuna amb només el codi i les propietats compartides entre Contents i Ads.
+ - Crear dues classes derivades: ContentsTracker i AdsTracker.
+ - El tracker Content és el responsable de registrar el AdsTracker "- (void)registerAdsTracker:(AdsTracker *)tracker;"
+ -
+ 
+ Opció 3:
+ - Una sola classes VideoTracker amb el codi comu i dues classes específiques.
+ - Composició. Intenalemtn usem AdsTracker o ContentTracker en funció de les necessitats.
+ */
+
 // TODO: implement Ads stuff
 
 #define OBSERVATION_TIME        2.0f
@@ -40,6 +57,8 @@
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
+
+// TODO: ADD property, @property (nonatomic) VideoTracker<VideoTrackerProtocol>  *adsTracker;  To be added by contents tracker
 
 @end
 

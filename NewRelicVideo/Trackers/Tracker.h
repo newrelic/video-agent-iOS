@@ -1,14 +1,14 @@
 //
-//  VideoTracker.h
+//  Tracker.h
 //  NewRelicVideo
 //
-//  Created by Andreu Santaren on 29/08/2018.
+//  Created by Andreu Santaren on 06/09/2018.
 //  Copyright © 2018 New Relic Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-@protocol VideoTrackerProtocol <NSObject>
+@protocol TrackerProtocol <NSObject>
 @required
 - (NSString *)getTrackerName;
 - (NSString *)getTrackerVersion;
@@ -36,10 +36,12 @@
 
 @end
 
-@interface VideoTracker : NSObject
+@interface Tracker : NSObject
 
+- (NSTimeInterval)timestamp;
 - (void)reset;
 - (void)setup;
+- (void)preSend;
 - (void)sendRequest;
 - (void)sendStart;
 - (void)sendEnd;
@@ -56,9 +58,5 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
 - (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
-- (void)startTimerEvent;
-- (void)abortTimerEvent;
-
-// TODO: Adv specific methods (send*)
 
 @end
