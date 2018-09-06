@@ -11,10 +11,12 @@
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 #import "EventDefs.h"
+#import "Vars.h"
 
 @interface Tracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
+@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributeGetters;
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
@@ -24,12 +26,54 @@
 
 @implementation Tracker
 
+- (NSDictionary<NSString *,NSValue *> *)attributeGetters {
+    if (!_attributeGetters) {
+        _attributeGetters = @{
+                              // Base Tracker
+                              @"viewId": [NSValue valueWithPointer:@selector(getViewId)],
+                              @"numberOfVideos": [NSValue valueWithPointer:@selector(getNumberOfVideos)],
+                              @"coreVersion": [NSValue valueWithPointer:@selector(getCoreVersion)],
+                              @"viewSession": [NSValue valueWithPointer:@selector(getViewSession)],
+                              @"numberOfErrors": [NSValue valueWithPointer:@selector(getNumberOfErrors)],
+                              // Implemented by tracker subclass, required
+                              @"trackerName": [NSValue valueWithPointer:@selector(getTrackerName)],
+                              @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
+                              @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
+                              @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+                              @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
+                              };
+    }
+    return _attributeGetters;
+}
+
 - (instancetype)init {
     if (self = [super init]) {
         self.automat = [[TrackerAutomat alloc] init];
         self.automat.isAd = [self isMeAd];
     }
     return self;
+}
+
+#pragma mark - Base Tracker attributes
+
+- (NSString *)getViewId {
+    return self.viewId;
+}
+
+- (NSNumber *)getNumberOfVideos {
+    return @(self.viewIdIndex);
+}
+
+- (NSString *)getCoreVersion {
+    return [Vars string:@"CFBundleShortVersionString"];
+}
+
+- (NSString *)getViewSession {
+    return [NewRelicAgent currentSessionId];
+}
+
+- (NSNumber *)getNumberOfErrors {
+    return @(self.numErrors);
 }
 
 #pragma mark - Utils
@@ -55,6 +99,24 @@
     }
 }
 
+- (void)updateAttribute:(NSString *)attr {
+    NSValue *value = self.attributeGetters[attr];
+    SEL selector = [value pointerValue];
+    
+    if ([self respondsToSelector:selector]) {
+        IMP imp = [self methodForSelector:selector];
+        id<NSCopying> (*func)(id, SEL) = (void *)imp;
+        
+        [self setOptionKey:attr value:func(self, selector)];
+    }
+}
+
+- (void)updateAttributes {
+    for (NSString *key in self.attributeGetters) {
+        [self updateAttribute:key];
+    }
+}
+
 #pragma mark - Public
 
 - (NSTimeInterval)timestamp {
@@ -66,13 +128,16 @@
     self.viewIdIndex = 0;
     self.numErrors = 0;
     [self playNewVideo];
-//    [self updateAttributes];
+    [self updateAttributes];
 }
 
 - (void)setup {}
 
 - (void)preSend {
-    // TODO: update attributes
+    
+    [self updateAttributes];
+    
+    // TODO: generate attributes before send
     
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
         NSString *action = [self isMeAd] ? AD_RENDITION_CHANGE : CONTENT_RENDITION_CHANGE;

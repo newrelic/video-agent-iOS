@@ -14,9 +14,10 @@
 - (NSString *)getTrackerVersion;
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
-- (NSString *)getVideoId;
+- (NSNumber *)getIsAd;
 @optional
 - (void)timeEvent;
+- (NSString *)getVideoId;
 - (NSNumber *)getBitrate;
 - (NSNumber *)getRenditionWidth;
 - (NSNumber *)getRenditionHeight;
@@ -26,7 +27,6 @@
 - (NSNumber *)getPlayrate;
 - (NSNumber *)getFps;
 - (NSNumber *)getIsLive;
-- (NSNumber *)getIsAd;
 - (NSNumber *)getIsMutted;
 - (NSNumber *)getIsAutoplayed;
 - (void)setIsAutoplayed:(NSNumber *)state;
