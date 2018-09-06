@@ -7,10 +7,12 @@
 //
 
 #import "ContentsTracker.h"
+#import "TrackerAutomat.h"
 
 @interface Tracker ()
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
+@property (nonatomic) TrackerAutomat *automat;
 
 @end
 
@@ -22,6 +24,7 @@
 // TODO: implement timestamps
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
+
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
@@ -65,6 +68,7 @@
     
     self.requestTimestamp = 0;
     self.heartbeatTimestamp = 0;
+    self.totalPlaytime = 0;
 }
 
 - (void)setup {
@@ -85,6 +89,12 @@
     else {
         [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
     }
+    
+    if (self.automat.state == TrackerStatePlaying) {
+        
+        self.totalPlaytimeTimestamp = self.timestamp;
+    }
+    [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
 }
 
 - (void)sendRequest {
