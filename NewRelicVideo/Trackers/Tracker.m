@@ -14,6 +14,7 @@
 #import "Vars.h"
 
 #define OBSERVATION_TIME        2.0f
+#define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
 
 @interface Tracker ()
 
@@ -22,6 +23,7 @@
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
+@property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
 
@@ -130,6 +132,7 @@
     self.viewId = @"";
     self.viewIdIndex = 0;
     self.numErrors = 0;
+    self.heartbeatCounter = 0;
     [self playNewVideo];
     [self updateAttributes];
 }
@@ -258,6 +261,13 @@
 - (void)internalTimerHandler:(NSTimer *)timer {
     if ([(id<TrackerProtocol>)self respondsToSelector:@selector(timeEvent)]) {
         [(id<TrackerProtocol>)self timeEvent];
+    }
+    
+    self.heartbeatCounter ++;
+    
+    if (self.heartbeatCounter >= HEARTBEAT_COUNT) {
+        self.heartbeatCounter = 0;
+        [self sendHeartbeat];
     }
 }
 

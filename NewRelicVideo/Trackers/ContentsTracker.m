@@ -18,8 +18,8 @@
 
 @property (nonatomic) NSTimeInterval requestTimestamp;
 @property (nonatomic) NSTimeInterval trackerReadyTimestamp;
-// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
+// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
@@ -64,6 +64,7 @@
     [super reset];
     
     self.requestTimestamp = 0;
+    self.heartbeatTimestamp = 0;
 }
 
 - (void)setup {
@@ -77,11 +78,63 @@
     
     [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (self.timestamp - self.trackerReadyTimestamp))];
     [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    
+    if (self.heartbeatTimestamp > 0) {
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.heartbeatTimestamp))];
+    }
+    else {
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    }
 }
 
 - (void)sendRequest {
     self.requestTimestamp = self.timestamp;
     [super sendRequest];
+}
+
+- (void)sendStart {
+    [super sendStart];
+}
+
+- (void)sendEnd {
+    [super sendEnd];
+}
+
+- (void)sendPause {
+    [super sendPause];
+}
+
+- (void)sendResume {
+    [super sendResume];
+}
+
+- (void)sendSeekStart {
+    [super sendSeekStart];
+}
+
+- (void)sendSeekEnd {
+    [super sendSeekEnd];
+}
+
+- (void)sendBufferStart {
+    [super sendBufferStart];
+}
+
+- (void)sendBufferEnd {
+    [super sendBufferEnd];
+}
+
+- (void)sendHeartbeat {
+    self.heartbeatTimestamp = self.timestamp;
+    [super sendHeartbeat];
+}
+
+- (void)sendRenditionChange {
+    [super sendRenditionChange];
+}
+
+- (void)sendError {
+    [super sendError];
 }
 
 #pragma mark - Getters
