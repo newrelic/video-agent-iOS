@@ -7,11 +7,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "VideoTracker.h"
+#import "ContentsTracker.h"
 
 @class AVPlayer;
 
-@interface AVPlayerTracker : VideoTracker <VideoTrackerProtocol>
+@interface AVPlayerTracker : ContentsTracker <ContentsTrackerProtocol>
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
 

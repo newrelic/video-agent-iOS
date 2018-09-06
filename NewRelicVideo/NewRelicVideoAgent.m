@@ -9,7 +9,7 @@
 #import "NewRelicVideoAgent.h"
 #import "AVPlayerTracker.h"
 #import "AVPlayerViewControllerTracker.h"
-#import "VideoTracker.h"
+#import "ContentsTracker.h"
 
 // TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
 // TODO: right now we don't support multiple player instances being used at the same time. Should we?
@@ -18,7 +18,7 @@
 
 @interface NewRelicVideoAgent ()
 
-@property (nonatomic) VideoTracker<VideoTrackerProtocol> *tracker;
+@property (nonatomic) ContentsTracker<ContentsTrackerProtocol> *tracker;
 
 @end
 
@@ -48,7 +48,7 @@
     }
 }
 
-+ (void)startWithTracker:(VideoTracker<VideoTrackerProtocol> *)tracker {
++ (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker {
 
     [[self sharedInstance] setTracker:tracker];
     
@@ -62,7 +62,7 @@
     }
 }
 
-+ (id<VideoTrackerProtocol>)trackerInstance {
++ (id<ContentsTrackerProtocol>)trackerInstance {
     return [[self sharedInstance] tracker];
 }
 

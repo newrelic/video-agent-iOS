@@ -248,7 +248,7 @@
     self.videoID = nil;
 }
 
-#pragma mark - VideoTracker getters
+#pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
     return @"avplayer";
@@ -341,11 +341,6 @@
 
 // NOTE: should be handled by a custom tracker, subclassing it
 - (NSNumber *)getIsLive {
-    return @NO;
-}
-
-// NOTE: should be handled by a custom tracker, subclassing it
-- (NSNumber *)getIsAd {
     return @NO;
 }
 

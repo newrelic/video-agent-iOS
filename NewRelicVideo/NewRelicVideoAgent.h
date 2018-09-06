@@ -8,8 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
-@class VideoTracker;
-@protocol VideoTrackerProtocol;
+@class ContentsTracker;
+@protocol ContentsTrackerProtocol;
 
 @interface NewRelicVideoAgent : NSObject
 
@@ -25,11 +25,11 @@
  
  Call this after having initialized the NewRelicAgent.
  */
-+ (void)startWithTracker:(VideoTracker<VideoTrackerProtocol> *)tracker;
++ (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker;
 
 /*!
  Return the tracker instance.
  */
-+ (id<VideoTrackerProtocol>)trackerInstance;
++ (id<ContentsTrackerProtocol>)trackerInstance;
 
 @end
