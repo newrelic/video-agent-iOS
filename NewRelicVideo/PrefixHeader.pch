@@ -14,4 +14,8 @@
 
 #import "LOG.h"
 
+#define OVERWRITE_STUB @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) \
+stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
+return nil;
+
 #endif /* PrefixHeader_pch */

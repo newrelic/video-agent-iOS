@@ -10,8 +10,6 @@
 #import "NSMutableArray+Stack.h"
 #import "BackendActions.h"
 
-// TODO: implement Ads/Contents
-
 @interface TrackerAutomat ()
 
 @property (nonatomic) TrackerState state;
@@ -167,7 +165,7 @@
 #pragma mark - Senders
 
 - (void)sendRequest {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendRequest];
     }
     else {
@@ -176,7 +174,7 @@
 }
 
 - (void)sendStart {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendStart];
     }
     else {
@@ -185,7 +183,7 @@
 }
 
 - (void)sendEnd {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendEnd];
     }
     else {
@@ -194,7 +192,7 @@
 }
 
 - (void)sendPause {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendPause];
     }
     else {
@@ -203,7 +201,7 @@
 }
 
 - (void)sendResume {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendResume];
     }
     else {
@@ -212,7 +210,7 @@
 }
 
 - (void)sendSeekStart {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendSeekStart];
     }
     else {
@@ -221,7 +219,7 @@
 }
 
 - (void)sendSeekEnd {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendSeekEnd];
     }
     else {
@@ -230,7 +228,7 @@
 }
 
 - (void)sendBufferStart {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendBufferStart];
     }
     else {
@@ -239,7 +237,7 @@
 }
 
 - (void)sendBufferEnd {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendBufferEnd];
     }
     else {
@@ -248,7 +246,7 @@
 }
 
 - (void)sendHeartbeat {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendHeartbeat];
     }
     else {
@@ -257,7 +255,7 @@
 }
 
 - (void)sendRenditionChange {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendRenditionChange];
     }
     else {
@@ -266,7 +264,7 @@
 }
 
 - (void)sendError {
-    if (self.isAd) {
+    if (!self.isAd) {
         [self.actions sendError];
     }
     else {

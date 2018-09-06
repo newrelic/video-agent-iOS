@@ -30,12 +30,8 @@
  - Composició. Intenalemtn usem AdsTracker o ContentTracker en funció de les necessitats.
  */
 
-// TODO: implement Ads stuff
-
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
-#define OVERWRITE_STUB          @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
-                                return nil;
 
 @interface VideoTracker ()
 

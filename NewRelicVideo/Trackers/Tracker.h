@@ -8,10 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#define OVERWRITE_STUB @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) \
-stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
-return nil;
-
 @protocol TrackerProtocol <NSObject>
 @required
 - (NSString *)getTrackerName;
