@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+#define OVERWRITE_STUB @throw([NSException exceptionWithName:NSGenericException reason:[NSStringFromSelector(_cmd) \
+stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
+return nil;
+
 @protocol TrackerProtocol <NSObject>
 @required
 - (NSString *)getTrackerName;
@@ -17,23 +21,6 @@
 - (NSNumber *)getIsAd;
 @optional
 - (void)timeEvent;
-- (NSString *)getVideoId;
-- (NSNumber *)getBitrate;
-- (NSNumber *)getRenditionWidth;
-- (NSNumber *)getRenditionHeight;
-- (NSNumber *)getDuration;
-- (NSNumber *)getPlayhead;
-- (NSString *)getSrc;
-- (NSNumber *)getPlayrate;
-- (NSNumber *)getFps;
-- (NSNumber *)getIsLive;
-- (NSNumber *)getIsMutted;
-- (NSNumber *)getIsAutoplayed;
-- (void)setIsAutoplayed:(NSNumber *)state;
-- (NSNumber *)getIsFullscreen;
-
-// TODO: Adv specific getters (attributes)
-
 @end
 
 @interface Tracker : NSObject
@@ -58,5 +45,7 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
 - (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
+- (void)startTimerEvent;
+- (void)abortTimerEvent;
 
 @end

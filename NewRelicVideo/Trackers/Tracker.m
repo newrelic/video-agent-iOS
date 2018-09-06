@@ -13,20 +13,23 @@
 #import "EventDefs.h"
 #import "Vars.h"
 
+#define OBSERVATION_TIME        2.0f
+
 @interface Tracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
-@property (nonatomic) NSDictionary<NSString *, NSValue *> *attributeGetters;
+@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
 @property (nonatomic) int numErrors;
+@property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
 
 @end
 
 @implementation Tracker
 
-- (NSDictionary<NSString *,NSValue *> *)attributeGetters {
+- (NSMutableDictionary<NSString *,NSValue *> *)attributeGetters {
     if (!_attributeGetters) {
         _attributeGetters = @{
                               // Base Tracker
@@ -41,7 +44,7 @@
                               @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
                               @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
                               @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
-                              };
+                              }.mutableCopy;
     }
     return _attributeGetters;
 }
@@ -231,6 +234,31 @@
         [self.automat.actions.actionOptions setObject:dic forKey:action];
     }
     [dic setObject:value forKey:key];
+}
+
+#pragma mark - Timer stuff
+
+- (void)startTimerEvent {
+    if (self.playerStateObserverTimer) {
+        [self abortTimerEvent];
+    }
+    
+    self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
+                                                                     target:self
+                                                                   selector:@selector(internalTimerHandler:)
+                                                                   userInfo:nil
+                                                                    repeats:YES];
+}
+
+- (void)abortTimerEvent {
+    [self.playerStateObserverTimer invalidate];
+    self.playerStateObserverTimer = nil;
+}
+
+- (void)internalTimerHandler:(NSTimer *)timer {
+    if ([(id<TrackerProtocol>)self respondsToSelector:@selector(timeEvent)]) {
+        [(id<TrackerProtocol>)self timeEvent];
+    }
 }
 
 @end
