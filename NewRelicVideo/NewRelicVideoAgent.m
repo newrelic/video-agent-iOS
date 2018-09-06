@@ -62,7 +62,7 @@
     }
 }
 
-+ (id<VideoTrackerProtocol>)trackerInstance {
++ (VideoTracker<VideoTrackerProtocol> *)trackerInstance {
     return [[self sharedInstance] tracker];
 }
 

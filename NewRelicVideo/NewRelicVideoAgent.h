@@ -30,6 +30,6 @@
 /*!
  Return the tracker instance.
  */
-+ (id<VideoTrackerProtocol>)trackerInstance;
++ (VideoTracker<VideoTrackerProtocol> *)trackerInstance;
 
 @end
