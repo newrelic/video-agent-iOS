@@ -9,18 +9,23 @@
 #import "AVPlayerTracker.h"
 #import "EventDefs.h"
 
-// BUG: is video is buffering, seeking doesn't produce time observer events wiith rate == 0.
-// BUG: buffering events are not always triggered by AVPlayer.
+// KNOWN ISSUES:
+// * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
+// * If seeked while paused, the SEEK_END is sent only when user resumes the video.
+// * While video is buffering, seeking doesn't produce time observer events with rate == 0.
 
 @import AVKit;
 
 @interface AVPlayerTracker ()
 
-// AVPlayer weak reference
+// AVPlayer weak references
 @property (nonatomic, weak) AVPlayer *player;
+@property (nonatomic, weak) AVPlayerViewController *playerViewController;
+
 @property (nonatomic) int numZeroRates;
 @property (nonatomic) double estimatedBitrate;
 @property (nonatomic) BOOL isAutoPlayed;
+@property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) NSString *videoID;
 
 @end
@@ -30,6 +35,13 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
         self.player = player;
+    }
+    return self;
+}
+
+- (instancetype)initWithAVPlayerViewController:(AVPlayerViewController *)playerViewController {
+    if (self = [self initWithAVPlayer:playerViewController.player]) {
+        self.playerViewController = playerViewController;
     }
     return self;
 }
@@ -49,12 +61,6 @@
     // Register periodic time observer (an event every 1/2 seconds)
     
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
-        //double currentTime = CMTimeGetSeconds(time);
-        //AV_LOG(@"Current playback rate = %f, time = %lf", self.player.rate, currentTime);
-        
-        // KNOWN PROBLEMS:
-        // * It send a pause right before seek start and a resume right after seek end
-        // * If seeked while paused, the seek end is sent only when user resumes the video.
         
         if (self.player.rate == 0) {
             self.numZeroRates ++;
@@ -101,6 +107,13 @@
     [self.player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
                                  options:NSKeyValueObservingOptionNew
                                  context:NULL];
+    
+    if (self.playerViewController) {
+        [self.playerViewController addObserver:self forKeyPath:@"videoBounds"
+                                       options:NSKeyValueObservingOptionNew
+                                       context:NULL];
+        
+    }
     
     AV_LOG(@"Setup AVPlayer events and listener");
 }
@@ -200,6 +213,23 @@
     else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
         AV_LOG(@"Video Playback Buffer Full");
         [self sendBufferEnd];
+    }
+    
+    // AVPlayerViewController KVOs
+    if ([keyPath isEqualToString:@"videoBounds"]) {
+        AV_LOG(@"VIDEO BOUNDS CHANGE = %@", NSStringFromCGRect(self.playerViewController.videoBounds));
+        AV_LOG(@"SCREEN BOUNDS = %@", NSStringFromCGRect([UIScreen mainScreen].bounds));
+        
+        CGRect newBounds = [change[NSKeyValueChangeNewKey] CGRectValue];
+        
+        if ([UIScreen mainScreen].bounds.size.height == newBounds.size.height || [UIScreen mainScreen].bounds.size.width == newBounds.size.width) {
+            AV_LOG(@"FULL SCREEN");
+            self.isFullScreen = YES;
+        }
+        else {
+            AV_LOG(@"NO FULL SCREEN");
+            self.isFullScreen = NO;
+        }
     }
 }
 
@@ -356,9 +386,8 @@
     self.isAutoPlayed = state.boolValue;
 }
 
-// NOTE: should be handled by a custom tracker, subclassing it
 - (NSNumber *)getIsFullscreen {
-    return @NO;
+    return @(self.isFullScreen);
 }
 
 @end

@@ -10,9 +10,11 @@
 #import "ContentsTracker.h"
 
 @class AVPlayer;
+@class AVPlayerViewController;
 
 @interface AVPlayerTracker : ContentsTracker <ContentsTrackerProtocol>
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
+- (instancetype)initWithAVPlayerViewController:(AVPlayerViewController *)playerViewController;
 
 @end

@@ -8,7 +8,6 @@
 
 #import "NewRelicVideoAgent.h"
 #import "AVPlayerTracker.h"
-#import "AVPlayerViewControllerTracker.h"
 #import "ContentsTracker.h"
 
 // TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
@@ -39,7 +38,7 @@
         AV_LOG(@"Created AVPlayerTracker");
     }
     else if ([player isKindOfClass:[AVPlayerViewController class]]) {
-        [self startWithTracker:[[AVPlayerViewControllerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
+        [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
         AV_LOG(@"Created AVPlayerViewControllerTracker");
     }
     else  {

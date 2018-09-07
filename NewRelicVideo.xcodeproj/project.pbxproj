@@ -22,8 +22,6 @@
 		9CA3DDFF2136960D00205DC4 /* VideoTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DDFD2136960D00205DC4 /* VideoTracker.m */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
-		9CB26A43213D6DF600A8891D /* AVPlayerViewControllerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A41213D6DF600A8891D /* AVPlayerViewControllerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9CB26A44213D6DF600A8891D /* AVPlayerViewControllerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A42213D6DF600A8891D /* AVPlayerViewControllerTracker.m */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; };
@@ -69,8 +67,6 @@
 		9CA3DDFD2136960D00205DC4 /* VideoTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoTracker.m; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
-		9CB26A41213D6DF600A8891D /* AVPlayerViewControllerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerViewControllerTracker.h; sourceTree = "<group>"; };
-		9CB26A42213D6DF600A8891D /* AVPlayerViewControllerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerViewControllerTracker.m; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -198,8 +194,6 @@
 			children = (
 				9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */,
 				9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */,
-				9CB26A41213D6DF600A8891D /* AVPlayerViewControllerTracker.h */,
-				9CB26A42213D6DF600A8891D /* AVPlayerViewControllerTracker.m */,
 			);
 			path = AVPlayer;
 			sourceTree = "<group>";
@@ -225,7 +219,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
-				9CB26A43213D6DF600A8891D /* AVPlayerViewControllerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
@@ -342,7 +335,6 @@
 				9CB26A4821411A4F00A8891D /* Tracker.m in Sources */,
 				9CA3DDFF2136960D00205DC4 /* VideoTracker.m in Sources */,
 				9CE5D730212EF3B500B89D07 /* NSMutableArray+Stack.m in Sources */,
-				9CB26A44213D6DF600A8891D /* AVPlayerViewControllerTracker.m in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9CA3DE042136BB3000205DC4 /* Vars.m in Sources */,
 				9CE5D72B212EE9BB00B89D07 /* TrackerAutomat.m in Sources */,
