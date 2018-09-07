@@ -26,9 +26,9 @@
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
-// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
+// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
@@ -88,6 +88,9 @@
     self.requestTimestamp = 0;
     self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
+    self.playtimeSinceLastEventTimestamp = 0;
+    self.timeSinceStartedTimestamp = 0;
+    
     [self updateContentsAttributes];
 }
 
@@ -102,21 +105,34 @@
     
     [self updateContentsAttributes];
     
-    [self setContentsOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (TIMESTAMP - self.trackerReadyTimestamp))];
-    [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
+    [self setContentsOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
+    [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
     
     if (self.heartbeatTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.heartbeatTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
     }
     else {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
     }
     
     if (self.automat.state == TrackerStatePlaying) {
-        self.totalPlaytime += TIMESTAMP - self.totalPlaytimeTimestamp;
+        self.totalPlaytime += TIMESINCE(self.totalPlaytimeTimestamp);
         self.totalPlaytimeTimestamp = TIMESTAMP;
     }
     [self setContentsOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
+    
+    if (self.playtimeSinceLastEventTimestamp == 0) {
+        self.playtimeSinceLastEventTimestamp = TIMESTAMP;
+    }
+    [self setOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * TIMESINCE(self.playtimeSinceLastEventTimestamp))];
+    self.playtimeSinceLastEventTimestamp = TIMESTAMP;
+    
+    if (self.timeSinceStartedTimestamp > 0) {
+        [self setOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
+    }
+    else {
+        [self setOptionKey:@"timeSinceStarted" value:@0];
+    }
 }
 
 - (void)sendRequest {
@@ -125,6 +141,9 @@
 }
 
 - (void)sendStart {
+    if (self.automat.state == TrackerStateStarting) {
+        self.timeSinceStartedTimestamp = TIMESTAMP;
+    }
     self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendStart];
 }

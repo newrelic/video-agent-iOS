@@ -18,6 +18,7 @@
 stringByAppendingString:@": Selector must be overwritten by subclass"] userInfo:nil]);\
 return nil;
 
-#define TIMESTAMP [[NSDate date] timeIntervalSince1970]
+#define TIMESTAMP       [[NSDate date] timeIntervalSince1970]
+#define TIMESINCE(x)    ([[NSDate date] timeIntervalSince1970] - x)
 
 #endif /* PrefixHeader_pch */
