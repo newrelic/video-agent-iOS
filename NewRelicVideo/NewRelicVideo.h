@@ -9,6 +9,14 @@
 #import <UIKit/UIKit.h>
 #import <NewRelicVideo/NewRelicVideoAgent.h>
 
+// TODO: necessary to generate the framework
+/*
+#import <NewRelicVideo/EventDefs.h>
+#import <NewRelicVideo/VideoTracker.h>
+#import <NewRelicVideo/AVPlayerTracker.h>
+#import <NewRelicVideo/AVPlayerViewControllerTracker.h>
+*/
+
 // TODO: add AVPlayerTracker header and VideoTracker header to build the framework
 
 //! Project version number for NewRelicVideo.
