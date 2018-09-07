@@ -148,12 +148,10 @@
     // TODO: generate attributes before send
     
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
-        NSString *action = [self isMeAd] ? AD_RENDITION_CHANGE : CONTENT_RENDITION_CHANGE;
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * (TIMESTAMP - self.timeSinceLastRenditionChangeTimestamp)) forAction:action];
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
     }
     else {
-        NSString *action = [self isMeAd] ? AD_RENDITION_CHANGE : CONTENT_RENDITION_CHANGE;
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:action];
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:@"_RENDITION_CHANGE"];
     }
 }
 
