@@ -62,7 +62,7 @@
     }
 }
 
-+ (id<ContentsTrackerProtocol>)trackerInstance {
++ (ContentsTracker<ContentsTrackerProtocol> *)trackerInstance {
     return [[self sharedInstance] tracker];
 }
 

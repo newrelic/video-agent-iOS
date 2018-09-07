@@ -10,7 +10,7 @@
 		9C414822212D7AD400850636 /* NewRelicVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414818212D7AD400850636 /* NewRelicVideo.framework */; };
 		9C414827212D7AD400850636 /* NewRelicVideoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414826212D7AD400850636 /* NewRelicVideoTests.m */; };
 		9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C41481B212D7AD400850636 /* NewRelicVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9C414833212D7B7700850636 /* EventDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414832212D7B4C00850636 /* EventDefs.h */; };
+		9C414833212D7B7700850636 /* EventDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414832212D7B4C00850636 /* EventDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414834212D7C9000850636 /* NewRelicVideoAgent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414835212D7C9000850636 /* NewRelicVideoAgent.m */; };
 		9C41483C212D7E8100850636 /* NewRelicAgent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483B212D7E8000850636 /* NewRelicAgent.framework */; };
@@ -230,10 +230,10 @@
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9CA3DDFE2136960D00205DC4 /* VideoTracker.h in Headers */,
+				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
-				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,

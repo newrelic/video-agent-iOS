@@ -30,6 +30,6 @@
 /*!
  Return the tracker instance.
  */
-+ (id<ContentsTrackerProtocol>)trackerInstance;
++ (ContentsTracker<ContentsTrackerProtocol> *)trackerInstance;
 
 @end
