@@ -116,7 +116,7 @@
         self.totalPlaytime += TIMESTAMP - self.totalPlaytimeTimestamp;
         self.totalPlaytimeTimestamp = TIMESTAMP;
     }
-    [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
+    [self setContentsOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
 }
 
 - (void)sendRequest {
