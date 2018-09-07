@@ -31,7 +31,7 @@
 
 @implementation Tracker
 
-- (NSMutableDictionary<NSString *,NSValue *> *)attributeGetters {
+- (NSMutableDictionary<NSString *, NSValue *> *)attributeGetters {
     if (!_attributeGetters) {
         _attributeGetters = @{
                               // Base Tracker
@@ -105,18 +105,24 @@
 }
 
 - (void)updateAttribute:(NSString *)attr {
-    NSValue *value = self.attributeGetters[attr];
-    SEL selector = [value pointerValue];
+    [self updateAttribute:attr forAction:nil];
+}
+
+- (void)updateAttribute:(NSString *)attr forAction:(NSString *)action {
     
-    if ([self respondsToSelector:selector]) {
-        IMP imp = [self methodForSelector:selector];
-        id<NSCopying> (*func)(id, SEL) = (void *)imp;
-        
-        [self setOptionKey:attr value:func(self, selector)];
+    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.attributeGetters];
+    
+    if (val) {
+        if (action) {
+            [self setOptionKey:attr value:val forAction:action];
+        }
+        else {
+            [self setOptionKey:attr value:val];
+        }
     }
 }
 
-- (void)updateAttributes {
+- (void)updateBaseAttributes {
     for (NSString *key in self.attributeGetters) {
         [self updateAttribute:key];
     }
@@ -130,14 +136,14 @@
     self.numErrors = 0;
     self.heartbeatCounter = 0;
     [self playNewVideo];
-    [self updateAttributes];
+    [self updateBaseAttributes];
 }
 
 - (void)setup {}
 
 - (void)preSend {
     
-    [self updateAttributes];
+    [self updateBaseAttributes];
     
     // TODO: generate attributes before send
     
@@ -241,6 +247,22 @@
         [self.automat.actions.actionOptions setObject:dic forKey:action];
     }
     [dic setObject:value forKey:key];
+}
+
+#pragma mark - Attributes
+
+- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *,NSValue *> *)attributeGetters {
+    NSValue *value = attributeGetters[attr];
+    SEL selector = [value pointerValue];
+    
+    if ([self respondsToSelector:selector]) {
+        IMP imp = [self methodForSelector:selector];
+        id<NSCopying> (*func)(id, SEL) = (void *)imp;
+        return func(self, selector);
+    }
+    else {
+        return nil;
+    }
 }
 
 #pragma mark - Timer stuff

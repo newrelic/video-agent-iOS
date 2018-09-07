@@ -276,6 +276,9 @@
     [super sendEnd];
     self.isAutoPlayed = NO;
     self.videoID = nil;
+    
+    // TEST: custom action
+    //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
 }
 
 #pragma mark - ContentsTracker getters

@@ -22,7 +22,7 @@
     return _generalOptions;
 }
 
-- (NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
+- (NSMutableDictionary<NSString *, NSMutableDictionary *> *)actionOptions {
     if (!_actionOptions) {
         _actionOptions = @{}.mutableCopy;
     }
@@ -157,7 +157,7 @@
     NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     [ops addEntriesFromDictionary:self.generalOptions];
-    [ops addEntriesFromDictionary:[self.actionOptions objectForKey:name]];
+    [ops addEntriesFromDictionary:[self actionOptionsForName:name]];
     
     if ([NewRelicAgent currentSessionId]) {
         [NewRelic recordCustomEvent:VIDEO_EVENT
@@ -168,6 +168,29 @@
     }
     
     AV_LOG(@"sendAction name = %@, attr = %@", name, ops);
+}
+
+#pragma mark - Private
+
+- (NSDictionary *)actionOptionsForName:(NSString *)name {
+    
+    for (NSString *key in self.actionOptions) {
+        if ([key hasSuffix:@"_"]) {
+            if ([name hasPrefix:key]) {
+                return [self.actionOptions objectForKey:key];
+            }
+        }
+        else if ([key hasPrefix:@"_"]) {
+            if ([name hasSuffix:key]) {
+                return [self.actionOptions objectForKey:key];
+            }
+        }
+        else if ([key isEqualToString:name]) {
+            return [self.actionOptions objectForKey:key];
+        }
+    }
+    
+    return @{};
 }
 
 @end

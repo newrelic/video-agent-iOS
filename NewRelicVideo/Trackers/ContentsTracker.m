@@ -9,14 +9,17 @@
 #import "ContentsTracker.h"
 #import "TrackerAutomat.h"
 
+#define ACTION_FILTER @"CONTENT_"
+
 @interface Tracker ()
 
-@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
 @property (nonatomic) TrackerAutomat *automat;
 
 @end
 
 @interface ContentsTracker ()
+
+@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *contentsAttributeGetters;
 
 @property (nonatomic) NSTimeInterval requestTimestamp;
 @property (nonatomic) NSTimeInterval trackerReadyTimestamp;
@@ -35,32 +38,49 @@
 
 @implementation ContentsTracker
 
+- (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
+    if (!_contentsAttributeGetters) {
+        _contentsAttributeGetters = @{
+                                      @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
+                                      @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
+                                      @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
+                                      @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
+                                      @"contentDuration": [NSValue valueWithPointer:@selector(getDuration)],
+                                      @"contentPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
+                                      @"contentSrc": [NSValue valueWithPointer:@selector(getSrc)],
+                                      @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
+                                      @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
+                                      @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
+                                      @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
+                                      @"contentIsAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
+                                      @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
+                                      }.mutableCopy;
+    }
+    return _contentsAttributeGetters;
+}
+
+- (void)updateContentsAttributes {
+    for (NSString *key in self.contentsAttributeGetters) {
+        [self updateContentsAttribute:key];
+    }
+}
+
+- (void)setContentsOptionKey:(NSString *)key value:(id<NSCopying>)value {
+    [self setOptionKey:key value:value forAction:ACTION_FILTER];
+}
+
+- (void)updateContentsAttribute:(NSString *)attr {
+    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
+    if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
+}
+
 #pragma mark - Init
 
 - (instancetype)init {
     if (self = [super init]) {
         self.trackerReadyTimestamp = TIMESTAMP;
-        [self setupAttributeGetters];
     }
     return self;
-}
-
-- (void)setupAttributeGetters {
-    [self.attributeGetters addEntriesFromDictionary:@{
-                                                      @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
-                                                      @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
-                                                      @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
-                                                      @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
-                                                      @"contentDuration": [NSValue valueWithPointer:@selector(getDuration)],
-                                                      @"contentPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
-                                                      @"contentSrc": [NSValue valueWithPointer:@selector(getSrc)],
-                                                      @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
-                                                      @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
-                                                      @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
-                                                      @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
-                                                      @"contentIsAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
-                                                      @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
-                                                      }];
 }
 
 - (void)reset {
@@ -69,6 +89,7 @@
     self.requestTimestamp = 0;
     self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
+    [self updateContentsAttributes];
 }
 
 - (void)setup {
@@ -80,21 +101,23 @@
 - (void)preSend {
     [super preSend];
     
-    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (TIMESTAMP - self.trackerReadyTimestamp))];
-    [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
+    [self updateContentsAttributes];
+    
+    [self setContentsOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (TIMESTAMP - self.trackerReadyTimestamp))];
+    [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
     
     if (self.heartbeatTimestamp > 0) {
-        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.heartbeatTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.heartbeatTimestamp))];
     }
     else {
-        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
     }
     
     if (self.automat.state == TrackerStatePlaying) {
         
         self.totalPlaytimeTimestamp = TIMESTAMP;
     }
-    [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
+    [self setContentsOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
 }
 
 - (void)sendRequest {

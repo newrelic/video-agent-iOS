@@ -42,6 +42,7 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
 - (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
+- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
 - (void)startTimerEvent;
 - (void)abortTimerEvent;
 
