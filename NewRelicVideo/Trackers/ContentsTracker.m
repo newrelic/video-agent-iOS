@@ -37,6 +37,18 @@
 
 @implementation ContentsTracker
 
+// ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT_" EVENTS:
+/*
+ contentTitle*
+ contentRenditionName
+ contentRenditionBitrate
+ contentLanguage*
+ contentCdn*
+ contentPreload
+ timeSinceLastAd
+ */
+
+
 - (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
     if (!_contentsAttributeGetters) {
         _contentsAttributeGetters = @{

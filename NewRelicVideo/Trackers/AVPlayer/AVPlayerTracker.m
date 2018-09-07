@@ -13,6 +13,7 @@
 // * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
 // * If seeked while paused, the SEEK_END is sent only when user resumes the video.
 // * While video is buffering, seeking doesn't produce time observer events with rate == 0.
+// * Sometimes, when seeking to a part of the video not in buffer, we don't get BUFFER events, but a SEEK_END + RESUME when it finished buffering and starts playing again.
 
 @import AVKit;
 
