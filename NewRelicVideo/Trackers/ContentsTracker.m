@@ -24,10 +24,9 @@
 @property (nonatomic) NSTimeInterval requestTimestamp;
 @property (nonatomic) NSTimeInterval trackerReadyTimestamp;
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
-// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
-
+// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
@@ -114,10 +113,10 @@
     }
     
     if (self.automat.state == TrackerStatePlaying) {
-        
+        self.totalPlaytime += TIMESTAMP - self.totalPlaytimeTimestamp;
         self.totalPlaytimeTimestamp = TIMESTAMP;
     }
-    [self setContentsOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
+    [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
 }
 
 - (void)sendRequest {
@@ -126,11 +125,13 @@
 }
 
 - (void)sendStart {
+    self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendStart];
 }
 
 - (void)sendEnd {
     [super sendEnd];
+    self.totalPlaytime = 0;
 }
 
 - (void)sendPause {
@@ -138,6 +139,7 @@
 }
 
 - (void)sendResume {
+    self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendResume];
 }
 
