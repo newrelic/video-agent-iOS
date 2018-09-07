@@ -39,7 +39,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.trackerReadyTimestamp = self.timestamp;
+        self.trackerReadyTimestamp = TIMESTAMP;
         [self setupAttributeGetters];
     }
     return self;
@@ -80,25 +80,25 @@
 - (void)preSend {
     [super preSend];
     
-    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (self.timestamp - self.trackerReadyTimestamp))];
-    [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * (TIMESTAMP - self.trackerReadyTimestamp))];
+    [self setOptionKey:@"timeSinceRequested" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
     
     if (self.heartbeatTimestamp > 0) {
-        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.heartbeatTimestamp))];
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.heartbeatTimestamp))];
     }
     else {
-        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (self.timestamp - self.requestTimestamp))];
+        [self setOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * (TIMESTAMP - self.requestTimestamp))];
     }
     
     if (self.automat.state == TrackerStatePlaying) {
         
-        self.totalPlaytimeTimestamp = self.timestamp;
+        self.totalPlaytimeTimestamp = TIMESTAMP;
     }
     [self setOptionKey:@"totalPlaytime" value:@(1000.0f * self.totalPlaytime)];
 }
 
 - (void)sendRequest {
-    self.requestTimestamp = self.timestamp;
+    self.requestTimestamp = TIMESTAMP;
     [super sendRequest];
 }
 
@@ -135,7 +135,7 @@
 }
 
 - (void)sendHeartbeat {
-    self.heartbeatTimestamp = self.timestamp;
+    self.heartbeatTimestamp = TIMESTAMP;
     [super sendHeartbeat];
 }
 
@@ -175,7 +175,7 @@
 
 #pragma mark - Timer
 
-- (void)timeEvent {
+- (void)trackerTimeEvent {
     // TODO: bitrate stuff
 }
 

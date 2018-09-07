@@ -16,12 +16,11 @@
 - (NSString *)getPlayerName;
 - (NSNumber *)getIsAd;
 @optional
-- (void)timeEvent;
+- (void)trackerTimeEvent;
 @end
 
 @interface Tracker : NSObject
 
-- (NSTimeInterval)timestamp;
 - (void)reset;
 - (void)setup;
 - (void)preSend;
@@ -37,6 +36,8 @@
 - (void)sendHeartbeat;
 - (void)sendRenditionChange;
 - (void)sendError;
+- (void)sendCustomAction:(NSString *)name;
+- (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr;
 - (void)setOptions:(NSDictionary *)opts;
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
 - (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;

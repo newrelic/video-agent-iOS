@@ -43,4 +43,7 @@
 - (void)sendAdQuartile;
 - (void)sendAdClick;
 
+- (void)sendAction:(NSString *)name;
+- (void)sendAction:(NSString *)name attr:(NSDictionary *)dict;
+
 @end

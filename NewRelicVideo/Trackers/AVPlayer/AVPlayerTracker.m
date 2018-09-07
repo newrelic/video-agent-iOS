@@ -234,7 +234,7 @@
 }
 
 // Time Evenent, called by a timer in the superclass, every OBSERVATION_TIME seconds
-- (void)timeEvent {
+- (void)trackerTimeEvent {
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         AV_LOG(@"Timeout, video ended but no event received.");
         [self sendEnd];

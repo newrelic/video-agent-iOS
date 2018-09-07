@@ -124,10 +124,6 @@
 
 #pragma mark - Public
 
-- (NSTimeInterval)timestamp {
-    return [[NSDate date] timeIntervalSince1970];
-}
-
 - (void)reset {
     self.viewId = @"";
     self.viewIdIndex = 0;
@@ -147,7 +143,7 @@
     
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
         NSString *action = [self isMeAd] ? AD_RENDITION_CHANGE : CONTENT_RENDITION_CHANGE;
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * (self.timestamp - self.timeSinceLastRenditionChangeTimestamp)) forAction:action];
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * (TIMESTAMP - self.timeSinceLastRenditionChangeTimestamp)) forAction:action];
     }
     else {
         NSString *action = [self isMeAd] ? AD_RENDITION_CHANGE : CONTENT_RENDITION_CHANGE;
@@ -209,13 +205,21 @@
 - (void)sendRenditionChange {
     [self preSend];
     [self.automat transition:TrackerTransitionRenditionChanged];
-    self.timeSinceLastRenditionChangeTimestamp = self.timestamp;
+    self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
 }
 
 - (void)sendError {
     [self preSend];
     [self.automat transition:TrackerTransitionErrorPlaying];
     self.numErrors ++;
+}
+
+- (void)sendCustomAction:(NSString *)name {
+    [self.automat.actions sendAction:name attr:nil];
+}
+
+- (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr {
+    [self.automat.actions sendAction:name attr:attr];
 }
 
 - (void)setOptions:(NSDictionary *)opts {
@@ -259,8 +263,8 @@
 }
 
 - (void)internalTimerHandler:(NSTimer *)timer {
-    if ([(id<TrackerProtocol>)self respondsToSelector:@selector(timeEvent)]) {
-        [(id<TrackerProtocol>)self timeEvent];
+    if ([(id<TrackerProtocol>)self respondsToSelector:@selector(trackerTimeEvent)]) {
+        [(id<TrackerProtocol>)self trackerTimeEvent];
     }
     
     self.heartbeatCounter ++;
