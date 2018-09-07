@@ -17,8 +17,6 @@
 #import <NewRelicVideo/AVPlayerViewControllerTracker.h>
 */
 
-// TODO: add AVPlayerTracker header and VideoTracker header to build the framework
-
 //! Project version number for NewRelicVideo.
 FOUNDATION_EXPORT double NewRelicVideoVersionNumber;
 
