@@ -174,23 +174,25 @@
 
 - (NSDictionary *)actionOptionsForName:(NSString *)name {
     
+    NSMutableDictionary *dic = @{}.mutableCopy;
+    
     for (NSString *key in self.actionOptions) {
         if ([key hasSuffix:@"_"]) {
             if ([name hasPrefix:key]) {
-                return [self.actionOptions objectForKey:key];
+                [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
             }
         }
         else if ([key hasPrefix:@"_"]) {
             if ([name hasSuffix:key]) {
-                return [self.actionOptions objectForKey:key];
+                [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
             }
         }
         else if ([key isEqualToString:name]) {
-            return [self.actionOptions objectForKey:key];
+            [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
         }
     }
     
-    return @{};
+    return dic.copy;
 }
 
 @end

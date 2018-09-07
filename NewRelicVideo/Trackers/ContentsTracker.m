@@ -8,6 +8,7 @@
 
 #import "ContentsTracker.h"
 #import "TrackerAutomat.h"
+#import "EventDefs.h"
 
 #define ACTION_FILTER @"CONTENT_"
 
@@ -28,7 +29,6 @@
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
-// TODO: implement timestamps
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
@@ -124,14 +124,35 @@
     if (self.playtimeSinceLastEventTimestamp == 0) {
         self.playtimeSinceLastEventTimestamp = TIMESTAMP;
     }
-    [self setOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * TIMESINCE(self.playtimeSinceLastEventTimestamp))];
+    [self setContentsOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * TIMESINCE(self.playtimeSinceLastEventTimestamp))];
     self.playtimeSinceLastEventTimestamp = TIMESTAMP;
     
     if (self.timeSinceStartedTimestamp > 0) {
-        [self setOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
+        [self setContentsOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
     }
     else {
-        [self setOptionKey:@"timeSinceStarted" value:@0];
+        [self setContentsOptionKey:@"timeSinceStarted" value:@0];
+    }
+    
+    if (self.timeSincePausedTimestamp > 0) {
+        [self setOptionKey:@"timeSincePaused" value:@(1000.0f * TIMESINCE(self.timeSincePausedTimestamp)) forAction:CONTENT_RESUME];
+    }
+    else {
+        [self setOptionKey:@"timeSincePaused" value:@0 forAction:CONTENT_RESUME];
+    }
+    
+    if (self.timeSinceBufferBeginTimestamp > 0) {
+        [self setOptionKey:@"timeSinceBufferBegin" value:@(1000.0f * TIMESINCE(self.timeSinceBufferBeginTimestamp)) forAction:CONTENT_BUFFER_END];
+    }
+    else {
+        [self setOptionKey:@"timeSinceBufferBegin" value:@0 forAction:CONTENT_BUFFER_END];
+    }
+    
+    if (self.timeSinceSeekBeginTimestamp > 0) {
+        [self setOptionKey:@"timeSinceSeekBegin" value:@(1000.0f * TIMESINCE(self.timeSinceSeekBeginTimestamp)) forAction:CONTENT_SEEK_END];
+    }
+    else {
+        [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
     }
 }
 
@@ -154,6 +175,7 @@
 }
 
 - (void)sendPause {
+    self.timeSincePausedTimestamp = TIMESTAMP;
     [super sendPause];
 }
 
@@ -163,6 +185,7 @@
 }
 
 - (void)sendSeekStart {
+    self.timeSinceSeekBeginTimestamp = TIMESTAMP;
     [super sendSeekStart];
 }
 
@@ -171,6 +194,7 @@
 }
 
 - (void)sendBufferStart {
+    self.timeSinceBufferBeginTimestamp = TIMESTAMP;
     [super sendBufferStart];
 }
 
