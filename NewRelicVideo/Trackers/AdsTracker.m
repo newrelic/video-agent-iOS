@@ -27,6 +27,7 @@
 @property (nonatomic) NSTimeInterval timeSinceLastAdHeartbeatTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceAdStartedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceAdPausedTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceAdBufferBeginTimestamp;
 
 @end
 
@@ -114,6 +115,7 @@
     [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.timeSinceLastAdHeartbeatTimestamp];
     [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.timeSinceAdStartedTimestamp];
     [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.timeSinceAdPausedTimestamp filter:AD_RESUME];
+    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.timeSinceAdBufferBeginTimestamp filter:AD_BUFFER_END];
 }
 
 - (void)sendRequest {
@@ -149,6 +151,7 @@
 }
 
 - (void)sendBufferStart {
+    self.timeSinceAdBufferBeginTimestamp = TIMESTAMP;
     [super sendBufferStart];
 }
 
