@@ -10,20 +10,71 @@
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 
+#define ACTION_FILTER @"AD_"
+
 @interface Tracker ()
 
 @property (nonatomic) TrackerAutomat *automat;
 
 @end
 
+@interface AdsTracker ()
+
+@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *adsAttributeGetters;
+@property (nonatomic) int numberOfAds;
+
+@end
+
 @implementation AdsTracker
 
-// TODO: implement numberOfAds attr
+- (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
+    if (!_adsAttributeGetters) {
+        _adsAttributeGetters = @{
+                                 @"numberOfAds": [NSValue valueWithPointer:@selector(getNumberOfAds)],
+                                 @"adId": [NSValue valueWithPointer:@selector(getVideoId)],
+                                 @"adTitle": [NSValue valueWithPointer:@selector(getTitle)],
+                                 @"adBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
+                                 @"adRenditionName": [NSValue valueWithPointer:@selector(getRenditionName)],
+                                 @"adRenditionBitrate": [NSValue valueWithPointer:@selector(getRenditionBitrate)],
+                                 @"adRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
+                                 @"adRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
+                                 @"adDuration": [NSValue valueWithPointer:@selector(getDuration)],
+                                 @"adPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
+                                 @"adLanguage": [NSValue valueWithPointer:@selector(getLanguage)],
+                                 @"adSrc": [NSValue valueWithPointer:@selector(getSrc)],
+                                 @"adIsMuted": [NSValue valueWithPointer:@selector(getIsMuted)],
+                                 @"adCdn": [NSValue valueWithPointer:@selector(getCdn)],
+                                 @"adFps": [NSValue valueWithPointer:@selector(getFps)],
+                                 @"adCreativeId": [NSValue valueWithPointer:@selector(getAdCreativeId)],
+                                 @"adPosition": [NSValue valueWithPointer:@selector(getAdPosition)],
+                                 @"adPartner": [NSValue valueWithPointer:@selector(getAdPartner)],
+                                 }.mutableCopy;
+    }
+    return _adsAttributeGetters;
+}
+
+- (void)updateAdsAttributes {
+    for (NSString *key in self.contentsAttributeGetters) {
+        [self updateAdsAttribute:key];
+    }
+}
+
+- (void)setAdsOptionKey:(NSString *)key value:(id<NSCopying>)value {
+    [self setOptionKey:key value:value forAction:ACTION_FILTER];
+}
+
+- (void)updateAdsAttribute:(NSString *)attr {
+    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
+    if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
+}
 
 #pragma mark - Init
 
 - (void)reset {
     [super reset];
+    
+    self.numberOfAds = 0;
+    [self updateAdsAttributes];
 }
 
 - (void)setup {
@@ -34,9 +85,12 @@
 
 - (void)preSend {
     [super preSend];
+    
+    [self updateAdsAttributes];
 }
 
 - (void)sendRequest {
+    self.numberOfAds ++;
     [super sendRequest];
 }
 
@@ -87,6 +141,7 @@
 // Ads specific senders
 
 - (void)sendAdBreakStart {
+    self.numberOfAds = 0;
     [self.automat.actions sendAdBreakStart];
 }
 
@@ -103,6 +158,10 @@
 }
 
 #pragma mark - Getters
+
+- (NSNumber *)getNumberOfAds {
+    return @(self.numberOfAds);
+}
 
 - (NSNumber *)getIsAd {
     return @YES;
