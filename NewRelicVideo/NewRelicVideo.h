@@ -14,6 +14,7 @@
 #import <NewRelicVideo/EventDefs.h>
 #import <NewRelicVideo/Tracker.h>
 #import <NewRelicVideo/ContentsTracker.h>
+#import <NewRelicVideo/AdsTracker.h>
 #import <NewRelicVideo/AVPlayerTracker.h>
 */
 
