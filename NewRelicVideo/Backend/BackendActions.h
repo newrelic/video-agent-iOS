@@ -43,6 +43,9 @@
 - (void)sendAdQuartile;
 - (void)sendAdClick;
 
+- (void)sendPlayerReady;
+- (void)sendDownload;
+
 - (void)sendAction:(NSString *)name;
 - (void)sendAction:(NSString *)name attr:(NSDictionary *)dict;
 

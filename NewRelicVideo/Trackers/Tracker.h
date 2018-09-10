@@ -34,6 +34,8 @@
 - (void)sendHeartbeat;
 - (void)sendRenditionChange;
 - (void)sendError;
+- (void)sendPlayerReady;
+- (void)sendDownload;
 - (void)sendCustomAction:(NSString *)name;
 - (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr;
 - (void)setOptions:(NSDictionary *)opts;

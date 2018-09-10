@@ -216,6 +216,14 @@
     self.numErrors ++;
 }
 
+- (void)sendPlayerReady {
+    [self.automat.actions sendPlayerReady];
+}
+
+- (void)sendDownload {
+    [self.automat.actions sendDownload];
+}
+
 - (void)sendCustomAction:(NSString *)name {
     [self.automat.actions sendAction:name attr:nil];
 }

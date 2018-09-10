@@ -41,4 +41,7 @@
 #define AD_QUARTILE                 @"AD_QUARTILE"
 #define AD_CLICK                    @"AD_CLICK"
 
+#define PLAYER_READY                @"PLAYER_READY"
+#define DOWNLOAD                    @"DOWNLOAD"
+
 #endif /* EventDefs_h */

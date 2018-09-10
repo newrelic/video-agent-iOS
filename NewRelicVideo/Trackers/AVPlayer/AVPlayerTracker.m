@@ -147,6 +147,9 @@
         AV_LOG(@"#### ERROR WHILE PLAYING");
         // NOTE: this is probably redundant and already catched in "rate" KVO when self.player.error != nil
     }
+    else if (p.status == AVPlayerItemStatusUnknown) {
+        [self sendPlayerReady];
+    }
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {

@@ -15,4 +15,9 @@
 
 @interface AdsTracker : Tracker <TrackerProtocol>
 
+- (void)sendAdBreakStart;
+- (void)sendAdBreakEnd;
+- (void)sendAdQuartile;
+- (void)sendAdClick;
+
 @end

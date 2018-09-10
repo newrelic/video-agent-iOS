@@ -145,6 +145,14 @@
     [self sendAction:AD_CLICK];
 }
 
+- (void)sendPlayerReady {
+    [self sendAction:PLAYER_READY];
+}
+
+- (void)sendDownload {
+    [self sendAction:DOWNLOAD];
+}
+
 #pragma mark - SendAction
 
 - (void)sendAction:(NSString *)name {
