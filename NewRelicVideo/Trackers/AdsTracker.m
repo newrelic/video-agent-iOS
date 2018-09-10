@@ -29,6 +29,8 @@
 @property (nonatomic) NSTimeInterval timeSinceAdPausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceAdBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceAdSeekBeginTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceAdBreakBeginTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceLastAdQuartileTimestamp;
 
 @end
 
@@ -118,6 +120,8 @@
     [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.timeSinceAdPausedTimestamp filter:AD_RESUME];
     [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.timeSinceAdBufferBeginTimestamp filter:AD_BUFFER_END];
     [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.timeSinceAdSeekBeginTimestamp filter:AD_SEEK_END];
+    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.timeSinceAdBreakBeginTimestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.timeSinceLastAdQuartileTimestamp filter:AD_QUARTILE];
 }
 
 - (void)sendRequest {
@@ -179,6 +183,7 @@
 
 - (void)sendAdBreakStart {
     self.numberOfAds = 0;
+    self.timeSinceAdBreakBeginTimestamp = TIMESTAMP;
     [self.automat.actions sendAdBreakStart];
 }
 
@@ -187,6 +192,7 @@
 }
 
 - (void)sendAdQuartile {
+    self.timeSinceLastAdQuartileTimestamp = TIMESTAMP;
     [self.automat.actions sendAdQuartile];
 }
 
