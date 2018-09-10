@@ -26,6 +26,7 @@
 @property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 @property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
+@property (nonatomic) NSTimeInterval trackerReadyTimestamp;
 
 @end
 
@@ -55,6 +56,7 @@
     if (self = [super init]) {
         self.automat = [[TrackerAutomat alloc] init];
         self.automat.isAd = [self isMeAd];
+        self.trackerReadyTimestamp = TIMESTAMP;
     }
     return self;
 }
@@ -144,6 +146,8 @@
 - (void)preSend {
     
     [self updateBaseAttributes];
+    
+    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
     
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
         [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];

@@ -24,7 +24,6 @@
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *contentsAttributeGetters;
 
 @property (nonatomic) NSTimeInterval requestTimestamp;
-@property (nonatomic) NSTimeInterval trackerReadyTimestamp;
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
@@ -87,13 +86,6 @@
 
 #pragma mark - Init
 
-- (instancetype)init {
-    if (self = [super init]) {
-        self.trackerReadyTimestamp = TIMESTAMP;
-    }
-    return self;
-}
-
 - (void)reset {
     [super reset];
     
@@ -117,7 +109,6 @@
     
     [self updateContentsAttributes];
     
-    [self setContentsOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
     [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
     
     if (self.heartbeatTimestamp > 0) {
