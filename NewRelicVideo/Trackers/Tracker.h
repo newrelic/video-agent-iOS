@@ -15,6 +15,21 @@
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
 - (NSNumber *)getIsAd;
+@optional
+- (NSString *)getVideoId;
+- (NSString *)getTitle;
+- (NSNumber *)getBitrate;
+- (NSString *)getRenditionName;
+- (NSNumber *)getRenditionBitrate;
+- (NSNumber *)getRenditionWidth;
+- (NSNumber *)getRenditionHeight;
+- (NSNumber *)getDuration;
+- (NSNumber *)getPlayhead;
+- (NSString *)getLanguage;
+- (NSString *)getSrc;
+- (NSNumber *)getIsMuted;
+- (NSString *)getCdn;
+- (NSNumber *)getFps;
 @end
 
 @interface Tracker : NSObject

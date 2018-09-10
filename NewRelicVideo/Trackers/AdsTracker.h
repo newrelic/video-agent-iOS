@@ -10,7 +10,9 @@
 
 @protocol AdsTrackerProtocol <TrackerProtocol>
 @optional
-// TODO
+- (NSString *)getAdCreativeId;
+- (NSString *)getAdPosition;
+- (NSString *)getAdPartner;
 @end
 
 @interface AdsTracker : Tracker <TrackerProtocol>

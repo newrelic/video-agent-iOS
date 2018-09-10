@@ -18,6 +18,8 @@
 
 @implementation AdsTracker
 
+// TODO: implement numberOfAds attr
+
 #pragma mark - Init
 
 - (void)reset {

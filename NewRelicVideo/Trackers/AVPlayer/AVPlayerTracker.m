@@ -383,7 +383,7 @@
     return @NO;
 }
 
-- (NSNumber *)getIsMutted {
+- (NSNumber *)getIsMuted {
     return @(self.player.muted);
 }
 
