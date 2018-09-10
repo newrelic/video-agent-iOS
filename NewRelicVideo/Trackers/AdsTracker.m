@@ -9,6 +9,7 @@
 #import "AdsTracker.h"
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
+#import "EventDefs.h"
 
 #define ACTION_FILTER @"AD_"
 
@@ -25,6 +26,7 @@
 @property (nonatomic) NSTimeInterval timeSinceAdRequestedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceLastAdHeartbeatTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceAdStartedTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceAdPausedTimestamp;
 
 @end
 
@@ -63,24 +65,28 @@
 }
 
 - (void)setAdsOptionKey:(NSString *)key value:(id<NSCopying>)value {
-    [self setOptionKey:key value:value forAction:ACTION_FILTER];
+    [self setAdsOptionKey:key value:value forAction:ACTION_FILTER];
 }
 
-- (void)updateAdsAttribute:(NSString *)attr forAction:(NSString *)action {
-    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
-    if (val) [self setOptionKey:attr value:val forAction:action];
+- (void)setAdsOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
+    [self setOptionKey:key value:value forAction:action];
 }
 
 - (void)updateAdsAttribute:(NSString *)attr {
-    [self updateAdsAttribute:attr forAction:ACTION_FILTER];
+    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
+    if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
 }
 
 - (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
+    [self setAdsTimeKey:key timestamp:timestamp filter:ACTION_FILTER];
+}
+
+- (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
     if (timestamp > 0) {
-        [self setAdsOptionKey:key value:@(1000.0f * TIMESINCE(timestamp))];
+        [self setAdsOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
     }
     else {
-        [self setAdsOptionKey:key value:@0];
+        [self setAdsOptionKey:key value:@0 forAction:filter];
     }
 }
 
@@ -107,6 +113,7 @@
     [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.timeSinceAdRequestedTimestamp];
     [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.timeSinceLastAdHeartbeatTimestamp];
     [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.timeSinceAdStartedTimestamp];
+    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.timeSinceAdPausedTimestamp filter:AD_RESUME];
 }
 
 - (void)sendRequest {
@@ -125,6 +132,7 @@
 }
 
 - (void)sendPause {
+    self.timeSinceAdPausedTimestamp = TIMESTAMP;
     [super sendPause];
 }
 
