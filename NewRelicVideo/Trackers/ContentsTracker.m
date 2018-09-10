@@ -38,14 +38,8 @@
 
 @implementation ContentsTracker
 
-// ATTRIBUTES YET TO IMPLEMENT FOR "CONTENT_" EVENTS:
+// ATTRIBUTES NOT IMPLEMENTED:
 /*
- contentTitle*
- contentRenditionName
- contentRenditionBitrate
- contentLanguage*
- contentCdn*
- contentPreload
  timeSinceLastAd
  */
 
@@ -53,17 +47,23 @@
     if (!_contentsAttributeGetters) {
         _contentsAttributeGetters = @{
                                       @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
+                                      @"contentTitle": [NSValue valueWithPointer:@selector(getTitle)],
                                       @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
+                                      @"contentRenditionName": [NSValue valueWithPointer:@selector(getRenditionName)],
+                                      @"contentRenditionBitrate": [NSValue valueWithPointer:@selector(getRenditionBitrate)],
                                       @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
                                       @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
                                       @"contentDuration": [NSValue valueWithPointer:@selector(getDuration)],
                                       @"contentPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
+                                      @"contentLanguage": [NSValue valueWithPointer:@selector(getLanguage)],
                                       @"contentSrc": [NSValue valueWithPointer:@selector(getSrc)],
                                       @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
                                       @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
                                       @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
                                       @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMutted)],
+                                      @"contentCdn": [NSValue valueWithPointer:@selector(getCdn)],
                                       @"contentIsAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
+                                      @"contentPreload": [NSValue valueWithPointer:@selector(getPreload)],
                                       @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
                                       }.mutableCopy;
     }
