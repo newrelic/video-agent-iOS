@@ -22,6 +22,9 @@
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *adsAttributeGetters;
 @property (nonatomic) int numberOfAds;
+@property (nonatomic) NSTimeInterval timeSinceAdRequestedTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceLastAdHeartbeatTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceAdStartedTimestamp;
 
 @end
 
@@ -63,9 +66,22 @@
     [self setOptionKey:key value:value forAction:ACTION_FILTER];
 }
 
-- (void)updateAdsAttribute:(NSString *)attr {
+- (void)updateAdsAttribute:(NSString *)attr forAction:(NSString *)action {
     id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
-    if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
+    if (val) [self setOptionKey:attr value:val forAction:action];
+}
+
+- (void)updateAdsAttribute:(NSString *)attr {
+    [self updateAdsAttribute:attr forAction:ACTION_FILTER];
+}
+
+- (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
+    if (timestamp > 0) {
+        [self setAdsOptionKey:key value:@(1000.0f * TIMESINCE(timestamp))];
+    }
+    else {
+        [self setAdsOptionKey:key value:@0];
+    }
 }
 
 #pragma mark - Init
@@ -87,14 +103,20 @@
     [super preSend];
     
     [self updateAdsAttributes];
+    
+    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.timeSinceAdRequestedTimestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.timeSinceLastAdHeartbeatTimestamp];
+    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.timeSinceAdStartedTimestamp];
 }
 
 - (void)sendRequest {
+    self.timeSinceAdRequestedTimestamp = TIMESTAMP;
     self.numberOfAds ++;
     [super sendRequest];
 }
 
 - (void)sendStart {
+    self.timeSinceAdStartedTimestamp = TIMESTAMP;
     [super sendStart];
 }
 
@@ -127,6 +149,7 @@
 }
 
 - (void)sendHeartbeat {
+    self.timeSinceLastAdHeartbeatTimestamp = TIMESTAMP;
     [super sendHeartbeat];
 }
 

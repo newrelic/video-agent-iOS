@@ -37,7 +37,7 @@
 
 @implementation ContentsTracker
 
-// ATTRIBUTES NOT IMPLEMENTED:
+// TODO: ATTRIBUTES NOT IMPLEMENTED:
 /*
  timeSinceLastAd
  */
