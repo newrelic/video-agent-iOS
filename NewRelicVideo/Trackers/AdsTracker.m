@@ -82,6 +82,8 @@
     [super sendError];
 }
 
+// Ads specific senders
+
 - (void)sendAdBreakStart {
     [self.automat.actions sendAdBreakStart];
 }

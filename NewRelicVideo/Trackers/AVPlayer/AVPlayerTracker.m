@@ -290,11 +290,11 @@
 #pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
-    return @"avplayer";
+    return @"avplayertracker";
 }
 
 - (NSString *)getTrackerVersion {
-    return @"1.0";
+    return @"0.1";
 }
 
 - (NSString *)getPlayerVersion {
