@@ -9,7 +9,10 @@
 #import <Foundation/Foundation.h>
 
 @class ContentsTracker;
+@class AdsTracker;
+
 @protocol ContentsTrackerProtocol;
+@protocol AdsTrackerProtocol;
 
 @interface NewRelicVideoAgent : NSObject
 
@@ -21,15 +24,27 @@
 + (void)startWithPlayer:(id)player;
 
 /*!
- Starts New Relic Video data collection for custom "tracker"
+ Starts New Relic Video data collection for contents tracker.
  
  Call this after having initialized the NewRelicAgent.
  */
 + (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker;
 
 /*!
+ Starts New Relic Video data collection for contents tracker and ads tracker.
+ 
+ Call this after having initialized the NewRelicAgent.
+ */
++ (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker andAds:(AdsTracker<AdsTrackerProtocol> *)adsTracker;
+
+/*!
  Return the tracker instance.
  */
 + (ContentsTracker<ContentsTrackerProtocol> *)trackerInstance;
+
+/*!
+ Return the ads tracker instance.
+ */
++ (AdsTracker<AdsTrackerProtocol> *)adsTrackerInstance;
 
 @end
