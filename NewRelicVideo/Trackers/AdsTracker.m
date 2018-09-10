@@ -20,6 +20,12 @@
 
 @end
 
+@interface ContentsTracker ()
+
+- (void)adHappened:(NSTimeInterval)time;
+
+@end
+
 @interface AdsTracker ()
 
 @property (nonatomic, weak) ContentsTracker *contentsTracker;
