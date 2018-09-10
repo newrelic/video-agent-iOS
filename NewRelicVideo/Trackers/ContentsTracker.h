@@ -8,8 +8,6 @@
 
 #import "Tracker.h"
 
-@class AdsTracker;
-
 @protocol ContentsTrackerProtocol <TrackerProtocol>
 @optional
 - (NSNumber *)getPlayrate;
@@ -21,7 +19,5 @@
 @end
 
 @interface ContentsTracker : Tracker <TrackerProtocol>
-
-@property (nonatomic) AdsTracker *adsTracker;
 
 @end
