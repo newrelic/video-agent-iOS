@@ -8,6 +8,11 @@
 
 #import "Tracker.h"
 
-@interface AdsTracker : Tracker
+@protocol AdsTrackerProtocol <TrackerProtocol>
+@optional
+// TODO
+@end
+
+@interface AdsTracker : Tracker <TrackerProtocol>
 
 @end

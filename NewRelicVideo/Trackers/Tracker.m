@@ -145,8 +145,6 @@
     
     [self updateBaseAttributes];
     
-    // TODO: generate attributes before send
-    
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
         [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
     }
