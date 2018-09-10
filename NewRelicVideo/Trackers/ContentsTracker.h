@@ -20,4 +20,6 @@
 
 @interface ContentsTracker : Tracker <TrackerProtocol>
 
+- (void)adHappened:(NSTimeInterval)time;
+
 @end

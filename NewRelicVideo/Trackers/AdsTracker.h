@@ -8,6 +8,8 @@
 
 #import "Tracker.h"
 
+@class ContentsTracker;
+
 @protocol AdsTrackerProtocol <TrackerProtocol>
 @optional
 - (NSString *)getAdCreativeId;
@@ -16,6 +18,8 @@
 @end
 
 @interface AdsTracker : Tracker <TrackerProtocol>
+
+- (instancetype)initWithContentsTracker:(ContentsTracker *)tracker;
 
 - (void)sendAdBreakStart;
 - (void)sendAdBreakEnd;

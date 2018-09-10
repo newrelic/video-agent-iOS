@@ -32,15 +32,11 @@
 @property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
 @property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
+@property (nonatomic) NSTimeInterval timeSinceLastAdTimestamp;
 
 @end
 
 @implementation ContentsTracker
-
-// TODO: ATTRIBUTES NOT IMPLEMENTED:
-/*
- timeSinceLastAd
- */
 
 - (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
     if (!_contentsAttributeGetters) {
@@ -94,6 +90,7 @@
     self.totalPlaytime = 0;
     self.playtimeSinceLastEventTimestamp = 0;
     self.timeSinceStartedTimestamp = 0;
+    self.timeSinceLastAdTimestamp = 0;
     
     [self updateContentsAttributes];
 }
@@ -157,6 +154,15 @@
     else {
         [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
     }
+    
+    if (self.timeSinceLastAdTimestamp > 0) {
+        [self setContentsOptionKey:@"timeSinceLastAd" value:@(1000.0f * TIMESINCE(self.timeSinceLastAdTimestamp))];
+    }
+    else {
+        [self setContentsOptionKey:@"timeSinceLastAd" value:@0];
+    }
+    
+    
 }
 
 - (void)sendRequest {
@@ -175,6 +181,7 @@
 - (void)sendEnd {
     [super sendEnd];
     self.totalPlaytime = 0;
+    self.timeSinceLastAdTimestamp = 0;
 }
 
 - (void)sendPause {
@@ -244,10 +251,15 @@
     return nil;
 }
 
-#pragma mark - Timer
+#pragma mark - Time
 
+// Timer event handler
 - (void)trackerTimeEvent {
     [super trackerTimeEvent];
+}
+
+- (void)adHappened:(NSTimeInterval)time {
+    self.timeSinceLastAdTimestamp = time;
 }
 
 @end

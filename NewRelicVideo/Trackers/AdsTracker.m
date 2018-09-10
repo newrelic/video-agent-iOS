@@ -10,6 +10,7 @@
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 #import "EventDefs.h"
+#import "ContentsTracker.h"
 
 #define ACTION_FILTER @"AD_"
 
@@ -20,6 +21,8 @@
 @end
 
 @interface AdsTracker ()
+
+@property (nonatomic, weak) ContentsTracker *contentsTracker;
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *adsAttributeGetters;
 @property (nonatomic) int numberOfAds;
@@ -96,6 +99,13 @@
 
 #pragma mark - Init
 
+- (instancetype)initWithContentsTracker:(ContentsTracker *)tracker {
+    if (self = [super init]) {
+        self.contentsTracker = tracker;
+    }
+    return self;
+}
+
 - (void)reset {
     [super reset];
     
@@ -136,6 +146,10 @@
 }
 
 - (void)sendEnd {
+    if (self.contentsTracker) {
+        [self.contentsTracker adHappened:TIMESTAMP];
+    }
+    
     [super sendEnd];
 }
 
