@@ -8,6 +8,8 @@
 
 #import "Tracker.h"
 
+@class AdsTracker;
+
 @protocol ContentsTrackerProtocol <TrackerProtocol>
 @optional
 - (NSString *)getVideoId;
@@ -27,5 +29,7 @@
 @end
 
 @interface ContentsTracker : Tracker <TrackerProtocol>
+
+@property (nonatomic) AdsTracker *adsTracker;
 
 @end

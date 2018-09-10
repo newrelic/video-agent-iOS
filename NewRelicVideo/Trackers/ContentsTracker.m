@@ -7,6 +7,7 @@
 //
 
 #import "ContentsTracker.h"
+#import "AdsTracker.h"
 #import "TrackerAutomat.h"
 #import "EventDefs.h"
 
@@ -47,7 +48,6 @@
  contentPreload
  timeSinceLastAd
  */
-
 
 - (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
     if (!_contentsAttributeGetters) {
@@ -256,7 +256,7 @@
 #pragma mark - Timer
 
 - (void)trackerTimeEvent {
-    // TODO: bitrate stuff
+    [super trackerTimeEvent];
 }
 
 @end

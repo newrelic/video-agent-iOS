@@ -283,9 +283,8 @@
 }
 
 - (void)internalTimerHandler:(NSTimer *)timer {
-    if ([(id<TrackerProtocol>)self respondsToSelector:@selector(trackerTimeEvent)]) {
-        [(id<TrackerProtocol>)self trackerTimeEvent];
-    }
+    
+    [self trackerTimeEvent];
     
     self.heartbeatCounter ++;
     
@@ -294,5 +293,8 @@
         [self sendHeartbeat];
     }
 }
+
+// To be overwritten
+- (void)trackerTimeEvent {}
 
 @end

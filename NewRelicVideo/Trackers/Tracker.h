@@ -15,8 +15,6 @@
 - (NSString *)getPlayerVersion;
 - (NSString *)getPlayerName;
 - (NSNumber *)getIsAd;
-@optional
-- (void)trackerTimeEvent;
 @end
 
 @interface Tracker : NSObject
@@ -45,5 +43,6 @@
 - (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
 - (void)startTimerEvent;
 - (void)abortTimerEvent;
+- (void)trackerTimeEvent;
 
 @end
