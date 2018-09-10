@@ -22,9 +22,9 @@
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
-		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; };
+		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4A214127E800A8891D /* ContentsTracker.m */; };
-		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; };
+		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A582146636C00A8891D /* AdsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A562146636C00A8891D /* AdsTracker.m */; };
 		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
 		9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D71E212EC9CB00B89D07 /* BackendActions.m */; };
@@ -218,18 +218,18 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
+				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
-				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 				9CE5D72F212EF3B500B89D07 /* NSMutableArray+Stack.h in Headers */,
-				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
