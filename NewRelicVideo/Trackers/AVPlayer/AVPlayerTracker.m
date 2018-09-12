@@ -80,7 +80,9 @@
         else {
             if (self.numZeroRates > 2) {
                 [self sendSeekEnd];
-                [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
+                if (self.automat.state == TrackerStatePaused) {
+                    [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
+                }
             }
             self.numZeroRates = 0;
         }
@@ -205,7 +207,9 @@
                 [self sendRequest];
             }
             else {
-                [self sendResume];
+                if (self.automat.state == TrackerStatePaused) {
+                    [self sendResume];
+                }
             }
         }
         else if (rate == -1.0) {
@@ -290,12 +294,6 @@
     
     // TEST: custom action
     //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
-}
-
-- (void)sendResume {
-    if (self.automat.state == TrackerStatePaused) {
-        [super sendResume];
-    }
 }
 
 #pragma mark - ContentsTracker getters
