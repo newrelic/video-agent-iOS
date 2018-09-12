@@ -10,8 +10,62 @@
 
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
+#import "ContentsTracker.h"
+#import "AdsTracker.h"
 
-@import NewRelicVideo;
+#pragma mark - Support Classes
+
+@interface Tracker ()
+@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
+@end
+
+@interface TestContentsTracker: ContentsTracker <ContentsTrackerProtocol>
+@end
+
+@implementation TestContentsTracker
+
+- (NSString *)getTrackerName {
+    return @"TestContentsTracker";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"Y.Z";
+}
+
+- (NSString *)getPlayerName {
+    return @"FakePlayer";
+}
+
+- (NSString *)getPlayerVersion {
+    return @"X.Y";
+}
+
+@end
+
+@interface TestAdsTracker: AdsTracker <AdsTrackerProtocol>
+@end
+
+@implementation TestAdsTracker
+
+- (NSString *)getTrackerName {
+    return @"TestAdsTracker";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"Y.Z";
+}
+
+- (NSString *)getPlayerName {
+    return @"FakePlayer";
+}
+
+- (NSString *)getPlayerVersion {
+    return @"X.Y";
+}
+
+@end
+
+#pragma mark - Test Class
 
 @interface NewRelicVideoTests : XCTestCase
 
@@ -70,18 +124,37 @@
 
 - (void)testTrackerAutomator {
     TrackerAutomat *automat = [[TrackerAutomat alloc] init];
-    [self performAutomatTest:automat];
+    [self runAutomatTest:automat];
 }
 
 - (void)testTrackerAutomatorForAds {
     TrackerAutomat *automat = [[TrackerAutomat alloc] init];
     automat.isAd = YES;
-    [self performAutomatTest:automat];
+    [self runAutomatTest:automat];
+}
+
+- (void)testTracker {
+    Tracker *tracker = [[Tracker alloc] init];
+    [self runTrackerTest:tracker];
+}
+
+- (void)testContentsTracker {
+    TestContentsTracker *tracker = [[TestContentsTracker alloc] init];
+    [self runTrackerTest:tracker];
+    NSString *trackerName = (NSString *)[tracker optionValueFor:@"trackerName" fromGetters:tracker.attributeGetters];
+    XCTAssert([trackerName isEqualToString:@"TestContentsTracker"], @"TrackerName incorrect");
+}
+
+- (void)testAdsTracker {
+    TestAdsTracker *tracker = [[TestAdsTracker alloc] init];
+    [self runTrackerTest:tracker];
+    NSString *trackerName = (NSString *)[tracker optionValueFor:@"trackerName" fromGetters:tracker.attributeGetters];
+    XCTAssert([trackerName isEqualToString:@"TestAdsTracker"], @"TrackerName incorrect");
 }
 
 #pragma mark - Utils
 
-- (void)performAutomatTest:(TrackerAutomat *)automat {
+- (void)runAutomatTest:(TrackerAutomat *)automat {
     
     XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
     
@@ -127,6 +200,32 @@
     [automat transition:TrackerTransitionVideoFinished];
     XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
 }
+
+- (void)runTrackerTest:(Tracker *)tracker {
+    [tracker reset];
+    [tracker setup];
+    [tracker sendRequest];
+    [tracker sendStart];
+    [tracker sendEnd];
+    [tracker sendPause];
+    [tracker sendResume];
+    [tracker sendSeekStart];
+    [tracker sendSeekEnd];
+    [tracker sendBufferStart];
+    [tracker sendBufferEnd];
+    [tracker sendHeartbeat];
+    [tracker sendRenditionChange];
+    [tracker sendError];
+    [tracker sendPlayerReady];
+    [tracker sendDownload];
+    [tracker sendCustomAction:@"TEST_ACTION"];
+    [tracker sendCustomAction:@"TEST_ACTION" attr:@{@"testAttr": @"testValue"}];
+    [tracker setOptionKey:@"option" value:@123];
+    [tracker setOptionKey:@"option" value:@123 forAction:@"TEST_ACTION"];
+    [tracker setOptions:@{@"option": @123}];
+    [tracker setOptions:@{@"option": @123} forAction:@"TEST_ACTION"];
+}
+
 
 //- (void)testPerformanceExample {
 //    // This is an example of a performance test case.
