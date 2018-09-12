@@ -292,6 +292,12 @@
     //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
 }
 
+- (void)sendResume {
+    if (self.automat.state == TrackerStatePaused) {
+        [super sendResume];
+    }
+}
+
 #pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
