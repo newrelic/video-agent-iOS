@@ -26,4 +26,27 @@
 - (void)sendRenditionChange;
 - (void)sendError;
 
+- (void)sendAdRequest;
+- (void)sendAdStart;
+- (void)sendAdEnd;
+- (void)sendAdPause;
+- (void)sendAdResume;
+- (void)sendAdSeekStart;
+- (void)sendAdSeekEnd;
+- (void)sendAdBufferStart;
+- (void)sendAdBufferEnd;
+- (void)sendAdHeartbeat;
+- (void)sendAdRenditionChange;
+- (void)sendAdError;
+- (void)sendAdBreakStart;
+- (void)sendAdBreakEnd;
+- (void)sendAdQuartile;
+- (void)sendAdClick;
+
+- (void)sendPlayerReady;
+- (void)sendDownload;
+
+- (void)sendAction:(NSString *)name;
+- (void)sendAction:(NSString *)name attr:(NSDictionary *)dict;
+
 @end

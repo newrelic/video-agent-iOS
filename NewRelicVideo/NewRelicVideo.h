@@ -12,9 +12,10 @@
 // TODO: necessary to generate the framework
 /*
 #import <NewRelicVideo/EventDefs.h>
-#import <NewRelicVideo/VideoTracker.h>
+#import <NewRelicVideo/Tracker.h>
+#import <NewRelicVideo/ContentsTracker.h>
+#import <NewRelicVideo/AdsTracker.h>
 #import <NewRelicVideo/AVPlayerTracker.h>
-#import <NewRelicVideo/AVPlayerViewControllerTracker.h>
 */
 
 //! Project version number for NewRelicVideo.

@@ -22,20 +22,14 @@
     return _generalOptions;
 }
 
-- (NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
+- (NSMutableDictionary<NSString *, NSMutableDictionary *> *)actionOptions {
     if (!_actionOptions) {
         _actionOptions = @{}.mutableCopy;
     }
     return _actionOptions;
 }
 
-- (instancetype)init {
-    if (self = [super init]) {
-    }
-    return self;
-}
-
-#pragma mark - Tracker Method
+#pragma mark - Tracker Content Events
 
 - (void)sendRequest {
     [self sendAction:CONTENT_REQUEST];
@@ -85,6 +79,80 @@
     [self sendAction:CONTENT_ERROR];
 }
 
+#pragma mark - Tracker Ad Events
+
+- (void)sendAdRequest {
+    [self sendAction:AD_REQUEST];
+}
+
+- (void)sendAdStart {
+    [self sendAction:AD_START];
+}
+
+- (void)sendAdEnd {
+    [self sendAction:AD_END];
+}
+
+- (void)sendAdPause {
+    [self sendAction:AD_PAUSE];
+}
+
+- (void)sendAdResume {
+    [self sendAction:AD_RESUME];
+}
+
+- (void)sendAdSeekStart {
+    [self sendAction:AD_SEEK_START];
+}
+
+- (void)sendAdSeekEnd {
+    [self sendAction:AD_SEEK_END];
+}
+
+- (void)sendAdBufferStart {
+    [self sendAction:AD_BUFFER_START];
+}
+
+- (void)sendAdBufferEnd {
+    [self sendAction:AD_BUFFER_END];
+}
+
+- (void)sendAdHeartbeat {
+    [self sendAction:AD_HEARTBEAT];
+}
+
+- (void)sendAdRenditionChange {
+    [self sendAction:AD_RENDITION_CHANGE];
+}
+
+- (void)sendAdError {
+    [self sendAction:AD_ERROR];
+}
+
+- (void)sendAdBreakStart {
+    [self sendAction:AD_BREAK_START];
+}
+
+- (void)sendAdBreakEnd {
+    [self sendAction:AD_BREAK_END];
+}
+
+- (void)sendAdQuartile {
+    [self sendAction:AD_QUARTILE];
+}
+
+- (void)sendAdClick {
+    [self sendAction:AD_CLICK];
+}
+
+- (void)sendPlayerReady {
+    [self sendAction:PLAYER_READY];
+}
+
+- (void)sendDownload {
+    [self sendAction:DOWNLOAD];
+}
+
 #pragma mark - SendAction
 
 - (void)sendAction:(NSString *)name {
@@ -97,7 +165,7 @@
     NSMutableDictionary *ops = @{@"actionName": name}.mutableCopy;
     [ops addEntriesFromDictionary:dict];
     [ops addEntriesFromDictionary:self.generalOptions];
-    [ops addEntriesFromDictionary:[self.actionOptions objectForKey:name]];
+    [ops addEntriesFromDictionary:[self actionOptionsForName:name]];
     
     if ([NewRelicAgent currentSessionId]) {
         [NewRelic recordCustomEvent:VIDEO_EVENT
@@ -108,6 +176,31 @@
     }
     
     AV_LOG(@"sendAction name = %@, attr = %@", name, ops);
+}
+
+#pragma mark - Private
+
+- (NSDictionary *)actionOptionsForName:(NSString *)name {
+    
+    NSMutableDictionary *dic = @{}.mutableCopy;
+    
+    for (NSString *key in self.actionOptions) {
+        if ([key hasSuffix:@"_"]) {
+            if ([name hasPrefix:key]) {
+                [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
+            }
+        }
+        else if ([key hasPrefix:@"_"]) {
+            if ([name hasSuffix:key]) {
+                [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
+            }
+        }
+        else if ([key isEqualToString:name]) {
+            [dic addEntriesFromDictionary:[self.actionOptions objectForKey:key]];
+        }
+    }
+    
+    return dic.copy;
 }
 
 @end

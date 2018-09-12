@@ -82,35 +82,35 @@
 - (BOOL)handleStateIndependantTransition:(TrackerTransition)tt {
     switch (tt) {
         case TrackerTransitionHeartbeat: {
-            [self.actions sendHeartbeat];
+            [self sendHeartbeat];
             return YES;
         }
             
         case TrackerTransitionRenditionChanged: {
-            [self.actions sendRenditionChange];
+            [self sendRenditionChange];
             return YES;
         }
             
         case TrackerTransitionInitDraggingSlider: {
-            [self.actions sendSeekStart];
+            [self sendSeekStart];
             [self moveStateAndPush:TrackerStateSeeking];
             return YES;
         }
             
         case TrackerTransitionInitBuffering: {
-            [self.actions sendBufferStart];
+            [self sendBufferStart];
             [self moveStateAndPush:TrackerStateBuffering];
             return YES;
         }
             
         case TrackerTransitionErrorPlaying: {
-            [self.actions sendError];
+            [self sendError];
             return YES;
         }
         
         // NOTE: this should happend only while playing or seeking, but the event is too important and strange things could happen in the state machine (specially with AVPlayer).
         case TrackerTransitionVideoFinished: {
-            [self.actions sendEnd];
+            [self sendEnd];
             [self endState];
             return YES;
         }
@@ -122,43 +122,153 @@
 
 - (void)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
-        [self.actions sendRequest];
+        [self sendRequest];
         [self moveState:TrackerStateStarting];
     }
 }
 
 - (void)performTransitionInStateStarting:(TrackerTransition)tt {
     if (tt == TrackerTransitionFrameShown) {
-        [self.actions sendStart];
+        [self sendStart];
         [self moveState:TrackerStatePlaying];
     }
 }
 
 - (void)performTransitionInStatePlaying:(TrackerTransition)tt {
     if (tt == TrackerTransitionClickPause) {
-        [self.actions sendPause];
+        [self sendPause];
         [self moveState:TrackerStatePaused];
     }
 }
 
 - (void)performTransitionInStatePaused:(TrackerTransition)tt {
     if (tt == TrackerTransitionClickPlay) {
-        [self.actions sendResume];
+        [self sendResume];
         [self moveState:TrackerStatePlaying];
     }
 }
 
 - (void)performTransitionInStateSeeking:(TrackerTransition)tt {
     if (tt == TrackerTransitionEndDraggingSlider) {
-        [self.actions sendSeekEnd];
+        [self sendSeekEnd];
         [self backToState];
     }
 }
 
 - (void)performTransitionInStateBuffering:(TrackerTransition)tt {
     if (tt == TrackerTransitionEndBuffering) {
-        [self.actions sendBufferEnd];
+        [self sendBufferEnd];
         [self backToState];
+    }
+}
+
+#pragma mark - Senders
+
+- (void)sendRequest {
+    if (!self.isAd) {
+        [self.actions sendRequest];
+    }
+    else {
+        [self.actions sendAdRequest];
+    }
+}
+
+- (void)sendStart {
+    if (!self.isAd) {
+        [self.actions sendStart];
+    }
+    else {
+        [self.actions sendAdStart];
+    }
+}
+
+- (void)sendEnd {
+    if (!self.isAd) {
+        [self.actions sendEnd];
+    }
+    else {
+        [self.actions sendAdEnd];
+    }
+}
+
+- (void)sendPause {
+    if (!self.isAd) {
+        [self.actions sendPause];
+    }
+    else {
+        [self.actions sendAdPause];
+    }
+}
+
+- (void)sendResume {
+    if (!self.isAd) {
+        [self.actions sendResume];
+    }
+    else {
+        [self.actions sendAdResume];
+    }
+}
+
+- (void)sendSeekStart {
+    if (!self.isAd) {
+        [self.actions sendSeekStart];
+    }
+    else {
+        [self.actions sendAdSeekStart];
+    }
+}
+
+- (void)sendSeekEnd {
+    if (!self.isAd) {
+        [self.actions sendSeekEnd];
+    }
+    else {
+        [self.actions sendAdSeekEnd];
+    }
+}
+
+- (void)sendBufferStart {
+    if (!self.isAd) {
+        [self.actions sendBufferStart];
+    }
+    else {
+        [self.actions sendAdBufferStart];
+    }
+}
+
+- (void)sendBufferEnd {
+    if (!self.isAd) {
+        [self.actions sendBufferEnd];
+    }
+    else {
+        [self.actions sendAdBufferEnd];
+    }
+}
+
+- (void)sendHeartbeat {
+    if (!self.isAd) {
+        [self.actions sendHeartbeat];
+    }
+    else {
+        [self.actions sendAdHeartbeat];
+    }
+}
+
+- (void)sendRenditionChange {
+    if (!self.isAd) {
+        [self.actions sendRenditionChange];
+    }
+    else {
+        [self.actions sendAdRenditionChange];
+    }
+}
+
+- (void)sendError {
+    if (!self.isAd) {
+        [self.actions sendError];
+    }
+    else {
+        [self.actions sendAdError];
     }
 }
 
