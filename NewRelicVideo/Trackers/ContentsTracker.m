@@ -161,8 +161,6 @@
     else {
         [self setContentsOptionKey:@"timeSinceLastAd" value:@0];
     }
-    
-    
 }
 
 - (void)sendRequest {
