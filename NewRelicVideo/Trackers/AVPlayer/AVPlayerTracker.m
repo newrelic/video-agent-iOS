@@ -178,7 +178,6 @@
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
                 [self sendEnd];
-                [self abortTimerEvent];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
@@ -199,8 +198,6 @@
             else {
                 [self sendResume];
             }
-            
-            [self startTimerEvent];
         }
         else if (rate == -1.0) {
             AV_LOG(@"Video Rate Log: Reverse Playback");
@@ -244,7 +241,6 @@
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         AV_LOG(@"Timeout, video ended but no event received.");
         [self sendEnd];
-        [self abortTimerEvent];
     }
 
     [self setupBitrateOptions];

@@ -20,7 +20,7 @@
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
-		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; };
+		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4A214127E800A8891D /* ContentsTracker.m */; };
@@ -219,10 +219,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
+				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
-				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,

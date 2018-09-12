@@ -160,6 +160,7 @@
 - (void)sendRequest {
     [self preSend];
     [self.automat transition:TrackerTransitionClickPlay];
+    [self startTimerEvent];
 }
 
 - (void)sendStart {
@@ -171,6 +172,7 @@
     [self preSend];
     [self.automat transition:TrackerTransitionVideoFinished];
     [self playNewVideo];
+    [self abortTimerEvent];
 }
 
 - (void)sendPause {
