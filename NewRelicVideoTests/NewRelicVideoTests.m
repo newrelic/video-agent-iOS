@@ -70,6 +70,19 @@
 
 - (void)testTrackerAutomator {
     TrackerAutomat *automat = [[TrackerAutomat alloc] init];
+    [self performAutomatTest:automat];
+}
+
+- (void)testTrackerAutomatorForAds {
+    TrackerAutomat *automat = [[TrackerAutomat alloc] init];
+    automat.isAd = YES;
+    [self performAutomatTest:automat];
+}
+
+#pragma mark - Utils
+
+- (void)performAutomatTest:(TrackerAutomat *)automat {
+    
     XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
     
     [automat transition:TrackerTransitionClickPlay];
