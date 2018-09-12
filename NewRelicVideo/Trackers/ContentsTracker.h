@@ -14,7 +14,6 @@
 - (NSNumber *)getIsLive;
 - (NSNumber *)getIsAutoplayed;
 - (NSString *)getPreload;
-- (void)setIsAutoplayed:(NSNumber *)state;
 - (NSNumber *)getIsFullscreen;
 @end
 

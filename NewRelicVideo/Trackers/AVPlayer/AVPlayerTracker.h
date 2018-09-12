@@ -17,4 +17,6 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
 - (instancetype)initWithAVPlayerViewController:(AVPlayerViewController *)playerViewController;
 
+- (void)setIsAutoplayed:(NSNumber *)state;
+
 @end
