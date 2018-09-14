@@ -116,7 +116,7 @@
 /**
  `Tracker` is the base class to manage the player events and mechanisms common to Contents and Ads.
  
- @warning Should never be instantiated directly, but subclassed.
+ @warning Should never be directly instantiated and there is no need for subclassing it. Use its subclasses `ContentsTracker` or `AdsTracker` instead.
  */
 @interface Tracker : NSObject
 
