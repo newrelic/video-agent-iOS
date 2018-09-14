@@ -13,36 +13,47 @@
 @protocol ContentsTrackerProtocol;
 @protocol AdsTrackerProtocol;
 
+/**
+ `NewRelicVideoAgent` contains the methods to start the Video Agent and access tracker instances.
+ 
+ @warning Before using it, NewRelicAgent *must be* initialized.
+*/
+
 @interface NewRelicVideoAgent : NSObject
 
-/*!
- Starts New Relic Video data collection for "player"
+/**
+ Starts New Relic Video data collection for "player".
  
- Call this after having initialized the NewRelicAgent.
- */
+ @param player The player object.
+*/
 + (void)startWithPlayer:(id)player;
 
-/*!
+/**
  Starts New Relic Video data collection for contents tracker.
  
- Call this after having initialized the NewRelicAgent.
+ @param tracker The contents tracker instance.
  */
 + (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker;
 
-/*!
+/**
  Starts New Relic Video data collection for contents tracker and ads tracker.
  
- Call this after having initialized the NewRelicAgent.
+ @param tracker The contents tracker instance.
+ @param adsTracker The ads tracker instance.
  */
 + (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker andAds:(AdsTracker<AdsTrackerProtocol> *)adsTracker;
 
-/*!
- Return the tracker instance.
+/**
+ Returns the contents tracker instance created with `startWithXXX` methods.
+ 
+ @return The contents tracker instance.
  */
 + (ContentsTracker<ContentsTrackerProtocol> *)trackerInstance;
 
-/*!
- Return the ads tracker instance.
+/**
+ Returns the ads tracker instance created with `startWithXXX` methods.
+ 
+ @return The ads tracker instance.
  */
 + (AdsTracker<AdsTrackerProtocol> *)adsTrackerInstance;
 
