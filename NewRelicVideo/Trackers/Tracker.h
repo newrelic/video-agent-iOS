@@ -42,7 +42,7 @@
 @optional
 
 /**
- Get video id.
+ Get video ID.
  */
 - (NSString *)getVideoId;
 

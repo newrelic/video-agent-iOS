@@ -8,7 +8,7 @@
 #import "Tracker.h"
 
 /**
- `ContentsTrackerProtocol` defines the getters every ContentsTracker must or should implement.
+ `ContentsTrackerProtocol` defines the getters every `ContentsTracker` must or should implement.
  */
 @protocol ContentsTrackerProtocol <TrackerProtocol>
 
