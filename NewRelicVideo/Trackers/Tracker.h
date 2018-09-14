@@ -31,6 +31,12 @@
 - (NSNumber *)getFps;
 @end
 
+/**
+ `Tracker` is the base class to manage the player events and mechanisms common to Contents and Ads.
+ 
+ @warning Should never be instantiated directly, but subclassed.
+ */
+
 @interface Tracker : NSObject
 
 - (void)reset;

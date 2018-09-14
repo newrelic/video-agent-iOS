@@ -16,7 +16,7 @@
 /**
  `NewRelicVideoAgent` contains the methods to start the Video Agent and access tracker instances.
  
- @warning Before using it, NewRelicAgent *must be* initialized.
+ @warning Before using it NewRelicAgent must be initialized.
 */
 
 @interface NewRelicVideoAgent : NSObject

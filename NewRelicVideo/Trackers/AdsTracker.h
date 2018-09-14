@@ -16,6 +16,12 @@
 - (NSString *)getAdPartner;
 @end
 
+/**
+ `AdsTracker` is the base class to manage the ads events of a player.
+ 
+ @warning Should never be instantiated directly, but subclassed.
+ */
+
 @interface AdsTracker : Tracker <TrackerProtocol>
 
 - (instancetype)initWithContentsTracker:(ContentsTracker *)tracker;

@@ -16,6 +16,12 @@
 - (NSNumber *)getIsFullscreen;
 @end
 
+/**
+ `ContentsTracker` is the base class to manage the content events of a player.
+ 
+ @warning Should never be instantiated directly, but subclassed.
+ */
+
 @interface ContentsTracker : Tracker <TrackerProtocol>
 
 @end

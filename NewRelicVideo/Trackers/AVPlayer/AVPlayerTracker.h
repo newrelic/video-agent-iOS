@@ -11,6 +11,10 @@
 @class AVPlayer;
 @class AVPlayerViewController;
 
+/**
+ `AVPlayerTracker` is the base class to manage the content events of an AVPlayer. It can be used directly or subclassed.
+ */
+
 @interface AVPlayerTracker : ContentsTracker <ContentsTrackerProtocol>
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
