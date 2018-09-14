@@ -272,7 +272,7 @@
 - (void)abortTimerEvent;
 
 /**
- Timer handler.
+ Timer handler. The method called everytime a timer event happens.
  */
 - (void)trackerTimeEvent;
 
