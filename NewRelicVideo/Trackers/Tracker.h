@@ -118,7 +118,6 @@
  
  @warning Should never be instantiated directly, but subclassed.
  */
-
 @interface Tracker : NSObject
 
 /**

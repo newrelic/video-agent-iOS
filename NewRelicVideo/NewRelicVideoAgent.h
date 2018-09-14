@@ -18,7 +18,6 @@
  
  @warning Before using it NewRelicAgent must be initialized.
 */
-
 @interface NewRelicVideoAgent : NSObject
 
 /**
