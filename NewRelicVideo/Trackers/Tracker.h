@@ -253,14 +253,6 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 
 /**
- Obtain the value a of a specific attribute name using a dictionary with getter.
- 
- @param attr Attribute name.
- @param attributeGetters The Action mapper where attribute names and getters are stored.
- */
-- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
-
-/**
  Start timer. Timer is used for heartbeats and other time dependant calculations.
  It is automatically started when a `sendRequest` happens and aborted when a `sendEnd`.
  */

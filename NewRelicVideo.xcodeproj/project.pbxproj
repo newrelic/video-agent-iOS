@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46F9214BE7E800E7066C /* Tracker_internal.h */; };
+		9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */; };
 		9C414822212D7AD400850636 /* NewRelicVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414818212D7AD400850636 /* NewRelicVideo.framework */; };
 		9C414827212D7AD400850636 /* NewRelicVideoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414826212D7AD400850636 /* NewRelicVideoTests.m */; };
 		9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C41481B212D7AD400850636 /* NewRelicVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -49,6 +51,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9C1D46F9214BE7E800E7066C /* Tracker_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker_internal.h; sourceTree = "<group>"; };
+		9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker_internal.h; sourceTree = "<group>"; };
 		9C414818212D7AD400850636 /* NewRelicVideo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C41481B212D7AD400850636 /* NewRelicVideo.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideo.h; sourceTree = "<group>"; };
 		9C41481C212D7AD400850636 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -179,8 +183,10 @@
 				9CE5D728212EE9BB00B89D07 /* TrackerAutomat.h */,
 				9CE5D729212EE9BB00B89D07 /* TrackerAutomat.m */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
+				9C1D46F9214BE7E800E7066C /* Tracker_internal.h */,
 				9CB26A4621411A4F00A8891D /* Tracker.m */,
 				9CB26A49214127E800A8891D /* ContentsTracker.h */,
+				9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */,
 				9CB26A4A214127E800A8891D /* ContentsTracker.m */,
 				9CB26A552146636C00A8891D /* AdsTracker.h */,
 				9CB26A562146636C00A8891D /* AdsTracker.m */,
@@ -225,6 +231,8 @@
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
+				9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */,
+				9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CE5D72A212EE9BB00B89D07 /* TrackerAutomat.h in Headers */,

@@ -11,20 +11,10 @@
 #import "BackendActions.h"
 #import "EventDefs.h"
 #import "ContentsTracker.h"
+#import "Tracker_internal.h"
+#import "ContentsTracker_internal.h"
 
 #define ACTION_FILTER @"AD_"
-
-@interface Tracker ()
-
-@property (nonatomic) TrackerAutomat *automat;
-
-@end
-
-@interface ContentsTracker ()
-
-- (void)adHappened:(NSTimeInterval)time;
-
-@end
 
 @interface AdsTracker ()
 

@@ -10,14 +10,9 @@
 #import "AdsTracker.h"
 #import "TrackerAutomat.h"
 #import "EventDefs.h"
+#import "Tracker_internal.h"
 
 #define ACTION_FILTER @"CONTENT_"
-
-@interface Tracker ()
-
-@property (nonatomic) TrackerAutomat *automat;
-
-@end
 
 @interface ContentsTracker ()
 

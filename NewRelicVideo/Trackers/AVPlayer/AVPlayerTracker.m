@@ -9,6 +9,7 @@
 #import "AVPlayerTracker.h"
 #import "EventDefs.h"
 #import "TrackerAutomat.h"
+#import "Tracker_internal.h"
 
 // KNOWN ISSUES:
 // * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
@@ -17,12 +18,6 @@
 // * Sometimes, when seeking to a part of the video not in buffer, we don't get BUFFER events, but a SEEK_END + RESUME when it finished buffering and starts playing again.
 
 @import AVKit;
-
-@interface Tracker ()
-
-@property (nonatomic) TrackerAutomat *automat;
-
-@end
 
 @interface AVPlayerTracker ()
 
