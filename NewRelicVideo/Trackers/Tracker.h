@@ -7,28 +7,110 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ `TrackerProtocol` defines the basic getters every Tracker must or should implement.
+ */
 @protocol TrackerProtocol <NSObject>
+
 @required
+
+/**
+ Get tracker name.
+ */
 - (NSString *)getTrackerName;
+
+/**
+ Get tracker version.
+ */
 - (NSString *)getTrackerVersion;
+
+/**
+ Get player version.
+ */
 - (NSString *)getPlayerVersion;
+
+/**
+ Get player name.
+ */
 - (NSString *)getPlayerName;
+
+/**
+ Get whether it is an Ads tracker or not.
+ */
 - (NSNumber *)getIsAd;
+
 @optional
+
+/**
+ Get video id.
+ */
 - (NSString *)getVideoId;
+
+/**
+ Get video title.
+ */
 - (NSString *)getTitle;
+
+/**
+ Get video bitrate in bits per second.
+ */
 - (NSNumber *)getBitrate;
+
+/**
+ Get video rendition name.
+ */
 - (NSString *)getRenditionName;
+
+/**
+ Get video rendition bitrate in bits per second.
+ */
 - (NSNumber *)getRenditionBitrate;
+
+/**
+ Get video width.
+ */
 - (NSNumber *)getRenditionWidth;
+
+/**
+ Get video height.
+ */
 - (NSNumber *)getRenditionHeight;
+
+/**
+ Get video duration in milliseconds.
+ */
 - (NSNumber *)getDuration;
+
+/**
+ Get current playback position in milliseconds.
+ */
 - (NSNumber *)getPlayhead;
+
+/**
+ Get video language.
+ */
 - (NSString *)getLanguage;
+
+/**
+ Get video source. Usually a URL.
+ */
 - (NSString *)getSrc;
+
+/**
+ Get whether video is muted or not.
+ */
 - (NSNumber *)getIsMuted;
+
+/**
+ Get name of the CDN serving content.
+ */
 - (NSString *)getCdn;
+
+/**
+ Get video frames per second.
+ */
 - (NSNumber *)getFps;
+
 @end
 
 /**
