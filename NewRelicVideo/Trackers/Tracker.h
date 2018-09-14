@@ -261,7 +261,8 @@
 - (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
 
 /**
- Start timer.
+ Start timer. Timer is used for heartbeats and other time dependant calculations.
+ It is automatically started when a `sendRequest` happens and aborted when a `sendEnd`.
  */
 - (void)startTimerEvent;
 
