@@ -11,9 +11,6 @@
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
 
-// TODO: what if we have multiple players instantiated, what happens with the NSNotifications?
-// TODO: right now we don't support multiple player instances being used at the same time. Should we?
-
 @import AVKit;
 
 @interface NewRelicVideoAgent ()

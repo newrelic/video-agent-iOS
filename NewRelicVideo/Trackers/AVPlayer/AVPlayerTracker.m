@@ -266,6 +266,11 @@
     else if (fabs(self.estimatedBitrate - newEstimatedBitrate) >  self.estimatedBitrate * 0.01) {
         // If bitrate changed more than 1%, rendition change event
         
+        /*
+         TODO:
+         - Move RENDITION_CHANGE's "shift" attribute to Tracker. We could add a argument with bitrate and compare with last recorded one.
+         */
+        
         if (self.estimatedBitrate - newEstimatedBitrate > 0) {
             // Lower rendition
             [self setOptionKey:@"shift" value:@"down" forAction:CONTENT_RENDITION_CHANGE];

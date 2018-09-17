@@ -226,6 +226,11 @@
     [self.automat.actions sendPlayerReady];
 }
 
+/*
+ TODO:
+ - Implement DOWNLOAD's "state" attribute. Argument to sendDownload method.
+ */
+
 - (void)sendDownload {
     [self.automat.actions sendDownload];
 }

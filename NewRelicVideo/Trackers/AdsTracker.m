@@ -16,6 +16,13 @@
 
 #define ACTION_FILTER @"AD_"
 
+/*
+ TODO:
+ - Implement AD_QUARTILE's "quartile" attribute. Easy, a simple counter is reset on every AD_REQUEST.
+ - Implement AD_CLICK's "url" attribute. Argument to sendAdClick method.
+ - Implement AD_END's "skipped" attribute. Argument to sendEnd method (?). Problematic, since we are adding an argument to contents tracker, that doesn't need it.
+ */
+
 @interface AdsTracker ()
 
 @property (nonatomic, weak) ContentsTracker *contentsTracker;
