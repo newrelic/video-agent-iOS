@@ -227,6 +227,8 @@
     return @YES;
 }
 
+// TODO: call contents tracker getters, at least for player name and version, it should be the same
+
 - (NSString *)getPlayerName {
     OVERWRITE_STUB
     return nil;
