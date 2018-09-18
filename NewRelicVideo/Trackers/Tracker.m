@@ -216,6 +216,11 @@
     self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
 }
 
+/*
+ TODO:
+ - Implement _ERROR's "errorMessage" attribute. Argument to sendError method.
+ */
+
 - (void)sendError {
     [self preSend];
     [self.automat transition:TrackerTransitionErrorPlaying];
