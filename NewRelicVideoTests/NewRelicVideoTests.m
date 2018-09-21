@@ -186,7 +186,7 @@
     [automat sendResume];
     XCTAssert(automat.state == TrackerStateSeeking, @"State not Seeking");
     
-    [automat sendBufferEnd];
+    [automat sendSeekEnd];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
     [automat sendHeartbeat];
