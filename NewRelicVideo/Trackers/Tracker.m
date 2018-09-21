@@ -8,7 +8,7 @@
 
 #import <NewRelicAgent/NewRelic.h>
 #import "Tracker.h"
-#import "TrackerAutomat.h"
+#import "PlaybackAutomat.h"
 #import "BackendActions.h"
 #import "EventDefs.h"
 #import "Vars.h"
@@ -18,7 +18,7 @@
 
 @interface Tracker ()
 
-@property (nonatomic) TrackerAutomat *automat;
+@property (nonatomic) PlaybackAutomat *automat;
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
 @property (nonatomic) NSString *viewId;
 @property (nonatomic) int viewIdIndex;
@@ -54,7 +54,7 @@
 
 - (instancetype)init {
     if (self = [super init]) {
-        self.automat = [[TrackerAutomat alloc] init];
+        self.automat = [[PlaybackAutomat alloc] init];
         self.automat.isAd = [self isMeAd];
         self.trackerReadyTimestamp = TIMESTAMP;
     }
@@ -159,60 +159,60 @@
 
 - (void)sendRequest {
     [self preSend];
-    [self.automat transition:TrackerTransitionClickPlay];
+    [self.automat sendRequest];
     [self startTimerEvent];
 }
 
 - (void)sendStart {
     [self preSend];
-    [self.automat transition:TrackerTransitionFrameShown];
+    [self.automat sendStart];
 }
 
 - (void)sendEnd {
     [self preSend];
-    [self.automat transition:TrackerTransitionVideoFinished];
+    [self.automat sendEnd];
     [self playNewVideo];
     [self abortTimerEvent];
 }
 
 - (void)sendPause {
     [self preSend];
-    [self.automat transition:TrackerTransitionClickPause];
+    [self.automat sendPause];
 }
 
 - (void)sendResume {
     [self preSend];
-    [self.automat transition:TrackerTransitionClickPlay];
+    [self.automat sendResume];
 }
 
 - (void)sendSeekStart {
     [self preSend];
-    [self.automat transition:TrackerTransitionInitDraggingSlider];
+    [self.automat sendSeekStart];
 }
 
 - (void)sendSeekEnd {
     [self preSend];
-    [self.automat transition:TrackerTransitionEndDraggingSlider];
+    [self.automat sendSeekEnd];
 }
 
 - (void)sendBufferStart {
     [self preSend];
-    [self.automat transition:TrackerTransitionInitBuffering];
+    [self.automat sendBufferStart];
 }
 
 - (void)sendBufferEnd {
     [self preSend];
-    [self.automat transition:TrackerTransitionEndBuffering];
+    [self.automat sendBufferEnd];
 }
 
 - (void)sendHeartbeat {
     [self preSend];
-    [self.automat transition:TrackerTransitionHeartbeat];
+    [self.automat sendHeartbeat];
 }
 
 - (void)sendRenditionChange {
     [self preSend];
-    [self.automat transition:TrackerTransitionRenditionChanged];
+    [self.automat sendRenditionChange];
     self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
 }
 
@@ -223,7 +223,7 @@
 
 - (void)sendError {
     [self preSend];
-    [self.automat transition:TrackerTransitionErrorPlaying];
+    [self.automat sendError:nil];
     self.numErrors ++;
 }
 

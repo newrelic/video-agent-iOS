@@ -8,6 +8,8 @@
 
 #import <XCTest/XCTest.h>
 
+// TODO: test PlaybackAutomat
+
 #import "TrackerAutomat.h"
 #import "BackendActions.h"
 #import "ContentsTracker.h"

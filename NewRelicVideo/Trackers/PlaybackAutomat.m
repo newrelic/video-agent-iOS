@@ -19,13 +19,9 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionInitBuffering,
     TrackerTransitionEndBuffering,
     TrackerTransitionVideoFinished,
-//    TrackerTransitionErrorPlaying,
     TrackerTransitionInitDraggingSlider,
     TrackerTransitionEndDraggingSlider,
-//    TrackerTransitionHeartbeat,
-//    TrackerTransitionRenditionChanged
 };
-
 
 @interface PlaybackAutomat ()
 
@@ -209,51 +205,8 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
     }
 }
 
-//// Handle transitions that can happen at any time, independently of current state
-//- (BOOL)handleStateIndependantTransition:(TrackerTransition)tt {
-//    switch (tt) {
-////        case TrackerTransitionHeartbeat: {
-////            [self sendHeartbeat];
-////            return YES;
-////        }
-//
-////        case TrackerTransitionRenditionChanged: {
-////            [self sendRenditionChange];
-////            return YES;
-////        }
-//
-//        case TrackerTransitionInitDraggingSlider: {
-////            [self sendSeekStart];
-//            [self moveStateAndPush:TrackerStateSeeking];
-//            return YES;
-//        }
-//
-//        case TrackerTransitionInitBuffering: {
-////            [self sendBufferStart];
-//            [self moveStateAndPush:TrackerStateBuffering];
-//            return YES;
-//        }
-//
-////        case TrackerTransitionErrorPlaying: {
-////            [self sendError];
-////            return YES;
-////        }
-//
-//            // NOTE: this should happend only while playing or seeking, but the event is too important and strange things could happen in the state machine (specially with AVPlayer).
-//        case TrackerTransitionVideoFinished: {
-////            [self sendEnd];
-//            [self endState];
-//            return YES;
-//        }
-//
-//        default:
-//            return NO;
-//    }
-//}
-
 - (BOOL)performTransitionInStateStopped:(TrackerTransition)tt {
     if (tt == TrackerTransitionAutoplay || tt == TrackerTransitionClickPlay) {
-//        [self sendRequest];
         [self moveState:TrackerStateStarting];
         return YES;
     }
@@ -262,7 +215,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 - (BOOL)performTransitionInStateStarting:(TrackerTransition)tt {
     if (tt == TrackerTransitionFrameShown) {
-//        [self sendStart];
         [self moveState:TrackerStatePlaying];
         return YES;
     }
@@ -271,7 +223,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 - (BOOL)performTransitionInStatePlaying:(TrackerTransition)tt {
     if (tt == TrackerTransitionClickPause) {
-//        [self sendPause];
         [self moveState:TrackerStatePaused];
         return YES;
     }
@@ -280,7 +231,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 - (BOOL)performTransitionInStatePaused:(TrackerTransition)tt {
     if (tt == TrackerTransitionClickPlay) {
-//        [self sendResume];
         [self moveState:TrackerStatePlaying];
         return YES;
     }
@@ -289,7 +239,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 - (BOOL)performTransitionInStateSeeking:(TrackerTransition)tt {
     if (tt == TrackerTransitionEndDraggingSlider) {
-//        [self sendSeekEnd];
         [self backToState];
         return YES;
     }
@@ -298,7 +247,6 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 - (BOOL)performTransitionInStateBuffering:(TrackerTransition)tt {
     if (tt == TrackerTransitionEndBuffering) {
-//        [self sendBufferEnd];
         [self backToState];
         return YES;
     }

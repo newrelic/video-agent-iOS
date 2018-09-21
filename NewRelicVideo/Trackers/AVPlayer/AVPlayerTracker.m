@@ -8,7 +8,7 @@
 
 #import "AVPlayerTracker.h"
 #import "EventDefs.h"
-#import "TrackerAutomat.h"
+#import "PlaybackAutomat.h"
 #import "Tracker_internal.h"
 
 // KNOWN ISSUES:

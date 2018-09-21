@@ -9,9 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "Tracker.h"
 
+@class PlaybackAutomat;
+
 @interface Tracker ()
 
-@property (nonatomic) TrackerAutomat *automat;
+@property (nonatomic) PlaybackAutomat *automat;
 
 - (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
 

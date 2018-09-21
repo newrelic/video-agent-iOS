@@ -7,7 +7,7 @@
 //
 
 #import "AdsTracker.h"
-#import "TrackerAutomat.h"
+#import "PlaybackAutomat.h"
 #import "BackendActions.h"
 #import "EventDefs.h"
 #import "ContentsTracker.h"
