@@ -179,7 +179,7 @@
             
             if (self.player.error != nil) {
                 AV_LOG(@"  -> Playback Failed");
-                [self sendError];
+                [self sendError:self.player.error.localizedDescription];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");

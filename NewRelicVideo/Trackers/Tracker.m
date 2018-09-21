@@ -216,14 +216,9 @@
     self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
 }
 
-/*
- TODO:
- - Implement _ERROR's "errorMessage" attribute. Argument to sendError method.
- */
-
-- (void)sendError {
+- (void)sendError:(NSString *)message {
     [self preSend];
-    [self.automat sendError:nil];
+    [self.automat sendError:message];
     self.numErrors ++;
 }
 

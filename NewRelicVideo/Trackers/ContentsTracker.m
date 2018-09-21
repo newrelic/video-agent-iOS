@@ -214,8 +214,8 @@
     [super sendRenditionChange];
 }
 
-- (void)sendError {
-    [super sendError];
+- (void)sendError:(NSString *)message {
+    [super sendError:message];
 }
 
 #pragma mark - Getters

@@ -192,8 +192,10 @@
 
 /**
  Send a `_ERROR` action.
+ 
+ @param message Error message.
  */
-- (void)sendError;
+- (void)sendError:(NSString *)message;
 
 /**
  Send a `PLAYER_READY` action.
