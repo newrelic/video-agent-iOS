@@ -8,12 +8,11 @@
 
 #import <XCTest/XCTest.h>
 
-// TODO: test PlaybackAutomat
-
-#import "TrackerAutomat.h"
+#import "PlaybackAutomat.h"
 #import "BackendActions.h"
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
+#import "Tracker_internal.h"
 
 #pragma mark - Support Classes
 
@@ -98,7 +97,7 @@
     [actions sendBufferEnd];
     [actions sendHeartbeat];
     [actions sendRenditionChange];
-    [actions sendError];
+    [actions sendError:@"Test error message"];
     
     [actions sendAdRequest];
     [actions sendAdStart];
@@ -111,7 +110,7 @@
     [actions sendAdBufferEnd];
     [actions sendAdHeartbeat];
     [actions sendAdRenditionChange];
-    [actions sendAdError];
+    [actions sendAdError:@"Test error message"];
     [actions sendAdBreakStart];
     [actions sendAdBreakEnd];
     [actions sendAdQuartile];
@@ -125,12 +124,12 @@
 }
 
 - (void)testTrackerAutomator {
-    TrackerAutomat *automat = [[TrackerAutomat alloc] init];
+    PlaybackAutomat *automat = [[PlaybackAutomat alloc] init];
     [self runAutomatTest:automat];
 }
 
 - (void)testTrackerAutomatorForAds {
-    TrackerAutomat *automat = [[TrackerAutomat alloc] init];
+    PlaybackAutomat *automat = [[PlaybackAutomat alloc] init];
     automat.isAd = YES;
     [self runAutomatTest:automat];
 }
@@ -156,50 +155,50 @@
 
 #pragma mark - Utils
 
-- (void)runAutomatTest:(TrackerAutomat *)automat {
+- (void)runAutomatTest:(PlaybackAutomat *)automat {
     
     XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
     
-    [automat transition:TrackerTransitionClickPlay];
+    [automat sendRequest];
     XCTAssert(automat.state == TrackerStateStarting, @"State not Starting");
     
-    [automat transition:TrackerTransitionFrameShown];
+    [automat sendStart];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionClickPause];
+    [automat sendPause];
     XCTAssert(automat.state == TrackerStatePaused, @"State not Paused");
     
-    [automat transition:TrackerTransitionClickPlay];
+    [automat sendResume];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Paying");
     
-    [automat transition:TrackerTransitionInitBuffering];
+    [automat sendBufferStart];
     XCTAssert(automat.state == TrackerStateBuffering, @"State not Buffering");
     
-    [automat transition:TrackerTransitionClickPause];
+    [automat sendPause];
     XCTAssert(automat.state == TrackerStateBuffering, @"State not Buffering");
     
-    [automat transition:TrackerTransitionEndBuffering];
+    [automat sendBufferEnd];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionInitDraggingSlider];
+    [automat sendSeekStart];
     XCTAssert(automat.state == TrackerStateSeeking, @"State not Seeking");
     
-    [automat transition:TrackerTransitionClickPlay];
+    [automat sendResume];
     XCTAssert(automat.state == TrackerStateSeeking, @"State not Seeking");
     
-    [automat transition:TrackerTransitionEndDraggingSlider];
+    [automat sendBufferEnd];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionHeartbeat];
+    [automat sendHeartbeat];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionErrorPlaying];
+    [automat sendError:@"Test error message"];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionRenditionChanged];
+    [automat sendRenditionChange];
     XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
     
-    [automat transition:TrackerTransitionVideoFinished];
+    [automat sendEnd];
     XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
 }
 
@@ -217,7 +216,7 @@
     [tracker sendBufferEnd];
     [tracker sendHeartbeat];
     [tracker sendRenditionChange];
-    [tracker sendError];
+    [tracker sendError:@"Test error message"];
     [tracker sendPlayerReady];
     [tracker sendDownload];
     [tracker sendCustomAction:@"TEST_ACTION"];
