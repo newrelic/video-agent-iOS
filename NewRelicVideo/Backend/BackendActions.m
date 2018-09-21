@@ -75,8 +75,9 @@
     [self sendAction:CONTENT_RENDITION_CHANGE];
 }
 
-- (void)sendError {
-    [self sendAction:CONTENT_ERROR];
+- (void)sendError:(NSString *)message {
+    message = message ? message : @"";
+    [self sendAction:CONTENT_ERROR attr:@{@"errorMessage": message}];
 }
 
 #pragma mark - Tracker Ad Events
@@ -125,8 +126,9 @@
     [self sendAction:AD_RENDITION_CHANGE];
 }
 
-- (void)sendAdError {
-    [self sendAction:AD_ERROR];
+- (void)sendAdError:(NSString *)message; {
+    message = message ? message : @"";
+    [self sendAction:AD_ERROR attr:@{@"errorMessage": message}];
 }
 
 - (void)sendAdBreakStart {

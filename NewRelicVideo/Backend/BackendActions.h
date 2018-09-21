@@ -24,7 +24,7 @@
 - (void)sendBufferEnd;
 - (void)sendHeartbeat;
 - (void)sendRenditionChange;
-- (void)sendError;
+- (void)sendError:(NSString *)message;
 
 - (void)sendAdRequest;
 - (void)sendAdStart;
@@ -37,7 +37,7 @@
 - (void)sendAdBufferEnd;
 - (void)sendAdHeartbeat;
 - (void)sendAdRenditionChange;
-- (void)sendAdError;
+- (void)sendAdError:(NSString *)message;;
 - (void)sendAdBreakStart;
 - (void)sendAdBreakEnd;
 - (void)sendAdQuartile;

@@ -265,10 +265,10 @@
 
 - (void)sendError {
     if (!self.isAd) {
-        [self.actions sendError];
+        [self.actions sendError:nil];
     }
     else {
-        [self.actions sendAdError];
+        [self.actions sendAdError:nil];
     }
 }
 
