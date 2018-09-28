@@ -23,11 +23,11 @@
 @property (nonatomic) NSTimeInterval totalPlaytime;
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
-@property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceLastAdTimestamp;
+@property (nonatomic) NSTimeInterval startedTimestamp;
+@property (nonatomic) NSTimeInterval pausedTimestamp;
+@property (nonatomic) NSTimeInterval bufferBeginTimestamp;
+@property (nonatomic) NSTimeInterval seekBeginTimestamp;
+@property (nonatomic) NSTimeInterval lastAdTimestamp;
 
 @end
 
@@ -97,8 +97,8 @@
     self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
     self.playtimeSinceLastEventTimestamp = 0;
-    self.timeSinceStartedTimestamp = 0;
-    self.timeSinceLastAdTimestamp = 0;
+    self.startedTimestamp = 0;
+    self.lastAdTimestamp = 0;
     
     [self updateContentsAttributes];
 }
@@ -108,8 +108,6 @@
 }
 
 #pragma mark - Senders
-
-// TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
 
 // TODO: all those timestamps are CONTENT_ specific? because we are registering them as general!!!
 
@@ -142,11 +140,11 @@
     }
     
     [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp];
-    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.timeSinceStartedTimestamp];
-    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.timeSincePausedTimestamp filter:CONTENT_RESUME];
-    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.timeSinceBufferBeginTimestamp filter:CONTENT_BUFFER_END];
-    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.timeSinceSeekBeginTimestamp filter:CONTENT_SEEK_END];
-    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.timeSinceLastAdTimestamp];
+    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.startedTimestamp];
+    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.pausedTimestamp filter:CONTENT_RESUME];
+    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.bufferBeginTimestamp filter:CONTENT_BUFFER_END];
+    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.seekBeginTimestamp filter:CONTENT_SEEK_END];
+    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.lastAdTimestamp];
 }
 
 - (void)sendRequest {
@@ -156,7 +154,7 @@
 
 - (void)sendStart {
     if (self.automat.state == TrackerStateStarting) {
-        self.timeSinceStartedTimestamp = TIMESTAMP;
+        self.startedTimestamp = TIMESTAMP;
     }
     self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendStart];
@@ -165,11 +163,11 @@
 - (void)sendEnd {
     [super sendEnd];
     self.totalPlaytime = 0;
-    self.timeSinceLastAdTimestamp = 0;
+    self.lastAdTimestamp = 0;
 }
 
 - (void)sendPause {
-    self.timeSincePausedTimestamp = TIMESTAMP;
+    self.pausedTimestamp = TIMESTAMP;
     [super sendPause];
 }
 
@@ -179,7 +177,7 @@
 }
 
 - (void)sendSeekStart {
-    self.timeSinceSeekBeginTimestamp = TIMESTAMP;
+    self.seekBeginTimestamp = TIMESTAMP;
     [super sendSeekStart];
 }
 
@@ -188,7 +186,7 @@
 }
 
 - (void)sendBufferStart {
-    self.timeSinceBufferBeginTimestamp = TIMESTAMP;
+    self.bufferBeginTimestamp = TIMESTAMP;
     [super sendBufferStart];
 }
 
@@ -243,7 +241,7 @@
 }
 
 - (void)adHappened:(NSTimeInterval)time {
-    self.timeSinceLastAdTimestamp = time;
+    self.lastAdTimestamp = time;
 }
 
 @end
