@@ -29,6 +29,8 @@
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *adsAttributeGetters;
 @property (nonatomic) int numberOfAds;
+
+// Time Since
 @property (nonatomic) NSTimeInterval adRequestedTimestamp;
 @property (nonatomic) NSTimeInterval lastAdHeartbeatTimestamp;
 @property (nonatomic) NSTimeInterval adStartedTimestamp;

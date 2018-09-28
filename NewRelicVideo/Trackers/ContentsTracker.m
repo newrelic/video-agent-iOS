@@ -18,11 +18,14 @@
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *contentsAttributeGetters;
 
+// Time Counts
+@property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
+@property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
+
+// Time Since
 @property (nonatomic) NSTimeInterval requestTimestamp;
 @property (nonatomic) NSTimeInterval heartbeatTimestamp;
 @property (nonatomic) NSTimeInterval totalPlaytime;
-@property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
-@property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) NSTimeInterval startedTimestamp;
 @property (nonatomic) NSTimeInterval pausedTimestamp;
 @property (nonatomic) NSTimeInterval bufferBeginTimestamp;

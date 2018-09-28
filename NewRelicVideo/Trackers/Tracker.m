@@ -25,7 +25,10 @@
 @property (nonatomic) int numErrors;
 @property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
-@property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
+
+// Time Since
+
+@property (nonatomic) NSTimeInterval lastRenditionChangeTimestamp;
 @property (nonatomic) NSTimeInterval trackerReadyTimestamp;
 
 @end
@@ -156,8 +159,8 @@
         [self setOptionKey:@"timeSinceTrackerReady" value:@0];
     }
     
-    if (self.timeSinceLastRenditionChangeTimestamp > 0) {
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
+    if (self.lastRenditionChangeTimestamp > 0) {
+        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.lastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
     }
     else {
         [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:@"_RENDITION_CHANGE"];
@@ -220,7 +223,7 @@
 - (void)sendRenditionChange {
     [self preSend];
     [self.automat sendRenditionChange];
-    self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
+    self.lastRenditionChangeTimestamp = TIMESTAMP;
 }
 
 - (void)sendError:(NSString *)message {
