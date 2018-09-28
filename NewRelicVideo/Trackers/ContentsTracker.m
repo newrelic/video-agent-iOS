@@ -96,19 +96,14 @@
 
 #pragma mark - Senders
 
+// TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
+
 - (void)preSend {
     [super preSend];
     
     [self updateContentsAttributes];
     
-    [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
-    
-    if (self.heartbeatTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
-    }
+    // Special time calculations, accumulative timestamps
     
     if (self.automat.state == TrackerStatePlaying) {
         self.totalPlaytime += TIMESINCE(self.totalPlaytimeTimestamp);
@@ -121,6 +116,22 @@
     }
     [self setContentsOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * TIMESINCE(self.playtimeSinceLastEventTimestamp))];
     self.playtimeSinceLastEventTimestamp = TIMESTAMP;
+    
+    // Regular offset timestamps, time since
+    
+    if (self.requestTimestamp > 0) {
+        [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
+    }
+    else {
+        [self setContentsOptionKey:@"timeSinceRequested" value:@0];
+    }
+    
+    if (self.heartbeatTimestamp > 0) {
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
+    }
+    else {
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
+    }
     
     if (self.timeSinceStartedTimestamp > 0) {
         [self setContentsOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
