@@ -75,11 +75,7 @@
 }
 
 - (void)setAdsOptionKey:(NSString *)key value:(id<NSCopying>)value {
-    [self setAdsOptionKey:key value:value forAction:ACTION_FILTER];
-}
-
-- (void)setAdsOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
-    [self setOptionKey:key value:value forAction:action];
+    [self setOptionKey:key value:value forAction:ACTION_FILTER];
 }
 
 - (void)updateAdsAttribute:(NSString *)attr {
@@ -93,10 +89,10 @@
 
 - (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
     if (timestamp > 0) {
-        [self setAdsOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
+        [self setOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
     }
     else {
-        [self setAdsOptionKey:key value:@0 forAction:filter];
+        [self setOptionKey:key value:@0 forAction:filter];
     }
 }
 
@@ -126,6 +122,8 @@
     [super preSend];
     
     [self updateAdsAttributes];
+    
+    // TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
     
     [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.timeSinceAdRequestedTimestamp];
     [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.timeSinceLastAdHeartbeatTimestamp];

@@ -75,6 +75,19 @@
     if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
 }
 
+- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
+    [self setContentsTimeKey:key timestamp:timestamp filter:ACTION_FILTER];
+}
+
+- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
+    if (timestamp > 0) {
+        [self setOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
+    }
+    else {
+        [self setOptionKey:key value:@0 forAction:filter];
+    }
+}
+
 #pragma mark - Init
 
 - (void)reset {
@@ -97,6 +110,8 @@
 #pragma mark - Senders
 
 // TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
+
+// TODO: all those timestamps are CONTENT_ specific? because we are registering them as general!!!
 
 - (void)preSend {
     [super preSend];
