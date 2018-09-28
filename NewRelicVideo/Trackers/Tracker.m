@@ -143,11 +143,18 @@
 
 - (void)setup {}
 
+// TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
+
 - (void)preSend {
     
     [self updateBaseAttributes];
     
-    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
+    if (self.trackerReadyTimestamp > 0) {
+        [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
+    }
+    else {
+        [self setOptionKey:@"timeSinceTrackerReady" value:@0];
+    }
     
     if (self.timeSinceLastRenditionChangeTimestamp > 0) {
         [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
