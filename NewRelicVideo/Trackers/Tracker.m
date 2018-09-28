@@ -146,8 +146,6 @@
 
 - (void)setup {}
 
-// TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
-
 - (void)preSend {
     
     [self updateBaseAttributes];

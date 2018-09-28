@@ -112,8 +112,6 @@
 
 #pragma mark - Senders
 
-// TODO: all those timestamps are CONTENT_ specific? because we are registering them as general!!!
-
 - (void)preSend {
     [super preSend];
     
