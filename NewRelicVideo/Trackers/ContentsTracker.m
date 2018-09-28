@@ -134,13 +134,6 @@
     
     // Regular offset timestamps, time since
     
-    if (self.requestTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceRequested" value:@0];
-    }
-    
     if (self.heartbeatTimestamp > 0) {
         [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
     }
@@ -148,40 +141,12 @@
         [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
     }
     
-    if (self.timeSinceStartedTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceStarted" value:@0];
-    }
-    
-    if (self.timeSincePausedTimestamp > 0) {
-        [self setOptionKey:@"timeSincePaused" value:@(1000.0f * TIMESINCE(self.timeSincePausedTimestamp)) forAction:CONTENT_RESUME];
-    }
-    else {
-        [self setOptionKey:@"timeSincePaused" value:@0 forAction:CONTENT_RESUME];
-    }
-    
-    if (self.timeSinceBufferBeginTimestamp > 0) {
-        [self setOptionKey:@"timeSinceBufferBegin" value:@(1000.0f * TIMESINCE(self.timeSinceBufferBeginTimestamp)) forAction:CONTENT_BUFFER_END];
-    }
-    else {
-        [self setOptionKey:@"timeSinceBufferBegin" value:@0 forAction:CONTENT_BUFFER_END];
-    }
-    
-    if (self.timeSinceSeekBeginTimestamp > 0) {
-        [self setOptionKey:@"timeSinceSeekBegin" value:@(1000.0f * TIMESINCE(self.timeSinceSeekBeginTimestamp)) forAction:CONTENT_SEEK_END];
-    }
-    else {
-        [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
-    }
-    
-    if (self.timeSinceLastAdTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastAd" value:@(1000.0f * TIMESINCE(self.timeSinceLastAdTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceLastAd" value:@0];
-    }
+    [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp];
+    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.timeSinceStartedTimestamp];
+    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.timeSincePausedTimestamp filter:CONTENT_RESUME];
+    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.timeSinceBufferBeginTimestamp filter:CONTENT_BUFFER_END];
+    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.timeSinceSeekBeginTimestamp filter:CONTENT_SEEK_END];
+    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.timeSinceLastAdTimestamp];
 }
 
 - (void)sendRequest {
