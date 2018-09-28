@@ -29,14 +29,14 @@
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *adsAttributeGetters;
 @property (nonatomic) int numberOfAds;
-@property (nonatomic) NSTimeInterval timeSinceAdRequestedTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceLastAdHeartbeatTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceAdStartedTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceAdPausedTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceAdBufferBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceAdSeekBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceAdBreakBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceLastAdQuartileTimestamp;
+@property (nonatomic) NSTimeInterval adRequestedTimestamp;
+@property (nonatomic) NSTimeInterval lastAdHeartbeatTimestamp;
+@property (nonatomic) NSTimeInterval adStartedTimestamp;
+@property (nonatomic) NSTimeInterval adPausedTimestamp;
+@property (nonatomic) NSTimeInterval adBufferBeginTimestamp;
+@property (nonatomic) NSTimeInterval adSeekBeginTimestamp;
+@property (nonatomic) NSTimeInterval adBreakBeginTimestamp;
+@property (nonatomic) NSTimeInterval lastAdQuartileTimestamp;
 
 @end
 
@@ -123,26 +123,24 @@
     
     [self updateAdsAttributes];
     
-    // TODO: variable names for timestamps are confusing, because we call it "timeSinceStartedTimestamp", we should call it "startedTimestamp", because the timeSince is what we get substracting it from the current timestamp.
-    
-    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.timeSinceAdRequestedTimestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.timeSinceLastAdHeartbeatTimestamp];
-    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.timeSinceAdStartedTimestamp];
-    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.timeSinceAdPausedTimestamp filter:AD_RESUME];
-    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.timeSinceAdBufferBeginTimestamp filter:AD_BUFFER_END];
-    [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.timeSinceAdSeekBeginTimestamp filter:AD_SEEK_END];
-    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.timeSinceAdBreakBeginTimestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.timeSinceLastAdQuartileTimestamp filter:AD_QUARTILE];
+    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.adRequestedTimestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.lastAdHeartbeatTimestamp];
+    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.adStartedTimestamp];
+    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.adPausedTimestamp filter:AD_RESUME];
+    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.adBufferBeginTimestamp filter:AD_BUFFER_END];
+    [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.adSeekBeginTimestamp filter:AD_SEEK_END];
+    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.adBreakBeginTimestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.lastAdQuartileTimestamp filter:AD_QUARTILE];
 }
 
 - (void)sendRequest {
-    self.timeSinceAdRequestedTimestamp = TIMESTAMP;
+    self.adRequestedTimestamp = TIMESTAMP;
     self.numberOfAds ++;
     [super sendRequest];
 }
 
 - (void)sendStart {
-    self.timeSinceAdStartedTimestamp = TIMESTAMP;
+    self.adStartedTimestamp = TIMESTAMP;
     [super sendStart];
 }
 
@@ -155,7 +153,7 @@
 }
 
 - (void)sendPause {
-    self.timeSinceAdPausedTimestamp = TIMESTAMP;
+    self.adPausedTimestamp = TIMESTAMP;
     [super sendPause];
 }
 
@@ -164,7 +162,7 @@
 }
 
 - (void)sendSeekStart {
-    self.timeSinceAdSeekBeginTimestamp = TIMESTAMP;
+    self.adSeekBeginTimestamp = TIMESTAMP;
     [super sendSeekStart];
 }
 
@@ -173,7 +171,7 @@
 }
 
 - (void)sendBufferStart {
-    self.timeSinceAdBufferBeginTimestamp = TIMESTAMP;
+    self.adBufferBeginTimestamp = TIMESTAMP;
     [super sendBufferStart];
 }
 
@@ -182,7 +180,7 @@
 }
 
 - (void)sendHeartbeat {
-    self.timeSinceLastAdHeartbeatTimestamp = TIMESTAMP;
+    self.lastAdHeartbeatTimestamp = TIMESTAMP;
     [super sendHeartbeat];
 }
 
@@ -198,7 +196,7 @@
 
 - (void)sendAdBreakStart {
     self.numberOfAds = 0;
-    self.timeSinceAdBreakBeginTimestamp = TIMESTAMP;
+    self.adBreakBeginTimestamp = TIMESTAMP;
     [self.automat.actions sendAdBreakStart];
 }
 
@@ -207,7 +205,7 @@
 }
 
 - (void)sendAdQuartile {
-    self.timeSinceLastAdQuartileTimestamp = TIMESTAMP;
+    self.lastAdQuartileTimestamp = TIMESTAMP;
     [self.automat.actions sendAdQuartile];
 }
 
