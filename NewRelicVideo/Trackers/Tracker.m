@@ -60,9 +60,6 @@
     if (self = [super init]) {
         self.automat = [[PlaybackAutomat alloc] init];
         self.automat.isAd = [self isMeAd];
-        
-        self.trackerReadyTimestamp = [TimestampValue build:TIMESTAMP];
-        self.lastRenditionChangeTimestamp = [TimestampValue build:0];
     }
     return self;
 }
@@ -143,6 +140,10 @@
     self.viewIdIndex = 0;
     self.numErrors = 0;
     self.heartbeatCounter = 0;
+    
+    self.trackerReadyTimestamp = [TimestampValue build:TIMESTAMP];
+    self.lastRenditionChangeTimestamp = [TimestampValue build:0];
+    
     [self playNewVideo];
     [self updateBaseAttributes];
 }
