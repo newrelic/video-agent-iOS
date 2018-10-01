@@ -20,6 +20,8 @@
 		9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483F212D7F1B00850636 /* libc++.tbd */; };
 		9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414841212D7F2300850636 /* SystemConfiguration.framework */; };
 		9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414843212D7F2C00850636 /* CoreTelephony.framework */; };
+		9C618815215EA9730084D399 /* TimestampValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C618813215EA9730084D399 /* TimestampValue.h */; };
+		9C618816215EA9730084D399 /* TimestampValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C618814215EA9730084D399 /* TimestampValue.m */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -67,6 +69,8 @@
 		9C41483F212D7F1B00850636 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9C414841212D7F2300850636 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9C414843212D7F2C00850636 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		9C618813215EA9730084D399 /* TimestampValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimestampValue.h; sourceTree = "<group>"; };
+		9C618814215EA9730084D399 /* TimestampValue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimestampValue.m; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
@@ -138,6 +142,7 @@
 				9C414834212D7C9000850636 /* NewRelicVideoAgent.h */,
 				9C414835212D7C9000850636 /* NewRelicVideoAgent.m */,
 				9CE5D72C212EF39900B89D07 /* Utils */,
+				9C618812215EA9350084D399 /* Time */,
 				9CA3DE002136B54F00205DC4 /* Backend */,
 				9CE5D721212ED8E900B89D07 /* Trackers */,
 				9C41481C212D7AD400850636 /* Info.plist */,
@@ -165,6 +170,15 @@
 				9C41483B212D7E8000850636 /* NewRelicAgent.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9C618812215EA9350084D399 /* Time */ = {
+			isa = PBXGroup;
+			children = (
+				9C618813215EA9730084D399 /* TimestampValue.h */,
+				9C618814215EA9730084D399 /* TimestampValue.m */,
+			);
+			path = Time;
 			sourceTree = "<group>";
 		};
 		9CA3DE002136B54F00205DC4 /* Backend */ = {
@@ -232,6 +246,7 @@
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CDECEF52154F4F800E5C5A4 /* PlaybackAutomat.h in Headers */,
+				9C618815215EA9730084D399 /* TimestampValue.h in Headers */,
 				9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */,
 				9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
@@ -356,6 +371,7 @@
 			files = (
 				9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
+				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9CE5D720212EC9CB00B89D07 /* BackendActions.m in Sources */,
 				9CDECEF62154F4F800E5C5A4 /* PlaybackAutomat.m in Sources */,

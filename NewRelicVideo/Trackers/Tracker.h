@@ -270,4 +270,18 @@
  */
 - (void)trackerTimeEvent;
 
+/**
+ Set custom LastRenditionChange timestamp.
+ 
+ @param timestamp Timestamp.
+ */
+- (void)setTimestampLastRenditionChange:(NSTimeInterval)timestamp;
+
+/**
+ Set custom TrackerReady timestamp.
+ 
+ @param timestamp Timestamp.
+ */
+- (void)setTimestampTrackerReady:(NSTimeInterval)timestamp;
+
 @end
