@@ -86,19 +86,6 @@
     if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
 }
 
-- (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
-    [self setAdsTimeKey:key timestamp:timestamp filter:ACTION_FILTER];
-}
-
-- (void)setAdsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
-    if (timestamp > 0) {
-        [self setOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
-    }
-    else {
-        [self setOptionKey:key value:@0 forAction:filter];
-    }
-}
-
 #pragma mark - Init
 
 - (instancetype)initWithContentsTracker:(ContentsTracker *)tracker {
@@ -136,14 +123,14 @@
     
     [self updateAdsAttributes];
     
-    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.adRequestedTimestamp.timestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.lastAdHeartbeatTimestamp.timestamp];
-    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.adStartedTimestamp.timestamp];
-    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.adPausedTimestamp.timestamp filter:AD_RESUME];
-    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.adBufferBeginTimestamp.timestamp filter:AD_BUFFER_END];
-    [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.adSeekBeginTimestamp.timestamp filter:AD_SEEK_END];
-    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.adBreakBeginTimestamp.timestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.lastAdQuartileTimestamp.timestamp filter:AD_QUARTILE];
+    [self setOptionKey:@"timeSinceRequested" value:@(self.adRequestedTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceLastAdHeartbeat" value:@(self.lastAdHeartbeatTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceAdStarted" value:@(self.adStartedTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceAdPaused" value:@(self.adPausedTimestamp.sinceMillis) forAction:AD_RESUME];
+    [self setOptionKey:@"timeSinceAdBufferBegin" value:@(self.adBufferBeginTimestamp.sinceMillis) forAction:AD_BUFFER_END];
+    [self setOptionKey:@"timeSinceAdSeekBegin" value:@(self.adSeekBeginTimestamp.sinceMillis) forAction:AD_SEEK_END];
+    [self setOptionKey:@"timeSinceAdBreakBegin" value:@(self.adBreakBeginTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceLastAdQuartile" value:@(self.lastAdQuartileTimestamp.sinceMillis) forAction:AD_QUARTILE];
 }
 
 - (void)sendRequest {

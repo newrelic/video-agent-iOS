@@ -79,19 +79,6 @@
     if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
 }
 
-- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
-    [self setContentsTimeKey:key timestamp:timestamp filter:ACTION_FILTER];
-}
-
-- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
-    if (timestamp > 0) {
-        [self setOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
-    }
-    else {
-        [self setOptionKey:key value:@0 forAction:filter];
-    }
-}
-
 #pragma mark - Init
 
 - (void)reset {
@@ -146,12 +133,12 @@
         [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.requestTimestamp.sinceMillis)];
     }
     
-    [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp.timestamp];
-    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.startedTimestamp.timestamp];
-    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.pausedTimestamp.timestamp filter:CONTENT_RESUME];
-    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.bufferBeginTimestamp.timestamp filter:CONTENT_BUFFER_END];
-    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.seekBeginTimestamp.timestamp filter:CONTENT_SEEK_END];
-    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.lastAdTimestamp.timestamp];
+    [self setOptionKey:@"timeSinceRequested" value:@(self.requestTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceStarted" value:@(self.startedTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSincePaused" value:@(self.pausedTimestamp.sinceMillis) forAction:CONTENT_RESUME];
+    [self setOptionKey:@"timeSinceBufferBegin" value:@(self.bufferBeginTimestamp.sinceMillis) forAction:CONTENT_BUFFER_END];
+    [self setOptionKey:@"timeSinceSeekBegin" value:@(self.seekBeginTimestamp.sinceMillis) forAction:CONTENT_SEEK_END];
+    [self setOptionKey:@"timeSinceLastAd" value:@(self.lastAdTimestamp.sinceMillis)];
 }
 
 - (void)sendRequest {
