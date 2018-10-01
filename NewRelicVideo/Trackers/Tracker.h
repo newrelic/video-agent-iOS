@@ -275,7 +275,7 @@
  
  @param timestamp Timestamp.
  @param attr Attribute name.
- @return True if attr name recognized, False if not.
+ @return True if attribute name is recognized, False if not.
  */
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
 
