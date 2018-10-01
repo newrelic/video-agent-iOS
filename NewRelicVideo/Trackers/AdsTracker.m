@@ -13,6 +13,7 @@
 #import "ContentsTracker.h"
 #import "Tracker_internal.h"
 #import "ContentsTracker_internal.h"
+#import "TimestampValue.h"
 
 #define ACTION_FILTER @"AD_"
 
@@ -31,14 +32,14 @@
 @property (nonatomic) int numberOfAds;
 
 // Time Since
-@property (nonatomic) NSTimeInterval adRequestedTimestamp;
-@property (nonatomic) NSTimeInterval lastAdHeartbeatTimestamp;
-@property (nonatomic) NSTimeInterval adStartedTimestamp;
-@property (nonatomic) NSTimeInterval adPausedTimestamp;
-@property (nonatomic) NSTimeInterval adBufferBeginTimestamp;
-@property (nonatomic) NSTimeInterval adSeekBeginTimestamp;
-@property (nonatomic) NSTimeInterval adBreakBeginTimestamp;
-@property (nonatomic) NSTimeInterval lastAdQuartileTimestamp;
+@property (nonatomic) TimestampValue *adRequestedTimestamp;
+@property (nonatomic) TimestampValue *lastAdHeartbeatTimestamp;
+@property (nonatomic) TimestampValue *adStartedTimestamp;
+@property (nonatomic) TimestampValue *adPausedTimestamp;
+@property (nonatomic) TimestampValue *adBufferBeginTimestamp;
+@property (nonatomic) TimestampValue *adSeekBeginTimestamp;
+@property (nonatomic) TimestampValue *adBreakBeginTimestamp;
+@property (nonatomic) TimestampValue *lastAdQuartileTimestamp;
 
 @end
 
@@ -111,6 +112,16 @@
     [super reset];
     
     self.numberOfAds = 0;
+    
+    self.adRequestedTimestamp = [TimestampValue build:0];
+    self.lastAdHeartbeatTimestamp = [TimestampValue build:0];
+    self.adStartedTimestamp = [TimestampValue build:0];
+    self.adPausedTimestamp = [TimestampValue build:0];
+    self.adBufferBeginTimestamp = [TimestampValue build:0];
+    self.adSeekBeginTimestamp = [TimestampValue build:0];
+    self.adBreakBeginTimestamp = [TimestampValue build:0];
+    self.lastAdQuartileTimestamp = [TimestampValue build:0];
+    
     [self updateAdsAttributes];
 }
 
@@ -125,24 +136,24 @@
     
     [self updateAdsAttributes];
     
-    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.adRequestedTimestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.lastAdHeartbeatTimestamp];
-    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.adStartedTimestamp];
-    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.adPausedTimestamp filter:AD_RESUME];
-    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.adBufferBeginTimestamp filter:AD_BUFFER_END];
-    [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.adSeekBeginTimestamp filter:AD_SEEK_END];
-    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.adBreakBeginTimestamp];
-    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.lastAdQuartileTimestamp filter:AD_QUARTILE];
+    [self setAdsTimeKey:@"timeSinceRequested" timestamp:self.adRequestedTimestamp.timestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdHeartbeat" timestamp:self.lastAdHeartbeatTimestamp.timestamp];
+    [self setAdsTimeKey:@"timeSinceAdStarted" timestamp:self.adStartedTimestamp.timestamp];
+    [self setAdsTimeKey:@"timeSinceAdPaused" timestamp:self.adPausedTimestamp.timestamp filter:AD_RESUME];
+    [self setAdsTimeKey:@"timeSinceAdBufferBegin" timestamp:self.adBufferBeginTimestamp.timestamp filter:AD_BUFFER_END];
+    [self setAdsTimeKey:@"timeSinceAdSeekBegin" timestamp:self.adSeekBeginTimestamp.timestamp filter:AD_SEEK_END];
+    [self setAdsTimeKey:@"timeSinceAdBreakBegin" timestamp:self.adBreakBeginTimestamp.timestamp];
+    [self setAdsTimeKey:@"timeSinceLastAdQuartile" timestamp:self.lastAdQuartileTimestamp.timestamp filter:AD_QUARTILE];
 }
 
 - (void)sendRequest {
-    self.adRequestedTimestamp = TIMESTAMP;
+    [self.adRequestedTimestamp setMain:TIMESTAMP];
     self.numberOfAds ++;
     [super sendRequest];
 }
 
 - (void)sendStart {
-    self.adStartedTimestamp = TIMESTAMP;
+    [self.adStartedTimestamp setMain:TIMESTAMP];
     [super sendStart];
 }
 
@@ -155,7 +166,7 @@
 }
 
 - (void)sendPause {
-    self.adPausedTimestamp = TIMESTAMP;
+    [self.adPausedTimestamp setMain:TIMESTAMP];
     [super sendPause];
 }
 
@@ -164,7 +175,7 @@
 }
 
 - (void)sendSeekStart {
-    self.adSeekBeginTimestamp = TIMESTAMP;
+    [self.adSeekBeginTimestamp setMain:TIMESTAMP];
     [super sendSeekStart];
 }
 
@@ -173,7 +184,7 @@
 }
 
 - (void)sendBufferStart {
-    self.adBufferBeginTimestamp = TIMESTAMP;
+    [self.adBufferBeginTimestamp setMain:TIMESTAMP];
     [super sendBufferStart];
 }
 
@@ -182,7 +193,7 @@
 }
 
 - (void)sendHeartbeat {
-    self.lastAdHeartbeatTimestamp = TIMESTAMP;
+    [self.lastAdHeartbeatTimestamp setMain:TIMESTAMP];
     [super sendHeartbeat];
 }
 
@@ -198,7 +209,7 @@
 
 - (void)sendAdBreakStart {
     self.numberOfAds = 0;
-    self.adBreakBeginTimestamp = TIMESTAMP;
+    [self.adBreakBeginTimestamp setMain:TIMESTAMP];
     [self.automat.actions sendAdBreakStart];
 }
 
@@ -207,7 +218,7 @@
 }
 
 - (void)sendAdQuartile {
-    self.lastAdQuartileTimestamp = TIMESTAMP;
+    [self.lastAdQuartileTimestamp setMain:TIMESTAMP];
     [self.automat.actions sendAdQuartile];
 }
 
@@ -245,6 +256,42 @@
 - (NSString *)getTrackerVersion {
     OVERWRITE_STUB
     return nil;
+}
+
+#pragma mark - Time
+
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
+    if (![super setTimestamp:timestamp attributeName:attr]) {
+        if ([attr isEqualToString:@"timeSinceRequested"]) {
+            [self.adRequestedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastAdHeartbeat"]) {
+            [self.lastAdHeartbeatTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceAdStarted"]) {
+            [self.adStartedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceAdPaused"]) {
+            [self.adPausedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceAdBufferBegin"]) {
+            [self.adBufferBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceAdSeekBegin"]) {
+            [self.adSeekBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceAdBreakBegin"]) {
+            [self.adBreakBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastAdQuartile"]) {
+            [self.lastAdQuartileTimestamp setExternal:timestamp];
+        }
+        else {
+            return NO;
+        }
+    }
+    
+    return YES;
 }
 
 @end
