@@ -314,12 +314,18 @@
 // To be overwritten
 - (void)trackerTimeEvent {}
 
-- (void)setTimestampLastRenditionChange:(NSTimeInterval)timestamp {
-    [self.lastRenditionChangeTimestamp setExternal:timestamp];
-}
-
-- (void)setTimestampTrackerReady:(NSTimeInterval)timestamp {
-    [self.trackerReadyTimestamp setExternal:timestamp];
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
+    if ([attr isEqualToString:@"timeSinceTrackerReady"]) {
+        [self.trackerReadyTimestamp setExternal:timestamp];
+    }
+    else if ([attr isEqualToString:@"timeSinceLastRenditionChange"]) {
+        [self.lastRenditionChangeTimestamp setExternal:timestamp];
+    }
+    else {
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

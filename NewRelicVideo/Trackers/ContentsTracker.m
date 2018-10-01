@@ -11,6 +11,7 @@
 #import "PlaybackAutomat.h"
 #import "EventDefs.h"
 #import "Tracker_internal.h"
+#import "TimestampValue.h"
 
 #define ACTION_FILTER @"CONTENT_"
 
@@ -21,16 +22,16 @@
 // Time Counts
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
+@property (nonatomic) NSTimeInterval totalPlaytime;
 
 // Time Since
-@property (nonatomic) NSTimeInterval requestTimestamp;
-@property (nonatomic) NSTimeInterval heartbeatTimestamp;
-@property (nonatomic) NSTimeInterval totalPlaytime;
-@property (nonatomic) NSTimeInterval startedTimestamp;
-@property (nonatomic) NSTimeInterval pausedTimestamp;
-@property (nonatomic) NSTimeInterval bufferBeginTimestamp;
-@property (nonatomic) NSTimeInterval seekBeginTimestamp;
-@property (nonatomic) NSTimeInterval lastAdTimestamp;
+@property (nonatomic) TimestampValue *requestTimestamp;
+@property (nonatomic) TimestampValue *heartbeatTimestamp;
+@property (nonatomic) TimestampValue *startedTimestamp;
+@property (nonatomic) TimestampValue *pausedTimestamp;
+@property (nonatomic) TimestampValue *bufferBeginTimestamp;
+@property (nonatomic) TimestampValue *seekBeginTimestamp;
+@property (nonatomic) TimestampValue *lastAdTimestamp;
 
 @end
 
@@ -96,12 +97,17 @@
 - (void)reset {
     [super reset];
     
-    self.requestTimestamp = 0;
-    self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
     self.playtimeSinceLastEventTimestamp = 0;
-    self.startedTimestamp = 0;
-    self.lastAdTimestamp = 0;
+    self.totalPlaytimeTimestamp = 0;
+    
+    self.requestTimestamp = [TimestampValue build:0];
+    self.heartbeatTimestamp = [TimestampValue build:0];
+    self.startedTimestamp = [TimestampValue build:0];
+    self.pausedTimestamp = [TimestampValue build:0];
+    self.bufferBeginTimestamp = [TimestampValue build:0];
+    self.seekBeginTimestamp = [TimestampValue build:0];
+    self.lastAdTimestamp = [TimestampValue build:0];
     
     [self updateContentsAttributes];
 }
@@ -134,28 +140,28 @@
     // Regular offset timestamps, time since
     
     if (self.heartbeatTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.heartbeatTimestamp.sinceMillis)];
     }
     else {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.requestTimestamp.sinceMillis)];
     }
     
-    [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp];
-    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.startedTimestamp];
-    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.pausedTimestamp filter:CONTENT_RESUME];
-    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.bufferBeginTimestamp filter:CONTENT_BUFFER_END];
-    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.seekBeginTimestamp filter:CONTENT_SEEK_END];
-    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.lastAdTimestamp];
+    [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp.timestamp];
+    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.startedTimestamp.timestamp];
+    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.pausedTimestamp.timestamp filter:CONTENT_RESUME];
+    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.bufferBeginTimestamp.timestamp filter:CONTENT_BUFFER_END];
+    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.seekBeginTimestamp.timestamp filter:CONTENT_SEEK_END];
+    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.lastAdTimestamp.timestamp];
 }
 
 - (void)sendRequest {
-    self.requestTimestamp = TIMESTAMP;
+    [self.requestTimestamp setMain:TIMESTAMP];
     [super sendRequest];
 }
 
 - (void)sendStart {
     if (self.automat.state == TrackerStateStarting) {
-        self.startedTimestamp = TIMESTAMP;
+        [self.startedTimestamp setMain:TIMESTAMP];
     }
     self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendStart];
@@ -168,7 +174,7 @@
 }
 
 - (void)sendPause {
-    self.pausedTimestamp = TIMESTAMP;
+    [self.pausedTimestamp setMain:TIMESTAMP];
     [super sendPause];
 }
 
@@ -178,7 +184,7 @@
 }
 
 - (void)sendSeekStart {
-    self.seekBeginTimestamp = TIMESTAMP;
+    [self.seekBeginTimestamp setMain:TIMESTAMP];
     [super sendSeekStart];
 }
 
@@ -187,7 +193,7 @@
 }
 
 - (void)sendBufferStart {
-    self.bufferBeginTimestamp = TIMESTAMP;
+    [self.bufferBeginTimestamp setMain:TIMESTAMP];
     [super sendBufferStart];
 }
 
@@ -196,7 +202,7 @@
 }
 
 - (void)sendHeartbeat {
-    self.heartbeatTimestamp = TIMESTAMP;
+    [self.heartbeatTimestamp setMain:TIMESTAMP];
     [super sendHeartbeat];
 }
 
@@ -242,7 +248,7 @@
 }
 
 - (void)adHappened:(NSTimeInterval)time {
-    self.lastAdTimestamp = time;
+    [self.lastAdTimestamp setMain:time];
 }
 
 @end

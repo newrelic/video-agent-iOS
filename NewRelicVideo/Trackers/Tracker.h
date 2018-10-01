@@ -271,17 +271,12 @@
 - (void)trackerTimeEvent;
 
 /**
- Set custom LastRenditionChange timestamp.
+ Set custom timestamp for a given timer attribute.
  
  @param timestamp Timestamp.
+ @param attr Attribute name.
+ @return True if attr name recognized, False if not.
  */
-- (void)setTimestampLastRenditionChange:(NSTimeInterval)timestamp;
-
-/**
- Set custom TrackerReady timestamp.
- 
- @param timestamp Timestamp.
- */
-- (void)setTimestampTrackerReady:(NSTimeInterval)timestamp;
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
 
 @end
