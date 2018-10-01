@@ -12,6 +12,7 @@
 #import "BackendActions.h"
 #import "EventDefs.h"
 #import "Vars.h"
+#import "TimestampValue.h"
 
 #define OBSERVATION_TIME        2.0f
 #define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
@@ -25,8 +26,11 @@
 @property (nonatomic) int numErrors;
 @property (nonatomic) int heartbeatCounter;
 @property (nonatomic) NSTimer *playerStateObserverTimer;
-@property (nonatomic) NSTimeInterval timeSinceLastRenditionChangeTimestamp;
-@property (nonatomic) NSTimeInterval trackerReadyTimestamp;
+
+// Time Since
+
+@property (nonatomic) TimestampValue *lastRenditionChangeTimestamp;
+@property (nonatomic) TimestampValue *trackerReadyTimestamp;
 
 @end
 
@@ -56,7 +60,6 @@
     if (self = [super init]) {
         self.automat = [[PlaybackAutomat alloc] init];
         self.automat.isAd = [self isMeAd];
-        self.trackerReadyTimestamp = TIMESTAMP;
     }
     return self;
 }
@@ -137,6 +140,10 @@
     self.viewIdIndex = 0;
     self.numErrors = 0;
     self.heartbeatCounter = 0;
+    
+    self.trackerReadyTimestamp = [TimestampValue build:TIMESTAMP];
+    self.lastRenditionChangeTimestamp = [TimestampValue build:0];
+    
     [self playNewVideo];
     [self updateBaseAttributes];
 }
@@ -147,14 +154,8 @@
     
     [self updateBaseAttributes];
     
-    [self setOptionKey:@"timeSinceTrackerReady" value:@(1000.0f * TIMESINCE(self.trackerReadyTimestamp))];
-    
-    if (self.timeSinceLastRenditionChangeTimestamp > 0) {
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@(1000.0f * TIMESINCE(self.timeSinceLastRenditionChangeTimestamp)) forAction:@"_RENDITION_CHANGE"];
-    }
-    else {
-        [self setOptionKey:@"timeSinceLastRenditionChange" value:@0 forAction:@"_RENDITION_CHANGE"];
-    }
+    [self setOptionKey:@"timeSinceTrackerReady" value:@(self.trackerReadyTimestamp.sinceMillis)];
+    [self setOptionKey:@"timeSinceLastRenditionChange" value:@(self.lastRenditionChangeTimestamp.sinceMillis) forAction:@"_RENDITION_CHANGE"];
 }
 
 - (void)sendRequest {
@@ -213,7 +214,7 @@
 - (void)sendRenditionChange {
     [self preSend];
     [self.automat sendRenditionChange];
-    self.timeSinceLastRenditionChangeTimestamp = TIMESTAMP;
+    [self.lastRenditionChangeTimestamp setMain:TIMESTAMP];
 }
 
 - (void)sendError:(NSString *)message {
@@ -313,5 +314,19 @@
 
 // To be overwritten
 - (void)trackerTimeEvent {}
+
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
+    if ([attr isEqualToString:@"timeSinceTrackerReady"]) {
+        [self.trackerReadyTimestamp setExternal:timestamp];
+    }
+    else if ([attr isEqualToString:@"timeSinceLastRenditionChange"]) {
+        [self.lastRenditionChangeTimestamp setExternal:timestamp];
+    }
+    else {
+        return NO;
+    }
+    
+    return YES;
+}
 
 @end

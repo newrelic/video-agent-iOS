@@ -11,6 +11,7 @@
 #import "PlaybackAutomat.h"
 #import "EventDefs.h"
 #import "Tracker_internal.h"
+#import "TimestampValue.h"
 
 #define ACTION_FILTER @"CONTENT_"
 
@@ -18,16 +19,19 @@
 
 @property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *contentsAttributeGetters;
 
-@property (nonatomic) NSTimeInterval requestTimestamp;
-@property (nonatomic) NSTimeInterval heartbeatTimestamp;
-@property (nonatomic) NSTimeInterval totalPlaytime;
+// Time Counts
 @property (nonatomic) NSTimeInterval totalPlaytimeTimestamp;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceStartedTimestamp;
-@property (nonatomic) NSTimeInterval timeSincePausedTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceBufferBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceSeekBeginTimestamp;
-@property (nonatomic) NSTimeInterval timeSinceLastAdTimestamp;
+@property (nonatomic) NSTimeInterval totalPlaytime;
+
+// Time Since
+@property (nonatomic) TimestampValue *requestTimestamp;
+@property (nonatomic) TimestampValue *heartbeatTimestamp;
+@property (nonatomic) TimestampValue *startedTimestamp;
+@property (nonatomic) TimestampValue *pausedTimestamp;
+@property (nonatomic) TimestampValue *bufferBeginTimestamp;
+@property (nonatomic) TimestampValue *seekBeginTimestamp;
+@property (nonatomic) TimestampValue *lastAdTimestamp;
 
 @end
 
@@ -75,17 +79,35 @@
     if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
 }
 
+- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp {
+    [self setContentsTimeKey:key timestamp:timestamp filter:ACTION_FILTER];
+}
+
+- (void)setContentsTimeKey:(NSString *)key timestamp:(NSTimeInterval)timestamp filter:(NSString *)filter {
+    if (timestamp > 0) {
+        [self setOptionKey:key value:@(1000.0f * TIMESINCE(timestamp)) forAction:filter];
+    }
+    else {
+        [self setOptionKey:key value:@0 forAction:filter];
+    }
+}
+
 #pragma mark - Init
 
 - (void)reset {
     [super reset];
     
-    self.requestTimestamp = 0;
-    self.heartbeatTimestamp = 0;
     self.totalPlaytime = 0;
     self.playtimeSinceLastEventTimestamp = 0;
-    self.timeSinceStartedTimestamp = 0;
-    self.timeSinceLastAdTimestamp = 0;
+    self.totalPlaytimeTimestamp = 0;
+    
+    self.requestTimestamp = [TimestampValue build:0];
+    self.heartbeatTimestamp = [TimestampValue build:0];
+    self.startedTimestamp = [TimestampValue build:0];
+    self.pausedTimestamp = [TimestampValue build:0];
+    self.bufferBeginTimestamp = [TimestampValue build:0];
+    self.seekBeginTimestamp = [TimestampValue build:0];
+    self.lastAdTimestamp = [TimestampValue build:0];
     
     [self updateContentsAttributes];
 }
@@ -101,14 +123,7 @@
     
     [self updateContentsAttributes];
     
-    [self setContentsOptionKey:@"timeSinceRequested" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
-    
-    if (self.heartbeatTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.heartbeatTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(1000.0f * TIMESINCE(self.requestTimestamp))];
-    }
+    // Special time calculations, accumulative timestamps
     
     if (self.automat.state == TrackerStatePlaying) {
         self.totalPlaytime += TIMESINCE(self.totalPlaytimeTimestamp);
@@ -122,50 +137,31 @@
     [self setContentsOptionKey:@"playtimeSinceLastEvent" value:@(1000.0f * TIMESINCE(self.playtimeSinceLastEventTimestamp))];
     self.playtimeSinceLastEventTimestamp = TIMESTAMP;
     
-    if (self.timeSinceStartedTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceStarted" value:@(1000.0f * TIMESINCE(self.timeSinceStartedTimestamp))];
+    // Regular offset timestamps, time since
+    
+    if (self.heartbeatTimestamp > 0) {
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.heartbeatTimestamp.sinceMillis)];
     }
     else {
-        [self setContentsOptionKey:@"timeSinceStarted" value:@0];
+        [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.requestTimestamp.sinceMillis)];
     }
     
-    if (self.timeSincePausedTimestamp > 0) {
-        [self setOptionKey:@"timeSincePaused" value:@(1000.0f * TIMESINCE(self.timeSincePausedTimestamp)) forAction:CONTENT_RESUME];
-    }
-    else {
-        [self setOptionKey:@"timeSincePaused" value:@0 forAction:CONTENT_RESUME];
-    }
-    
-    if (self.timeSinceBufferBeginTimestamp > 0) {
-        [self setOptionKey:@"timeSinceBufferBegin" value:@(1000.0f * TIMESINCE(self.timeSinceBufferBeginTimestamp)) forAction:CONTENT_BUFFER_END];
-    }
-    else {
-        [self setOptionKey:@"timeSinceBufferBegin" value:@0 forAction:CONTENT_BUFFER_END];
-    }
-    
-    if (self.timeSinceSeekBeginTimestamp > 0) {
-        [self setOptionKey:@"timeSinceSeekBegin" value:@(1000.0f * TIMESINCE(self.timeSinceSeekBeginTimestamp)) forAction:CONTENT_SEEK_END];
-    }
-    else {
-        [self setOptionKey:@"timeSinceSeekBegin" value:@0 forAction:CONTENT_SEEK_END];
-    }
-    
-    if (self.timeSinceLastAdTimestamp > 0) {
-        [self setContentsOptionKey:@"timeSinceLastAd" value:@(1000.0f * TIMESINCE(self.timeSinceLastAdTimestamp))];
-    }
-    else {
-        [self setContentsOptionKey:@"timeSinceLastAd" value:@0];
-    }
+    [self setContentsTimeKey:@"timeSinceRequested" timestamp:self.requestTimestamp.timestamp];
+    [self setContentsTimeKey:@"timeSinceStarted" timestamp:self.startedTimestamp.timestamp];
+    [self setContentsTimeKey:@"timeSincePaused" timestamp:self.pausedTimestamp.timestamp filter:CONTENT_RESUME];
+    [self setContentsTimeKey:@"timeSinceBufferBegin" timestamp:self.bufferBeginTimestamp.timestamp filter:CONTENT_BUFFER_END];
+    [self setContentsTimeKey:@"timeSinceSeekBegin" timestamp:self.seekBeginTimestamp.timestamp filter:CONTENT_SEEK_END];
+    [self setContentsTimeKey:@"timeSinceLastAd" timestamp:self.lastAdTimestamp.timestamp];
 }
 
 - (void)sendRequest {
-    self.requestTimestamp = TIMESTAMP;
+    [self.requestTimestamp setMain:TIMESTAMP];
     [super sendRequest];
 }
 
 - (void)sendStart {
     if (self.automat.state == TrackerStateStarting) {
-        self.timeSinceStartedTimestamp = TIMESTAMP;
+        [self.startedTimestamp setMain:TIMESTAMP];
     }
     self.totalPlaytimeTimestamp = TIMESTAMP;
     [super sendStart];
@@ -174,11 +170,11 @@
 - (void)sendEnd {
     [super sendEnd];
     self.totalPlaytime = 0;
-    self.timeSinceLastAdTimestamp = 0;
+    self.lastAdTimestamp = 0;
 }
 
 - (void)sendPause {
-    self.timeSincePausedTimestamp = TIMESTAMP;
+    [self.pausedTimestamp setMain:TIMESTAMP];
     [super sendPause];
 }
 
@@ -188,7 +184,7 @@
 }
 
 - (void)sendSeekStart {
-    self.timeSinceSeekBeginTimestamp = TIMESTAMP;
+    [self.seekBeginTimestamp setMain:TIMESTAMP];
     [super sendSeekStart];
 }
 
@@ -197,7 +193,7 @@
 }
 
 - (void)sendBufferStart {
-    self.timeSinceBufferBeginTimestamp = TIMESTAMP;
+    [self.bufferBeginTimestamp setMain:TIMESTAMP];
     [super sendBufferStart];
 }
 
@@ -206,7 +202,7 @@
 }
 
 - (void)sendHeartbeat {
-    self.heartbeatTimestamp = TIMESTAMP;
+    [self.heartbeatTimestamp setMain:TIMESTAMP];
     [super sendHeartbeat];
 }
 
@@ -252,7 +248,38 @@
 }
 
 - (void)adHappened:(NSTimeInterval)time {
-    self.timeSinceLastAdTimestamp = time;
+    [self.lastAdTimestamp setMain:time];
+}
+
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
+    if (![super setTimestamp:timestamp attributeName:attr]) {
+        if ([attr isEqualToString:@"timeSinceRequested"]) {
+            [self.requestTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceStarted"]) {
+            [self.startedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSincePaused"]) {
+            [self.pausedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceBufferBegin"]) {
+            [self.bufferBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceSeekBegin"]) {
+            [self.seekBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastAd"]) {
+            [self.lastAdTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastHeartbeat"]) {
+            [self.heartbeatTimestamp setExternal:timestamp];
+        }
+        else {
+            return NO;
+        }
+    }
+
+    return YES;
 }
 
 @end

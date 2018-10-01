@@ -270,4 +270,13 @@
  */
 - (void)trackerTimeEvent;
 
+/**
+ Set custom timestamp for a given timer attribute.
+ 
+ @param timestamp Timestamp.
+ @param attr Attribute name.
+ @return True if attribute name is recognized, False if not.
+ */
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
+
 @end
