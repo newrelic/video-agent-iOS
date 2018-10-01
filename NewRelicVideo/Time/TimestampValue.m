@@ -48,6 +48,15 @@
     }
 }
 
+- (void)setTimestamp:(NSTimeInterval)timestamp {
+    if (self.externalTimestamp > 0) {
+        self.externalTimestamp = timestamp;
+    }
+    else {
+        self.mainTimestamp = timestamp;
+    }
+}
+
 - (NSTimeInterval)sinceMillis {
     if (self.timestamp > 0) {
         return 1000.0f * TIMESINCE(self.timestamp);

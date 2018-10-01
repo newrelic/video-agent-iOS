@@ -10,10 +10,11 @@
 
 @interface TimestampValue : NSObject
 
+@property (nonatomic) NSTimeInterval timestamp;
+
 + (instancetype)build:(NSTimeInterval)timestamp;
 - (void)setMain:(NSTimeInterval)timestamp;
 - (void)setExternal:(NSTimeInterval)timestamp;
-- (NSTimeInterval)timestamp;
 - (NSTimeInterval)sinceMillis;
 
 @end
