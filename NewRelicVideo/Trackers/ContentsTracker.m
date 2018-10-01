@@ -251,4 +251,35 @@
     [self.lastAdTimestamp setMain:time];
 }
 
+- (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
+    if (![super setTimestamp:timestamp attributeName:attr]) {
+        if ([attr isEqualToString:@"timeSinceRequested"]) {
+            [self.requestTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceStarted"]) {
+            [self.startedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSincePaused"]) {
+            [self.pausedTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceBufferBegin"]) {
+            [self.bufferBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceSeekBegin"]) {
+            [self.seekBeginTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastAd"]) {
+            [self.lastAdTimestamp setExternal:timestamp];
+        }
+        else if ([attr isEqualToString:@"timeSinceLastHeartbeat"]) {
+            [self.heartbeatTimestamp setExternal:timestamp];
+        }
+        else {
+            return NO;
+        }
+    }
+
+    return YES;
+}
+
 @end
