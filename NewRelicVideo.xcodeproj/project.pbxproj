@@ -6,6 +6,20 @@
 	objectVersion = 50;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		9C618817216508C60084D399 /* BuildUniversalFramework */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = 9C61881A216508C60084D399 /* Build configuration list for PBXAggregateTarget "BuildUniversalFramework" */;
+			buildPhases = (
+				9C61881B216508D20084D399 /* ShellScript */,
+			);
+			dependencies = (
+			);
+			name = BuildUniversalFramework;
+			productName = BuildUniversalFramework;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46F9214BE7E800E7066C /* Tracker_internal.h */; };
 		9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */; };
@@ -267,7 +281,6 @@
 				9C414814212D7AD400850636 /* Frameworks */,
 				9C414815212D7AD400850636 /* Headers */,
 				9C414816212D7AD400850636 /* Resources */,
-				9C1D46F8214BBD1300E7066C /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -311,6 +324,9 @@
 					9C414820212D7AD400850636 = {
 						CreatedOnToolsVersion = 9.4.1;
 					};
+					9C618817216508C60084D399 = {
+						CreatedOnToolsVersion = 9.4.1;
+					};
 				};
 			};
 			buildConfigurationList = 9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo" */;
@@ -327,6 +343,7 @@
 			targets = (
 				9C414817212D7AD400850636 /* NewRelicVideo */,
 				9C414820212D7AD400850636 /* NewRelicVideoTests */,
+				9C618817216508C60084D399 /* BuildUniversalFramework */,
 			);
 		};
 /* End PBXProject section */
@@ -349,7 +366,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		9C1D46F8214BBD1300E7066C /* ShellScript */ = {
+		9C61881B216508D20084D399 /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -360,7 +377,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\ncp -r \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework\" ../build/";
+			shellScript = "FRAMEWORK=NewRelicVideo\nBUILD=build\nFRAMEWORK_PATH=$FRAMEWORK.framework\n\n# Go to parent dir (project parent)\ncd ..\n\n# iOS, compile for device and simulator\nrm -Rf $FRAMEWORK/$BUILD\nrm -f $FRAMEWORK.framework.tar.gz\nxcodebuild archive -project $FRAMEWORK/$FRAMEWORK.xcodeproj -scheme $FRAMEWORK -sdk iphoneos SYMROOT=$BUILD\nxcodebuild build -project $FRAMEWORK/$FRAMEWORK.xcodeproj -target $FRAMEWORK -sdk iphonesimulator SYMROOT=$BUILD\ncp -RL $FRAMEWORK/$BUILD/Release-iphoneos $FRAMEWORK/$BUILD/Release-universal\n\n# Create fat lib\nlipo -create $FRAMEWORK/$BUILD/Release-iphoneos/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-iphonesimulator/$FRAMEWORK_PATH/$FRAMEWORK -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n// Go back to project root dir\ncd NewRelicVideo\n\n# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\ncp -r $BUILD/Release-universal/$FRAMEWORK_PATH ../build/\n\nopen ../build";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -608,6 +625,22 @@
 			};
 			name = Release;
 		};
+		9C618818216508C60084D399 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		9C618819216508C60084D399 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -634,6 +667,15 @@
 			buildConfigurations = (
 				9C414830212D7AD400850636 /* Debug */,
 				9C414831212D7AD400850636 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9C61881A216508C60084D399 /* Build configuration list for PBXAggregateTarget "BuildUniversalFramework" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9C618818216508C60084D399 /* Debug */,
+				9C618819216508C60084D399 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
