@@ -360,7 +360,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Generate AppleDoc\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ~/NewRelicVideo-Doc ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\nmkdir ../build\ncp -r \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework\" ../build/";
+			shellScript = "# Create build dir\nrm -rf ../build/\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\ncp -r \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.framework\" ../build/";
 		};
 /* End PBXShellScriptBuildPhase section */
 
