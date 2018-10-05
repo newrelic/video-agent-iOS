@@ -23,13 +23,13 @@
 /* Begin PBXBuildFile section */
 		9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46F9214BE7E800E7066C /* Tracker_internal.h */; };
 		9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */; };
+		9C2E809F216672360085B62B /* NewRelicAgent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483B212D7E8000850636 /* NewRelicAgent.framework */; };
 		9C414822212D7AD400850636 /* NewRelicVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414818212D7AD400850636 /* NewRelicVideo.framework */; };
 		9C414827212D7AD400850636 /* NewRelicVideoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414826212D7AD400850636 /* NewRelicVideoTests.m */; };
 		9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C41481B212D7AD400850636 /* NewRelicVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414833212D7B7700850636 /* EventDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414832212D7B4C00850636 /* EventDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414834212D7C9000850636 /* NewRelicVideoAgent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414835212D7C9000850636 /* NewRelicVideoAgent.m */; };
-		9C41483C212D7E8100850636 /* NewRelicAgent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483B212D7E8000850636 /* NewRelicAgent.framework */; };
 		9C41483E212D7F0F00850636 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483D212D7F0F00850636 /* libz.tbd */; };
 		9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483F212D7F1B00850636 /* libc++.tbd */; };
 		9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C414841212D7F2300850636 /* SystemConfiguration.framework */; };
@@ -111,11 +111,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C2E809F216672360085B62B /* NewRelicAgent.framework in Frameworks */,
 				9C414844212D7F2C00850636 /* CoreTelephony.framework in Frameworks */,
 				9C414842212D7F2400850636 /* SystemConfiguration.framework in Frameworks */,
 				9C414840212D7F1B00850636 /* libc++.tbd in Frameworks */,
 				9C41483E212D7F0F00850636 /* libz.tbd in Frameworks */,
-				9C41483C212D7E8100850636 /* NewRelicAgent.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -552,6 +552,7 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -581,6 +582,7 @@
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
