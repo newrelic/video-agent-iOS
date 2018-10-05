@@ -8,7 +8,7 @@
 
 #import "PlaybackAutomat.h"
 #import "BackendActions.h"
-#import "NSMutableArray+Stack.h"
+#import "Stack.h"
 
 typedef NS_ENUM(NSUInteger, TrackerTransition) {
     TrackerTransitionAutoplay = 0,
@@ -27,7 +27,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 
 @property (nonatomic) TrackerState state;
 @property (nonatomic) BackendActions *actions;
-@property (nonatomic) NSMutableArray<NSNumber *> *stateStack;
+@property (nonatomic) Stack<NSNumber *> *stateStack;
 
 @end
 
@@ -36,7 +36,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 - (instancetype)init {
     if (self = [super init]) {
         self.state = TrackerStateStopped;
-        self.stateStack = @[].mutableCopy;
+        self.stateStack = [Stack new];
         self.actions = [[BackendActions alloc] init];
     }
     return self;
@@ -74,7 +74,7 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
         [self.actions sendAdEnd];
     }
     
-    [self.stateStack removeAllObjects];
+    [self.stateStack clear];
     [self moveState:TrackerStateStopped];
 }
 
