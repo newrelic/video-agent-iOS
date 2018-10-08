@@ -30,6 +30,7 @@
 @property (nonatomic) BOOL isAutoPlayed;
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) BOOL firstFrameHappend;
+@property (nonatomic) int numTimeouts;
 @property (nonatomic) NSString *videoID;
 
 @end
@@ -55,6 +56,7 @@
     self.numZeroRates = 0;
     self.estimatedBitrate = 0;
     self.firstFrameHappend = NO;
+    self.numTimeouts = 0;
 }
 
 - (void)setup {
@@ -266,8 +268,15 @@
     [super trackerTimeEvent];
     
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
-        AV_LOG(@"Timeout, video ended but no event received.");
-        [self sendEnd];
+        if (self.numTimeouts < 1) {
+            AV_LOG(@"Video ended? let's wait for another event to trigger a timeout.");
+            self.numTimeouts ++;
+        }
+        else {
+            AV_LOG(@"Timeout, video ended but no event received.");
+            [self sendEnd];
+            self.numTimeouts = 0;
+        }
     }
 
     [self setupBitrateOptions];
@@ -311,6 +320,7 @@
     self.isAutoPlayed = NO;
     self.videoID = nil;
     self.firstFrameHappend = NO;
+    self.numTimeouts = 0;
     
     // TEST: custom action
     //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
