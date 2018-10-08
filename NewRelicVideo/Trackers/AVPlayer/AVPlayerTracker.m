@@ -29,6 +29,7 @@
 @property (nonatomic) double estimatedBitrate;
 @property (nonatomic) BOOL isAutoPlayed;
 @property (nonatomic) BOOL isFullScreen;
+@property (nonatomic) BOOL firstFrameHappend;
 @property (nonatomic) NSString *videoID;
 
 @end
@@ -53,6 +54,7 @@
     [super reset];
     self.numZeroRates = 0;
     self.estimatedBitrate = 0;
+    self.firstFrameHappend = NO;
 }
 
 - (void)setup {
@@ -80,6 +82,19 @@
                 }
             }
             self.numZeroRates = 0;
+        }
+        
+        if (!self.firstFrameHappend) {
+            AV_LOG(@"First time observer event -> sendStart");
+            
+            // NOTE: with AVPlayer playlists, the request event only happens for the first video, we need manually send it before start.
+            if (self.automat.state == TrackerStateStopped) {
+                [self sendRequest];
+            }
+            
+            [self sendStart];
+            
+            self.firstFrameHappend = YES;
         }
     }];
     
@@ -121,6 +136,8 @@
     }
     
     AV_LOG(@"Setup AVPlayer events and listener");
+    
+    [self sendPlayerReady];
 }
 
 #pragma mark - Item Handlers
@@ -145,7 +162,9 @@
     AV_LOG(@"ItemTimeJumpedNotification = %@", statusStr);
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
+        AV_LOG(@"status == AVPlayerItemStatusReadyToPlay");
         if (self.automat.state == TrackerStateStarting) {
+            AV_LOG(@"sendStart");
             [self sendStart];
         }
     }
@@ -154,14 +173,15 @@
         // NOTE: this is probably redundant and already catched in "rate" KVO when self.player.error != nil
     }
     else if (p.status == AVPlayerItemStatusUnknown) {
-        [self sendPlayerReady];
+        AV_LOG(@"status == AVPlayerItemStatusUnknown");
     }
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
     AV_LOG(@"ItemDidPlayToEndTimeNotification");
     AV_LOG(@"#### FINISHED PLAYING");
-    // NOTE: this is redundant and already catched in "rate" KVO
+    
+    [self sendEnd];
 }
 
 // KVO observer method
@@ -183,7 +203,6 @@
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
-                [self sendEnd];
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
@@ -291,6 +310,7 @@
     [super sendEnd];
     self.isAutoPlayed = NO;
     self.videoID = nil;
+    self.firstFrameHappend = NO;
     
     // TEST: custom action
     //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
