@@ -60,6 +60,16 @@
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    
+    @try {
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+        [self.player.currentItem removeObserver:self forKeyPath:@"videoBounds"];
+    }
+    @catch (NSException *exception) {
+        // Observers not registered
+    }
 }
 
 - (void)setup {
