@@ -32,6 +32,7 @@
 @property (nonatomic) BOOL firstFrameHappend;
 @property (nonatomic) int numTimeouts;
 @property (nonatomic) NSString *videoID;
+@property (nonatomic) id timeObserver;
 
 @end
 
@@ -58,18 +59,45 @@
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
     
+    AV_LOG(@"AVPLAYER CURRENT ITEM (reset) = %@", self.player.currentItem);
+    
+    if (self.timeObserver && self.player) {
+        @try {
+            [self.player removeTimeObserver:self.timeObserver];
+        }
+        @catch(id e) {}
+    }
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+
+    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
+        AV_LOG(@"Unregister observers for multiple items");
+        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
+            AV_LOG(@" > item = %@", item);
+            [self unregisterObserversForItem:item];
+        }
+    }
+    else {
+        AV_LOG(@"Unregister observers for one item = %@", self.player.currentItem);
+        [self unregisterObserversForItem:self.player.currentItem];
+    }
     
     @try {
-        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-        [self.player.currentItem removeObserver:self forKeyPath:@"playbackBufferFull"];
-        [self.player.currentItem removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-        [self.player.currentItem removeObserver:self forKeyPath:@"videoBounds"];
+        [self.player removeObserver:self forKeyPath:@"rate"];
     }
-    @catch (NSException *exception) {
-        // Observers not registered
+    @catch (id e) {}
+    
+    AV_LOG(@"Unregistered Player Rate");
+    
+    if (self.playerViewController) {
+        @try {
+            [self.playerViewController removeObserver:self forKeyPath:@"videoBounds"];
+        }
+        @catch (id e) {}
     }
+    
+    AV_LOG(@"Unregistered PlayerController videoBounds");
 }
 
 - (void)setup {
@@ -80,8 +108,10 @@
     
     // Register periodic time observer (an event every 1/2 seconds)
     
+    self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
+        // Seeking
         if (self.player.rate == 0) {
             self.numZeroRates ++;
             
@@ -99,6 +129,7 @@
             self.numZeroRates = 0;
         }
         
+        // Start
         if (!self.firstFrameHappend) {
             AV_LOG(@"First time observer event -> sendStart");
             
@@ -113,6 +144,8 @@
         }
     }];
     
+    AV_LOG(@"AVPLAYER CURRENT ITEM (setup) = %@", self.player.currentItem);
+    
     // Register NSNotification listeners
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -125,34 +158,67 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
-    // Register KVO events
+    // Register currentItem KVO's
+    
+    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
+        AV_LOG(@"Register observers for multiple items");
+        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
+            AV_LOG(@" > item = %@", item);
+            [self registerObserversForItem:item];
+        }
+    }
+    else {
+        AV_LOG(@"Register observers for one item = %@", self.player.currentItem);
+        [self registerObserversForItem:self.player.currentItem];
+    }
     
     [self.player addObserver:self forKeyPath:@"rate"
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferEmpty"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
-    
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackBufferFull"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
-    
-    [self.player.currentItem addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
-                                 options:NSKeyValueObservingOptionNew
-                                 context:NULL];
-    
     if (self.playerViewController) {
         [self.playerViewController addObserver:self forKeyPath:@"videoBounds"
                                        options:NSKeyValueObservingOptionNew
                                        context:NULL];
-        
     }
     
     AV_LOG(@"Setup AVPlayer events and listener");
     
     [self sendPlayerReady];
+}
+
+- (void)registerObserversForItem:(AVPlayerItem *)item {
+    
+    [item addObserver:self forKeyPath:@"playbackBufferEmpty"
+              options:NSKeyValueObservingOptionNew
+              context:NULL];
+    
+    [item addObserver:self forKeyPath:@"playbackBufferFull"
+              options:NSKeyValueObservingOptionNew
+              context:NULL];
+    
+    [item addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
+              options:NSKeyValueObservingOptionNew
+              context:NULL];
+}
+
+- (void)unregisterObserversForItem:(AVPlayerItem *)item {
+    AV_LOG(@"Unregister observers for item");
+    @try {
+        [item removeObserver:self forKeyPath:@"playbackBufferEmpty"];
+    }
+    @catch (id e) {}
+    AV_LOG(@"Unregistered playbackBufferEmpty for item");
+    @try {
+        [item removeObserver:self forKeyPath:@"playbackBufferFull"];
+    }
+    @catch (id e) {}
+    AV_LOG(@"Unregistered playbackBufferFull for item");
+    @try {
+        [item removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
+    }
+    @catch (id e) {}
+    AV_LOG(@"Unregistered playbackLikelyToKeepUp for item");
 }
 
 #pragma mark - Item Handlers
@@ -334,9 +400,6 @@
     self.videoID = nil;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
-    
-    // TEST: custom action
-    //[self sendCustomAction:@"MY_ACTION" attr:@{@"attr0": @"val0"}];
 }
 
 #pragma mark - ContentsTracker getters
