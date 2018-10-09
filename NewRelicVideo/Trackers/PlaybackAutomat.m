@@ -242,6 +242,17 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
         [self backToState];
         return YES;
     }
+    // NOTE: just in case seeking gets lost and SEEK_END never arrives. In AVPlayer happens with big videos in streaming
+    else if (tt == TrackerTransitionClickPlay) {
+        [self backToState];
+        [self moveState:TrackerStatePlaying];
+        return YES;
+    }
+    else if (tt == TrackerTransitionClickPause) {
+        [self backToState];
+        [self moveState:TrackerStatePaused];
+        return YES;
+    }
     return NO;
 }
 
@@ -258,8 +269,10 @@ typedef NS_ENUM(NSUInteger, TrackerTransition) {
 }
 
 - (void)moveStateAndPush:(TrackerState)newState {
-    [self.stateStack push:@(self.state)];
-    self.state = newState;
+    if (newState != self.state) {
+        [self.stateStack push:@(self.state)];
+        self.state = newState;
+    }
 }
 
 - (void)backToState {
