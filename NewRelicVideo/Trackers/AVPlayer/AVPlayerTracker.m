@@ -57,6 +57,9 @@
     self.estimatedBitrate = 0;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 }
 
 - (void)setup {
