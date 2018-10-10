@@ -75,7 +75,7 @@
 }
 
 - (NSString *)getCoreVersion {
-    return [Vars string:@"CFBundleShortVersionString"];
+    return APP_VERSION_STR;
 }
 
 - (NSString *)getViewSession {

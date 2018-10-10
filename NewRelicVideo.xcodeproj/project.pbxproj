@@ -522,6 +522,7 @@
 		9C41482D212D7AD400850636 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_VERSION = 0.15.0;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -534,6 +535,11 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"APP_VERSION=$(APP_VERSION)",
+					"APP_VERSION_STR=@\\\"$(APP_VERSION)\\\"",
+					"DEBUG=1",
+				);
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -553,6 +559,7 @@
 		9C41482E212D7AD400850636 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				APP_VERSION = 0.15.0;
 				CODE_SIGN_IDENTITY = "";
 				CODE_SIGN_STYLE = Automatic;
 				DEFINES_MODULE = YES;
@@ -565,6 +572,10 @@
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SRCROOT)/NewRelicVideo/PrefixHeader.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"APP_VERSION=$(APP_VERSION)",
+					"APP_VERSION_STR=@\\\"$(APP_VERSION)\\\"",
+				);
 				INFOPLIST_FILE = NewRelicVideo/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

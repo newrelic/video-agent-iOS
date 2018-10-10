@@ -11,10 +11,6 @@
 @implementation Vars
 
 + (NSBundle *)bundle {
-    return [NSBundle bundleWithIdentifier:@"com.newrelic.NewRelicVideo"];
-}
-
-+ (NSBundle *)appBundle {
     return [NSBundle mainBundle];
 }
 
@@ -30,7 +26,7 @@
 }
 
 + (NSNumber *)appNumber:(NSString *)key {
-    NSNumber *num = [[self appBundle] objectForInfoDictionaryKey:key];
+    NSNumber *num = [[self bundle] objectForInfoDictionaryKey:key];
     return num;
 }
 
