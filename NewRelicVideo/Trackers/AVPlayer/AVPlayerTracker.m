@@ -409,7 +409,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return APP_VERSION_STR;
+    return PRODUCT_VERSION_STR;
 }
 
 - (NSString *)getPlayerVersion {
