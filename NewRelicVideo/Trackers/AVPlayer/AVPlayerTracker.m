@@ -111,6 +111,8 @@
     self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
+        AV_LOG(@"Time Observer = %f , rate = %f", CMTimeGetSeconds(time), self.player.rate);
+        
         // Seeking
         if (self.player.rate == 0) {
             self.numZeroRates ++;
@@ -302,7 +304,12 @@
                 [self sendRequest];
             }
             else {
-                if (self.automat.state == TrackerStatePaused) {
+                if (self.automat.state == TrackerStateSeeking) {
+                    // In case we receive a seek_start without seek_end
+                    [self sendSeekEnd];
+                    [self sendResume];
+                }
+                else if (self.automat.state == TrackerStatePaused) {
                     [self sendResume];
                 }
             }
