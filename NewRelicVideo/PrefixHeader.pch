@@ -11,6 +11,7 @@
 
 // Include any system framework and library headers here that should be included in all compilation units.
 // You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+#ifdef __OBJC__
 
 #import "LOG.h"
 
@@ -20,5 +21,7 @@ return nil;
 
 #define TIMESTAMP       [[NSDate date] timeIntervalSince1970]
 #define TIMESINCE(x)    ([[NSDate date] timeIntervalSince1970] - x)
+
+#endif
 
 #endif /* PrefixHeader_pch */
