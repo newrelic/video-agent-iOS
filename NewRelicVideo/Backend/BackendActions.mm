@@ -11,6 +11,7 @@
 #import "BackendActionsCore.hpp"
 #import "EventDefs.h"
 #import "ValueHolder.hpp"
+#import "DictionaryTrans.h"
 
 @interface BackendActions ()
 {
@@ -20,6 +21,7 @@
 
 @implementation BackendActions
 
+// TODO: get from BackendActionsCore and convert to dictionary
 - (NSDictionary *)generalOptions {
     if (!_generalOptions) {
         _generalOptions = @{}.mutableCopy;
@@ -33,6 +35,17 @@
     }
     return _actionOptions;
 }
+
+// TODO: set dictionaries, convert to map and set in BackendActionsCore
+/*
+- (void)setGeneralOptions:(NSMutableDictionary *)generalOptions {
+ 
+}
+
+- (void)setActionOptions:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
+ 
+}
+ */
 
 - (instancetype)init {
     if (self = [super init]) {
@@ -172,12 +185,12 @@
 #pragma mark - SendAction
 
 - (void)sendAction:(NSString *)name {
-    backendActionsCore->sendAction(std::string([name UTF8String]));
+    backendActionsCore->sendAction(std::string([name UTF8String]), {});
 }
 
 - (void)sendAction:(NSString *)name attr:(NSDictionary *)dict {
-    // TODO: convert NSDictionsry into map
-    backendActionsCore->sendAction(std::string([name UTF8String]), {});
+    std::map<std::string, ValueHolder> result = fromDictionaryToMap(dict);
+    backendActionsCore->sendAction(std::string([name UTF8String]), result);
 }
 
 @end

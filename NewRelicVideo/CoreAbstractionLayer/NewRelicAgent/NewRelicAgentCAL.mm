@@ -12,6 +12,7 @@
 #include <map>
 #import "ValueHolder.hpp"
 #import "EventDefs.h"
+#import "DictionaryTrans.h"
 
 @implementation NewRelicAgentCAL
 
@@ -30,10 +31,11 @@ int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
 {
     NSLog(@"-----------> recordCustomEvent = %s", name.c_str());
     
-    // TODO: convert attr to NSDictionary
+    NSMutableDictionary *attributes = @{@"actionName": [NSString stringWithUTF8String:name.c_str()]}.mutableCopy;
+    [attributes addEntriesFromDictionary:fromMapToDictionary(attr)];
     
     return (int)[NewRelicAgentCAL recordCustomEvent:VIDEO_EVENT
-                                         attributes:@{@"actionName": [NSString stringWithUTF8String:name.c_str()]}];
+                                         attributes:attributes.copy];
 }
 
 @end

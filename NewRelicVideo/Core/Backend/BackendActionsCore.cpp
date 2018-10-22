@@ -64,12 +64,7 @@ void BackendActionsCore::sendRenditionChange() {
 }
 
 void BackendActionsCore::sendError(std::string message) {
-    // TODO: send error message
-    /*
-    message = message ? message : @"";
-    [self sendAction:CONTENT_ERROR attr:@{@"errorMessage": message}];
-     */
-    sendAction(CONTENT_ERROR);
+    sendAction(CONTENT_ERROR, {{"errorMessage", ValueHolder(message)}});
 }
 
 void BackendActionsCore::sendAdRequest() {
@@ -117,12 +112,7 @@ void BackendActionsCore::sendAdRenditionChange() {
 }
 
 void BackendActionsCore::sendAdError(std::string message) {
-    sendAction(AD_ERROR);
-    // TODO: send error message
-    /*
-    message = message ? message : @"";
-    [self sendAction:AD_ERROR attr:@{@"errorMessage": message}];
-     */
+    sendAction(AD_ERROR, {{"errorMessage", ValueHolder(message)}});
 }
 
 void BackendActionsCore::sendAdBreakStart() {
@@ -154,7 +144,6 @@ void BackendActionsCore::sendAction(std::string name) {
 }
 
 void BackendActionsCore::sendAction(std::string name, std::map<std::string, ValueHolder> attr) {
-    // TODO: https://stackoverflow.com/questions/35192561/a-map-in-c-which-can-accept-any-type-of-value
     recordCustomEvent(name, attr);
 }
 
