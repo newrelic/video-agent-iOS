@@ -10,7 +10,4 @@
 
 @interface NewRelicAgentCAL : NSObject
 
-+ (BOOL)recordCustomEvent:(NSString* _Nonnull)eventType
-               attributes:(NSDictionary* _Nullable)attributes;
-
 @end

@@ -16,17 +16,6 @@
 
 @implementation NewRelicAgentCAL
 
-+ (BOOL)recordCustomEvent:(NSString* _Nonnull)eventType
-               attributes:(NSDictionary* _Nullable)attributes {
-    if ([NewRelicAgent currentSessionId]) {
-        return [NewRelic recordCustomEvent:eventType attributes:attributes];
-    }
-    else {
-        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
-        return NO;
-    }
-}
-
 int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
 {
     NSLog(@"-----------> recordCustomEvent = %s", name.c_str());
@@ -34,8 +23,13 @@ int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
     NSMutableDictionary *attributes = @{@"actionName": [NSString stringWithUTF8String:name.c_str()]}.mutableCopy;
     [attributes addEntriesFromDictionary:fromMapToDictionary(attr)];
     
-    return (int)[NewRelicAgentCAL recordCustomEvent:VIDEO_EVENT
-                                         attributes:attributes.copy];
+    if ([NewRelicAgent currentSessionId]) {
+        return (int)[NewRelic recordCustomEvent:VIDEO_EVENT attributes:attributes];
+    }
+    else {
+        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+        return (int)NO;
+    }
 }
 
 @end

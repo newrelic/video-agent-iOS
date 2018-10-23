@@ -159,7 +159,7 @@
 		9C41481A212D7AD400850636 /* NewRelicVideo */ = {
 			isa = PBXGroup;
 			children = (
-				9C8E78D6217DE77F002F0524 /* CoreAbstractionLayer */,
+				9C8E78D6217DE77F002F0524 /* CoreHelpers */,
 				9C8E78BE217A0BEB002F0524 /* Core */,
 				9C41481B212D7AD400850636 /* NewRelicVideo.h */,
 				9C414834212D7C9000850636 /* NewRelicVideoAgent.h */,
@@ -253,13 +253,13 @@
 			path = ValueHolder;
 			sourceTree = "<group>";
 		};
-		9C8E78D6217DE77F002F0524 /* CoreAbstractionLayer */ = {
+		9C8E78D6217DE77F002F0524 /* CoreHelpers */ = {
 			isa = PBXGroup;
 			children = (
 				9C5E4C4F217E2C4200EECD1F /* DictionaryTrans */,
 				9C8E78D7217DE8E1002F0524 /* NewRelicAgent */,
 			);
-			path = CoreAbstractionLayer;
+			path = CoreHelpers;
 			sourceTree = "<group>";
 		};
 		9C8E78D7217DE8E1002F0524 /* NewRelicAgent */ = {

@@ -174,6 +174,8 @@
     backendActionsCore->sendAdClick();
 }
 
+#pragma mark - Optional Events
+
 - (void)sendPlayerReady {
     backendActionsCore->sendPlayerReady();
 }
