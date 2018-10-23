@@ -35,6 +35,7 @@
 		9C5E4C4E217DF24B00EECD1F /* BackendActions.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C4D217DF24B00EECD1F /* BackendActions.mm */; };
 		9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */; };
 		9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */; };
+		9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C55217F22F500EECD1F /* LOGCPP.mm */; };
 		9C618815215EA9730084D399 /* TimestampValue.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C618813215EA9730084D399 /* TimestampValue.h */; };
 		9C618816215EA9730084D399 /* TimestampValue.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C618814215EA9730084D399 /* TimestampValue.m */; };
 		9C8E78C7217DC286002F0524 /* BackendActionsCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9C8E78C5217DC286002F0524 /* BackendActionsCore.cpp */; };
@@ -88,6 +89,7 @@
 		9C5E4C4D217DF24B00EECD1F /* BackendActions.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = BackendActions.mm; sourceTree = "<group>"; };
 		9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DictionaryTrans.h; sourceTree = "<group>"; };
 		9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DictionaryTrans.mm; sourceTree = "<group>"; };
+		9C5E4C55217F22F500EECD1F /* LOGCPP.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LOGCPP.mm; sourceTree = "<group>"; };
 		9C618813215EA9730084D399 /* TimestampValue.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimestampValue.h; sourceTree = "<group>"; };
 		9C618814215EA9730084D399 /* TimestampValue.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TimestampValue.m; sourceTree = "<group>"; };
 		9C8E78C5217DC286002F0524 /* BackendActionsCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BackendActionsCore.cpp; sourceTree = "<group>"; };
@@ -317,6 +319,7 @@
 				9CA3DE022136BB3000205DC4 /* Vars.m */,
 				9CE5D7372133F58F00B89D07 /* LOG.h */,
 				9CE5D7382133F58F00B89D07 /* LOG.m */,
+				9C5E4C55217F22F500EECD1F /* LOGCPP.mm */,
 				9C2E80A0216778A60085B62B /* Stack.h */,
 				9C2E80A1216778A60085B62B /* Stack.m */,
 			);
@@ -479,6 +482,7 @@
 				9CDECEF62154F4F800E5C5A4 /* PlaybackAutomat.m in Sources */,
 				9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */,
 				9CB26A4821411A4F00A8891D /* Tracker.m in Sources */,
+				9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */,
 				9CA3DE042136BB3000205DC4 /* Vars.m in Sources */,
