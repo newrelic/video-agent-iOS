@@ -16,7 +16,7 @@ class ValueHolder;
 
 class DictionaryMerge {
 public:
-    static std::map<std::string, ValueHolder> merge(std::map<std::string, ValueHolder>, std::map<std::string, ValueHolder>);
+    static std::map<std::string, ValueHolder> merge(std::map<std::string, ValueHolder> src, std::map<std::string, ValueHolder> dst);
 };
 
 

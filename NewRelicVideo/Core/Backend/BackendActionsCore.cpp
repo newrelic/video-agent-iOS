@@ -13,6 +13,9 @@
 #include "DictionaryMerge.hpp"
 
 BackendActionsCore::BackendActionsCore() {
+    // TEST:
+    actionOptions["CONTENT_"] = {{"A",ValueHolder(10L)},{"B",ValueHolder("Hola")}};
+    actionOptions["_END"] = {{"C",ValueHolder(10L)},{"D",ValueHolder("Hola")}};
 }
 
 BackendActionsCore::~BackendActionsCore() {
@@ -144,7 +147,37 @@ void BackendActionsCore::sendAction(std::string name) {
 
 void BackendActionsCore::sendAction(std::string name, std::map<std::string, ValueHolder> attr) {
     std::map<std::string, ValueHolder> finalAttr = DictionaryMerge::merge(attr, generalOptions);
+    std::map<std::string, ValueHolder> actionAttrs = actionOptionsForName(name);
+    finalAttr = DictionaryMerge::merge(actionAttrs, finalAttr);
+    
     recordCustomEvent(name, finalAttr);
 }
 
-// TODO: dictionary stuff
+std::map<std::string, ValueHolder> BackendActionsCore::actionOptionsForName(std::string name) {
+    
+    std::map<std::string, ValueHolder> dict;
+    
+    for (auto& kv : actionOptions) {
+        std::string key = kv.first;
+        
+        if (key.at(key.size() - 1) == '_') {
+            // key is a prefix
+            if (name.find(key) == 0) {
+                dict = DictionaryMerge::merge(actionOptions[key], dict);
+            }
+        }
+        else if (key.at(0) == '_') {
+            // key is a suffix
+            if(name.size() >= key.size() &&
+               name.compare(name.size() - key.size(), key.size(), key) == 0) {
+                dict = DictionaryMerge::merge(actionOptions[key], dict);
+            }
+        }
+        else if (key.compare(name) == 0) {
+            // Found the "name" filter as is
+            dict = DictionaryMerge::merge(actionOptions[key], dict);
+        }
+    }
+    
+    return dict;
+}

@@ -58,6 +58,9 @@ public:
     
     void sendAction(std::string name);
     void sendAction(std::string name, std::map<std::string, ValueHolder> attr);
+    
+private:
+    std::map<std::string, ValueHolder> actionOptionsForName(std::string name);
 };
 
 #endif /* BackendActionsCore_hpp */
