@@ -14,8 +14,8 @@
 
 BackendActionsCore::BackendActionsCore() {
     // TEST:
-    actionOptions["CONTENT_"] = {{"A",ValueHolder(10L)},{"B",ValueHolder("Hola")}};
-    actionOptions["_END"] = {{"C",ValueHolder(10L)},{"D",ValueHolder("Hola")}};
+//    actionOptions["CONTENT_"] = {{"A",ValueHolder(10L)},{"B",ValueHolder("Hola")}};
+//    actionOptions["_END"] = {{"C",ValueHolder(10L)},{"D",ValueHolder("Hola")}};
 }
 
 BackendActionsCore::~BackendActionsCore() {

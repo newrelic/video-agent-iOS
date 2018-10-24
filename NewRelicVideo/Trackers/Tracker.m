@@ -253,16 +253,13 @@
 }
 
 - (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action {
-    [self.automat.actions.actionOptions setObject:opts.mutableCopy forKey:action];
+    [self.automat.actions setActionOptionsValue:opts key:action];
 }
 
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
-    NSMutableDictionary *dic = [self.automat.actions.actionOptions objectForKey:action];
-    if (!dic) {
-        dic = @{}.mutableCopy;
-        [self.automat.actions.actionOptions setObject:dic forKey:action];
-    }
+    NSMutableDictionary *dic = [self.automat.actions getActionOptionsKey:action].mutableCopy;
     [dic setObject:value forKey:key];
+    [self.automat.actions setActionOptionsValue:dic key:action];
 }
 
 #pragma mark - Attributes

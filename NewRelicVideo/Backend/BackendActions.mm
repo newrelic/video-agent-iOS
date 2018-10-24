@@ -33,18 +33,13 @@
     return fromValueHolder(backendActionsCore->generalOptions[std::string([key UTF8String])]);
 }
 
-- (NSMutableDictionary<NSString *, NSMutableDictionary *> *)actionOptions {
-    if (!_actionOptions) {
-        _actionOptions = @{}.mutableCopy;
-    }
-    return _actionOptions;
+- (void)setActionOptionsValue:(NSDictionary *)val key:(NSString *)key {
+    backendActionsCore->actionOptions[std::string([key UTF8String])] = fromDictionaryToMap(val);
 }
 
-// TODO: set dictionaries, convert to map and set in BackendActionsCore
-/*
-- (void)setActionOptions:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
+- (NSDictionary *)getActionOptionsKey:(NSString *)key {
+    return fromMapToDictionary(backendActionsCore->actionOptions[std::string([key UTF8String])]);
 }
- */
 
 - (instancetype)init {
     if (self = [super init]) {

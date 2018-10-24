@@ -10,13 +10,12 @@
 
 @interface BackendActions : NSObject
 
-
-// TODO: remove property and create setters and getters like in generaloptiomns
-@property (nonatomic) NSMutableDictionary<NSString *, NSMutableDictionary *> *actionOptions;
-
 - (void)setGeneralOptions:(NSDictionary *)dict;
 - (void)setGeneralOptionsValue:(id<NSCopying>)val key:(NSString *)key;
 - (id<NSCopying>)getGeneralOptionsKey:(NSString *)key;
+
+- (void)setActionOptionsValue:(NSDictionary *)val key:(NSString *)key;
+- (NSDictionary *)getActionOptionsKey:(NSString *)key;
 
 - (void)sendRequest;
 - (void)sendStart;
