@@ -18,5 +18,6 @@ class ValueHolder;
 NSDictionary *fromMapToDictionary(std::map<std::string, ValueHolder> dict);
 std::map<std::string, ValueHolder> fromDictionaryToMap(NSDictionary *dict);
 id fromValueHolder(ValueHolder value);
+ValueHolder fromNSValue(id value);
 
 @end

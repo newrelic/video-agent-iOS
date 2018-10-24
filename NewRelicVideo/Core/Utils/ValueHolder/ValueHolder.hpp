@@ -21,7 +21,7 @@ public:
         ValueHolderTypeString,
         ValueHolderTypeData
     } ValueHolderType;
-
+    
 private:
     ValueHolderType valueType;
     std::string valueString;

@@ -10,8 +10,7 @@
 #include "EventDefsCore.hpp"
 #include "ValueHolder.hpp"
 #include "NewRelicAgentCAL-Cpp-Interface.hpp"
-
-// TODO: implement generaOptions and actionOptions
+#include "DictionaryMerge.hpp"
 
 BackendActionsCore::BackendActionsCore() {
 }
@@ -144,7 +143,8 @@ void BackendActionsCore::sendAction(std::string name) {
 }
 
 void BackendActionsCore::sendAction(std::string name, std::map<std::string, ValueHolder> attr) {
-    recordCustomEvent(name, attr);
+    std::map<std::string, ValueHolder> finalAttr = DictionaryMerge::merge(attr, generalOptions);
+    recordCustomEvent(name, finalAttr);
 }
 
 // TODO: dictionary stuff

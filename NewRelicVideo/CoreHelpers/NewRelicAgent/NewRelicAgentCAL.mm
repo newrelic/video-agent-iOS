@@ -18,7 +18,8 @@
 
 int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
 {
-    AV_LOG(@"-----------> recordCustomEvent = %s", name.c_str());
+    // TODO: log the attr
+    AV_LOG(@"sendAction name = %s", name.c_str());
     
     NSMutableDictionary *attributes = @{@"actionName": [NSString stringWithUTF8String:name.c_str()]}.mutableCopy;
     [attributes addEntriesFromDictionary:fromMapToDictionary(attr)];

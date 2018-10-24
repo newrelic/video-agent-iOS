@@ -46,6 +46,8 @@
 		9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
+		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
+		9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -102,6 +104,8 @@
 		9C8E78DC217DEC87002F0524 /* NewRelicAgentCAL-Cpp-Interface.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "NewRelicAgentCAL-Cpp-Interface.hpp"; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
+		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
+		9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DictionaryMerge.hpp; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -241,6 +245,7 @@
 		9C8E78CF217DE4B8002F0524 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				9CB25093217F584D0094DFEF /* DictionaryMerge */,
 				9C8E78D0217DE4C0002F0524 /* ValueHolder */,
 			);
 			path = Utils;
@@ -283,6 +288,15 @@
 				9C5E4C4D217DF24B00EECD1F /* BackendActions.mm */,
 			);
 			path = Backend;
+			sourceTree = "<group>";
+		};
+		9CB25093217F584D0094DFEF /* DictionaryMerge */ = {
+			isa = PBXGroup;
+			children = (
+				9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */,
+				9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */,
+			);
+			path = DictionaryMerge;
 			sourceTree = "<group>";
 		};
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
@@ -344,6 +358,7 @@
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
+				9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */,
 				9CDECEF52154F4F800E5C5A4 /* PlaybackAutomat.h in Headers */,
 				9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */,
 				9C618815215EA9730084D399 /* TimestampValue.h in Headers */,
@@ -473,6 +488,7 @@
 			files = (
 				9C8E78C7217DC286002F0524 /* BackendActionsCore.cpp in Sources */,
 				9C2E80A3216778A60085B62B /* Stack.m in Sources */,
+				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,

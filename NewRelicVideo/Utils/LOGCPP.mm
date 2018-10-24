@@ -1,5 +1,5 @@
 //
-//  LOGX.m
+//  LOGCPP.mm
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 23/10/2018.

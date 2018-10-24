@@ -16,10 +16,10 @@
 class ValueHolder;
 
 class BackendActionsCore {
-private:
+public:
     std::map<std::string, ValueHolder> generalOptions;
     std::map<std::string, std::map<std::string, ValueHolder>> actionOptions;
-public:
+
     BackendActionsCore();
     ~BackendActionsCore();
     

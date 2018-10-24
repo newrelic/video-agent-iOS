@@ -21,12 +21,16 @@
 
 @implementation BackendActions
 
-// TODO: get from BackendActionsCore and convert to dictionary
-- (NSDictionary *)generalOptions {
-    if (!_generalOptions) {
-        _generalOptions = @{}.mutableCopy;
-    }
-    return _generalOptions;
+- (void)setGeneralOptions:(NSDictionary *)dict {
+    backendActionsCore->generalOptions = fromDictionaryToMap(dict);
+}
+
+- (void)setGeneralOptionsValue:(id<NSCopying>)val key:(NSString *)key {
+    backendActionsCore->generalOptions[std::string([key UTF8String])] = fromNSValue(val);
+}
+
+- (id<NSCopying>)getGeneralOptionsKey:(NSString *)key {
+    return fromValueHolder(backendActionsCore->generalOptions[std::string([key UTF8String])]);
 }
 
 - (NSMutableDictionary<NSString *, NSMutableDictionary *> *)actionOptions {
@@ -38,12 +42,7 @@
 
 // TODO: set dictionaries, convert to map and set in BackendActionsCore
 /*
-- (void)setGeneralOptions:(NSMutableDictionary *)generalOptions {
- 
-}
-
 - (void)setActionOptions:(NSMutableDictionary<NSString *,NSMutableDictionary *> *)actionOptions {
- 
 }
  */
 

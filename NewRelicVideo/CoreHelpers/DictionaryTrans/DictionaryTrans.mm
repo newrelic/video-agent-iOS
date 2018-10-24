@@ -29,26 +29,7 @@ std::map<std::string, ValueHolder> fromDictionaryToMap(NSDictionary *dict) {
     
     for (NSString *key in keys) {
         id value = [dict objectForKey:key];
-        ValueHolder fValue = ValueHolder();
-        
-        if ([value isKindOfClass:[NSString class]]) {
-            fValue = ValueHolder(std::string([value UTF8String]));
-        }
-        else if ([value isKindOfClass:[NSNumber class]]) {
-            CFNumberType numberType = CFNumberGetType((CFNumberRef)value);
-            if (numberType == kCFNumberFloatType ||
-                numberType == kCFNumberDoubleType ||
-                numberType == kCFNumberCGFloatType) {
-                fValue = ValueHolder(((NSNumber *)value).doubleValue);
-            }
-            else {
-                fValue = ValueHolder(((NSNumber *)value).longValue);
-            }
-        }
-        else {
-            NSLog(@"ValueHolder unknown type");
-        }
-        
+        ValueHolder fValue = fromNSValue(value);
         result[std::string([key UTF8String])] = fValue;
     }
     
@@ -71,6 +52,30 @@ id fromValueHolder(ValueHolder value) {
             return num;
         }
     }
+}
+
+ValueHolder fromNSValue(id value) {
+    ValueHolder fValue = ValueHolder();
+    
+    if ([value isKindOfClass:[NSString class]]) {
+        fValue = ValueHolder(std::string([value UTF8String]));
+    }
+    else if ([value isKindOfClass:[NSNumber class]]) {
+        CFNumberType numberType = CFNumberGetType((CFNumberRef)value);
+        if (numberType == kCFNumberFloatType ||
+            numberType == kCFNumberDoubleType ||
+            numberType == kCFNumberCGFloatType) {
+            fValue = ValueHolder(((NSNumber *)value).doubleValue);
+        }
+        else {
+            fValue = ValueHolder(((NSNumber *)value).longValue);
+        }
+    }
+    else {
+        AV_LOG(@"ValueHolder unknown type");
+    }
+    
+    return fValue;
 }
 
 @end
