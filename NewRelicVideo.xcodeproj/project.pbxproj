@@ -51,6 +51,8 @@
 		9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */; };
 		9CB2509C2181B8CB0094DFEF /* PlaybackAutomatCore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */; };
 		9CB250A02181BB630094DFEF /* PlaybackAutomat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */; };
+		9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A1218208AE0094DFEF /* TrackerCore.cpp */; };
+		9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250A2218208AE0094DFEF /* TrackerCore.hpp */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -111,6 +113,8 @@
 		9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlaybackAutomatCore.cpp; sourceTree = "<group>"; };
 		9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackAutomatCore.hpp; sourceTree = "<group>"; };
 		9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaybackAutomat.mm; sourceTree = "<group>"; };
+		9CB250A1218208AE0094DFEF /* TrackerCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TrackerCore.cpp; sourceTree = "<group>"; };
+		9CB250A2218208AE0094DFEF /* TrackerCore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackerCore.hpp; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -234,6 +238,8 @@
 			children = (
 				9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */,
 				9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */,
+				9CB250A1218208AE0094DFEF /* TrackerCore.cpp */,
+				9CB250A2218208AE0094DFEF /* TrackerCore.hpp */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -371,6 +377,7 @@
 				9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
+				9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -491,6 +498,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */,
 				9C8E78C7217DC286002F0524 /* BackendActionsCore.cpp in Sources */,
 				9C2E80A3216778A60085B62B /* Stack.m in Sources */,
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,

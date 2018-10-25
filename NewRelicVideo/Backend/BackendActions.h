@@ -43,7 +43,7 @@
 - (void)sendAdBufferEnd;
 - (void)sendAdHeartbeat;
 - (void)sendAdRenditionChange;
-- (void)sendAdError:(NSString *)message;;
+- (void)sendAdError:(NSString *)message;
 - (void)sendAdBreakStart;
 - (void)sendAdBreakEnd;
 - (void)sendAdQuartile;
