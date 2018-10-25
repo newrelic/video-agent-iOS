@@ -16,7 +16,7 @@
 
 @implementation NewRelicAgentCAL
 
-int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
+bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
 {
     // TODO: log the attr
     AV_LOG(@"sendAction name = %s", name.c_str());
@@ -25,11 +25,11 @@ int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
     [attributes addEntriesFromDictionary:fromMapToDictionary(attr)];
     
     if ([NewRelicAgent currentSessionId]) {
-        return (int)[NewRelic recordCustomEvent:VIDEO_EVENT attributes:attributes];
+        return (bool)[NewRelic recordCustomEvent:VIDEO_EVENT attributes:attributes];
     }
     else {
         NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
-        return (int)NO;
+        return (bool)NO;
     }
 }
 

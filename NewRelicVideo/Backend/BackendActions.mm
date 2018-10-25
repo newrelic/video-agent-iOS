@@ -48,6 +48,13 @@
     return self;
 }
 
+- (instancetype)initWithCoreRef:(void *)ref {
+    if (self = [super init]) {
+        backendActionsCore = (BackendActionsCore *)ref;
+    }
+    return self;
+}
+
 - (void)dealloc {
     delete backendActionsCore;
 }

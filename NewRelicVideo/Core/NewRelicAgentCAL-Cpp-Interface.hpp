@@ -14,6 +14,6 @@
 
 class ValueHolder;
 
-int recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr);
+bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr);
 
 #endif /* NewRelicAgentCAL_Cpp_Interface_h */

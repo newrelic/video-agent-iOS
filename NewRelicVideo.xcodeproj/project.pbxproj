@@ -48,6 +48,9 @@
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
 		9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */; };
+		9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */; };
+		9CB2509C2181B8CB0094DFEF /* PlaybackAutomatCore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */; };
+		9CB250A02181BB630094DFEF /* PlaybackAutomat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -55,7 +58,6 @@
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A582146636C00A8891D /* AdsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A562146636C00A8891D /* AdsTracker.m */; };
 		9CDECEF52154F4F800E5C5A4 /* PlaybackAutomat.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CDECEF32154F4F800E5C5A4 /* PlaybackAutomat.h */; };
-		9CDECEF62154F4F800E5C5A4 /* PlaybackAutomat.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CDECEF42154F4F800E5C5A4 /* PlaybackAutomat.m */; };
 		9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D71D212EC9CB00B89D07 /* BackendActions.h */; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
@@ -106,6 +108,9 @@
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
 		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
 		9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DictionaryMerge.hpp; sourceTree = "<group>"; };
+		9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlaybackAutomatCore.cpp; sourceTree = "<group>"; };
+		9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = PlaybackAutomatCore.hpp; sourceTree = "<group>"; };
+		9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaybackAutomat.mm; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -113,9 +118,8 @@
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
 		9CB26A562146636C00A8891D /* AdsTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AdsTracker.m; sourceTree = "<group>"; };
 		9CDECEF32154F4F800E5C5A4 /* PlaybackAutomat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaybackAutomat.h; sourceTree = "<group>"; };
-		9CDECEF42154F4F800E5C5A4 /* PlaybackAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PlaybackAutomat.m; sourceTree = "<group>"; };
+		9CDECEF42154F4F800E5C5A4 /* OLD_PlaybackAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_PlaybackAutomat.m; sourceTree = "<group>"; };
 		9CE5D71D212EC9CB00B89D07 /* BackendActions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendActions.h; sourceTree = "<group>"; };
-		9CE5D71E212EC9CB00B89D07 /* OLD_BackendActions.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_BackendActions.m; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
@@ -218,6 +222,7 @@
 		9C8E78BE217A0BEB002F0524 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				9C8E78DC217DEC87002F0524 /* NewRelicAgentCAL-Cpp-Interface.hpp */,
 				9C8E78CF217DE4B8002F0524 /* Utils */,
 				9C8E78C0217A0DB7002F0524 /* Backend */,
 				9C8E78BF217A0BF7002F0524 /* Trackers */,
@@ -228,6 +233,8 @@
 		9C8E78BF217A0BF7002F0524 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */,
+				9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -274,7 +281,6 @@
 			children = (
 				9C8E78D8217DE911002F0524 /* NewRelicAgentCAL.h */,
 				9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */,
-				9C8E78DC217DEC87002F0524 /* NewRelicAgentCAL-Cpp-Interface.hpp */,
 			);
 			path = NewRelicAgent;
 			sourceTree = "<group>";
@@ -284,7 +290,6 @@
 			children = (
 				9C414832212D7B4C00850636 /* EventDefs.h */,
 				9CE5D71D212EC9CB00B89D07 /* BackendActions.h */,
-				9CE5D71E212EC9CB00B89D07 /* OLD_BackendActions.m */,
 				9C5E4C4D217DF24B00EECD1F /* BackendActions.mm */,
 			);
 			path = Backend;
@@ -303,7 +308,8 @@
 			isa = PBXGroup;
 			children = (
 				9CDECEF32154F4F800E5C5A4 /* PlaybackAutomat.h */,
-				9CDECEF42154F4F800E5C5A4 /* PlaybackAutomat.m */,
+				9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */,
+				9CDECEF42154F4F800E5C5A4 /* OLD_PlaybackAutomat.m */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
 				9C1D46F9214BE7E800E7066C /* Tracker_internal.h */,
 				9CB26A4621411A4F00A8891D /* Tracker.m */,
@@ -353,6 +359,7 @@
 				9C8E78C8217DC286002F0524 /* BackendActionsCore.hpp in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
+				9CB2509C2181B8CB0094DFEF /* PlaybackAutomatCore.hpp in Headers */,
 				9C2E80A2216778A60085B62B /* Stack.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
@@ -490,14 +497,15 @@
 				9C2E80A3216778A60085B62B /* Stack.m in Sources */,
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */,
+				9CB250A02181BB630094DFEF /* PlaybackAutomat.mm in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
 				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9C5E4C4E217DF24B00EECD1F /* BackendActions.mm in Sources */,
-				9CDECEF62154F4F800E5C5A4 /* PlaybackAutomat.m in Sources */,
 				9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */,
 				9CB26A4821411A4F00A8891D /* Tracker.m in Sources */,
+				9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */,
 				9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */,

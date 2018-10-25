@@ -17,6 +17,8 @@
 - (void)setActionOptionsValue:(NSDictionary *)val key:(NSString *)key;
 - (NSDictionary *)getActionOptionsKey:(NSString *)key;
 
+- (instancetype)initWithCoreRef:(void *)ref;
+
 - (void)sendRequest;
 - (void)sendStart;
 - (void)sendEnd;

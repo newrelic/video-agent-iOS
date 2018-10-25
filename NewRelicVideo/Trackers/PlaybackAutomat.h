@@ -21,9 +21,13 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 
 @interface PlaybackAutomat : NSObject
 
-@property (nonatomic, readonly) TrackerState state;
 @property (nonatomic, readonly) BackendActions *actions;
-@property (nonatomic) BOOL isAd;
+
+- (void)setState:(TrackerState)val;
+- (TrackerState)getState;
+
+- (void)setIsAdd:(BOOL)val;
+- (BOOL)getIsAdd;
 
 - (void)sendRequest;
 - (void)sendStart;

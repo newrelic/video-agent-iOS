@@ -59,7 +59,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.automat = [[PlaybackAutomat alloc] init];
-        self.automat.isAd = [self isMeAd];
+        [self.automat setIsAdd:[self isMeAd]];
     }
     return self;
 }
