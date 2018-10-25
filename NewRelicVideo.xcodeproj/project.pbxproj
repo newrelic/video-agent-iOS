@@ -118,7 +118,6 @@
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
 		9CB26A562146636C00A8891D /* AdsTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AdsTracker.m; sourceTree = "<group>"; };
 		9CDECEF32154F4F800E5C5A4 /* PlaybackAutomat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PlaybackAutomat.h; sourceTree = "<group>"; };
-		9CDECEF42154F4F800E5C5A4 /* OLD_PlaybackAutomat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_PlaybackAutomat.m; sourceTree = "<group>"; };
 		9CE5D71D212EC9CB00B89D07 /* BackendActions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackendActions.h; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
@@ -309,7 +308,6 @@
 			children = (
 				9CDECEF32154F4F800E5C5A4 /* PlaybackAutomat.h */,
 				9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */,
-				9CDECEF42154F4F800E5C5A4 /* OLD_PlaybackAutomat.m */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
 				9C1D46F9214BE7E800E7066C /* Tracker_internal.h */,
 				9CB26A4621411A4F00A8891D /* Tracker.m */,
