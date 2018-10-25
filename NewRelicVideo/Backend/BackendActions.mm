@@ -21,6 +21,26 @@
 
 @implementation BackendActions
 
+- (instancetype)init {
+    if (self = [super init]) {
+        backendActionsCore = new BackendActionsCore();
+    }
+    return self;
+}
+
+- (instancetype)initWithCoreRef:(void *)ref {
+    if (self = [super init]) {
+        backendActionsCore = (BackendActionsCore *)ref;
+    }
+    return self;
+}
+
+- (void)dealloc {
+    delete backendActionsCore;
+}
+
+#pragma mark - Setters and Getters
+
 - (void)setGeneralOptions:(NSDictionary *)dict {
     backendActionsCore->generalOptions = fromDictionaryToMap(dict);
 }
@@ -39,24 +59,6 @@
 
 - (NSDictionary *)getActionOptionsKey:(NSString *)key {
     return fromMapToDictionary(backendActionsCore->actionOptions[std::string([key UTF8String])]);
-}
-
-- (instancetype)init {
-    if (self = [super init]) {
-        backendActionsCore = new BackendActionsCore();
-    }
-    return self;
-}
-
-- (instancetype)initWithCoreRef:(void *)ref {
-    if (self = [super init]) {
-        backendActionsCore = (BackendActionsCore *)ref;
-    }
-    return self;
-}
-
-- (void)dealloc {
-    delete backendActionsCore;
 }
 
 #pragma mark - Tracker Content Events

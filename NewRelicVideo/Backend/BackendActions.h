@@ -10,14 +10,14 @@
 
 @interface BackendActions : NSObject
 
+- (instancetype)initWithCoreRef:(void *)ref;
+
 - (void)setGeneralOptions:(NSDictionary *)dict;
 - (void)setGeneralOptionsValue:(id<NSCopying>)val key:(NSString *)key;
 - (id<NSCopying>)getGeneralOptionsKey:(NSString *)key;
 
 - (void)setActionOptionsValue:(NSDictionary *)val key:(NSString *)key;
 - (NSDictionary *)getActionOptionsKey:(NSString *)key;
-
-- (instancetype)initWithCoreRef:(void *)ref;
 
 - (void)sendRequest;
 - (void)sendStart;
