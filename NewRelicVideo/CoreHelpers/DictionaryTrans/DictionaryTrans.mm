@@ -55,7 +55,7 @@ id fromValueHolder(ValueHolder value) {
 }
 
 ValueHolder fromNSValue(id value) {
-    ValueHolder fValue = ValueHolder();
+    ValueHolder fValue;
     
     if ([value isKindOfClass:[NSString class]]) {
         fValue = ValueHolder(std::string([value UTF8String]));
@@ -72,7 +72,8 @@ ValueHolder fromNSValue(id value) {
         }
     }
     else {
-        AV_LOG(@"ValueHolder unknown type");
+        AV_LOG(@"ValueHolder unknown type: Creating a 0 value.");
+        fValue = ValueHolder(0L);
     }
     
     return fValue;

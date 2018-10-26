@@ -112,7 +112,7 @@
     
     // Special time calculations, accumulative timestamps
     
-    if ([self.automat getState] == TrackerStatePlaying) {
+    if (self.state == TrackerStatePlaying) {
         self.totalPlaytime += TIMESINCE(self.totalPlaytimeTimestamp);
         self.totalPlaytimeTimestamp = TIMESTAMP;
     }
@@ -147,7 +147,7 @@
 }
 
 - (void)sendStart {
-    if ([self.automat getState] == TrackerStateStarting) {
+    if (self.state == TrackerStateStarting) {
         [self.startedTimestamp setMain:TIMESTAMP];
     }
     self.totalPlaytimeTimestamp = TIMESTAMP;

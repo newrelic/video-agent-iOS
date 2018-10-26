@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <string>
 #include <map>
+#include "PlaybackAutomatCore.hpp"
 
 class ValueHolder;
 class PlaybackAutomatCore;
@@ -30,6 +31,8 @@ private:
 public:
     TrackerCore();
     ~TrackerCore();
+    
+    CoreTrackerState state();
     void updateAttribute(std::string name, ValueHolder value, std::string filter = "");
     void reset();
     void setup();

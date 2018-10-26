@@ -7,6 +7,21 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, TrackerState) {
+    /** Tracker state Stopped */
+    TrackerStateStopped = 0,
+    /** Tracker state Starting */
+    TrackerStateStarting,
+    /** Tracker state Playing */
+    TrackerStatePlaying,
+    /** Tracker state Paused */
+    TrackerStatePaused,
+    /** Tracker state Buffering */
+    TrackerStateBuffering,
+    /** Tracker state Seeking */
+    TrackerStateSeeking
+};
+
 /**
  `TrackerProtocol` defines the basic getters every Tracker must or should implement.
  */
@@ -119,6 +134,11 @@
  @warning Should never be directly instantiated and there is no need for subclassing it. Use its subclasses `ContentsTracker` or `AdsTracker` instead.
  */
 @interface Tracker : NSObject
+
+/**
+ Current player tracker state.
+ */
+- (TrackerState)state;
 
 /**
  Reset the tracker's state.

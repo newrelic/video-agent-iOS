@@ -122,7 +122,7 @@
         else {
             if (self.numZeroRates > 2) {
                 [self sendSeekEnd];
-                if ([self.automat getState] == TrackerStatePaused) {
+                if (self.state == TrackerStatePaused) {
                     [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
                 }
             }
@@ -134,7 +134,7 @@
             AV_LOG(@"First time observer event -> sendStart");
             
             // NOTE: with AVPlayer playlists, the request event only happens for the first video, we need manually send it before start.
-            if ([self.automat getState] == TrackerStateStopped) {
+            if (self.state == TrackerStateStopped) {
                 [self sendRequest];
             }
             
@@ -244,7 +244,7 @@
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
         AV_LOG(@"status == AVPlayerItemStatusReadyToPlay");
-        if ([self.automat getState] == TrackerStateStarting) {
+        if (self.state == TrackerStateStarting) {
             AV_LOG(@"sendStart");
             [self sendStart];
         }
@@ -302,12 +302,12 @@
                 [self sendRequest];
             }
             else {
-                if ([self.automat getState] == TrackerStateSeeking) {
+                if (self.state == TrackerStateSeeking) {
                     // In case we receive a seek_start without seek_end
                     [self sendSeekEnd];
                     [self sendResume];
                 }
-                else if ([self.automat getState] == TrackerStatePaused) {
+                else if (self.state == TrackerStatePaused) {
                     [self sendResume];
                 }
             }

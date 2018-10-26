@@ -16,6 +16,7 @@
 
 TrackerCore::TrackerCore() {
     automat = new PlaybackAutomatCore();
+    // TODO: how to ask if I'm a ads?
     automat->isAd = false;
 }
 
@@ -31,6 +32,10 @@ void TrackerCore::reset() {
     playNewVideo();
     
     // TODO: setup trackerReadyTimestamp and lastRenditionChangeTimestamp
+}
+
+CoreTrackerState TrackerCore::state() {
+    return automat->state;
 }
 
 void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::string filter) {

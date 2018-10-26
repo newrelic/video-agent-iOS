@@ -197,20 +197,20 @@
 - (void)sendAdBreakStart {
     self.numberOfAds = 0;
     [self.adBreakBeginTimestamp setMain:TIMESTAMP];
-    [self.automat.actions sendAdBreakStart];
+    [self sendCustomAction:AD_BREAK_START];
 }
 
 - (void)sendAdBreakEnd {
-    [self.automat.actions sendAdBreakEnd];
+    [self sendCustomAction:AD_BREAK_END];
 }
 
 - (void)sendAdQuartile {
     [self.lastAdQuartileTimestamp setMain:TIMESTAMP];
-    [self.automat.actions sendAdQuartile];
+    [self sendCustomAction:AD_QUARTILE];
 }
 
 - (void)sendAdClick {
-    [self.automat.actions sendAdClick];
+    [self sendCustomAction:AD_CLICK];
 }
 
 #pragma mark - Getters

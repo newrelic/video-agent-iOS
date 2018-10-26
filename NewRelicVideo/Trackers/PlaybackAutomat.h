@@ -7,15 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
-typedef NS_ENUM(NSUInteger, TrackerState) {
-    TrackerStateStopped = 0,
-    TrackerStateStarting,
-    TrackerStatePlaying,
-    TrackerStatePaused,
-    TrackerStateBuffering,
-    TrackerStateSeeking
-};
+#import "Tracker.h"
 
 @class BackendActions;
 

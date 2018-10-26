@@ -53,8 +53,8 @@
 		9CB250A02181BB630094DFEF /* PlaybackAutomat.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */; };
 		9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A1218208AE0094DFEF /* TrackerCore.cpp */; };
 		9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250A2218208AE0094DFEF /* TrackerCore.hpp */; };
+		9CB250A621833F750094DFEF /* Tracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A521833F750094DFEF /* Tracker.mm */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9CB26A4821411A4F00A8891D /* Tracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4621411A4F00A8891D /* Tracker.m */; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4A214127E800A8891D /* ContentsTracker.m */; };
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -115,8 +115,9 @@
 		9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = PlaybackAutomat.mm; sourceTree = "<group>"; };
 		9CB250A1218208AE0094DFEF /* TrackerCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TrackerCore.cpp; sourceTree = "<group>"; };
 		9CB250A2218208AE0094DFEF /* TrackerCore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackerCore.hpp; sourceTree = "<group>"; };
+		9CB250A521833F750094DFEF /* Tracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tracker.mm; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
-		9CB26A4621411A4F00A8891D /* Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Tracker.m; sourceTree = "<group>"; };
+		9CB26A4621411A4F00A8891D /* OLD_Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
 		9CB26A4A214127E800A8891D /* ContentsTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ContentsTracker.m; sourceTree = "<group>"; };
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
@@ -316,7 +317,8 @@
 				9CB2509F2181BB630094DFEF /* PlaybackAutomat.mm */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
 				9C1D46F9214BE7E800E7066C /* Tracker_internal.h */,
-				9CB26A4621411A4F00A8891D /* Tracker.m */,
+				9CB250A521833F750094DFEF /* Tracker.mm */,
+				9CB26A4621411A4F00A8891D /* OLD_Tracker.m */,
 				9CB26A49214127E800A8891D /* ContentsTracker.h */,
 				9C1D46FA214BE8AA00E7066C /* ContentsTracker_internal.h */,
 				9CB26A4A214127E800A8891D /* ContentsTracker.m */,
@@ -508,9 +510,9 @@
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
 				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
+				9CB250A621833F750094DFEF /* Tracker.mm in Sources */,
 				9C5E4C4E217DF24B00EECD1F /* BackendActions.mm in Sources */,
 				9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */,
-				9CB26A4821411A4F00A8891D /* Tracker.m in Sources */,
 				9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */,
 				9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
