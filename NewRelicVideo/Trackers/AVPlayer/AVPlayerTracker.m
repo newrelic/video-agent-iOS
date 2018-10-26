@@ -427,17 +427,24 @@
 
 - (NSString *)getVideoId {
     if (!self.videoID) {
-        NSString *src = [self getSrc];
-        __block long long val = 0;
-        __block long long lastChar = 0;
-        [src enumerateSubstringsInRange:NSMakeRange(0, src.length)
-                                options:NSStringEnumerationByComposedCharacterSequences
-                             usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-                                 long long currChar = [substring characterAtIndex:0];
-                                 val += (currChar << (lastChar / 8)) + currChar;
-                                 lastChar = currChar;
-                             }];
-        self.videoID = @(val).stringValue;
+        int i, j;
+        unsigned int byte, crc, mask;
+        unsigned char *message = (unsigned char *)[[self getSrc] UTF8String];
+        
+        //  CRC32 algorithm
+        i = 0;
+        crc = 0xFFFFFFFF;
+        while (message[i] != 0) {
+            byte = message[i];            // Get next byte.
+            crc = crc ^ byte;
+            for (j = 7; j >= 0; j--) {    // Do eight times.
+                mask = -(crc & 1);
+                crc = (crc >> 1) ^ (0xEDB88320 & mask);
+            }
+            i = i + 1;
+        }
+        
+        self.videoID = @(~crc).stringValue;
     }
     
     return self.videoID;

@@ -104,6 +104,7 @@ void TrackerCore::sendDownload() {
 void TrackerCore::sendCustomAction(std::string name) {
     automat->getActions()->sendAction(name);
 }
+
 void TrackerCore::sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr) {
     automat->getActions()->sendAction(name, attr);
 }
