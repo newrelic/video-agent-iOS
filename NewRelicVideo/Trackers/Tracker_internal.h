@@ -11,7 +11,7 @@
 
 @interface Tracker ()
 
-- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *, NSValue *> *)attributeGetters;
+- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSDictionary<NSString *, NSValue *> *)attributeGetters;
 
 @end
 

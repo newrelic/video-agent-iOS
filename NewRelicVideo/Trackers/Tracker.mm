@@ -28,6 +28,35 @@
 
 @implementation Tracker
 
+- (NSDictionary<NSString *, NSValue *> *)attributeGetters {
+    return @{
+             // Base Tracker
+             @"viewId": [NSValue valueWithPointer:@selector(getViewId)],
+             @"numberOfVideos": [NSValue valueWithPointer:@selector(getNumberOfVideos)],
+             @"coreVersion": [NSValue valueWithPointer:@selector(getCoreVersion)],
+             @"viewSession": [NSValue valueWithPointer:@selector(getViewSession)],
+             @"numberOfErrors": [NSValue valueWithPointer:@selector(getNumberOfErrors)],
+             // Implemented by tracker subclass, required
+             @"trackerName": [NSValue valueWithPointer:@selector(getTrackerName)],
+             @"trackerVersion": [NSValue valueWithPointer:@selector(getTrackerVersion)],
+             @"playerVersion": [NSValue valueWithPointer:@selector(getPlayerVersion)],
+             @"playerName": [NSValue valueWithPointer:@selector(getPlayerName)],
+             @"isAd": [NSValue valueWithPointer:@selector(getIsAd)],
+             };
+}
+
+- (void)updateAttributes {
+    for (NSString *key in self.attributeGetters) {
+        
+        id value = (id)[self optionValueFor:key fromGetters:self.attributeGetters];
+        
+        if (value) {
+            trackerCore->updateAttribute(std::string([key UTF8String]),
+                                         fromNSValue(value));
+        }
+    }
+}
+
 - (instancetype)init {
     if (self = [super init]) {
         trackerCore = new TrackerCore();
@@ -44,7 +73,7 @@
 // TODO: Tracker class getters
 
 - (NSString *)getViewId {
-    return @"";
+    return @"xx";
 }
 
 - (NSNumber *)getNumberOfVideos {
@@ -63,6 +92,7 @@
     return @0;
 }
 
+
 #pragma mark - Public
 
 - (TrackerState)state {
@@ -78,56 +108,68 @@
 }
 
 - (void)preSend {
-    // TODO: presend does anything in TrackerCore??
-    [self setOptionKey:@"timeSinceTrackerReady" value:@(self.trackerReadyTimestamp.sinceMillis)];
-    [self setOptionKey:@"timeSinceLastRenditionChange" value:@(self.lastRenditionChangeTimestamp.sinceMillis) forAction:@"_RENDITION_CHANGE"];
+    [self updateAttributes];
+    trackerCore->updateAttribute("timeSinceTrackerReady", ValueHolder(self.trackerReadyTimestamp.sinceMillis));
+    trackerCore->updateAttribute("timeSinceLastRenditionChange", ValueHolder(self.lastRenditionChangeTimestamp.sinceMillis), "_RENDITION_CHANGE");
 }
 
 - (void)sendRequest {
+    [self preSend];
     trackerCore->sendRequest();
 }
 
 - (void)sendStart {
+    [self preSend];
     trackerCore->sendStart();
 }
 
 - (void)sendEnd {
+    [self preSend];
     trackerCore->sendEnd();
 }
 
 - (void)sendPause {
+    [self preSend];
     trackerCore->sendPause();
 }
 
 - (void)sendResume {
+    [self preSend];
     trackerCore->sendResume();
 }
 
 - (void)sendSeekStart {
+    [self preSend];
     trackerCore->sendSeekStart();
 }
 
 - (void)sendSeekEnd {
+    [self preSend];
     trackerCore->sendSeekEnd();
 }
 
 - (void)sendBufferStart {
+    [self preSend];
     trackerCore->sendBufferStart();
 }
 
 - (void)sendBufferEnd {
+    [self preSend];
     trackerCore->sendBufferEnd();
 }
 
 - (void)sendHeartbeat {
+    [self preSend];
     trackerCore->sendHeartbeat();
 }
 
 - (void)sendRenditionChange {
+    [self preSend];
     trackerCore->sendRenditionChange();
 }
 
 - (void)sendError:(NSString *)message {
+    [self preSend];
     trackerCore->sendError(std::string([message UTF8String]));
 }
 
@@ -170,8 +212,18 @@
 
 #pragma mark - Attributes
 
-- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSMutableDictionary<NSString *,NSValue *> *)attributeGetters {
-    return NSNull.null;
+- (id<NSCopying>)optionValueFor:(NSString *)attr fromGetters:(NSDictionary<NSString *,NSValue *> *)attributeGetters {
+    NSValue *value = attributeGetters[attr];
+    SEL selector = (SEL)[value pointerValue];
+    
+    if ([self respondsToSelector:selector]) {
+        IMP imp = [self methodForSelector:selector];
+        id<NSCopying> (*func)(id, SEL) = (id<NSCopying> (*)(id, SEL))imp;
+        return func(self, selector);
+    }
+    else {
+        return NSNull.null;
+    }
 }
 
 #pragma mark - Timer stuff
@@ -188,7 +240,7 @@
 - (void)trackerTimeEvent {}
 
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
-    // TODO
+    // TODO: use the Core class to do it
     if ([attr isEqualToString:@"timeSinceTrackerReady"]) {
         [self.trackerReadyTimestamp setExternal:timestamp];
     }
