@@ -30,6 +30,7 @@ private:
 public:
     TrackerCore();
     ~TrackerCore();
+    void updateAttribute(std::string name, ValueHolder value, std::string filter = "");
     void reset();
     void setup();
     void sendRequest();

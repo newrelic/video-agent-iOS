@@ -33,4 +33,15 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
     }
 }
 
+std::string currentSessionId() {
+    NSString *sid = [NewRelicAgent currentSessionId];
+    if (sid) {
+        return std::string([sid UTF8String]);
+    }
+    else {
+        NSLog(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+        return "";
+    }
+}
+
 @end

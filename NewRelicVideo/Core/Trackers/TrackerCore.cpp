@@ -10,12 +10,13 @@
 #include "ValueHolder.hpp"
 #include "PlaybackAutomatCore.hpp"
 #include "BackendActionsCore.hpp"
+#include "NewRelicAgentCAL-Cpp-Interface.hpp"
 
 // TODO: create a TimestampValue in C++
 
 TrackerCore::TrackerCore() {
     automat = new PlaybackAutomatCore();
-    // TODO: set isAd somehow
+    automat->isAd = false;
 }
 
 TrackerCore::~TrackerCore() {
@@ -23,7 +24,23 @@ TrackerCore::~TrackerCore() {
 }
 
 void TrackerCore::reset() {
-    // TODO: set initial state
+    viewId = "";
+    viewIdIndex = 0;
+    numErrors = 0;
+    heartbeatCounter = 0;
+    playNewVideo();
+    
+    // TODO: setup trackerReadyTimestamp and lastRenditionChangeTimestamp
+}
+
+void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::string filter) {
+    // NOTE: called by subclass of Tracker to update a tracker (the former getters).
+    if (filter.empty()) {
+        setOption(name, value);
+    }
+    else {
+        setOption(name, value, filter);
+    }
 }
 
 void TrackerCore::setup() {}
@@ -145,5 +162,10 @@ void TrackerCore::preSend() {
 }
 
 void TrackerCore::playNewVideo() {
-    // TODO: new video
+    std::string sid = currentSessionId();
+    if (!sid.empty()) {
+        viewId = sid + "-" + std::to_string(viewIdIndex);
+        viewIdIndex ++;
+        numErrors = 0;
+    }
 }

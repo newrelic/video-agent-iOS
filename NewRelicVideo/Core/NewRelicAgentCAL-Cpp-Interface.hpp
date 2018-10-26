@@ -15,5 +15,6 @@
 class ValueHolder;
 
 bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr);
+std::string currentSessionId();
 
 #endif /* NewRelicAgentCAL_Cpp_Interface_h */
