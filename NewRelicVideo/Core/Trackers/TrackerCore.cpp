@@ -34,9 +34,12 @@ void TrackerCore::reset() {
     viewIdIndex = 0;
     numErrors = 0;
     heartbeatCounter = 0;
+    trackerReadyTimestamp->setMain(systemTimestamp());
+    lastRenditionChangeTimestamp->setMain(0.0);
+    
     playNewVideo();
     
-    // TODO: setup trackerReadyTimestamp and lastRenditionChangeTimestamp
+    // TODO: update attributes
 }
 
 CoreTrackerState TrackerCore::state() {
@@ -54,6 +57,11 @@ void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::stri
 }
 
 void TrackerCore::setup() {}
+
+void TrackerCore::preSend() {
+    updateAttribute("timeSinceTrackerReady", ValueHolder(trackerReadyTimestamp->sinceMillis()));
+    updateAttribute("timeSinceLastRenditionChange", ValueHolder(lastRenditionChangeTimestamp->sinceMillis()), "_RENDITION_CHANGE");
+}
 
 void TrackerCore::sendRequest() {
     preSend();
@@ -111,7 +119,7 @@ void TrackerCore::sendHeartbeat() {
 void TrackerCore::sendRenditionChange() {
     preSend();
     automat->sendRenditionChange();
-    // TODO: set timestamp for lastRenditionChangeTimestamp
+    lastRenditionChangeTimestamp->setMain(systemTimestamp());
 }
 
 void TrackerCore::sendError(std::string message) {
@@ -123,6 +131,11 @@ void TrackerCore::sendError(std::string message) {
 void TrackerCore::sendPlayerReady() {
     automat->getActions()->sendPlayerReady();
 }
+
+/*
+ TODO:
+ - Implement DOWNLOAD's "state" attribute. Argument to sendDownload method.
+ */
 
 void TrackerCore::sendDownload() {
     automat->getActions()->sendDownload();
@@ -175,9 +188,6 @@ bool TrackerCore::setTimestamp(double timestamp, std::string attributeName) {
 }
 
 // Private methods
-
-void TrackerCore::preSend() {
-}
 
 void TrackerCore::playNewVideo() {
     std::string sid = currentSessionId();

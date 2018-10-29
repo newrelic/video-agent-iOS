@@ -20,10 +20,6 @@
 
 @property (nonatomic) NSTimer *playerStateObserverTimer;
 
-// TODO: Time Since stuff
-@property (nonatomic) TimestampValue *lastRenditionChangeTimestamp;
-@property (nonatomic) TimestampValue *trackerReadyTimestamp;
-
 @end
 
 @implementation Tracker
@@ -92,7 +88,6 @@
     return @0;
 }
 
-
 #pragma mark - Public
 
 - (TrackerState)state {
@@ -108,9 +103,8 @@
 }
 
 - (void)preSend {
+    trackerCore->preSend();
     [self updateAttributes];
-    trackerCore->updateAttribute("timeSinceTrackerReady", ValueHolder(self.trackerReadyTimestamp.sinceMillis));
-    trackerCore->updateAttribute("timeSinceLastRenditionChange", ValueHolder(self.lastRenditionChangeTimestamp.sinceMillis), "_RENDITION_CHANGE");
 }
 
 - (void)sendRequest {
@@ -177,11 +171,6 @@
     trackerCore->sendPlayerReady();
 }
 
-/*
- TODO:
- - Implement DOWNLOAD's "state" attribute. Argument to sendDownload method.
- */
-
 - (void)sendDownload {
     trackerCore->sendDownload();
 }
@@ -240,18 +229,7 @@
 - (void)trackerTimeEvent {}
 
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
-    // TODO: use the Core class to do it
-    if ([attr isEqualToString:@"timeSinceTrackerReady"]) {
-        [self.trackerReadyTimestamp setExternal:timestamp];
-    }
-    else if ([attr isEqualToString:@"timeSinceLastRenditionChange"]) {
-        [self.lastRenditionChangeTimestamp setExternal:timestamp];
-    }
-    else {
-        return NO;
-    }
-    
-    return YES;
+    return (BOOL)trackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
 }
 
 @end

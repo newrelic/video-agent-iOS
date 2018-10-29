@@ -21,5 +21,6 @@ class ValueHolder;
 bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr);
 std::string currentSessionId();
 double timeSince(double timestamp);
+double systemTimestamp();
 
 #endif /* CAL_H */

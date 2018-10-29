@@ -28,7 +28,6 @@ private:
     TimestampHolder *lastRenditionChangeTimestamp;
     TimestampHolder *trackerReadyTimestamp;
     
-    void preSend();
     void playNewVideo();
     
 public:
@@ -39,6 +38,7 @@ public:
     void updateAttribute(std::string name, ValueHolder value, std::string filter = "");
     void reset();
     void setup();
+    void preSend();
     void sendRequest();
     void sendStart();
     void sendEnd();
