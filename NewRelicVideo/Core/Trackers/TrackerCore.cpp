@@ -10,7 +10,7 @@
 #include "ValueHolder.hpp"
 #include "PlaybackAutomatCore.hpp"
 #include "BackendActionsCore.hpp"
-#include "NewRelicAgentCAL-Cpp-Interface.hpp"
+#include "System-Interface.hpp"
 
 // TODO: create a TimestampValue in C++
 

@@ -54,6 +54,10 @@
 		9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A1218208AE0094DFEF /* TrackerCore.cpp */; };
 		9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250A2218208AE0094DFEF /* TrackerCore.hpp */; };
 		9CB250A621833F750094DFEF /* Tracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A521833F750094DFEF /* Tracker.mm */; };
+		9CB250AA218708E20094DFEF /* TimestampHolder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A8218708E20094DFEF /* TimestampHolder.cpp */; };
+		9CB250AB218708E20094DFEF /* TimestampHolder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250A9218708E20094DFEF /* TimestampHolder.hpp */; };
+		9CB250AF218713590094DFEF /* DatetimeCAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250AD218713590094DFEF /* DatetimeCAL.h */; };
+		9CB250B0218713590094DFEF /* DatetimeCAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250AE218713590094DFEF /* DatetimeCAL.m */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4A214127E800A8891D /* ContentsTracker.m */; };
@@ -105,7 +109,7 @@
 		9C8E78D2217DE4D8002F0524 /* ValueHolder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ValueHolder.hpp; sourceTree = "<group>"; };
 		9C8E78D8217DE911002F0524 /* NewRelicAgentCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicAgentCAL.h; sourceTree = "<group>"; };
 		9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NewRelicAgentCAL.mm; sourceTree = "<group>"; };
-		9C8E78DC217DEC87002F0524 /* NewRelicAgentCAL-Cpp-Interface.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "NewRelicAgentCAL-Cpp-Interface.hpp"; sourceTree = "<group>"; };
+		9C8E78DC217DEC87002F0524 /* System-Interface.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "System-Interface.hpp"; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
 		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
@@ -116,6 +120,10 @@
 		9CB250A1218208AE0094DFEF /* TrackerCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TrackerCore.cpp; sourceTree = "<group>"; };
 		9CB250A2218208AE0094DFEF /* TrackerCore.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TrackerCore.hpp; sourceTree = "<group>"; };
 		9CB250A521833F750094DFEF /* Tracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Tracker.mm; sourceTree = "<group>"; };
+		9CB250A8218708E20094DFEF /* TimestampHolder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TimestampHolder.cpp; sourceTree = "<group>"; };
+		9CB250A9218708E20094DFEF /* TimestampHolder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TimestampHolder.hpp; sourceTree = "<group>"; };
+		9CB250AD218713590094DFEF /* DatetimeCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatetimeCAL.h; sourceTree = "<group>"; };
+		9CB250AE218713590094DFEF /* DatetimeCAL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatetimeCAL.m; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* OLD_Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -226,8 +234,9 @@
 		9C8E78BE217A0BEB002F0524 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				9C8E78DC217DEC87002F0524 /* NewRelicAgentCAL-Cpp-Interface.hpp */,
+				9C8E78DC217DEC87002F0524 /* System-Interface.hpp */,
 				9C8E78CF217DE4B8002F0524 /* Utils */,
+				9CB250A7218708B10094DFEF /* Time */,
 				9C8E78C0217A0DB7002F0524 /* Backend */,
 				9C8E78BF217A0BF7002F0524 /* Trackers */,
 			);
@@ -276,19 +285,20 @@
 		9C8E78D6217DE77F002F0524 /* CoreHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				9CB250AC2187133B0094DFEF /* DatetimeCAL */,
 				9C5E4C4F217E2C4200EECD1F /* DictionaryTrans */,
-				9C8E78D7217DE8E1002F0524 /* NewRelicAgent */,
+				9C8E78D7217DE8E1002F0524 /* NewRelicAgentCAL */,
 			);
 			path = CoreHelpers;
 			sourceTree = "<group>";
 		};
-		9C8E78D7217DE8E1002F0524 /* NewRelicAgent */ = {
+		9C8E78D7217DE8E1002F0524 /* NewRelicAgentCAL */ = {
 			isa = PBXGroup;
 			children = (
 				9C8E78D8217DE911002F0524 /* NewRelicAgentCAL.h */,
 				9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */,
 			);
-			path = NewRelicAgent;
+			path = NewRelicAgentCAL;
 			sourceTree = "<group>";
 		};
 		9CA3DE002136B54F00205DC4 /* Backend */ = {
@@ -308,6 +318,24 @@
 				9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */,
 			);
 			path = DictionaryMerge;
+			sourceTree = "<group>";
+		};
+		9CB250A7218708B10094DFEF /* Time */ = {
+			isa = PBXGroup;
+			children = (
+				9CB250A8218708E20094DFEF /* TimestampHolder.cpp */,
+				9CB250A9218708E20094DFEF /* TimestampHolder.hpp */,
+			);
+			path = Time;
+			sourceTree = "<group>";
+		};
+		9CB250AC2187133B0094DFEF /* DatetimeCAL */ = {
+			isa = PBXGroup;
+			children = (
+				9CB250AD218713590094DFEF /* DatetimeCAL.h */,
+				9CB250AE218713590094DFEF /* DatetimeCAL.m */,
+			);
+			path = DatetimeCAL;
 			sourceTree = "<group>";
 		};
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
@@ -365,6 +393,7 @@
 				9C8E78C8217DC286002F0524 /* BackendActionsCore.hpp in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
+				9CB250AB218708E20094DFEF /* TimestampHolder.hpp in Headers */,
 				9CB2509C2181B8CB0094DFEF /* PlaybackAutomatCore.hpp in Headers */,
 				9C2E80A2216778A60085B62B /* Stack.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
@@ -374,6 +403,7 @@
 				9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */,
 				9CDECEF52154F4F800E5C5A4 /* PlaybackAutomat.h in Headers */,
 				9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */,
+				9CB250AF218713590094DFEF /* DatetimeCAL.h in Headers */,
 				9C618815215EA9730084D399 /* TimestampValue.h in Headers */,
 				9C1D46FC214BE96D00E7066C /* ContentsTracker_internal.h in Headers */,
 				9C1D46FB214BE96900E7066C /* Tracker_internal.h in Headers */,
@@ -502,6 +532,7 @@
 			files = (
 				9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */,
 				9C8E78C7217DC286002F0524 /* BackendActionsCore.cpp in Sources */,
+				9CB250AA218708E20094DFEF /* TimestampHolder.cpp in Sources */,
 				9C2E80A3216778A60085B62B /* Stack.m in Sources */,
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */,
@@ -509,6 +540,7 @@
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
 				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
+				9CB250B0218713590094DFEF /* DatetimeCAL.m in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9CB250A621833F750094DFEF /* Tracker.mm in Sources */,
 				9C5E4C4E217DF24B00EECD1F /* BackendActions.mm in Sources */,
