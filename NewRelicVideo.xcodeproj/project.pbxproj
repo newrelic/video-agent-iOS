@@ -109,7 +109,7 @@
 		9C8E78D2217DE4D8002F0524 /* ValueHolder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ValueHolder.hpp; sourceTree = "<group>"; };
 		9C8E78D8217DE911002F0524 /* NewRelicAgentCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicAgentCAL.h; sourceTree = "<group>"; };
 		9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = NewRelicAgentCAL.mm; sourceTree = "<group>"; };
-		9C8E78DC217DEC87002F0524 /* System-Interface.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = "System-Interface.hpp"; sourceTree = "<group>"; };
+		9C8E78DC217DEC87002F0524 /* CAL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CAL.hpp; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
 		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
@@ -234,7 +234,7 @@
 		9C8E78BE217A0BEB002F0524 /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				9C8E78DC217DEC87002F0524 /* System-Interface.hpp */,
+				9C8E78DC217DEC87002F0524 /* CAL.hpp */,
 				9C8E78CF217DE4B8002F0524 /* Utils */,
 				9CB250A7218708B10094DFEF /* Time */,
 				9C8E78C0217A0DB7002F0524 /* Backend */,
