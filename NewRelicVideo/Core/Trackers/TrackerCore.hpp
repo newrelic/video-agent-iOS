@@ -38,6 +38,11 @@ public:
     void updateAttribute(std::string name, ValueHolder value, std::string filter = "");
     void reset();
     void setup();
+    std::string getViewId();
+    int getNumberOfVideos();
+    std::string getCoreVersion();
+    std::string getViewSession();
+    int getNumberOfErrors();
     void preSend();
     void sendRequest();
     void sendStart();

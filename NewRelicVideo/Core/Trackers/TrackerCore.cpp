@@ -58,6 +58,26 @@ void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::stri
 
 void TrackerCore::setup() {}
 
+std::string TrackerCore::getViewId() {
+    return viewId;
+}
+
+int TrackerCore::getNumberOfVideos() {
+    return viewIdIndex;
+}
+
+std::string TrackerCore::getCoreVersion() {
+    return PRODUCT_VERSION_STR;
+}
+
+std::string TrackerCore::getViewSession() {
+    return currentSessionId();
+}
+
+int TrackerCore::getNumberOfErrors() {
+    return numErrors;
+}
+
 void TrackerCore::preSend() {
     updateAttribute("timeSinceTrackerReady", ValueHolder(trackerReadyTimestamp->sinceMillis()));
     updateAttribute("timeSinceLastRenditionChange", ValueHolder(lastRenditionChangeTimestamp->sinceMillis()), "_RENDITION_CHANGE");

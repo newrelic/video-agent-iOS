@@ -75,7 +75,7 @@
 }
 
 - (NSString *)getCoreVersion {
-    return PRODUCT_VERSION_STR;
+    return @PRODUCT_VERSION_STR;
 }
 
 - (NSString *)getViewSession {

@@ -66,26 +66,24 @@
 
 #pragma mark - Base Tracker attributes
 
-// TODO: Tracker class getters
-
 - (NSString *)getViewId {
-    return @"xx";
+    return [NSString stringWithUTF8String:trackerCore->getViewId().c_str()];
 }
 
 - (NSNumber *)getNumberOfVideos {
-    return @0;
+    return @(trackerCore->getNumberOfVideos());
 }
 
 - (NSString *)getCoreVersion {
-    return PRODUCT_VERSION_STR;
+    return [NSString stringWithUTF8String:trackerCore->getCoreVersion().c_str()];
 }
 
 - (NSString *)getViewSession {
-    return [NewRelicAgent currentSessionId];
+    return [NSString stringWithUTF8String:trackerCore->getViewSession().c_str()];
 }
 
 - (NSNumber *)getNumberOfErrors {
-    return @0;
+    return @(trackerCore->getNumberOfErrors());
 }
 
 #pragma mark - Public
