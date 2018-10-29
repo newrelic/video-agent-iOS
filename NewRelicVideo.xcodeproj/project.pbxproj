@@ -57,7 +57,7 @@
 		9CB250AA218708E20094DFEF /* TimestampHolder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250A8218708E20094DFEF /* TimestampHolder.cpp */; };
 		9CB250AB218708E20094DFEF /* TimestampHolder.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250A9218708E20094DFEF /* TimestampHolder.hpp */; };
 		9CB250AF218713590094DFEF /* DatetimeCAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250AD218713590094DFEF /* DatetimeCAL.h */; };
-		9CB250B0218713590094DFEF /* DatetimeCAL.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250AE218713590094DFEF /* DatetimeCAL.m */; };
+		9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250AE218713590094DFEF /* DatetimeCAL.mm */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4C214127E800A8891D /* ContentsTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CB26A4A214127E800A8891D /* ContentsTracker.m */; };
@@ -123,7 +123,7 @@
 		9CB250A8218708E20094DFEF /* TimestampHolder.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TimestampHolder.cpp; sourceTree = "<group>"; };
 		9CB250A9218708E20094DFEF /* TimestampHolder.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = TimestampHolder.hpp; sourceTree = "<group>"; };
 		9CB250AD218713590094DFEF /* DatetimeCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DatetimeCAL.h; sourceTree = "<group>"; };
-		9CB250AE218713590094DFEF /* DatetimeCAL.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DatetimeCAL.m; sourceTree = "<group>"; };
+		9CB250AE218713590094DFEF /* DatetimeCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DatetimeCAL.mm; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* OLD_Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -333,7 +333,7 @@
 			isa = PBXGroup;
 			children = (
 				9CB250AD218713590094DFEF /* DatetimeCAL.h */,
-				9CB250AE218713590094DFEF /* DatetimeCAL.m */,
+				9CB250AE218713590094DFEF /* DatetimeCAL.mm */,
 			);
 			path = DatetimeCAL;
 			sourceTree = "<group>";
@@ -540,7 +540,7 @@
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
 				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
-				9CB250B0218713590094DFEF /* DatetimeCAL.m in Sources */,
+				9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
 				9CB250A621833F750094DFEF /* Tracker.mm in Sources */,
 				9C5E4C4E217DF24B00EECD1F /* BackendActions.mm in Sources */,

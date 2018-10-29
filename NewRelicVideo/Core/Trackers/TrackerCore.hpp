@@ -16,6 +16,7 @@
 
 class ValueHolder;
 class PlaybackAutomatCore;
+class TimestampHolder;
 
 class TrackerCore {
 private:
@@ -24,6 +25,8 @@ private:
     int viewIdIndex;
     int numErrors;
     int heartbeatCounter;
+    TimestampHolder *lastRenditionChangeTimestamp;
+    TimestampHolder *trackerReadyTimestamp;
     
     void preSend();
     void playNewVideo();

@@ -11,17 +11,22 @@
 #include "PlaybackAutomatCore.hpp"
 #include "BackendActionsCore.hpp"
 #include "CAL.hpp"
+#include "TimestampHolder.hpp"
 
 // TODO: create a TimestampValue in C++
 
 TrackerCore::TrackerCore() {
     automat = new PlaybackAutomatCore();
+    lastRenditionChangeTimestamp = new TimestampHolder(0);
+    trackerReadyTimestamp = new TimestampHolder(0);
     // TODO: how to ask if I'm a ads?
     automat->isAd = false;
 }
 
 TrackerCore::~TrackerCore() {
     delete automat;
+    delete lastRenditionChangeTimestamp;
+    delete trackerReadyTimestamp;
 }
 
 void TrackerCore::reset() {
@@ -156,14 +161,22 @@ void TrackerCore::abortTimerEvent() {
 }
 
 bool TrackerCore::setTimestamp(double timestamp, std::string attributeName) {
-    // TODO: custom timestamp stuff
+    if (attributeName == "timeSinceTrackerReady") {
+        trackerReadyTimestamp->setExternal(timestamp);
+    }
+    else if (attributeName == "timeSinceLastRenditionChange") {
+        lastRenditionChangeTimestamp->setExternal(timestamp);
+    }
+    else {
+        return false;
+    }
+    
     return true;
 }
 
 // Private methods
 
 void TrackerCore::preSend() {
-    // TODO: generate the attributes (?)
 }
 
 void TrackerCore::playNewVideo() {
