@@ -13,8 +13,6 @@
 #include "CAL.hpp"
 #include "TimestampHolder.hpp"
 
-// TODO: create a TimestampValue in C++
-
 TrackerCore::TrackerCore() {
     automat = new PlaybackAutomatCore();
     lastRenditionChangeTimestamp = new TimestampHolder(0);
@@ -149,6 +147,7 @@ void TrackerCore::sendError(std::string message) {
 }
 
 void TrackerCore::sendPlayerReady() {
+    preSend();
     automat->getActions()->sendPlayerReady();
 }
 
@@ -158,14 +157,17 @@ void TrackerCore::sendPlayerReady() {
  */
 
 void TrackerCore::sendDownload() {
+    preSend();
     automat->getActions()->sendDownload();
 }
 
 void TrackerCore::sendCustomAction(std::string name) {
+    preSend();
     automat->getActions()->sendAction(name);
 }
 
 void TrackerCore::sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr) {
+    preSend();
     automat->getActions()->sendAction(name, attr);
 }
 

@@ -11,6 +11,7 @@
 
 TimestampHolder::TimestampHolder(double timestamp) {
     mainTimestamp = timestamp;
+    externalTimestamp = 0;
 }
 
 double TimestampHolder::timestamp() {

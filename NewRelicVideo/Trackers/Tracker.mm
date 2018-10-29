@@ -101,7 +101,7 @@
 }
 
 - (void)preSend {
-    trackerCore->preSend();
+//    trackerCore->preSend();
     [self updateAttributes];
 }
 
@@ -166,18 +166,22 @@
 }
 
 - (void)sendPlayerReady {
+    [self preSend];
     trackerCore->sendPlayerReady();
 }
 
 - (void)sendDownload {
+    [self preSend];
     trackerCore->sendDownload();
 }
 
 - (void)sendCustomAction:(NSString *)name {
+    [self preSend];
     trackerCore->sendCustomAction(std::string([name UTF8String]));
 }
 
 - (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr {
+    [self preSend];
     trackerCore->sendCustomAction(std::string([name UTF8String]), fromDictionaryToMap(attr));
 }
 
