@@ -9,6 +9,9 @@
 #ifndef TrackerCore_hpp
 #define TrackerCore_hpp
 
+#define OBSERVATION_TIME        2.0f
+#define HEARTBEAT_COUNT         (25.0f / OBSERVATION_TIME)
+
 #include <stdio.h>
 #include <string>
 #include <map>
@@ -64,8 +67,7 @@ public:
     void setOption(std::string key, ValueHolder value);
     void setOptions(std::map<std::string, ValueHolder> opts, std::string action);
     void setOption(std::string key, ValueHolder value, std::string action);
-    void startTimerEvent();
-    void abortTimerEvent();
+    void trackerTimeEvent();
     bool setTimestamp(double timestamp, std::string attributeName);
 };
 

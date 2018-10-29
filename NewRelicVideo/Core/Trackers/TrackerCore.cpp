@@ -84,7 +84,6 @@ void TrackerCore::preSend() {
 void TrackerCore::sendRequest() {
     preSend();
     automat->sendRequest();
-    startTimerEvent();
 }
 
 void TrackerCore::sendStart() {
@@ -96,7 +95,6 @@ void TrackerCore::sendEnd() {
     preSend();
     automat->sendEnd();
     playNewVideo();
-    abortTimerEvent();
 }
 
 void TrackerCore::sendPause() {
@@ -187,12 +185,13 @@ void TrackerCore::setOption(std::string key, ValueHolder value, std::string acti
     automat->getActions()->actionOptions[action][key] = value;
 }
 
-void TrackerCore::startTimerEvent() {
-    // TODO: time stuff
-}
-
-void TrackerCore::abortTimerEvent() {
-    // TODO: timer stuff
+void TrackerCore::trackerTimeEvent() {
+    heartbeatCounter ++;
+    
+    if (heartbeatCounter >= HEARTBEAT_COUNT) {
+        heartbeatCounter = 0;
+        sendHeartbeat();
+    }
 }
 
 bool TrackerCore::setTimestamp(double timestamp, std::string attributeName) {
