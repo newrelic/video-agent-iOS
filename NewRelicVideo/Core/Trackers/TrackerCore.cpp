@@ -44,14 +44,13 @@ CoreTrackerState TrackerCore::state() {
     return automat->state;
 }
 
+// NOTE: called by trackers to update the attributes (the values from getters).
 void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::string filter) {
-    // NOTE: called by subclass of Tracker to update a tracker (the former getters).
-    if (filter.empty()) {
-        setOption(name, value);
-    }
-    else {
-        setOption(name, value, filter);
-    }
+    setOption(name, value, filter);
+}
+
+void TrackerCore::updateAttribute(std::string name, ValueHolder value) {
+    setOption(name, value);
 }
 
 void TrackerCore::setup() {}

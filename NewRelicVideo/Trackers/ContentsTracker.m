@@ -126,6 +126,7 @@
     
     // Regular offset timestamps, time since
     
+    // BUG: heartbeatTimestamp is an object!!!
     if (self.heartbeatTimestamp > 0) {
         [self setContentsOptionKey:@"timeSinceLastHeartbeat" value:@(self.heartbeatTimestamp.sinceMillis)];
     }

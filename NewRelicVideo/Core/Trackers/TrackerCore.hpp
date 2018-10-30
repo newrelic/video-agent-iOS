@@ -38,7 +38,8 @@ public:
     ~TrackerCore();
     
     CoreTrackerState state();
-    void updateAttribute(std::string name, ValueHolder value, std::string filter = "");
+    void updateAttribute(std::string name, ValueHolder value, std::string filter);
+    void updateAttribute(std::string name, ValueHolder value);
     void reset();
     void setup();
     std::string getViewId();
