@@ -22,5 +22,6 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
 std::string currentSessionId();
 double timeSince(double timestamp);
 double systemTimestamp();
+ValueHolder callGetter(std::string name);
 
 #endif /* CAL_H */
