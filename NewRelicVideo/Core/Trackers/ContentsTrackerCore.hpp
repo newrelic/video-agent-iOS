@@ -45,6 +45,7 @@ public:
     void sendSeekStart();
     void sendBufferStart();
     void sendHeartbeat();
+    void adHappened(double time);
     bool setTimestamp(double timestamp, std::string attributeName);
 };
 

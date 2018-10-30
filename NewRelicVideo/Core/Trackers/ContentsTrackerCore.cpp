@@ -106,7 +106,7 @@ void ContentsTrackerCore::sendStart() {
 void ContentsTrackerCore::sendEnd() {
     TrackerCore::sendEnd();
     totalPlaytime = 0;
-    lastAdTimestamp = 0;
+    lastAdTimestamp->setMain(0);
 }
 
 void ContentsTrackerCore::sendPause() {
@@ -134,7 +134,9 @@ void ContentsTrackerCore::sendHeartbeat() {
     TrackerCore::sendHeartbeat();
 }
 
-// TODO: adHappened
+void ContentsTrackerCore::adHappened(double time) {
+    lastAdTimestamp->setMain(time);
+}
 
 bool ContentsTrackerCore::setTimestamp(double timestamp, std::string attributeName) {
     if (!TrackerCore::setTimestamp(timestamp, attributeName)) {
