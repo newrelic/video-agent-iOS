@@ -19,7 +19,7 @@ public:
         ValueHolderTypeInt,
         ValueHolderTypeFloat,
         ValueHolderTypeString,
-        ValueHolderTypeData
+        ValueHolderTypeEmpty
     } ValueHolderType;
     
 private:
@@ -27,7 +27,6 @@ private:
     std::string valueString;
     long valueInt;
     double valueFloat;
-    std::vector<uint8_t> valueData;
     
 public:
     ValueHolder();
@@ -35,13 +34,11 @@ public:
     ValueHolder(long);
     ValueHolder(int);
     ValueHolder(double);
-    ValueHolder(std::vector<uint8_t>);
     
     ValueHolderType getValueType();
     std::string getValueString();
     long getValueInt();
     double getValueFloat();
-    std::vector<uint8_t> getValueData();
 };
 
 #endif /* ValueHolder_hpp */

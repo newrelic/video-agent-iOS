@@ -38,7 +38,6 @@ std::map<std::string, ValueHolder> fromDictionaryToMap(NSDictionary *dict) {
 
 id fromValueHolder(ValueHolder value) {
     switch (value.getValueType()) {
-        default:
         case ValueHolder::ValueHolderTypeString: {
             NSString *str = [NSString stringWithUTF8String:value.getValueString().c_str()];
             return str;
@@ -50,6 +49,10 @@ id fromValueHolder(ValueHolder value) {
         case ValueHolder::ValueHolderTypeFloat: {
             NSNumber *num = @(value.getValueFloat());
             return num;
+        }
+        default:
+        case ValueHolder::ValueHolderTypeEmpty: {
+            return [NSNull null];
         }
     }
 }
@@ -72,6 +75,8 @@ ValueHolder fromNSValue(id value) {
         }
     }
     else {
+        // TODO: return an emptu response, to it is not included in the dictionary -> ValueHolder()
+        
 //        AV_LOG(@"ValueHolder unknown type: Creating an \"empty\" value.");
         fValue = ValueHolder("<NULL>");
     }

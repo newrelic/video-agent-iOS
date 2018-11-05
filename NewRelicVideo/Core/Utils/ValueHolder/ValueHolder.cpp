@@ -9,7 +9,7 @@
 #include "ValueHolder.hpp"
 
 ValueHolder::ValueHolder() {
-    ValueHolder("");
+    valueType = ValueHolderTypeEmpty;
 }
 
 ValueHolder::ValueHolder(std::string dat) {
@@ -30,11 +30,6 @@ ValueHolder::ValueHolder(int dat) {
 ValueHolder::ValueHolder(double dat) {
     valueType = ValueHolderTypeFloat;
     valueFloat = dat;
-}
-
-ValueHolder::ValueHolder(std::vector<uint8_t> dat) {
-    valueType = ValueHolderTypeData;
-    valueData = dat;
 }
 
 ValueHolder::ValueHolderType ValueHolder::getValueType() {
@@ -65,14 +60,5 @@ double ValueHolder::getValueFloat() {
     }
     else {
         return 0.0;
-    }
-}
-
-std::vector<uint8_t> ValueHolder::getValueData() {
-    if (getValueType() == ValueHolderTypeData) {
-        return valueData;
-    }
-    else {
-        return {};
     }
 }
