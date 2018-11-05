@@ -15,8 +15,7 @@
 #import "ContentsTrackerCore.hpp"
 #import "DictionaryTrans.h"
 #import "ValueHolder.hpp"
-
-//#define ACTION_FILTER @"CONTENT_"
+#import "GettersCAL.h"
 
 @interface ContentsTracker ()
 {
@@ -29,51 +28,19 @@
 
 @implementation ContentsTracker
 
-// TODO:
-
-//- (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
-//    if (!_contentsAttributeGetters) {
-//        _contentsAttributeGetters = @{
-//                                      @"contentId": [NSValue valueWithPointer:@selector(getVideoId)],
-//                                      @"contentTitle": [NSValue valueWithPointer:@selector(getTitle)],
-//                                      @"contentBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
-//                                      @"contentRenditionName": [NSValue valueWithPointer:@selector(getRenditionName)],
-//                                      @"contentRenditionBitrate": [NSValue valueWithPointer:@selector(getRenditionBitrate)],
-//                                      @"contentRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
-//                                      @"contentRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
-//                                      @"contentDuration": [NSValue valueWithPointer:@selector(getDuration)],
-//                                      @"contentPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
-//                                      @"contentLanguage": [NSValue valueWithPointer:@selector(getLanguage)],
-//                                      @"contentSrc": [NSValue valueWithPointer:@selector(getSrc)],
-//                                      @"contentIsMuted": [NSValue valueWithPointer:@selector(getIsMuted)],
-//                                      @"contentCdn": [NSValue valueWithPointer:@selector(getCdn)],
-//                                      @"contentFps": [NSValue valueWithPointer:@selector(getFps)],
-//                                      @"contentPlayrate": [NSValue valueWithPointer:@selector(getPlayrate)],
-//                                      @"contentIsLive": [NSValue valueWithPointer:@selector(getIsLive)],
-//                                      @"contentIsAutoplayed": [NSValue valueWithPointer:@selector(getIsAutoplayed)],
-//                                      @"contentPreload": [NSValue valueWithPointer:@selector(getPreload)],
-//                                      @"contentIsFullscreen": [NSValue valueWithPointer:@selector(getIsFullscreen)],
-//                                      }.mutableCopy;
-//    }
-//    return _contentsAttributeGetters;
-//}
-//
-//- (void)updateContentsAttributes {
-//    for (NSString *key in self.contentsAttributeGetters) {
-//        [self updateContentsAttribute:key];
-//    }
-//}
-//
-//- (void)updateContentsAttribute:(NSString *)attr {
-//    id<NSCopying> val = [self optionValueFor:attr fromGetters:self.contentsAttributeGetters];
-//    if (val) [self setOptionKey:attr value:val forAction:ACTION_FILTER];
-//}
-
 #pragma mark - Init
+
+// TODO: Must registerGetter for those attributes:
+//updateAttribute("trackerName", callGetter("trackerName"));
+//updateAttribute("trackerVersion", callGetter("trackerVersion"));
+//updateAttribute("playerVersion", callGetter("playerVersion"));
+//updateAttribute("playerName", callGetter("playerName"));
+//updateAttribute("isAd", callGetter("isAd"));
 
 - (instancetype)init {
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
+        registerGetter(@"isAd", self, @selector(getIsAd));
     }
     return self;
 }

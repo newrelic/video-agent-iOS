@@ -32,13 +32,6 @@ ContentsTrackerCore::~ContentsTrackerCore() {
     delete lastAdTimestamp;
 }
 
-// TODO: Must registerGetter for those attributes:
-//updateAttribute("trackerName", callGetter("trackerName"));
-//updateAttribute("trackerVersion", callGetter("trackerVersion"));
-//updateAttribute("playerVersion", callGetter("playerVersion"));
-//updateAttribute("playerName", callGetter("playerName"));
-//updateAttribute("isAd", callGetter("isAd"));
-
 void ContentsTrackerCore::reset() {
     TrackerCore::reset();
     
@@ -54,8 +47,7 @@ void ContentsTrackerCore::reset() {
     seekBeginTimestamp->setMain(0);
     lastAdTimestamp->setMain(0);
     
-    // TODO: call all getters and update attributes.
-    //[self updateContentsAttributes];
+    preSend();
 }
 
 void ContentsTrackerCore::preSend() {

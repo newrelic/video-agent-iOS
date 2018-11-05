@@ -41,9 +41,9 @@
         SEL selector = (SEL)[value pointerValue];
         
         if ([target respondsToSelector:selector]) {
-            IMP imp = [self methodForSelector:selector];
+            IMP imp = [target methodForSelector:selector];
             id<NSCopying> (*func)(id, SEL) = (id<NSCopying> (*)(id, SEL))imp;
-            return func(self, selector);
+            return func(target, selector);
         }
         else {
             return NSNull.null;
