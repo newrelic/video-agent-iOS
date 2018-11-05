@@ -10,12 +10,12 @@
 #import "EventDefs.h"
 #import "PlaybackAutomat.h"
 #import "Tracker_internal.h"
+#import "GettersCAL.h"
+#import <AVKit/AVKit.h>
 
 // KNOWN ISSUES:
 // * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
 // * If seeked while paused, the SEEK_END is sent only when user resumes the video.
-
-@import AVKit;
 
 @interface AVPlayerTracker ()
 
@@ -39,6 +39,26 @@
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
         self.player = player;
+        
+        registerGetter(@"contentId", self, @selector(getVideoId));
+        registerGetter(@"contentTitle", self, @selector(getTitle));
+        registerGetter(@"contentBitrate", self, @selector(getBitrate));
+        registerGetter(@"contentRenditionName", self, @selector(getRenditionName));
+        registerGetter(@"contentRenditionBitrate", self, @selector(getRenditionBitrate));
+        registerGetter(@"contentRenditionWidth", self, @selector(getRenditionWidth));
+        registerGetter(@"contentRenditionHeight", self, @selector(getRenditionHeight));
+        registerGetter(@"contentDuration", self, @selector(getDuration));
+        registerGetter(@"contentPlayhead", self, @selector(getPlayhead));
+        registerGetter(@"contentLanguage", self, @selector(getLanguage));
+        registerGetter(@"contentSrc", self, @selector(getSrc));
+        registerGetter(@"contentIsMuted", self, @selector(getIsMuted));
+        registerGetter(@"contentCdn", self, @selector(getCdn));
+        registerGetter(@"contentFps", self, @selector(getFps));
+        registerGetter(@"contentPlayrate", self, @selector(getPlayrate));
+        registerGetter(@"contentIsLive", self, @selector(getIsLive));
+        registerGetter(@"contentIsAutoplayed", self, @selector(getIsAutoplayed));
+        registerGetter(@"contentPreload", self, @selector(getPreload));
+        registerGetter(@"contentIsFullscreen", self, @selector(getIsFullscreen));
     }
     return self;
 }

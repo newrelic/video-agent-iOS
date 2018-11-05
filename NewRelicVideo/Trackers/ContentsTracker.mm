@@ -30,16 +30,13 @@
 
 #pragma mark - Init
 
-// TODO: Must registerGetter for those attributes:
-//updateAttribute("trackerName", callGetter("trackerName"));
-//updateAttribute("trackerVersion", callGetter("trackerVersion"));
-//updateAttribute("playerVersion", callGetter("playerVersion"));
-//updateAttribute("playerName", callGetter("playerName"));
-//updateAttribute("isAd", callGetter("isAd"));
-
 - (instancetype)init {
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
+        registerGetter(@"trackerName", self, @selector(getTrackerName));
+        registerGetter(@"trackerVersion", self, @selector(getTrackerVersion));
+        registerGetter(@"playerVersion", self, @selector(getPlayerVersion));
+        registerGetter(@"playerName", self, @selector(getPlayerName));
         registerGetter(@"isAd", self, @selector(getIsAd));
     }
     return self;
@@ -65,8 +62,6 @@
 
 - (void)preSend {
     contentsTrackerCore->preSend();
-    // TODO
-//    [self updateContentsAttributes];
 }
 
 - (void)sendRequest {
@@ -148,8 +143,6 @@
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
     contentsTrackerCore->setOption(std::string([key UTF8String]), fromNSValue((id)value), std::string([action UTF8String]));
 }
-
-// TODO: the protocol getters are never called because we need to manually register callbacks
 
 #pragma mark - Getters
 

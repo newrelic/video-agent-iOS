@@ -75,7 +75,7 @@ ValueHolder fromNSValue(id value) {
         }
     }
     else {
-        // TODO: return an emptu response, to it is not included in the dictionary -> ValueHolder()
+        // TODO: return an empty response, so it is not included in the dictionary -> ValueHolder()
         
 //        AV_LOG(@"ValueHolder unknown type: Creating an \"empty\" value.");
         fValue = ValueHolder("<NULL>");
