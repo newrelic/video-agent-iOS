@@ -10,6 +10,8 @@
 
 @interface GettersCAL : NSObject
 
++ (void)registerGetter:(NSString *)name target:(id)target sel:(SEL)selector;
+
 void registerGetter(NSString *name, id target, SEL selector);
 
 @end

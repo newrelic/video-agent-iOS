@@ -11,7 +11,8 @@
 #import "PlaybackAutomat.h"
 #import "Tracker_internal.h"
 #import "GettersCAL.h"
-#import <AVKit/AVKit.h>
+
+@import AVKit;
 
 // KNOWN ISSUES:
 // * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
@@ -40,25 +41,25 @@
     if (self = [super init]) {
         self.player = player;
         
-        registerGetter(@"contentId", self, @selector(getVideoId));
-        registerGetter(@"contentTitle", self, @selector(getTitle));
-        registerGetter(@"contentBitrate", self, @selector(getBitrate));
-        registerGetter(@"contentRenditionName", self, @selector(getRenditionName));
-        registerGetter(@"contentRenditionBitrate", self, @selector(getRenditionBitrate));
-        registerGetter(@"contentRenditionWidth", self, @selector(getRenditionWidth));
-        registerGetter(@"contentRenditionHeight", self, @selector(getRenditionHeight));
-        registerGetter(@"contentDuration", self, @selector(getDuration));
-        registerGetter(@"contentPlayhead", self, @selector(getPlayhead));
-        registerGetter(@"contentLanguage", self, @selector(getLanguage));
-        registerGetter(@"contentSrc", self, @selector(getSrc));
-        registerGetter(@"contentIsMuted", self, @selector(getIsMuted));
-        registerGetter(@"contentCdn", self, @selector(getCdn));
-        registerGetter(@"contentFps", self, @selector(getFps));
-        registerGetter(@"contentPlayrate", self, @selector(getPlayrate));
-        registerGetter(@"contentIsLive", self, @selector(getIsLive));
-        registerGetter(@"contentIsAutoplayed", self, @selector(getIsAutoplayed));
-        registerGetter(@"contentPreload", self, @selector(getPreload));
-        registerGetter(@"contentIsFullscreen", self, @selector(getIsFullscreen));
+        [GettersCAL registerGetter:@"contentId" target:self sel:@selector(getVideoId)];
+        [GettersCAL registerGetter:@"contentTitle" target:self sel:@selector(getTitle)];
+        [GettersCAL registerGetter:@"contentBitrate" target:self sel:@selector(getBitrate)];
+        [GettersCAL registerGetter:@"contentRenditionName" target:self sel:@selector(getRenditionName)];
+        [GettersCAL registerGetter:@"contentRenditionBitrate" target:self sel:@selector(getRenditionBitrate)];
+        [GettersCAL registerGetter:@"contentRenditionWidth" target:self sel:@selector(getRenditionWidth)];
+        [GettersCAL registerGetter:@"contentRenditionHeight" target:self sel:@selector(getRenditionHeight)];
+        [GettersCAL registerGetter:@"contentDuration" target:self sel:@selector(getDuration)];
+        [GettersCAL registerGetter:@"contentPlayhead" target:self sel:@selector(getPlayhead)];
+        [GettersCAL registerGetter:@"contentLanguage" target:self sel:@selector(getLanguage)];
+        [GettersCAL registerGetter:@"contentSrc" target:self sel:@selector(getSrc)];
+        [GettersCAL registerGetter:@"contentIsMuted" target:self sel:@selector(getIsMuted)];
+        [GettersCAL registerGetter:@"contentCdn" target:self sel:@selector(getCdn)];
+        [GettersCAL registerGetter:@"contentFps" target:self sel:@selector(getFps)];
+        [GettersCAL registerGetter:@"contentPlayrate" target:self sel:@selector(getPlayrate)];
+        [GettersCAL registerGetter:@"contentIsLive" target:self sel:@selector(getIsLive)];
+        [GettersCAL registerGetter:@"contentIsAutoplayed" target:self sel:@selector(getIsAutoplayed)];
+        [GettersCAL registerGetter:@"contentPreload" target:self sel:@selector(getPreload)];
+        [GettersCAL registerGetter:@"contentIsFullscreen" target:self sel:@selector(getIsFullscreen)];
     }
     return self;
 }

@@ -29,6 +29,10 @@
     return sharedInstance;
 }
 
++ (void)registerGetter:(NSString *)name target:(id)target sel:(SEL)selector {
+    registerGetter(name, target, selector);
+}
+
 - (void)registerGetterName:(NSString *)name target:(id)target selector:(SEL)selector {
     [self.callbacks setObject:@[target, [NSValue valueWithPointer:selector]] forKey:name];
 }
