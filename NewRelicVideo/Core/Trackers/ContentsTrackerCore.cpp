@@ -32,16 +32,12 @@ ContentsTrackerCore::~ContentsTrackerCore() {
     delete lastAdTimestamp;
 }
 
-// TODO: implement "content" attributes
-
 // TODO: Must registerGetter for those attributes:
 //updateAttribute("trackerName", callGetter("trackerName"));
 //updateAttribute("trackerVersion", callGetter("trackerVersion"));
 //updateAttribute("playerVersion", callGetter("playerVersion"));
 //updateAttribute("playerName", callGetter("playerName"));
 //updateAttribute("isAd", callGetter("isAd"));
-
-// TODO: FIX double sendXXX
 
 void ContentsTrackerCore::reset() {
     TrackerCore::reset();
@@ -63,11 +59,6 @@ void ContentsTrackerCore::reset() {
 }
 
 void ContentsTrackerCore::preSend() {
-    TrackerCore::preSend();
-    
-    // TODO: call all getters and update attributes.
-    //[self updateContentsAttributes];
-    
     // Special time calculations, accumulative timestamps
     
     if (state() == CoreTrackerStatePlaying) {
@@ -97,10 +88,32 @@ void ContentsTrackerCore::preSend() {
     updateAttribute("timeSinceBufferBegin", ValueHolder(bufferBeginTimestamp->sinceMillis()), CONTENT_BUFFER_END);
     updateAttribute("timeSinceSeekBegin", ValueHolder(seekBeginTimestamp->sinceMillis()), CONTENT_SEEK_END);
     updateAttribute("timeSinceLastAd", ValueHolder(lastAdTimestamp->sinceMillis()));
+    
+    // Content Getters
+    updateAttribute("contentId", callGetter("contentId"));
+    updateAttribute("contentTitle", callGetter("contentTitle"));
+    updateAttribute("contentBitrate", callGetter("contentBitrate"));
+    updateAttribute("contentRenditionName", callGetter("contentRenditionName"));
+    updateAttribute("contentRenditionBitrate", callGetter("contentRenditionBitrate"));
+    updateAttribute("contentRenditionWidth", callGetter("contentRenditionWidth"));
+    updateAttribute("contentRenditionHeight", callGetter("contentRenditionHeight"));
+    updateAttribute("contentDuration", callGetter("contentDuration"));
+    updateAttribute("contentPlayhead", callGetter("contentPlayhead"));
+    updateAttribute("contentLanguage", callGetter("contentLanguage"));
+    updateAttribute("contentSrc", callGetter("contentSrc"));
+    updateAttribute("contentIsMuted", callGetter("contentIsMuted"));
+    updateAttribute("contentCdn", callGetter("contentCdn"));
+    updateAttribute("contentFps", callGetter("contentFps"));
+    updateAttribute("contentPlayrate", callGetter("contentPlayrate"));
+    updateAttribute("contentIsLive", callGetter("contentIsLive"));
+    updateAttribute("contentIsAutoplayed", callGetter("contentIsAutoplayed"));
+    updateAttribute("contentPreload", callGetter("contentPreload"));
+    updateAttribute("contentIsFullscreen", callGetter("contentIsFullscreen"));
 }
 
 void ContentsTrackerCore::sendRequest() {
     requestTimestamp->setMain(systemTimestamp());
+    preSend();
     TrackerCore::sendRequest();
 }
 
@@ -109,10 +122,12 @@ void ContentsTrackerCore::sendStart() {
         startedTimestamp->setMain(systemTimestamp());
     }
     totalPlaytimeTimestamp = systemTimestamp();
+    preSend();
     TrackerCore::sendStart();
 }
 
 void ContentsTrackerCore::sendEnd() {
+    preSend();
     TrackerCore::sendEnd();
     totalPlaytime = 0;
     lastAdTimestamp->setMain(0);
@@ -120,27 +135,72 @@ void ContentsTrackerCore::sendEnd() {
 
 void ContentsTrackerCore::sendPause() {
     pausedTimestamp->setMain(systemTimestamp());
+    preSend();
     TrackerCore::sendPause();
 }
 
 void ContentsTrackerCore::sendResume() {
     totalPlaytimeTimestamp = systemTimestamp();
+    preSend();
     TrackerCore::sendResume();
 }
 
 void ContentsTrackerCore::sendSeekStart() {
     seekBeginTimestamp->setMain(systemTimestamp());
+    preSend();
     TrackerCore::sendSeekStart();
+}
+
+void ContentsTrackerCore::sendSeekEnd() {
+    preSend();
+    TrackerCore::sendSeekEnd();
 }
 
 void ContentsTrackerCore::sendBufferStart() {
     bufferBeginTimestamp->setMain(systemTimestamp());
+    preSend();
     TrackerCore::sendBufferStart();
+}
+
+void ContentsTrackerCore::sendBufferEnd() {
+    preSend();
+    TrackerCore::sendBufferEnd();
 }
 
 void ContentsTrackerCore::sendHeartbeat() {
     heartbeatTimestamp->setMain(systemTimestamp());
+    preSend();
     TrackerCore::sendHeartbeat();
+}
+
+void ContentsTrackerCore::sendRenditionChange() {
+    preSend();
+    TrackerCore::sendRenditionChange();
+}
+
+void ContentsTrackerCore::sendError(std::string message) {
+    preSend();
+    TrackerCore::sendError(message);
+}
+
+void ContentsTrackerCore::sendPlayerReady() {
+    preSend();
+    TrackerCore::sendPlayerReady();
+}
+
+void ContentsTrackerCore::sendDownload() {
+    preSend();
+    TrackerCore::sendDownload();
+}
+
+void ContentsTrackerCore::sendCustomAction(std::string name) {
+    preSend();
+    TrackerCore::sendCustomAction(name);
+}
+
+void ContentsTrackerCore::sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr) {
+    preSend();
+    TrackerCore::sendCustomAction(name, attr);
 }
 
 void ContentsTrackerCore::adHappened(double time) {

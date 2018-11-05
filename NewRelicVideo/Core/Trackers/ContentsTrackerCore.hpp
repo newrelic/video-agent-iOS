@@ -43,8 +43,16 @@ public:
     void sendPause();
     void sendResume();
     void sendSeekStart();
+    void sendSeekEnd();
     void sendBufferStart();
+    void sendBufferEnd();
     void sendHeartbeat();
+    void sendRenditionChange();
+    void sendError(std::string message);
+    void sendPlayerReady();
+    void sendDownload();
+    void sendCustomAction(std::string name);
+    void sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr);
     void adHappened(double time);
     bool setTimestamp(double timestamp, std::string attributeName);
 };

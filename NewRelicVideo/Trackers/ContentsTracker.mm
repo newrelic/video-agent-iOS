@@ -182,6 +182,8 @@
     contentsTrackerCore->setOption(std::string([key UTF8String]), fromNSValue((id)value), std::string([action UTF8String]));
 }
 
+// TODO: the protocol getters are never called because we need to manually register callbacks
+
 #pragma mark - Getters
 
 - (NSNumber *)getIsAd {
