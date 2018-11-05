@@ -32,11 +32,12 @@
 }
 
 - (void)setState:(TrackerState)val {
-    playbackAutomatCore->state = (CoreTrackerState)val;
+//    playbackAutomatCore->state = (CoreTrackerState)val;
+    NSLog(@"TRYING TO CHANGE STATE!!");
 }
 
 - (TrackerState)getState {
-    return (TrackerState)playbackAutomatCore->state;
+    return (TrackerState)playbackAutomatCore->getState();
 }
 
 - (void)setIsAdd:(BOOL)val {

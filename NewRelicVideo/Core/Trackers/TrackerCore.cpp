@@ -45,7 +45,7 @@ void TrackerCore::reset() {
 }
 
 CoreTrackerState TrackerCore::state() {
-    return automat->state;
+    return automat->getState();
 }
 
 // TODO: updateAttribute and setOptions are aliases, one must disapear (setOption is less clear, I would keep updateAttribute).

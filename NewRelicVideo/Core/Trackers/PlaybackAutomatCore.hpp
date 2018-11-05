@@ -41,6 +41,7 @@ class PlaybackAutomatCore {
 private:
     BackendActionsCore *actions;
     std::stack<CoreTrackerState> stateStack;
+    CoreTrackerState state;
     
     bool transition(CoreTrackerTransition tt);
     bool performTransitionInStateStopped(CoreTrackerTransition tt);
@@ -53,14 +54,18 @@ private:
     void moveStateAndPush(CoreTrackerState newState);
     void backToState();
     
+    // TEST
+    void printState(CoreTrackerState newState);
+    void printTransition(CoreTrackerTransition tt);
+    
 public:
     bool isAd;
-    CoreTrackerState state;
     
     PlaybackAutomatCore();
     ~PlaybackAutomatCore();
     
     BackendActionsCore *getActions();
+    CoreTrackerState getState();
     void sendRequest();
     void sendStart();
     void sendEnd();

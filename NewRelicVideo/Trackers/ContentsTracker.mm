@@ -80,55 +80,45 @@
 
 - (void)reset {
     contentsTrackerCore->reset();
-    [super reset];
 }
 
 #pragma mark - Senders
 
 - (void)preSend {
     contentsTrackerCore->preSend();
-    [super preSend];
     [self updateContentsAttributes];
 }
 
 - (void)sendRequest {
     contentsTrackerCore->sendRequest();
-    [super sendRequest];
 }
 
 - (void)sendStart {
     contentsTrackerCore->sendStart();
-    [super sendStart];
 }
 
 - (void)sendEnd {
     contentsTrackerCore->sendEnd();
-    [super sendEnd];
 }
 
 - (void)sendPause {
     contentsTrackerCore->sendPause();
-    [super sendPause];
 }
 
 - (void)sendResume {
     contentsTrackerCore->sendResume();
-    [super sendResume];
 }
 
 - (void)sendSeekStart {
     contentsTrackerCore->sendSeekStart();
-    [super sendSeekStart];
 }
 
 - (void)sendBufferStart {
     contentsTrackerCore->sendBufferStart();
-    [super sendBufferStart];
 }
 
 - (void)sendHeartbeat {
     contentsTrackerCore->sendHeartbeat();
-    [super sendHeartbeat];
 }
 
 #pragma mark - Getters
@@ -161,7 +151,7 @@
 
 // Timer event handler
 - (void)trackerTimeEvent {
-    [super trackerTimeEvent];
+    contentsTrackerCore->trackerTimeEvent();
 }
 
 - (void)adHappened:(NSTimeInterval)time {

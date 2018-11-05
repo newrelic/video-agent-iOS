@@ -8,6 +8,7 @@
 
 #include "PlaybackAutomatCore.hpp"
 #include "BackendActionsCore.hpp"
+#include "CAL.hpp"
 
 PlaybackAutomatCore::PlaybackAutomatCore() {
     state = CoreTrackerStateStopped;
@@ -20,6 +21,10 @@ PlaybackAutomatCore::~PlaybackAutomatCore() {
 
 BackendActionsCore *PlaybackAutomatCore::getActions() {
     return actions;
+}
+
+CoreTrackerState PlaybackAutomatCore::getState() {
+    return state;
 }
 
 void PlaybackAutomatCore::sendRequest() {
@@ -151,7 +156,9 @@ void PlaybackAutomatCore::sendError(std::string message) {
 
 bool PlaybackAutomatCore::transition(CoreTrackerTransition tt) {
     
-//    AV_LOG(@">>>> TRANSITION %lu", (unsigned long)tt);
+    AV_LOG(">>>> TRANSITION");
+    printTransition(tt);
+    printState(state);
     
     switch (state) {
         default:
@@ -242,12 +249,16 @@ bool PlaybackAutomatCore::performTransitionInStateBuffering(CoreTrackerTransitio
 
 void PlaybackAutomatCore::moveState(CoreTrackerState newState) {
     state = newState;
+    AV_LOG(">>>> moveState");
+    printState(state);
 }
 
 void PlaybackAutomatCore::moveStateAndPush(CoreTrackerState newState) {
     if (newState != state) {
         stateStack.push(state);
         state = newState;
+        AV_LOG(">>>> moveStateandPush");
+        printState(state);
     }
 }
 
@@ -255,8 +266,99 @@ void PlaybackAutomatCore::backToState() {
     if (stateStack.size() > 0) {
         state = stateStack.top();
         stateStack.pop();
+        AV_LOG(">>>> backToState");
+        printState(state);
     }
     else {
-//        AV_LOG(@"STATE STACK UNDERUN!");
+        AV_LOG("STATE STACK UNDERUN!");
+        printState(state);
+    }
+}
+
+void PlaybackAutomatCore::printState(CoreTrackerState newState) {
+    switch (newState) {
+        case CoreTrackerStateStopped: {
+            AV_LOG("STATE STOPPED");
+            break;
+        }
+            
+        case CoreTrackerStateStarting: {
+            AV_LOG("STATE STARTING");
+            break;
+        }
+            
+        case CoreTrackerStatePaused: {
+            AV_LOG("STATE PAUSED");
+            break;
+        }
+            
+        case CoreTrackerStatePlaying: {
+            AV_LOG("STATE PLAYING");
+            break;
+        }
+            
+        case CoreTrackerStateSeeking: {
+            AV_LOG("STATE SEEKING");
+            break;
+        }
+            
+        case CoreTrackerStateBuffering: {
+            AV_LOG("STATE BUFFERING");
+            break;
+        }
+            
+        default: {
+            AV_LOG("STATE UNKNOWN");
+            break;
+        }
+    }
+}
+
+void PlaybackAutomatCore::printTransition(CoreTrackerTransition tt) {
+    switch (tt) {
+        case CoreTrackerTransitionAutoplay: {
+            AV_LOG("TRANSITION AUTOPLAY");
+            break;
+        }
+        case CoreTrackerTransitionClickPlay: {
+            AV_LOG("TRANSITION CLICK PLAY");
+            break;
+        }
+        case CoreTrackerTransitionClickPause: {
+            AV_LOG("TRANSITION CLICK PAUSE");
+            break;
+        }
+        case CoreTrackerTransitionClickStop: {
+            AV_LOG("TRANSITION CLICK STOP");
+            break;
+        }
+        case CoreTrackerTransitionFrameShown: {
+            AV_LOG("TRANSITION FRAMER SHOWN");
+            break;
+        }
+        case CoreTrackerTransitionInitBuffering: {
+            AV_LOG("TRANSITION INIT BUF");
+            break;
+        }
+        case CoreTrackerTransitionEndBuffering: {
+            AV_LOG("TRANSITION END BUF");
+            break;
+        }
+        case CoreTrackerTransitionVideoFinished: {
+            AV_LOG("TRANSITION VIDEO END");
+            break;
+        }
+        case CoreTrackerTransitionInitDraggingSlider: {
+            AV_LOG("TRANSITION INIT DRAG SLIDER");
+            break;
+        }
+        case CoreTrackerTransitionEndDraggingSlider: {
+            AV_LOG("TRANSITION END DRAG SLIDER");
+            break;
+        }
+        default: {
+            AV_LOG("TRANSITION UNKNOWN");
+            break;
+        }
     }
 }

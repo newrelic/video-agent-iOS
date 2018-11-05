@@ -32,6 +32,8 @@ ContentsTrackerCore::~ContentsTrackerCore() {
     delete lastAdTimestamp;
 }
 
+// TODO: implement "content" attributes
+
 // TODO: Must registerGetter for those attributes:
 //updateAttribute("trackerName", callGetter("trackerName"));
 //updateAttribute("trackerVersion", callGetter("trackerVersion"));

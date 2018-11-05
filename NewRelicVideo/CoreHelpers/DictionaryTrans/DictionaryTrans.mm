@@ -72,7 +72,7 @@ ValueHolder fromNSValue(id value) {
         }
     }
     else {
-        AV_LOG(@"ValueHolder unknown type: Creating an \"empty\" value.");
+//        AV_LOG(@"ValueHolder unknown type: Creating an \"empty\" value.");
         fValue = ValueHolder("<NULL>");
     }
     

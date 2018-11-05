@@ -75,6 +75,8 @@
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
 		9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D7382133F58F00B89D07 /* LOG.m */; };
+		9CFACFB42190570A008627B9 /* LogCAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CFACFB22190570A008627B9 /* LogCAL.h */; };
+		9CFACFB52190570A008627B9 /* LogCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CFACFB32190570A008627B9 /* LogCAL.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +152,8 @@
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
 		9CE5D7382133F58F00B89D07 /* LOG.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LOG.m; sourceTree = "<group>"; };
 		9CE5D73B2133F61E00B89D07 /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
+		9CFACFB22190570A008627B9 /* LogCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LogCAL.h; sourceTree = "<group>"; };
+		9CFACFB32190570A008627B9 /* LogCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LogCAL.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -300,6 +304,7 @@
 		9C8E78D6217DE77F002F0524 /* CoreHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				9CFACFB1219056EC008627B9 /* LogCAL */,
 				9CB250BC2188A5BB0094DFEF /* TimerCAL */,
 				9CB250B7218870870094DFEF /* GettersCAL */,
 				9CB250AC2187133B0094DFEF /* DatetimeCAL */,
@@ -416,6 +421,15 @@
 			path = Utils;
 			sourceTree = "<group>";
 		};
+		9CFACFB1219056EC008627B9 /* LogCAL */ = {
+			isa = PBXGroup;
+			children = (
+				9CFACFB22190570A008627B9 /* LogCAL.h */,
+				9CFACFB32190570A008627B9 /* LogCAL.mm */,
+			);
+			path = LogCAL;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -435,6 +449,7 @@
 				9C2E80A2216778A60085B62B /* Stack.h in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
+				9CFACFB42190570A008627B9 /* LogCAL.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */,
@@ -578,6 +593,7 @@
 				9CB250C02188A5D30094DFEF /* TimerCAL.mm in Sources */,
 				9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
+				9CFACFB52190570A008627B9 /* LogCAL.mm in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,
 				9C618816215EA9730084D399 /* TimestampValue.m in Sources */,
 				9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */,

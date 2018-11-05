@@ -26,5 +26,6 @@ double systemTimestamp();
 ValueHolder callGetter(std::string name);
 void startTimer(TrackerCore *trackerCore);
 void abortTimer();
+void AV_LOG(const char *format, ...);
 
 #endif /* CAL_H */
