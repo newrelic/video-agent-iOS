@@ -8,17 +8,23 @@
 
 #include "TrackerCore.hpp"
 #include "ValueHolder.hpp"
+#include "TimestampHolder.hpp"
 #include "PlaybackAutomatCore.hpp"
 #include "BackendActionsCore.hpp"
 #include "CAL.hpp"
-#include "TimestampHolder.hpp"
 
 TrackerCore::TrackerCore() {
     automat = new PlaybackAutomatCore();
     lastRenditionChangeTimestamp = new TimestampHolder(0);
     trackerReadyTimestamp = new TimestampHolder(0);
-    // TODO: how to ask if I'm a ads?
-    automat->isAd = false;
+    
+    ValueHolder val = callGetter("isAd");
+    if (val.getValueType() == ValueHolder::ValueHolderTypeInt) {
+        automat->isAd = (bool)val.getValueInt();
+    }
+    else {
+        automat->isAd = false;
+    }
 }
 
 TrackerCore::~TrackerCore() {
@@ -34,17 +40,16 @@ void TrackerCore::reset() {
     heartbeatCounter = 0;
     trackerReadyTimestamp->setMain(systemTimestamp());
     lastRenditionChangeTimestamp->setMain(0.0);
-    
     playNewVideo();
-    
-    // TODO: update attributes
+    preSend();
 }
 
 CoreTrackerState TrackerCore::state() {
     return automat->state;
 }
 
-// NOTE: called by trackers to update the attributes (the values from getters).
+// TODO: updateAttribute and setOptions are aliases, one must disapear (setOption is less clear, I would keep updateAttribute).
+// also add updateAttributes to replace setOptions
 void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::string filter) {
     setOption(name, value, filter);
 }
@@ -75,14 +80,30 @@ int TrackerCore::getNumberOfErrors() {
     return numErrors;
 }
 
+// NOTE: build all attributes before sending an event to NR
 void TrackerCore::preSend() {
     updateAttribute("timeSinceTrackerReady", ValueHolder(trackerReadyTimestamp->sinceMillis()));
     updateAttribute("timeSinceLastRenditionChange", ValueHolder(lastRenditionChangeTimestamp->sinceMillis()), "_RENDITION_CHANGE");
+    
+    // TrackerCore getters
+    updateAttribute("viewId", ValueHolder(getViewId()));
+    updateAttribute("numberOfVideos", ValueHolder(getNumberOfVideos()));
+    updateAttribute("coreVersion", ValueHolder(getCoreVersion()));
+    updateAttribute("viewSession", ValueHolder(getViewSession()));
+    updateAttribute("numberOfErrors", ValueHolder(getNumberOfErrors()));
+    
+    // Sub TrackerCore getters
+    updateAttribute("trackerName", callGetter("trackerName"));
+    updateAttribute("trackerVersion", callGetter("trackerVersion"));
+    updateAttribute("playerVersion", callGetter("playerVersion"));
+    updateAttribute("playerName", callGetter("playerName"));
+    updateAttribute("isAd", callGetter("isAd"));
 }
 
 void TrackerCore::sendRequest() {
     preSend();
     automat->sendRequest();
+    startTimerEvent();
 }
 
 void TrackerCore::sendStart() {
@@ -94,6 +115,7 @@ void TrackerCore::sendEnd() {
     preSend();
     automat->sendEnd();
     playNewVideo();
+    abortTimerEvent();
 }
 
 void TrackerCore::sendPause() {
@@ -182,6 +204,14 @@ void TrackerCore::setOptions(std::map<std::string, ValueHolder> opts, std::strin
 
 void TrackerCore::setOption(std::string key, ValueHolder value, std::string action) {
     automat->getActions()->actionOptions[action][key] = value;
+}
+
+void TrackerCore::startTimerEvent() {
+    startTimer(this);
+}
+
+void TrackerCore::abortTimerEvent() {
+    abortTimer();
 }
 
 void TrackerCore::trackerTimeEvent() {

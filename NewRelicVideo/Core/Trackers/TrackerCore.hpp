@@ -68,6 +68,8 @@ public:
     void setOption(std::string key, ValueHolder value);
     void setOptions(std::map<std::string, ValueHolder> opts, std::string action);
     void setOption(std::string key, ValueHolder value, std::string action);
+    void startTimerEvent();
+    void abortTimerEvent();
     void trackerTimeEvent();
     bool setTimestamp(double timestamp, std::string attributeName);
 };

@@ -63,6 +63,8 @@
 		9CB250B6218863040094DFEF /* ContentsTracker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250B5218863040094DFEF /* ContentsTracker.mm */; };
 		9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250B8218870A00094DFEF /* GettersCAL.h */; };
 		9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250B9218870A00094DFEF /* GettersCAL.mm */; };
+		9CB250BF2188A5D30094DFEF /* TimerCAL.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB250BD2188A5D30094DFEF /* TimerCAL.h */; };
+		9CB250C02188A5D30094DFEF /* TimerCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250BE2188A5D30094DFEF /* TimerCAL.mm */; };
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -133,6 +135,8 @@
 		9CB250B5218863040094DFEF /* ContentsTracker.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ContentsTracker.mm; sourceTree = "<group>"; };
 		9CB250B8218870A00094DFEF /* GettersCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GettersCAL.h; sourceTree = "<group>"; };
 		9CB250B9218870A00094DFEF /* GettersCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = GettersCAL.mm; sourceTree = "<group>"; };
+		9CB250BD2188A5D30094DFEF /* TimerCAL.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TimerCAL.h; sourceTree = "<group>"; };
+		9CB250BE2188A5D30094DFEF /* TimerCAL.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = TimerCAL.mm; sourceTree = "<group>"; };
 		9CB26A4521411A4F00A8891D /* Tracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Tracker.h; sourceTree = "<group>"; };
 		9CB26A4621411A4F00A8891D /* OLD_Tracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = OLD_Tracker.m; sourceTree = "<group>"; };
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
@@ -296,10 +300,11 @@
 		9C8E78D6217DE77F002F0524 /* CoreHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				9CB250BC2188A5BB0094DFEF /* TimerCAL */,
 				9CB250B7218870870094DFEF /* GettersCAL */,
 				9CB250AC2187133B0094DFEF /* DatetimeCAL */,
-				9C5E4C4F217E2C4200EECD1F /* DictionaryTrans */,
 				9C8E78D7217DE8E1002F0524 /* NewRelicAgentCAL */,
+				9C5E4C4F217E2C4200EECD1F /* DictionaryTrans */,
 			);
 			path = CoreHelpers;
 			sourceTree = "<group>";
@@ -357,6 +362,15 @@
 				9CB250B9218870A00094DFEF /* GettersCAL.mm */,
 			);
 			path = GettersCAL;
+			sourceTree = "<group>";
+		};
+		9CB250BC2188A5BB0094DFEF /* TimerCAL */ = {
+			isa = PBXGroup;
+			children = (
+				9CB250BD2188A5D30094DFEF /* TimerCAL.h */,
+				9CB250BE2188A5D30094DFEF /* TimerCAL.mm */,
+			);
+			path = TimerCAL;
 			sourceTree = "<group>";
 		};
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
@@ -435,6 +449,7 @@
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */,
 				9CE5D71F212EC9CB00B89D07 /* BackendActions.h in Headers */,
+				9CB250BF2188A5D30094DFEF /* TimerCAL.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -560,6 +575,7 @@
 				9C2E80A3216778A60085B62B /* Stack.m in Sources */,
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB250A02181BB630094DFEF /* PlaybackAutomat.mm in Sources */,
+				9CB250C02188A5D30094DFEF /* TimerCAL.mm in Sources */,
 				9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CB26A582146636C00A8891D /* AdsTracker.m in Sources */,

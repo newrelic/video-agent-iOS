@@ -108,7 +108,6 @@
 - (void)sendRequest {
     [self preSend];
     trackerCore->sendRequest();
-    [self startTimerEvent];
 }
 
 - (void)sendStart {
@@ -119,7 +118,6 @@
 - (void)sendEnd {
     [self preSend];
     trackerCore->sendEnd();
-    [self abortTimerEvent];
 }
 
 - (void)sendPause {
@@ -222,29 +220,17 @@
 #pragma mark - Timer stuff
 
 - (void)startTimerEvent {
-    if (self.playerStateObserverTimer) {
-        [self abortTimerEvent];
-    }
-    
-    self.playerStateObserverTimer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
-                                                                     target:self
-                                                                   selector:@selector(internalTimerHandler:)
-                                                                   userInfo:nil
-                                                                    repeats:YES];
+    trackerCore->startTimerEvent();
 }
 
 - (void)abortTimerEvent {
-    [self.playerStateObserverTimer invalidate];
-    self.playerStateObserverTimer = nil;
-}
-
-- (void)internalTimerHandler:(NSTimer *)timer {
-    [self trackerTimeEvent];
-    trackerCore->trackerTimeEvent();
+    trackerCore->abortTimerEvent();
 }
 
 // To be overwritten
-- (void)trackerTimeEvent {}
+- (void)trackerTimeEvent {
+    trackerCore->trackerTimeEvent();
+}
 
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
     return (BOOL)trackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));

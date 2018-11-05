@@ -22,6 +22,11 @@ ValueHolder::ValueHolder(long dat) {
     valueInt = dat;
 }
 
+ValueHolder::ValueHolder(int dat) {
+    valueType = ValueHolderTypeInt;
+    valueInt = (long)dat;
+}
+
 ValueHolder::ValueHolder(double dat) {
     valueType = ValueHolderTypeFloat;
     valueFloat = dat;

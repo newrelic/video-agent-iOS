@@ -33,6 +33,7 @@ public:
     ValueHolder();
     ValueHolder(std::string);
     ValueHolder(long);
+    ValueHolder(int);
     ValueHolder(double);
     ValueHolder(std::vector<uint8_t>);
     
