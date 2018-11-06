@@ -16,9 +16,6 @@
 {
     ContentsTrackerCore *contentsTrackerCore;
 }
-
-@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *contentsAttributeGetters;
-
 @end
 
 @implementation ContentsTracker
@@ -171,19 +168,12 @@
     contentsTrackerCore->abortTimerEvent();
 }
 
-// Timer event handler
 - (void)trackerTimeEvent {
     contentsTrackerCore->trackerTimeEvent();
 }
 
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
     return (BOOL)contentsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
-}
-
-#pragma mark - Ads interface
-
-- (void)adHappened:(NSTimeInterval)time {
-    contentsTrackerCore->adHappened(time);
 }
 
 @end

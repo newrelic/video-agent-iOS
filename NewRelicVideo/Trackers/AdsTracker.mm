@@ -16,7 +16,6 @@
 {
     AdsTrackerCore *adsTrackerCore;
 }
-
 @end
 
 @implementation AdsTracker
@@ -192,7 +191,6 @@
     adsTrackerCore->abortTimerEvent();
 }
 
-// Timer event handler
 - (void)trackerTimeEvent {
     adsTrackerCore->trackerTimeEvent();
 }
