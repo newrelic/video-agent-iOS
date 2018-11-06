@@ -31,11 +31,32 @@
 - (instancetype)init {
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
+        
         [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName)];
         [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion)];
         [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion)];
         [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
         [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
+        
+        [GettersCAL registerGetter:@"contentId" target:self sel:@selector(getVideoId)];
+        [GettersCAL registerGetter:@"contentTitle" target:self sel:@selector(getTitle)];
+        [GettersCAL registerGetter:@"contentBitrate" target:self sel:@selector(getBitrate)];
+        [GettersCAL registerGetter:@"contentRenditionName" target:self sel:@selector(getRenditionName)];
+        [GettersCAL registerGetter:@"contentRenditionBitrate" target:self sel:@selector(getRenditionBitrate)];
+        [GettersCAL registerGetter:@"contentRenditionWidth" target:self sel:@selector(getRenditionWidth)];
+        [GettersCAL registerGetter:@"contentRenditionHeight" target:self sel:@selector(getRenditionHeight)];
+        [GettersCAL registerGetter:@"contentDuration" target:self sel:@selector(getDuration)];
+        [GettersCAL registerGetter:@"contentPlayhead" target:self sel:@selector(getPlayhead)];
+        [GettersCAL registerGetter:@"contentLanguage" target:self sel:@selector(getLanguage)];
+        [GettersCAL registerGetter:@"contentSrc" target:self sel:@selector(getSrc)];
+        [GettersCAL registerGetter:@"contentIsMuted" target:self sel:@selector(getIsMuted)];
+        [GettersCAL registerGetter:@"contentCdn" target:self sel:@selector(getCdn)];
+        [GettersCAL registerGetter:@"contentFps" target:self sel:@selector(getFps)];
+        [GettersCAL registerGetter:@"contentPlayrate" target:self sel:@selector(getPlayrate)];
+        [GettersCAL registerGetter:@"contentIsLive" target:self sel:@selector(getIsLive)];
+        [GettersCAL registerGetter:@"contentIsAutoplayed" target:self sel:@selector(getIsAutoplayed)];
+        [GettersCAL registerGetter:@"contentPreload" target:self sel:@selector(getPreload)];
+        [GettersCAL registerGetter:@"contentIsFullscreen" target:self sel:@selector(getIsFullscreen)];
     }
     return self;
 }

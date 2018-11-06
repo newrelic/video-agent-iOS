@@ -53,6 +53,25 @@
     [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion)];
     [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
     [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
+    
+    [GettersCAL registerGetter:@"numberOfAds" target:self sel:@selector(getNumberOfAds)];
+    [GettersCAL registerGetter:@"adId" target:self sel:@selector(getVideoId)];
+    [GettersCAL registerGetter:@"adTitle" target:self sel:@selector(getTitle)];
+    [GettersCAL registerGetter:@"adBitrate" target:self sel:@selector(getBitrate)];
+    [GettersCAL registerGetter:@"adRenditionName" target:self sel:@selector(getRenditionName)];
+    [GettersCAL registerGetter:@"adRenditionBitrate" target:self sel:@selector(getRenditionBitrate)];
+    [GettersCAL registerGetter:@"adRenditionWidth" target:self sel:@selector(getRenditionWidth)];
+    [GettersCAL registerGetter:@"adRenditionHeight" target:self sel:@selector(getRenditionHeight)];
+    [GettersCAL registerGetter:@"adDuration" target:self sel:@selector(getDuration)];
+    [GettersCAL registerGetter:@"adPlayhead" target:self sel:@selector(getPlayhead)];
+    [GettersCAL registerGetter:@"adLanguage" target:self sel:@selector(getLanguage)];
+    [GettersCAL registerGetter:@"adSrc" target:self sel:@selector(getSrc)];
+    [GettersCAL registerGetter:@"adIsMuted" target:self sel:@selector(getIsMuted)];
+    [GettersCAL registerGetter:@"adCdn" target:self sel:@selector(getCdn)];
+    [GettersCAL registerGetter:@"adFps" target:self sel:@selector(getFps)];
+    [GettersCAL registerGetter:@"adCreativeId" target:self sel:@selector(getAdCreativeId)];
+    [GettersCAL registerGetter:@"adPosition" target:self sel:@selector(getAdPosition)];
+    [GettersCAL registerGetter:@"adPartner" target:self sel:@selector(getAdPartner)];
 }
 
 - (void)dealloc {
