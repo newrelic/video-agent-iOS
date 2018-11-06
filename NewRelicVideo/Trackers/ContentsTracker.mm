@@ -38,7 +38,6 @@
         [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
         [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
         
-        [GettersCAL registerGetter:@"contentId" target:self sel:@selector(getVideoId)];
         [GettersCAL registerGetter:@"contentTitle" target:self sel:@selector(getTitle)];
         [GettersCAL registerGetter:@"contentBitrate" target:self sel:@selector(getBitrate)];
         [GettersCAL registerGetter:@"contentRenditionName" target:self sel:@selector(getRenditionName)];

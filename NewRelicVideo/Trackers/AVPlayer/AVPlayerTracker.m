@@ -28,7 +28,6 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) BOOL firstFrameHappend;
 @property (nonatomic) int numTimeouts;
-@property (nonatomic) NSString *videoID;
 @property (nonatomic) id timeObserver;
 
 @end
@@ -401,7 +400,6 @@
 - (void)sendEnd {
     [super sendEnd];
     self.isAutoPlayed = NO;
-    self.videoID = nil;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
 }
@@ -422,31 +420,6 @@
 
 - (NSString *)getPlayerName {
     return @"avplayer";
-}
-
-- (NSString *)getVideoId {
-    if (!self.videoID) {
-        int i, j;
-        unsigned int byte, crc, mask;
-        unsigned char *message = (unsigned char *)[[self getSrc] UTF8String];
-        
-        //  CRC32 algorithm
-        i = 0;
-        crc = 0xFFFFFFFF;
-        while (message[i] != 0) {
-            byte = message[i];            // Get next byte.
-            crc = crc ^ byte;
-            for (j = 7; j >= 0; j--) {    // Do eight times.
-                mask = -(crc & 1);
-                crc = (crc >> 1) ^ (0xEDB88320 & mask);
-            }
-            i = i + 1;
-        }
-        
-        self.videoID = @(~crc).stringValue;
-    }
-    
-    return self.videoID;
 }
 
 - (NSNumber *)getBitrate {

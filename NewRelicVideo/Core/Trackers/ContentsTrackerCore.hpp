@@ -17,6 +17,8 @@ class TimestampHolder;
 
 class ContentsTrackerCore: public TrackerCore {
 private:
+    std::string videoID;
+    
     // Time Counts
     double totalPlaytimeTimestamp;
     double playtimeSinceLastEventTimestamp;
@@ -33,6 +35,7 @@ private:
     
 protected:
     void preSend();
+    std::string getVideoId();
     
 public:
     ContentsTrackerCore();

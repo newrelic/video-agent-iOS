@@ -11,6 +11,7 @@
 #include "ValueHolder.hpp"
 #include "CAL.hpp"
 #include "EventDefsCore.hpp"
+#include <string.h>
 
 ContentsTrackerCore::ContentsTrackerCore() {
     requestTimestamp = new TimestampHolder(0);
@@ -84,7 +85,7 @@ void ContentsTrackerCore::preSend() {
     updateAttribute("timeSinceLastAd", ValueHolder(lastAdTimestamp->sinceMillis()));
     
     // Content Getters
-    updateAttribute("contentId", callGetter("contentId"));
+    updateAttribute("contentId", ValueHolder(getVideoId()));
     updateAttribute("contentTitle", callGetter("contentTitle"));
     updateAttribute("contentBitrate", callGetter("contentBitrate"));
     updateAttribute("contentRenditionName", callGetter("contentRenditionName"));
@@ -121,6 +122,7 @@ void ContentsTrackerCore::sendStart() {
 }
 
 void ContentsTrackerCore::sendEnd() {
+    videoID = "";
     preSend();
     TrackerCore::sendEnd();
     totalPlaytime = 0;
@@ -230,4 +232,39 @@ bool ContentsTrackerCore::setTimestamp(double timestamp, std::string attributeNa
 
 void ContentsTrackerCore::adHappened(double time) {
     lastAdTimestamp->setMain(time);
+}
+
+std::string ContentsTrackerCore::getVideoId() {
+    if (videoID.empty()) {
+        int i, j;
+        unsigned int byte, crc, mask;
+        
+        ValueHolder src = callGetter("contentSrc");
+        
+        if (src.getValueType() != ValueHolder::ValueHolderTypeString) {
+            return "";
+        }
+        
+        unsigned char *message = (unsigned char *)new char[src.getValueString().length() + 1];
+        strcpy((char *)message, src.getValueString().c_str());
+        
+        //  CRC32 algorithm
+        i = 0;
+        crc = 0xFFFFFFFF;
+        while (message[i] != 0) {
+            byte = message[i];            // Get next byte.
+            crc = crc ^ byte;
+            for (j = 7; j >= 0; j--) {    // Do eight times.
+                mask = -(crc & 1);
+                crc = (crc >> 1) ^ (0xEDB88320 & mask);
+            }
+            i = i + 1;
+        }
+        
+        delete [] message;
+        
+        videoID = std::to_string(~crc);
+    }
+    
+    return videoID;
 }
