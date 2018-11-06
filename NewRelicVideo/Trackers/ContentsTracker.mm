@@ -7,11 +7,6 @@
 //
 
 #import "ContentsTracker.h"
-#import "AdsTracker.h"
-#import "PlaybackAutomat.h"
-#import "EventDefs.h"
-#import "Tracker_internal.h"
-#import "TimestampValue.h"
 #import "ContentsTrackerCore.hpp"
 #import "DictionaryTrans.h"
 #import "ValueHolder.hpp"

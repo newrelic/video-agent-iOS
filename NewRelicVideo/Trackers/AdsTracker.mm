@@ -12,8 +12,6 @@
 #import "ValueHolder.hpp"
 #import "GettersCAL.h"
 
-//#define ACTION_FILTER @"AD_"
-
 @interface AdsTracker ()
 {
     AdsTrackerCore *adsTrackerCore;
@@ -22,32 +20,6 @@
 @end
 
 @implementation AdsTracker
-
-//- (NSMutableDictionary<NSString *,NSValue *> *)contentsAttributeGetters {
-//    if (!_adsAttributeGetters) {
-//        _adsAttributeGetters = @{
-//                                 @"numberOfAds": [NSValue valueWithPointer:@selector(getNumberOfAds)],
-//                                 @"adId": [NSValue valueWithPointer:@selector(getVideoId)],
-//                                 @"adTitle": [NSValue valueWithPointer:@selector(getTitle)],
-//                                 @"adBitrate": [NSValue valueWithPointer:@selector(getBitrate)],
-//                                 @"adRenditionName": [NSValue valueWithPointer:@selector(getRenditionName)],
-//                                 @"adRenditionBitrate": [NSValue valueWithPointer:@selector(getRenditionBitrate)],
-//                                 @"adRenditionWidth": [NSValue valueWithPointer:@selector(getRenditionWidth)],
-//                                 @"adRenditionHeight": [NSValue valueWithPointer:@selector(getRenditionHeight)],
-//                                 @"adDuration": [NSValue valueWithPointer:@selector(getDuration)],
-//                                 @"adPlayhead": [NSValue valueWithPointer:@selector(getPlayhead)],
-//                                 @"adLanguage": [NSValue valueWithPointer:@selector(getLanguage)],
-//                                 @"adSrc": [NSValue valueWithPointer:@selector(getSrc)],
-//                                 @"adIsMuted": [NSValue valueWithPointer:@selector(getIsMuted)],
-//                                 @"adCdn": [NSValue valueWithPointer:@selector(getCdn)],
-//                                 @"adFps": [NSValue valueWithPointer:@selector(getFps)],
-//                                 @"adCreativeId": [NSValue valueWithPointer:@selector(getAdCreativeId)],
-//                                 @"adPosition": [NSValue valueWithPointer:@selector(getAdPosition)],
-//                                 @"adPartner": [NSValue valueWithPointer:@selector(getAdPartner)],
-//                                 }.mutableCopy;
-//    }
-//    return _adsAttributeGetters;
-//}
 
 #pragma mark - Init
 

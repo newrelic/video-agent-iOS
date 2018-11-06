@@ -54,93 +54,6 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  */
 - (NSNumber *)getIsAd;
 
-@optional
-
-/**
- Get video ID.
- */
-- (NSString *)getVideoId;
-
-/**
- Get video title.
- */
-- (NSString *)getTitle;
-
-/**
- Get video bitrate in bits per second.
- */
-- (NSNumber *)getBitrate;
-
-/**
- Get video rendition name.
- */
-- (NSString *)getRenditionName;
-
-/**
- Get video rendition bitrate in bits per second.
- */
-- (NSNumber *)getRenditionBitrate;
-
-/**
- Get video width.
- */
-- (NSNumber *)getRenditionWidth;
-
-/**
- Get video height.
- */
-- (NSNumber *)getRenditionHeight;
-
-/**
- Get video duration in milliseconds.
- */
-- (NSNumber *)getDuration;
-
-/**
- Get current playback position in milliseconds.
- */
-- (NSNumber *)getPlayhead;
-
-/**
- Get video language.
- */
-- (NSString *)getLanguage;
-
-/**
- Get video source. Usually a URL.
- */
-- (NSString *)getSrc;
-
-/**
- Get whether video is muted or not.
- */
-- (NSNumber *)getIsMuted;
-
-/**
- Get name of the CDN serving content.
- */
-- (NSString *)getCdn;
-
-/**
- Get video frames per second.
- */
-- (NSNumber *)getFps;
-
-@end
-
-
-
-// TODO: remove Tracker class and move all methods to the TrackerProtocol. Some are required others optional.
-// Subclasses, AdsTracker and ContentsTracker will now implement the protocol instead of subclassing.
-
-
-/**
- `Tracker` is the base class to manage the player events and mechanisms common to Contents and Ads.
- 
- @warning Should never be directly instantiated and there is no need for subclassing it. Use its subclasses `ContentsTracker` or `AdsTracker` instead.
- */
-@interface Tracker : NSObject
-
 /**
  Current player tracker state.
  */
@@ -155,11 +68,6 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  Inititialize the tracker's state.
  */
 - (void)setup;
-
-/**
- Pre-send method, called right before any `send` method is executed.
- */
-- (void)preSend;
 
 /**
  Send a `_REQUEST` action.
@@ -304,5 +212,77 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  @return True if attribute name is recognized, False if not.
  */
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
+
+@optional
+
+/**
+ Get video ID.
+ */
+- (NSString *)getVideoId;
+
+/**
+ Get video title.
+ */
+- (NSString *)getTitle;
+
+/**
+ Get video bitrate in bits per second.
+ */
+- (NSNumber *)getBitrate;
+
+/**
+ Get video rendition name.
+ */
+- (NSString *)getRenditionName;
+
+/**
+ Get video rendition bitrate in bits per second.
+ */
+- (NSNumber *)getRenditionBitrate;
+
+/**
+ Get video width.
+ */
+- (NSNumber *)getRenditionWidth;
+
+/**
+ Get video height.
+ */
+- (NSNumber *)getRenditionHeight;
+
+/**
+ Get video duration in milliseconds.
+ */
+- (NSNumber *)getDuration;
+
+/**
+ Get current playback position in milliseconds.
+ */
+- (NSNumber *)getPlayhead;
+
+/**
+ Get video language.
+ */
+- (NSString *)getLanguage;
+
+/**
+ Get video source. Usually a URL.
+ */
+- (NSString *)getSrc;
+
+/**
+ Get whether video is muted or not.
+ */
+- (NSNumber *)getIsMuted;
+
+/**
+ Get name of the CDN serving content.
+ */
+- (NSString *)getCdn;
+
+/**
+ Get video frames per second.
+ */
+- (NSNumber *)getFps;
 
 @end
