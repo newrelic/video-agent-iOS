@@ -41,7 +41,6 @@ void TrackerCore::reset() {
     trackerReadyTimestamp->setMain(systemTimestamp());
     lastRenditionChangeTimestamp->setMain(0.0);
     playNewVideo();
-    preSend();
 }
 
 CoreTrackerState TrackerCore::state() {

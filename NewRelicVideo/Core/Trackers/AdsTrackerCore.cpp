@@ -8,57 +8,242 @@
 
 #include "AdsTrackerCore.hpp"
 #include "TrackerCore.hpp"
+#include "ValueHolder.hpp"
+#include "TimestampHolder.hpp"
+#include "EventDefsCore.hpp"
+#include "CAL.hpp"
+#include "ContentsTrackerCore.hpp"
 
-AdsTrackerCore::AdsTrackerCore(ContentsTracker *contentsTracker) {}
+/*
+ TODO:
+ - Implement AD_QUARTILE's "quartile" attribute. Easy, a simple counter is reset on every AD_REQUEST.
+ - Implement AD_CLICK's "url" attribute. Argument to sendAdClick method.
+ - Implement AD_END's "skipped" attribute. Argument to sendEnd method (?). Problematic, since we are adding an argument to contents tracker, that doesn't need it.
+ */
 
-AdsTrackerCore::~AdsTrackerCore() {}
+AdsTrackerCore::AdsTrackerCore(ContentsTrackerCore *contentsTracker) {
+    AdsTrackerCore();
+    this->contentsTracker = contentsTracker;
+}
+
+AdsTrackerCore::AdsTrackerCore() {
+    this->contentsTracker = NULL;
+    adRequestedTimestamp = new TimestampHolder(0);
+    lastAdHeartbeatTimestamp = new TimestampHolder(0);
+    adStartedTimestamp = new TimestampHolder(0);
+    adPausedTimestamp = new TimestampHolder(0);
+    adBufferBeginTimestamp = new TimestampHolder(0);
+    adSeekBeginTimestamp = new TimestampHolder(0);
+    adBreakBeginTimestamp = new TimestampHolder(0);
+    lastAdQuartileTimestamp = new TimestampHolder(0);
+}
+
+AdsTrackerCore::~AdsTrackerCore() {
+    delete adRequestedTimestamp;
+    delete lastAdHeartbeatTimestamp;
+    delete adStartedTimestamp;
+    delete adPausedTimestamp;
+    delete adBufferBeginTimestamp;
+    delete adSeekBeginTimestamp;
+    delete adBreakBeginTimestamp;
+    delete lastAdQuartileTimestamp;
+}
 
 // Overwritten from TrackerCore
-void AdsTrackerCore::reset() {}
+void AdsTrackerCore::reset() {
+    TrackerCore::reset();
+    
+    numberOfAds = 0;
+    adRequestedTimestamp->setMain(0);
+    lastAdHeartbeatTimestamp->setMain(0);
+    adStartedTimestamp->setMain(0);
+    adPausedTimestamp->setMain(0);
+    adBufferBeginTimestamp->setMain(0);
+    adSeekBeginTimestamp->setMain(0);
+    adBreakBeginTimestamp->setMain(0);
+    lastAdQuartileTimestamp->setMain(0);
+}
 
-void AdsTrackerCore::preSend() {}
+void AdsTrackerCore::setup() {
+    TrackerCore::setup();
+}
 
-void AdsTrackerCore::sendRequest() {}
+void AdsTrackerCore::preSend() {
+    updateAttribute("timeSinceRequested", ValueHolder(adRequestedTimestamp->sinceMillis()));
+    updateAttribute("timeSinceLastAdHeartbeat", ValueHolder(lastAdHeartbeatTimestamp->sinceMillis()));
+    updateAttribute("timeSinceAdStarted", ValueHolder(adStartedTimestamp->sinceMillis()));
+    updateAttribute("timeSinceAdPaused", ValueHolder(adPausedTimestamp->sinceMillis()), AD_RESUME);
+    updateAttribute("timeSinceAdBufferBegin", ValueHolder(adBufferBeginTimestamp->sinceMillis()), AD_BUFFER_END);
+    updateAttribute("timeSinceAdSeekBegin", ValueHolder(adSeekBeginTimestamp->sinceMillis()), AD_SEEK_END);
+    updateAttribute("timeSinceAdBreakBegin", ValueHolder(adBreakBeginTimestamp->sinceMillis()));
+    updateAttribute("timeSinceLastAdQuartile", ValueHolder(lastAdQuartileTimestamp->sinceMillis()), AD_QUARTILE);
+    
+    // Ad Getters
+    updateAttribute("numberOfAds", callGetter("numberOfAds"));
+    updateAttribute("adId", callGetter("adId"));
+    updateAttribute("adTitle", callGetter("adTitle"));
+    updateAttribute("adBitrate", callGetter("adBitrate"));
+    updateAttribute("adRenditionName", callGetter("adRenditionName"));
+    updateAttribute("adRenditionBitrate", callGetter("adRenditionBitrate"));
+    updateAttribute("adRenditionWidth", callGetter("adRenditionWidth"));
+    updateAttribute("adRenditionHeight", callGetter("adRenditionHeight"));
+    updateAttribute("adDuration", callGetter("adDuration"));
+    updateAttribute("adPlayhead", callGetter("adPlayhead"));
+    updateAttribute("adLanguage", callGetter("adLanguage"));
+    updateAttribute("adSrc", callGetter("adSrc"));
+    updateAttribute("adIsMuted", callGetter("adIsMuted"));
+    updateAttribute("adCdn", callGetter("adCdn"));
+    updateAttribute("adFps", callGetter("adFps"));
+    updateAttribute("adCreativeId", callGetter("adCreativeId"));
+    updateAttribute("adPosition", callGetter("adPosition"));
+    updateAttribute("adPartner", callGetter("adPartner"));
+}
 
-void AdsTrackerCore::sendStart() {}
+void AdsTrackerCore::sendRequest() {
+    adRequestedTimestamp->setMain(systemTimestamp());
+    numberOfAds ++;
+    preSend();
+    TrackerCore::sendRequest();
+}
 
-void AdsTrackerCore::sendEnd() {}
+void AdsTrackerCore::sendStart() {
+    adStartedTimestamp->setMain(systemTimestamp());
+    preSend();
+    TrackerCore::sendStart();
+}
 
-void AdsTrackerCore::sendPause() {}
+void AdsTrackerCore::sendEnd() {
+    if (contentsTracker) {
+        contentsTracker->adHappened(systemTimestamp());
+    }
+    
+    preSend();
+    TrackerCore::sendEnd();
+}
 
-void AdsTrackerCore::sendResume() {}
+void AdsTrackerCore::sendPause() {
+    adPausedTimestamp->setMain(systemTimestamp());
+    preSend();
+    TrackerCore::sendPause();
+}
 
-void AdsTrackerCore::sendSeekStart() {}
+void AdsTrackerCore::sendResume() {
+    preSend();
+    TrackerCore::sendResume();
+}
 
-void AdsTrackerCore::sendSeekEnd() {}
+void AdsTrackerCore::sendSeekStart() {
+    adSeekBeginTimestamp->setMain(systemTimestamp());
+    preSend();
+    TrackerCore::sendSeekStart();
+}
 
-void AdsTrackerCore::sendBufferStart() {}
+void AdsTrackerCore::sendSeekEnd() {
+    preSend();
+    TrackerCore::sendSeekEnd();
+}
 
-void AdsTrackerCore::sendBufferEnd() {}
+void AdsTrackerCore::sendBufferStart() {
+    adBufferBeginTimestamp->setMain(systemTimestamp());
+    preSend();
+    TrackerCore::sendBufferStart();
+}
 
-void AdsTrackerCore::sendHeartbeat() {}
+void AdsTrackerCore::sendBufferEnd() {
+    preSend();
+    TrackerCore::sendBufferEnd();
+}
 
-void AdsTrackerCore::sendRenditionChange() {}
+void AdsTrackerCore::sendHeartbeat() {
+    lastAdHeartbeatTimestamp->setMain(systemTimestamp());
+    preSend();
+    TrackerCore::sendHeartbeat();
+}
 
-void AdsTrackerCore::sendError(std::string message) {}
+void AdsTrackerCore::sendRenditionChange() {
+    preSend();
+    TrackerCore::sendRenditionChange();
+}
 
-void AdsTrackerCore::sendPlayerReady() {}
+void AdsTrackerCore::sendError(std::string message) {
+    preSend();
+    TrackerCore::sendError(message);
+}
 
-void AdsTrackerCore::sendDownload() {}
+void AdsTrackerCore::sendPlayerReady() {
+    preSend();
+    TrackerCore::sendPlayerReady();
+}
 
-void AdsTrackerCore::sendCustomAction(std::string name) {}
+void AdsTrackerCore::sendDownload() {
+    preSend();
+    TrackerCore::sendDownload();
+}
 
-void AdsTrackerCore::sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr) {}
+void AdsTrackerCore::sendCustomAction(std::string name) {
+    preSend();
+    TrackerCore::sendCustomAction(name);
+}
+
+void AdsTrackerCore::sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr) {
+    preSend();
+    TrackerCore::sendCustomAction(name, attr);
+}
 
 bool AdsTrackerCore::setTimestamp(double timestamp, std::string attributeName) {
-    return TrackerCore::setTimestamp(timestamp, attributeName);
+    if (!TrackerCore::setTimestamp(timestamp, attributeName)) {
+        if (attributeName == "timeSinceRequested") {
+            adRequestedTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceLastAdHeartbeat") {
+            lastAdHeartbeatTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceAdStarted") {
+            adStartedTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceAdPaused") {
+            adPausedTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceAdBufferBegin") {
+            adBufferBeginTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceAdSeekBegin") {
+            adSeekBeginTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceAdBreakBegin") {
+            adBreakBeginTimestamp->setExternal(timestamp);
+        }
+        else if (attributeName == "timeSinceLastAdQuartile") {
+            lastAdQuartileTimestamp->setExternal(timestamp);
+        }
+        else {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 // Specific AdsTracker methods
-void AdsTrackerCore::sendAdBreakStart() {}
+void AdsTrackerCore::sendAdBreakStart() {
+    numberOfAds = 0;
+    adBreakBeginTimestamp->setMain(systemTimestamp());
+    sendCustomAction(AD_BREAK_START);
+}
 
-void AdsTrackerCore::sendAdBreakEnd() {}
+void AdsTrackerCore::sendAdBreakEnd() {
+    sendCustomAction(AD_BREAK_END);
+}
 
-void AdsTrackerCore::sendAdQuartile() {}
+void AdsTrackerCore::sendAdQuartile() {
+    lastAdQuartileTimestamp->setMain(systemTimestamp());
+    sendCustomAction(AD_QUARTILE);
+}
 
-void AdsTrackerCore::sendAdClick() {}
+void AdsTrackerCore::sendAdClick() {
+    sendCustomAction(AD_CLICK);
+}
+
+int AdsTrackerCore::getNumberOfAds() {
+    return numberOfAds;
+}

@@ -50,12 +50,12 @@
     return (TrackerState)contentsTrackerCore->state();
 }
 
-- (void)setup {
-    contentsTrackerCore->setup();
-}
-
 - (void)reset {
     contentsTrackerCore->reset();
+}
+
+- (void)setup {
+    contentsTrackerCore->setup();
 }
 
 #pragma mark - Senders
@@ -181,12 +181,14 @@
     contentsTrackerCore->trackerTimeEvent();
 }
 
-- (void)adHappened:(NSTimeInterval)time {
-    contentsTrackerCore->adHappened(time);
-}
-
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
     return (BOOL)contentsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
+}
+
+#pragma mark - Ads interface
+
+- (void)adHappened:(NSTimeInterval)time {
+    contentsTrackerCore->adHappened(time);
 }
 
 @end

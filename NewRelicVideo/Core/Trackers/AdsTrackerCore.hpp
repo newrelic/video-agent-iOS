@@ -12,21 +12,33 @@
 #include <stdio.h>
 #include "TrackerCore.hpp"
 
-class ContentsTracker;
+class ContentsTrackerCore;
+class TimestampHolder;
 
 class AdsTrackerCore: public TrackerCore {
 private:
-    ContentsTracker *contentsTracker;
+    ContentsTrackerCore *contentsTracker;
+    TimestampHolder *adRequestedTimestamp;
+    TimestampHolder *lastAdHeartbeatTimestamp;
+    TimestampHolder *adStartedTimestamp;
+    TimestampHolder *adPausedTimestamp;
+    TimestampHolder *adBufferBeginTimestamp;
+    TimestampHolder *adSeekBeginTimestamp;
+    TimestampHolder *adBreakBeginTimestamp;
+    TimestampHolder *lastAdQuartileTimestamp;
+    int numberOfAds;
     
 protected:
     void preSend();
     
 public:
-    AdsTrackerCore(ContentsTracker *contentsTracker);
+    AdsTrackerCore(ContentsTrackerCore *contentsTracker);
+    AdsTrackerCore();
     ~AdsTrackerCore();
     
-    // Overwritten from TrackerCore
+    // from TrackerCore
     void reset();
+    void setup();
     void sendRequest();
     void sendStart();
     void sendEnd();
@@ -50,6 +62,7 @@ public:
     void sendAdBreakEnd();
     void sendAdQuartile();
     void sendAdClick();
+    int getNumberOfAds();
 };
 
 #endif /* AdsTrackerCore_hpp */

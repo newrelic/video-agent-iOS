@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "TrackerCore.hpp"
 
+class ValueHolder;
 class TimestampHolder;
 
 class ContentsTrackerCore: public TrackerCore {
@@ -37,8 +38,9 @@ public:
     ContentsTrackerCore();
     ~ContentsTrackerCore();
     
-    // Overwritten from TrackerCore
+    // from TrackerCore
     void reset();
+    void setup();
     void sendRequest();
     void sendStart();
     void sendEnd();

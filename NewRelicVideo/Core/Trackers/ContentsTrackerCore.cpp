@@ -46,8 +46,10 @@ void ContentsTrackerCore::reset() {
     bufferBeginTimestamp->setMain(0);
     seekBeginTimestamp->setMain(0);
     lastAdTimestamp->setMain(0);
-    
-    preSend();
+}
+
+void ContentsTrackerCore::setup() {
+    TrackerCore::setup();
 }
 
 void ContentsTrackerCore::preSend() {
