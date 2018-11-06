@@ -33,6 +33,9 @@ private:
     
     void playNewVideo();
     
+protected:
+    void preSend();
+    
 public:
     TrackerCore();
     ~TrackerCore();
@@ -47,7 +50,6 @@ public:
     std::string getCoreVersion();
     std::string getViewSession();
     int getNumberOfErrors();
-    void preSend();
     void sendRequest();
     void sendStart();
     void sendEnd();

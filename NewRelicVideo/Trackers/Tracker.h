@@ -128,6 +128,12 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 
 @end
 
+
+
+// TODO: remove Tracker class and move all methods to the TrackerProtocol. Some are required others optional.
+// Subclasses, AdsTracker and ContentsTracker will now implement the protocol instead of subclassing.
+
+
 /**
  `Tracker` is the base class to manage the player events and mechanisms common to Contents and Ads.
  

@@ -195,10 +195,6 @@ void ContentsTrackerCore::sendCustomAction(std::string name, std::map<std::strin
     TrackerCore::sendCustomAction(name, attr);
 }
 
-void ContentsTrackerCore::adHappened(double time) {
-    lastAdTimestamp->setMain(time);
-}
-
 bool ContentsTrackerCore::setTimestamp(double timestamp, std::string attributeName) {
     if (!TrackerCore::setTimestamp(timestamp, attributeName)) {
         if (attributeName == "timeSinceRequested") {
@@ -228,4 +224,8 @@ bool ContentsTrackerCore::setTimestamp(double timestamp, std::string attributeNa
     }
     
     return true;
+}
+
+void ContentsTrackerCore::adHappened(double time) {
+    lastAdTimestamp->setMain(time);
 }

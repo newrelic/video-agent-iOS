@@ -64,11 +64,6 @@
 - (void)setup;
 
 /**
- Pre-send method, called right before any `send` method is executed.
- */
-- (void)preSend;
-
-/**
  Send a `_REQUEST` action.
  */
 - (void)sendRequest;

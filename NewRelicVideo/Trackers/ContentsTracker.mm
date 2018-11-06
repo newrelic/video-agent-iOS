@@ -60,10 +60,6 @@
 
 #pragma mark - Senders
 
-- (void)preSend {
-    contentsTrackerCore->preSend();
-}
-
 - (void)sendRequest {
     contentsTrackerCore->sendRequest();
 }

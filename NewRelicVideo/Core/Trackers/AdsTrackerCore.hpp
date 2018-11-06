@@ -1,41 +1,29 @@
 //
-//  ContentsTrackerCore.hpp
+//  AdsTrackerCore.hpp
 //  NewRelicVideo
 //
-//  Created by Andreu Santaren on 29/10/2018.
+//  Created by Andreu Santaren on 06/11/2018.
 //  Copyright © 2018 New Relic Inc. All rights reserved.
 //
 
-#ifndef ContentsTrackerCore_hpp
-#define ContentsTrackerCore_hpp
+#ifndef AdsTrackerCore_hpp
+#define AdsTrackerCore_hpp
 
 #include <stdio.h>
 #include "TrackerCore.hpp"
 
-class TimestampHolder;
+class ContentsTracker;
 
-class ContentsTrackerCore: public TrackerCore {
+class AdsTrackerCore: public TrackerCore {
 private:
-    // Time Counts
-    double totalPlaytimeTimestamp;
-    double playtimeSinceLastEventTimestamp;
-    double totalPlaytime;
-    
-    // Time Since
-    TimestampHolder *requestTimestamp;
-    TimestampHolder *heartbeatTimestamp;
-    TimestampHolder *startedTimestamp;
-    TimestampHolder *pausedTimestamp;
-    TimestampHolder *bufferBeginTimestamp;
-    TimestampHolder *seekBeginTimestamp;
-    TimestampHolder *lastAdTimestamp;
+    ContentsTracker *contentsTracker;
     
 protected:
     void preSend();
     
 public:
-    ContentsTrackerCore();
-    ~ContentsTrackerCore();
+    AdsTrackerCore(ContentsTracker *contentsTracker);
+    ~AdsTrackerCore();
     
     // Overwritten from TrackerCore
     void reset();
@@ -57,8 +45,11 @@ public:
     void sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr);
     bool setTimestamp(double timestamp, std::string attributeName);
     
-    // ContentsTracker methods
-    void adHappened(double time);
+    // AdsTracker methods
+    void sendAdBreakStart();
+    void sendAdBreakEnd();
+    void sendAdQuartile();
+    void sendAdClick();
 };
 
-#endif /* ContentsTrackerCore_hpp */
+#endif /* AdsTrackerCore_hpp */
