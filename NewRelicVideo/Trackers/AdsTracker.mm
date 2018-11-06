@@ -11,6 +11,14 @@
 #import "AdsTrackerCore.hpp"
 #import "ValueHolder.hpp"
 #import "GettersCAL.h"
+#import "ContentsTrackerCore.hpp"
+#import "ContentsTracker.h"
+
+@interface ContentsTracker ()
+
+- (ContentsTrackerCore *)getContentsTrackerCore;
+
+@end
 
 @interface AdsTracker ()
 {
@@ -24,15 +32,27 @@
 
 - (instancetype)initWithContentsTracker:(ContentsTracker *)tracker {
     if (self = [super init]) {
-        adsTrackerCore = new AdsTrackerCore();
-        [GettersCAL registerGetter:@"numberOfAds" target:self sel:@selector(getNumberOfAds)];
-        [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName)];
-        [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion)];
-        [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion)];
-        [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
-        [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
+        adsTrackerCore = new AdsTrackerCore([tracker getContentsTrackerCore]);
+        [self setupGetters];
     }
     return self;
+}
+
+- (instancetype)init {
+    if (self = [super init]) {
+        adsTrackerCore = new AdsTrackerCore();
+        [self setupGetters];
+    }
+    return self;
+}
+
+- (void)setupGetters {
+    [GettersCAL registerGetter:@"numberOfAds" target:self sel:@selector(getNumberOfAds)];
+    [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName)];
+    [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion)];
+    [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion)];
+    [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
+    [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
 }
 
 - (void)dealloc {

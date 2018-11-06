@@ -20,6 +20,12 @@
 
 @implementation ContentsTracker
 
+#pragma mark - Private
+
+- (ContentsTrackerCore *)getContentsTrackerCore {
+    return contentsTrackerCore;
+}
+
 #pragma mark - Init
 
 - (instancetype)init {
