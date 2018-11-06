@@ -18,7 +18,9 @@ NSDictionary *fromMapToDictionary(std::map<std::string, ValueHolder> dict) {
         NSString *key = [NSString stringWithUTF8String:kv.first.c_str()];
         ValueHolder value = kv.second;
         id obj = fromValueHolder(value);
-        [result setObject:obj forKey:key];
+        if ([obj isKindOfClass:NSString.class] || [obj isKindOfClass:NSNumber.class]) {
+            [result setObject:obj forKey:key];
+        }
     }
     return result.copy;
 }
@@ -30,7 +32,9 @@ std::map<std::string, ValueHolder> fromDictionaryToMap(NSDictionary *dict) {
     for (NSString *key in keys) {
         id value = [dict objectForKey:key];
         ValueHolder fValue = fromNSValue(value);
-        result[std::string([key UTF8String])] = fValue;
+        if (fValue.getValueType() != ValueHolder::ValueHolderTypeEmpty) {
+            result[std::string([key UTF8String])] = fValue;
+        }
     }
     
     return result;
@@ -75,10 +79,7 @@ ValueHolder fromNSValue(id value) {
         }
     }
     else {
-        // TODO: return an empty response, so it is not included in the dictionary -> ValueHolder()
-        
-//        AV_LOG(@"ValueHolder unknown type: Creating an \"empty\" value.");
-        fValue = ValueHolder("<NULL>");
+        fValue = ValueHolder();
     }
     
     return fValue;
