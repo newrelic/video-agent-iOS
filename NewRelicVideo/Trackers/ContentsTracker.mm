@@ -33,11 +33,11 @@
 - (instancetype)init {
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
-        registerGetter(@"trackerName", self, @selector(getTrackerName));
-        registerGetter(@"trackerVersion", self, @selector(getTrackerVersion));
-        registerGetter(@"playerVersion", self, @selector(getPlayerVersion));
-        registerGetter(@"playerName", self, @selector(getPlayerName));
-        registerGetter(@"isAd", self, @selector(getIsAd));
+        [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName)];
+        [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion)];
+        [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion)];
+        [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName)];
+        [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd)];
     }
     return self;
 }

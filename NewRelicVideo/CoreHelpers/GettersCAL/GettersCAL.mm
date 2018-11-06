@@ -19,6 +19,10 @@
 
 @implementation GettersCAL
 
++ (void)registerGetter:(NSString *)name target:(id)target sel:(SEL)selector {
+    [[self sharedInstance] registerGetterName:name target:target selector:selector];
+}
+
 + (instancetype)sharedInstance {
     static GettersCAL *sharedInstance = nil;
     static dispatch_once_t onceToken;
@@ -27,10 +31,6 @@
         sharedInstance.callbacks = @{}.mutableCopy;
     });
     return sharedInstance;
-}
-
-+ (void)registerGetter:(NSString *)name target:(id)target sel:(SEL)selector {
-    registerGetter(name, target, selector);
 }
 
 - (void)registerGetterName:(NSString *)name target:(id)target selector:(SEL)selector {
@@ -56,10 +56,6 @@
     else {
         return NSNull.null;
     }
-}
-
-void registerGetter(NSString *name, id target, SEL selector) {
-    [[GettersCAL sharedInstance] registerGetterName:name target:target selector:selector];
 }
 
 ValueHolder callGetter(std::string name) {
