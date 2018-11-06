@@ -28,12 +28,12 @@
     return sharedInstance;
 }
 
-- (void)startTimerInternal {
+- (void)startTimerInternal:(double)timeInterval {
     if (self.timer) {
         [self abortTimerInternal];
     }
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:OBSERVATION_TIME
+    self.timer = [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)timeInterval
                                                   target:self
                                                 selector:@selector(internalTimerHandler:)
                                                 userInfo:nil
@@ -50,9 +50,9 @@
     }
 }
 
-void startTimer(TrackerCore *trackerCore) {
+void startTimer(TrackerCore *trackerCore, double timeInterval) {
     [TimerCAL sharedInstance].trackerCore = trackerCore;
-    [[TimerCAL sharedInstance] startTimerInternal];
+    [[TimerCAL sharedInstance] startTimerInternal:timeInterval];
 }
 
 void abortTimer() {

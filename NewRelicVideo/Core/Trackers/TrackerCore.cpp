@@ -206,7 +206,7 @@ void TrackerCore::setOption(std::string key, ValueHolder value, std::string acti
 }
 
 void TrackerCore::startTimerEvent() {
-    startTimer(this);
+    startTimer(this, OBSERVATION_TIME);
 }
 
 void TrackerCore::abortTimerEvent() {

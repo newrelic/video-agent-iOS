@@ -225,6 +225,7 @@
 				9C8E78CF217DE4B8002F0524 /* Utils */,
 				9CB250A7218708B10094DFEF /* Time */,
 				9C8E78C0217A0DB7002F0524 /* Backend */,
+				9CFACFBE2191DEA8008627B9 /* Automat */,
 				9C8E78BF217A0BF7002F0524 /* Trackers */,
 			);
 			path = Core;
@@ -233,8 +234,6 @@
 		9C8E78BF217A0BF7002F0524 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
-				9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */,
-				9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */,
 				9CB250A1218208AE0094DFEF /* TrackerCore.cpp */,
 				9CB250A2218208AE0094DFEF /* TrackerCore.hpp */,
 				9CB250B121875F250094DFEF /* ContentsTrackerCore.cpp */,
@@ -389,6 +388,15 @@
 				9CFACFB32190570A008627B9 /* LogCAL.mm */,
 			);
 			path = LogCAL;
+			sourceTree = "<group>";
+		};
+		9CFACFBE2191DEA8008627B9 /* Automat */ = {
+			isa = PBXGroup;
+			children = (
+				9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */,
+				9CB2509A2181B8CB0094DFEF /* PlaybackAutomatCore.hpp */,
+			);
+			path = Automat;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

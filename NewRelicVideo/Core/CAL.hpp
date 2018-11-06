@@ -24,7 +24,7 @@ std::string currentSessionId();
 double timeSince(double timestamp);
 double systemTimestamp();
 ValueHolder callGetter(std::string name);
-void startTimer(TrackerCore *trackerCore);
+void startTimer(TrackerCore *trackerCore, double timeInterval);
 void abortTimer();
 void AV_LOG(const char *format, ...);
 
