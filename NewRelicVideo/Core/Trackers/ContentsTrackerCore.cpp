@@ -87,7 +87,7 @@ void ContentsTrackerCore::preSend() {
     // Content Getters
     
     ValueHolder contentIdVal = callGetter("contentId", this);
-    // Check if contentId has heen registered by a tracker and use this overwritten implementation if exist.
+    // Check if contentId has heen registered by a tracker and use this overwritten implementation if available.
     if (contentIdVal.getValueType() == ValueHolder::ValueHolderTypeString) {
         updateAttribute("contentId", contentIdVal);
     }

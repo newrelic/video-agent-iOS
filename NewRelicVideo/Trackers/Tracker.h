@@ -55,7 +55,7 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 - (NSNumber *)getIsAd;
 
 /**
- Register a getter.
+ Register a getter method.
  
  @param name Name of getter.
  @param selector Selector.
