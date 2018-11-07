@@ -55,6 +55,14 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 - (NSNumber *)getIsAd;
 
 /**
+ Register a getter.
+ 
+ @param name Name of getter.
+ @param selector Selector.
+ */
+- (void)registerGetter:(NSString *)name sel:(SEL)selector;
+
+/**
  Current player tracker state.
  */
 - (TrackerState)state;

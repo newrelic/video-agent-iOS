@@ -32,36 +32,40 @@
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
         
-        [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd) origin:contentsTrackerCore];
+        [self registerGetter:@"trackerName" sel:@selector(getTrackerName)];
+        [self registerGetter:@"trackerVersion" sel:@selector(getTrackerVersion)];
+        [self registerGetter:@"playerVersion" sel:@selector(getPlayerVersion)];
+        [self registerGetter:@"playerName" sel:@selector(getPlayerName)];
+        [self registerGetter:@"isAd" sel:@selector(getIsAd)];
         
-        [GettersCAL registerGetter:@"contentTitle" target:self sel:@selector(getTitle) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentBitrate" target:self sel:@selector(getBitrate) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentRenditionName" target:self sel:@selector(getRenditionName) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentRenditionBitrate" target:self sel:@selector(getRenditionBitrate) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentRenditionWidth" target:self sel:@selector(getRenditionWidth) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentRenditionHeight" target:self sel:@selector(getRenditionHeight) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentDuration" target:self sel:@selector(getDuration) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentPlayhead" target:self sel:@selector(getPlayhead) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentLanguage" target:self sel:@selector(getLanguage) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentSrc" target:self sel:@selector(getSrc) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentIsMuted" target:self sel:@selector(getIsMuted) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentCdn" target:self sel:@selector(getCdn) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentFps" target:self sel:@selector(getFps) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentPlayrate" target:self sel:@selector(getPlayrate) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentIsLive" target:self sel:@selector(getIsLive) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentIsAutoplayed" target:self sel:@selector(getIsAutoplayed) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentPreload" target:self sel:@selector(getPreload) origin:contentsTrackerCore];
-        [GettersCAL registerGetter:@"contentIsFullscreen" target:self sel:@selector(getIsFullscreen) origin:contentsTrackerCore];
+        [self registerGetter:@"contentTitle" sel:@selector(getTitle)];
+        [self registerGetter:@"contentBitrate" sel:@selector(getBitrate)];
+        [self registerGetter:@"contentRenditionName" sel:@selector(getRenditionName)];
+        [self registerGetter:@"contentRenditionBitrate" sel:@selector(getRenditionBitrate)];
+        [self registerGetter:@"contentRenditionWidth" sel:@selector(getRenditionWidth)];
+        [self registerGetter:@"contentRenditionHeight" sel:@selector(getRenditionHeight)];
+        [self registerGetter:@"contentDuration" sel:@selector(getDuration)];
+        [self registerGetter:@"contentPlayhead" sel:@selector(getPlayhead)];
+        [self registerGetter:@"contentLanguage" sel:@selector(getLanguage)];
+        [self registerGetter:@"contentSrc" sel:@selector(getSrc)];
+        [self registerGetter:@"contentIsMuted" sel:@selector(getIsMuted)];
+        [self registerGetter:@"contentCdn" sel:@selector(getCdn)];
+        [self registerGetter:@"contentFps" sel:@selector(getFps)];
+        [self registerGetter:@"contentPlayrate" sel:@selector(getPlayrate)];
+        [self registerGetter:@"contentIsLive" sel:@selector(getIsLive)];
+        [self registerGetter:@"contentIsAutoplayed" sel:@selector(getIsAutoplayed)];
+        [self registerGetter:@"contentPreload" sel:@selector(getPreload)];
+        [self registerGetter:@"contentIsFullscreen" sel:@selector(getIsFullscreen)];
     }
     return self;
 }
 
 - (void)dealloc {
     delete contentsTrackerCore;
+}
+
+- (void)registerGetter:(NSString *)name sel:(SEL)selector {
+    [GettersCAL registerGetter:name target:self sel:selector origin:contentsTrackerCore];
 }
 
 - (TrackerState)state {

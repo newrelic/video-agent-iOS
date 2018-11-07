@@ -47,35 +47,39 @@
 }
 
 - (void)setupGetters {
-    [GettersCAL registerGetter:@"numberOfAds" target:self sel:@selector(getNumberOfAds) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"trackerName" target:self sel:@selector(getTrackerName) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"trackerVersion" target:self sel:@selector(getTrackerVersion) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"playerVersion" target:self sel:@selector(getPlayerVersion) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"playerName" target:self sel:@selector(getPlayerName) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"isAd" target:self sel:@selector(getIsAd) origin:adsTrackerCore];
+    [self registerGetter:@"numberOfAds" sel:@selector(getNumberOfAds)];
+    [self registerGetter:@"trackerName" sel:@selector(getTrackerName)];
+    [self registerGetter:@"trackerVersion" sel:@selector(getTrackerVersion)];
+    [self registerGetter:@"playerVersion" sel:@selector(getPlayerVersion)];
+    [self registerGetter:@"playerName" sel:@selector(getPlayerName)];
+    [self registerGetter:@"isAd" sel:@selector(getIsAd)];
     
-    [GettersCAL registerGetter:@"numberOfAds" target:self sel:@selector(getNumberOfAds) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adId" target:self sel:@selector(getVideoId) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adTitle" target:self sel:@selector(getTitle) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adBitrate" target:self sel:@selector(getBitrate) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adRenditionName" target:self sel:@selector(getRenditionName) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adRenditionBitrate" target:self sel:@selector(getRenditionBitrate) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adRenditionWidth" target:self sel:@selector(getRenditionWidth) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adRenditionHeight" target:self sel:@selector(getRenditionHeight) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adDuration" target:self sel:@selector(getDuration) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adPlayhead" target:self sel:@selector(getPlayhead) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adLanguage" target:self sel:@selector(getLanguage) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adSrc" target:self sel:@selector(getSrc) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adIsMuted" target:self sel:@selector(getIsMuted) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adCdn" target:self sel:@selector(getCdn) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adFps" target:self sel:@selector(getFps) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adCreativeId" target:self sel:@selector(getAdCreativeId) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adPosition" target:self sel:@selector(getAdPosition) origin:adsTrackerCore];
-    [GettersCAL registerGetter:@"adPartner" target:self sel:@selector(getAdPartner) origin:adsTrackerCore];
+    [self registerGetter:@"numberOfAds" sel:@selector(getNumberOfAds)];
+    [self registerGetter:@"adId" sel:@selector(getVideoId)];
+    [self registerGetter:@"adTitle" sel:@selector(getTitle)];
+    [self registerGetter:@"adBitrate" sel:@selector(getBitrate)];
+    [self registerGetter:@"adRenditionName" sel:@selector(getRenditionName)];
+    [self registerGetter:@"adRenditionBitrate" sel:@selector(getRenditionBitrate)];
+    [self registerGetter:@"adRenditionWidth" sel:@selector(getRenditionWidth)];
+    [self registerGetter:@"adRenditionHeight" sel:@selector(getRenditionHeight)];
+    [self registerGetter:@"adDuration" sel:@selector(getDuration)];
+    [self registerGetter:@"adPlayhead" sel:@selector(getPlayhead)];
+    [self registerGetter:@"adLanguage" sel:@selector(getLanguage)];
+    [self registerGetter:@"adSrc" sel:@selector(getSrc)];
+    [self registerGetter:@"adIsMuted" sel:@selector(getIsMuted)];
+    [self registerGetter:@"adCdn" sel:@selector(getCdn)];
+    [self registerGetter:@"adFps" sel:@selector(getFps)];
+    [self registerGetter:@"adCreativeId" sel:@selector(getAdCreativeId)];
+    [self registerGetter:@"adPosition" sel:@selector(getAdPosition)];
+    [self registerGetter:@"adPartner" sel:@selector(getAdPartner)];
 }
 
 - (void)dealloc {
     delete adsTrackerCore;
+}
+
+- (void)registerGetter:(NSString *)name sel:(SEL)selector {
+    [GettersCAL registerGetter:name target:self sel:selector origin:adsTrackerCore];
 }
 
 - (TrackerState)state {

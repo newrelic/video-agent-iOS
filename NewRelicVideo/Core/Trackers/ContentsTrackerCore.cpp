@@ -85,7 +85,16 @@ void ContentsTrackerCore::preSend() {
     updateAttribute("timeSinceLastAd", ValueHolder(lastAdTimestamp->sinceMillis()));
     
     // Content Getters
-    updateAttribute("contentId", ValueHolder(getVideoId()));
+    
+    ValueHolder contentIdVal = callGetter("contentId", this);
+    // Check if contentId has heen registered by a tracker and use this overwritten implementation if exist.
+    if (contentIdVal.getValueType() == ValueHolder::ValueHolderTypeString) {
+        updateAttribute("contentId", contentIdVal);
+    }
+    else {
+        updateAttribute("contentId", ValueHolder(getVideoId()));
+    }
+    
     updateAttribute("contentTitle", callGetter("contentTitle", this));
     updateAttribute("contentBitrate", callGetter("contentBitrate", this));
     updateAttribute("contentRenditionName", callGetter("contentRenditionName", this));
