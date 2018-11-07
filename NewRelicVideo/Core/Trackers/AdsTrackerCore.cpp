@@ -79,24 +79,24 @@ void AdsTrackerCore::preSend() {
     updateAttribute("timeSinceLastAdQuartile", ValueHolder(lastAdQuartileTimestamp->sinceMillis()), AD_QUARTILE);
     
     // Ad Getters
-    updateAttribute("numberOfAds", callGetter("numberOfAds"));
-    updateAttribute("adId", callGetter("adId"));
-    updateAttribute("adTitle", callGetter("adTitle"));
-    updateAttribute("adBitrate", callGetter("adBitrate"));
-    updateAttribute("adRenditionName", callGetter("adRenditionName"));
-    updateAttribute("adRenditionBitrate", callGetter("adRenditionBitrate"));
-    updateAttribute("adRenditionWidth", callGetter("adRenditionWidth"));
-    updateAttribute("adRenditionHeight", callGetter("adRenditionHeight"));
-    updateAttribute("adDuration", callGetter("adDuration"));
-    updateAttribute("adPlayhead", callGetter("adPlayhead"));
-    updateAttribute("adLanguage", callGetter("adLanguage"));
-    updateAttribute("adSrc", callGetter("adSrc"));
-    updateAttribute("adIsMuted", callGetter("adIsMuted"));
-    updateAttribute("adCdn", callGetter("adCdn"));
-    updateAttribute("adFps", callGetter("adFps"));
-    updateAttribute("adCreativeId", callGetter("adCreativeId"));
-    updateAttribute("adPosition", callGetter("adPosition"));
-    updateAttribute("adPartner", callGetter("adPartner"));
+    updateAttribute("numberOfAds", callGetter("numberOfAds", this));
+    updateAttribute("adId", callGetter("adId", this));
+    updateAttribute("adTitle", callGetter("adTitle", this));
+    updateAttribute("adBitrate", callGetter("adBitrate", this));
+    updateAttribute("adRenditionName", callGetter("adRenditionName", this));
+    updateAttribute("adRenditionBitrate", callGetter("adRenditionBitrate", this));
+    updateAttribute("adRenditionWidth", callGetter("adRenditionWidth", this));
+    updateAttribute("adRenditionHeight", callGetter("adRenditionHeight", this));
+    updateAttribute("adDuration", callGetter("adDuration", this));
+    updateAttribute("adPlayhead", callGetter("adPlayhead", this));
+    updateAttribute("adLanguage", callGetter("adLanguage", this));
+    updateAttribute("adSrc", callGetter("adSrc", this));
+    updateAttribute("adIsMuted", callGetter("adIsMuted", this));
+    updateAttribute("adCdn", callGetter("adCdn", this));
+    updateAttribute("adFps", callGetter("adFps", this));
+    updateAttribute("adCreativeId", callGetter("adCreativeId", this));
+    updateAttribute("adPosition", callGetter("adPosition", this));
+    updateAttribute("adPartner", callGetter("adPartner", this));
 }
 
 void AdsTrackerCore::sendRequest() {

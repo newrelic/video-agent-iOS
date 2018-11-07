@@ -86,24 +86,24 @@ void ContentsTrackerCore::preSend() {
     
     // Content Getters
     updateAttribute("contentId", ValueHolder(getVideoId()));
-    updateAttribute("contentTitle", callGetter("contentTitle"));
-    updateAttribute("contentBitrate", callGetter("contentBitrate"));
-    updateAttribute("contentRenditionName", callGetter("contentRenditionName"));
-    updateAttribute("contentRenditionBitrate", callGetter("contentRenditionBitrate"));
-    updateAttribute("contentRenditionWidth", callGetter("contentRenditionWidth"));
-    updateAttribute("contentRenditionHeight", callGetter("contentRenditionHeight"));
-    updateAttribute("contentDuration", callGetter("contentDuration"));
-    updateAttribute("contentPlayhead", callGetter("contentPlayhead"));
-    updateAttribute("contentLanguage", callGetter("contentLanguage"));
-    updateAttribute("contentSrc", callGetter("contentSrc"));
-    updateAttribute("contentIsMuted", callGetter("contentIsMuted"));
-    updateAttribute("contentCdn", callGetter("contentCdn"));
-    updateAttribute("contentFps", callGetter("contentFps"));
-    updateAttribute("contentPlayrate", callGetter("contentPlayrate"));
-    updateAttribute("contentIsLive", callGetter("contentIsLive"));
-    updateAttribute("contentIsAutoplayed", callGetter("contentIsAutoplayed"));
-    updateAttribute("contentPreload", callGetter("contentPreload"));
-    updateAttribute("contentIsFullscreen", callGetter("contentIsFullscreen"));
+    updateAttribute("contentTitle", callGetter("contentTitle", this));
+    updateAttribute("contentBitrate", callGetter("contentBitrate", this));
+    updateAttribute("contentRenditionName", callGetter("contentRenditionName", this));
+    updateAttribute("contentRenditionBitrate", callGetter("contentRenditionBitrate", this));
+    updateAttribute("contentRenditionWidth", callGetter("contentRenditionWidth", this));
+    updateAttribute("contentRenditionHeight", callGetter("contentRenditionHeight", this));
+    updateAttribute("contentDuration", callGetter("contentDuration", this));
+    updateAttribute("contentPlayhead", callGetter("contentPlayhead", this));
+    updateAttribute("contentLanguage", callGetter("contentLanguage", this));
+    updateAttribute("contentSrc", callGetter("contentSrc", this));
+    updateAttribute("contentIsMuted", callGetter("contentIsMuted", this));
+    updateAttribute("contentCdn", callGetter("contentCdn", this));
+    updateAttribute("contentFps", callGetter("contentFps", this));
+    updateAttribute("contentPlayrate", callGetter("contentPlayrate", this));
+    updateAttribute("contentIsLive", callGetter("contentIsLive", this));
+    updateAttribute("contentIsAutoplayed", callGetter("contentIsAutoplayed", this));
+    updateAttribute("contentPreload", callGetter("contentPreload", this));
+    updateAttribute("contentIsFullscreen", callGetter("contentIsFullscreen", this));
 }
 
 void ContentsTrackerCore::sendRequest() {
@@ -239,7 +239,7 @@ std::string ContentsTrackerCore::getVideoId() {
         int i, j;
         unsigned int byte, crc, mask;
         
-        ValueHolder src = callGetter("contentSrc");
+        ValueHolder src = callGetter("contentSrc", this);
         
         if (src.getValueType() != ValueHolder::ValueHolderTypeString) {
             return "";

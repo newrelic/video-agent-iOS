@@ -23,7 +23,7 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
 std::string currentSessionId();
 double timeSince(double timestamp);
 double systemTimestamp();
-ValueHolder callGetter(std::string name);
+ValueHolder callGetter(std::string name, void *origin);
 void startTimer(TrackerCore *trackerCore, double timeInterval);
 void abortTimer();
 void AV_LOG(const char *format, ...);

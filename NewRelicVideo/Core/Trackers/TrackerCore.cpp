@@ -18,7 +18,7 @@ TrackerCore::TrackerCore() {
     lastRenditionChangeTimestamp = new TimestampHolder(0);
     trackerReadyTimestamp = new TimestampHolder(0);
     
-    ValueHolder val = callGetter("isAd");
+    ValueHolder val = callGetter("isAd", this);
     if (val.getValueType() == ValueHolder::ValueHolderTypeInt) {
         automat->isAd = (bool)val.getValueInt();
     }
@@ -90,11 +90,11 @@ void TrackerCore::preSend() {
     updateAttribute("numberOfErrors", ValueHolder(getNumberOfErrors()));
     
     // Sub TrackerCore getters
-    updateAttribute("trackerName", callGetter("trackerName"));
-    updateAttribute("trackerVersion", callGetter("trackerVersion"));
-    updateAttribute("playerVersion", callGetter("playerVersion"));
-    updateAttribute("playerName", callGetter("playerName"));
-    updateAttribute("isAd", callGetter("isAd"));
+    updateAttribute("trackerName", callGetter("trackerName", this));
+    updateAttribute("trackerVersion", callGetter("trackerVersion", this));
+    updateAttribute("playerVersion", callGetter("playerVersion", this));
+    updateAttribute("playerName", callGetter("playerName", this));
+    updateAttribute("isAd", callGetter("isAd", this));
 }
 
 void TrackerCore::sendRequest() {
