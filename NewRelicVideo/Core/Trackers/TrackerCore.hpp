@@ -67,9 +67,7 @@ public:
     void sendCustomAction(std::string name);
     void sendCustomAction(std::string name, std::map<std::string, ValueHolder> attr);
     void setOptions(std::map<std::string, ValueHolder> opts);
-    void setOption(std::string key, ValueHolder value);
     void setOptions(std::map<std::string, ValueHolder> opts, std::string action);
-    void setOption(std::string key, ValueHolder value, std::string action);
     void startTimerEvent();
     void abortTimerEvent();
     void trackerTimeEvent();

@@ -47,14 +47,12 @@ CoreTrackerState TrackerCore::state() {
     return automat->getState();
 }
 
-// TODO: updateAttribute and setOptions are aliases, one must disapear (setOption is less clear, I would keep updateAttribute).
-// also add updateAttributes to replace setOptions
 void TrackerCore::updateAttribute(std::string name, ValueHolder value, std::string filter) {
-    setOption(name, value, filter);
+    automat->getActions()->actionOptions[filter][name] = value;
 }
 
 void TrackerCore::updateAttribute(std::string name, ValueHolder value) {
-    setOption(name, value);
+    automat->getActions()->generalOptions[name] = value;
 }
 
 void TrackerCore::setup() {}
@@ -193,16 +191,8 @@ void TrackerCore::setOptions(std::map<std::string, ValueHolder> opts) {
     automat->getActions()->generalOptions = opts;
 }
 
-void TrackerCore::setOption(std::string key, ValueHolder value) {
-    automat->getActions()->generalOptions[key] = value;
-}
-
 void TrackerCore::setOptions(std::map<std::string, ValueHolder> opts, std::string action) {
     automat->getActions()->actionOptions[action] = opts;
-}
-
-void TrackerCore::setOption(std::string key, ValueHolder value, std::string action) {
-    automat->getActions()->actionOptions[action][key] = value;
 }
 
 void TrackerCore::startTimerEvent() {

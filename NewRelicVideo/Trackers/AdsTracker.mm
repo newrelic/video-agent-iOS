@@ -156,20 +156,12 @@
     adsTrackerCore->sendCustomAction(std::string([name UTF8String]), fromDictionaryToMap(attr));
 }
 
-- (void)setOptions:(NSDictionary *)opts {
-    adsTrackerCore->setOptions(fromDictionaryToMap(opts));
-}
-
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value {
-    adsTrackerCore->setOption(std::string([key UTF8String]), fromNSValue((id)value));
-}
-
-- (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action {
-    adsTrackerCore->setOptions(fromDictionaryToMap(opts), std::string([action UTF8String]));
+    adsTrackerCore->updateAttribute(std::string([key UTF8String]), fromNSValue((id)value));
 }
 
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action {
-    adsTrackerCore->setOption(std::string([key UTF8String]), fromNSValue((id)value), std::string([action UTF8String]));
+    adsTrackerCore->updateAttribute(std::string([key UTF8String]), fromNSValue((id)value), std::string([action UTF8String]));
 }
 
 // Ads specific senders

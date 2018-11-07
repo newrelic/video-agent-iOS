@@ -157,27 +157,12 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 - (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr;
 
 /**
- Set custom parameters for actions.
- 
- @param opts Dictionary of parameters sent along the actions.
- */
-- (void)setOptions:(NSDictionary *)opts;
-
-/**
  Set custom single parameter for actions.
  
  @param key Name of parameter.
  @param value Value of parameter.
  */
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
-
-/**
- Set custom parameters for a specific action.
- 
- @param opts Dictionary of parameters sent along the actions.
- @param action Name of action.
- */
-- (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
 
 /**
  Set custom single parameter for a specific action.
