@@ -10,10 +10,6 @@
 
 @implementation DatetimeCAL
 
-double timeSince(double timestamp) {
-    return (double)([[NSDate date] timeIntervalSince1970] - timestamp);
-}
-
 double systemTimestamp() {
     return (double)[[NSDate date] timeIntervalSince1970];
 }
