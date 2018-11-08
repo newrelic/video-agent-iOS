@@ -7,18 +7,21 @@
 //
 
 #import "LogCAL.h"
+#import "Vars.h"
 
 @implementation LogCAL
 
 void AV_LOG(const char *format, ...) {
-    NSString *contents;
-    va_list args;
-    va_start(args, format);
-    contents = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:args];
-    va_end(args);
-    NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-    contents = [@"NewRelicVideo " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
-    NSLog(@"%@", contents);
+    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue]) {
+        NSString *contents;
+        va_list args;
+        va_start(args, format);
+        contents = [[NSString alloc] initWithFormat:[NSString stringWithUTF8String:format] arguments:args];
+        va_end(args);
+        NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
+        contents = [@"NewRelicVideo " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+        NSLog(@"%@", contents);
+    }
 }
 
 @end
