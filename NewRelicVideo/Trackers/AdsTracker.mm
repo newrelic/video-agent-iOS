@@ -54,7 +54,6 @@
     [self registerGetter:@"playerName" sel:@selector(getPlayerName)];
     [self registerGetter:@"isAd" sel:@selector(getIsAd)];
     
-    [self registerGetter:@"numberOfAds" sel:@selector(getNumberOfAds)];
     [self registerGetter:@"adId" sel:@selector(getVideoId)];
     [self registerGetter:@"adTitle" sel:@selector(getTitle)];
     [self registerGetter:@"adBitrate" sel:@selector(getBitrate)];
