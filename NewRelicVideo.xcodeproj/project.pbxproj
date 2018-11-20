@@ -125,7 +125,6 @@
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
 		9CB8487821A44D6A004D161B /* CoreDefs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoreDefs.hpp; sourceTree = "<group>"; };
-		9CB8487921A450E2004D161B /* CoreDefs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoreDefs.hpp; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
@@ -230,7 +229,6 @@
 				9C8E78C0217A0DB7002F0524 /* Backend */,
 				9CFACFBE2191DEA8008627B9 /* Automat */,
 				9C8E78BF217A0BF7002F0524 /* Trackers */,
-				9CB8487921A450E2004D161B /* CoreDefs.hpp */,
 			);
 			path = Core;
 			sourceTree = "<group>";
