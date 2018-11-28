@@ -8,14 +8,13 @@
 
 #import "AVPlayerTracker.h"
 #import "EventDefs.h"
-#import "PlaybackAutomat.h"
-#import "Tracker_internal.h"
+#import "GettersCAL.h"
+
+@import AVKit;
 
 // KNOWN ISSUES:
 // * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
 // * If seeked while paused, the SEEK_END is sent only when user resumes the video.
-
-@import AVKit;
 
 @interface AVPlayerTracker ()
 
@@ -29,7 +28,6 @@
 @property (nonatomic) BOOL isFullScreen;
 @property (nonatomic) BOOL firstFrameHappend;
 @property (nonatomic) int numTimeouts;
-@property (nonatomic) NSString *videoID;
 @property (nonatomic) id timeObserver;
 
 @end
@@ -122,7 +120,7 @@
         else {
             if (self.numZeroRates > 2) {
                 [self sendSeekEnd];
-                if (self.automat.state == TrackerStatePaused) {
+                if (self.state == TrackerStatePaused) {
                     [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
                 }
             }
@@ -134,7 +132,7 @@
             AV_LOG(@"First time observer event -> sendStart");
             
             // NOTE: with AVPlayer playlists, the request event only happens for the first video, we need manually send it before start.
-            if (self.automat.state == TrackerStateStopped) {
+            if (self.state == TrackerStateStopped) {
                 [self sendRequest];
             }
             
@@ -244,7 +242,7 @@
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
         AV_LOG(@"status == AVPlayerItemStatusReadyToPlay");
-        if (self.automat.state == TrackerStateStarting) {
+        if (self.state == TrackerStateStarting) {
             AV_LOG(@"sendStart");
             [self sendStart];
         }
@@ -302,12 +300,12 @@
                 [self sendRequest];
             }
             else {
-                if (self.automat.state == TrackerStateSeeking) {
+                if (self.state == TrackerStateSeeking) {
                     // In case we receive a seek_start without seek_end
                     [self sendSeekEnd];
                     [self sendResume];
                 }
-                else if (self.automat.state == TrackerStatePaused) {
+                else if (self.state == TrackerStatePaused) {
                     [self sendResume];
                 }
             }
@@ -402,7 +400,6 @@
 - (void)sendEnd {
     [super sendEnd];
     self.isAutoPlayed = NO;
-    self.videoID = nil;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
 }
@@ -414,7 +411,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return PRODUCT_VERSION_STR;
+    return @PRODUCT_VERSION_STR;
 }
 
 - (NSString *)getPlayerVersion {
@@ -423,24 +420,6 @@
 
 - (NSString *)getPlayerName {
     return @"avplayer";
-}
-
-- (NSString *)getVideoId {
-    if (!self.videoID) {
-        NSString *src = [self getSrc];
-        __block long long val = 0;
-        __block long long lastChar = 0;
-        [src enumerateSubstringsInRange:NSMakeRange(0, src.length)
-                                options:NSStringEnumerationByComposedCharacterSequences
-                             usingBlock:^(NSString *substring, NSRange substringRange, NSRange enclosingRange, BOOL *stop) {
-                                 long long currChar = [substring characterAtIndex:0];
-                                 val += (currChar << (lastChar / 8)) + currChar;
-                                 lastChar = currChar;
-                             }];
-        self.videoID = @(val).stringValue;
-    }
-    
-    return self.videoID;
 }
 
 - (NSNumber *)getBitrate {

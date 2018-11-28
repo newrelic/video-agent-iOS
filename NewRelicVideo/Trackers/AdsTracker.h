@@ -39,7 +39,7 @@
  @warning Should never be instantiated directly, but subclassed.
  */
 
-@interface AdsTracker : Tracker <TrackerProtocol>
+@interface AdsTracker : NSObject <TrackerProtocol>
 
 /**
  Create a `AdsTracker` instance using a `ContentsTracker`, necessary for some Ads related events and attributes.

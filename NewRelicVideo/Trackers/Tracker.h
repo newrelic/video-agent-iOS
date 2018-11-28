@@ -7,6 +7,21 @@
 
 #import <Foundation/Foundation.h>
 
+typedef NS_ENUM(NSUInteger, TrackerState) {
+    /** Tracker state Stopped */
+    TrackerStateStopped = 0,
+    /** Tracker state Starting */
+    TrackerStateStarting,
+    /** Tracker state Playing */
+    TrackerStatePlaying,
+    /** Tracker state Paused */
+    TrackerStatePaused,
+    /** Tracker state Buffering */
+    TrackerStateBuffering,
+    /** Tracker state Seeking */
+    TrackerStateSeeking
+};
+
 /**
  `TrackerProtocol` defines the basic getters every Tracker must or should implement.
  */
@@ -39,86 +54,18 @@
  */
 - (NSNumber *)getIsAd;
 
-@optional
-
 /**
- Get video ID.
- */
-- (NSString *)getVideoId;
-
-/**
- Get video title.
- */
-- (NSString *)getTitle;
-
-/**
- Get video bitrate in bits per second.
- */
-- (NSNumber *)getBitrate;
-
-/**
- Get video rendition name.
- */
-- (NSString *)getRenditionName;
-
-/**
- Get video rendition bitrate in bits per second.
- */
-- (NSNumber *)getRenditionBitrate;
-
-/**
- Get video width.
- */
-- (NSNumber *)getRenditionWidth;
-
-/**
- Get video height.
- */
-- (NSNumber *)getRenditionHeight;
-
-/**
- Get video duration in milliseconds.
- */
-- (NSNumber *)getDuration;
-
-/**
- Get current playback position in milliseconds.
- */
-- (NSNumber *)getPlayhead;
-
-/**
- Get video language.
- */
-- (NSString *)getLanguage;
-
-/**
- Get video source. Usually a URL.
- */
-- (NSString *)getSrc;
-
-/**
- Get whether video is muted or not.
- */
-- (NSNumber *)getIsMuted;
-
-/**
- Get name of the CDN serving content.
- */
-- (NSString *)getCdn;
-
-/**
- Get video frames per second.
- */
-- (NSNumber *)getFps;
-
-@end
-
-/**
- `Tracker` is the base class to manage the player events and mechanisms common to Contents and Ads.
+ Register a getter method.
  
- @warning Should never be directly instantiated and there is no need for subclassing it. Use its subclasses `ContentsTracker` or `AdsTracker` instead.
+ @param name Name of getter.
+ @param selector Selector.
  */
-@interface Tracker : NSObject
+- (void)registerGetter:(NSString *)name sel:(SEL)selector;
+
+/**
+ Current player tracker state.
+ */
+- (TrackerState)state;
 
 /**
  Reset the tracker's state.
@@ -129,11 +76,6 @@
  Inititialize the tracker's state.
  */
 - (void)setup;
-
-/**
- Pre-send method, called right before any `send` method is executed.
- */
-- (void)preSend;
 
 /**
  Send a `_REQUEST` action.
@@ -223,27 +165,12 @@
 - (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr;
 
 /**
- Set custom parameters for actions.
- 
- @param opts Dictionary of parameters sent along the actions.
- */
-- (void)setOptions:(NSDictionary *)opts;
-
-/**
  Set custom single parameter for actions.
  
  @param key Name of parameter.
  @param value Value of parameter.
  */
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value;
-
-/**
- Set custom parameters for a specific action.
- 
- @param opts Dictionary of parameters sent along the actions.
- @param action Name of action.
- */
-- (void)setOptions:(NSDictionary *)opts forAction:(NSString *)action;
 
 /**
  Set custom single parameter for a specific action.
@@ -278,5 +205,77 @@
  @return True if attribute name is recognized, False if not.
  */
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
+
+@optional
+
+/**
+ Get video ID.
+ */
+- (NSString *)getVideoId;
+
+/**
+ Get video title.
+ */
+- (NSString *)getTitle;
+
+/**
+ Get video bitrate in bits per second.
+ */
+- (NSNumber *)getBitrate;
+
+/**
+ Get video rendition name.
+ */
+- (NSString *)getRenditionName;
+
+/**
+ Get video rendition bitrate in bits per second.
+ */
+- (NSNumber *)getRenditionBitrate;
+
+/**
+ Get video width.
+ */
+- (NSNumber *)getRenditionWidth;
+
+/**
+ Get video height.
+ */
+- (NSNumber *)getRenditionHeight;
+
+/**
+ Get video duration in milliseconds.
+ */
+- (NSNumber *)getDuration;
+
+/**
+ Get current playback position in milliseconds.
+ */
+- (NSNumber *)getPlayhead;
+
+/**
+ Get video language.
+ */
+- (NSString *)getLanguage;
+
+/**
+ Get video source. Usually a URL.
+ */
+- (NSString *)getSrc;
+
+/**
+ Get whether video is muted or not.
+ */
+- (NSNumber *)getIsMuted;
+
+/**
+ Get name of the CDN serving content.
+ */
+- (NSString *)getCdn;
+
+/**
+ Get video frames per second.
+ */
+- (NSNumber *)getFps;
 
 @end

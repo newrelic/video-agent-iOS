@@ -1,0 +1,3 @@
+[submodule "NewRelicVideo/Core"]
+	path = NewRelicVideo/Core
+	url = https://github.com/newrelic/video-agent-core

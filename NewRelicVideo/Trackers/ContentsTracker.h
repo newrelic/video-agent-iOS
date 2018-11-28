@@ -46,6 +46,6 @@
  
  @warning Should never be instantiated directly, but subclassed.
  */
-@interface ContentsTracker : Tracker <TrackerProtocol>
+@interface ContentsTracker : NSObject <TrackerProtocol>
 
 @end
