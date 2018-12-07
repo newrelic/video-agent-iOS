@@ -7,18 +7,10 @@
 //
 
 #import <XCTest/XCTest.h>
-
-//#import "PlaybackAutomat.h"
-//#import "BackendActions.h"
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
-//#import "Tracker_internal.h"
 
 #pragma mark - Support Classes
-
-//@interface Tracker ()
-//@property (nonatomic) NSMutableDictionary<NSString *, NSValue *> *attributeGetters;
-//@end
 
 @interface TestContentsTracker: ContentsTracker <ContentsTrackerProtocol>
 @end
@@ -84,118 +76,17 @@
     [super tearDown];
 }
 
-//- (void)testBackend {
-//    BackendActions *actions = [[BackendActions alloc] init];
-//    [actions sendRequest];
-//    [actions sendStart];
-//    [actions sendEnd];
-//    [actions sendPause];
-//    [actions sendResume];
-//    [actions sendSeekStart];
-//    [actions sendSeekEnd];
-//    [actions sendBufferStart];
-//    [actions sendBufferEnd];
-//    [actions sendHeartbeat];
-//    [actions sendRenditionChange];
-//    [actions sendError:@"Test error message"];
-//
-//    [actions sendAdRequest];
-//    [actions sendAdStart];
-//    [actions sendAdEnd];
-//    [actions sendAdPause];
-//    [actions sendAdResume];
-//    [actions sendAdSeekStart];
-//    [actions sendAdSeekEnd];
-//    [actions sendAdBufferStart];
-//    [actions sendAdBufferEnd];
-//    [actions sendAdHeartbeat];
-//    [actions sendAdRenditionChange];
-//    [actions sendAdError:@"Test error message"];
-//    [actions sendAdBreakStart];
-//    [actions sendAdBreakEnd];
-//    [actions sendAdQuartile];
-//    [actions sendAdClick];
-//
-//    [actions sendPlayerReady];
-//    [actions sendDownload];
-//
-//    [actions sendAction:@"TEST_ACTION"];
-//    [actions sendAction:@"TEST_ACTION" attr:@{@"testAttr": @"testValue"}];
-//}
-
-//- (void)testTrackerAutomator {
-//    PlaybackAutomat *automat = [[PlaybackAutomat alloc] init];
-//    [self runAutomatTest:automat];
-//}
-//
-//- (void)testTrackerAutomatorForAds {
-//    PlaybackAutomat *automat = [[PlaybackAutomat alloc] init];
-//    automat.isAd = YES;
-//    [self runAutomatTest:automat];
-//}
-
 - (void)testContentsTracker {
     TestContentsTracker *tracker = [[TestContentsTracker alloc] init];
     [self runTrackerTest:tracker];
-//    NSString *trackerName = (NSString *)[tracker optionValueFor:@"trackerName" fromGetters:tracker.attributeGetters];
-//    XCTAssert([trackerName isEqualToString:@"TestContentsTracker"], @"TrackerName incorrect");
 }
 
 - (void)testAdsTracker {
     TestAdsTracker *tracker = [[TestAdsTracker alloc] init];
     [self runTrackerTest:tracker];
-//    NSString *trackerName = (NSString *)[tracker optionValueFor:@"trackerName" fromGetters:tracker.attributeGetters];
-//    XCTAssert([trackerName isEqualToString:@"TestAdsTracker"], @"TrackerName incorrect");
 }
 
 #pragma mark - Utils
-
-//- (void)runAutomatTest:(PlaybackAutomat *)automat {
-//
-//    XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
-//
-//    [automat sendRequest];
-//    XCTAssert(automat.state == TrackerStateStarting, @"State not Starting");
-//
-//    [automat sendStart];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendPause];
-//    XCTAssert(automat.state == TrackerStatePaused, @"State not Paused");
-//
-//    [automat sendResume];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Paying");
-//
-//    [automat sendBufferStart];
-//    XCTAssert(automat.state == TrackerStateBuffering, @"State not Buffering");
-//
-//    [automat sendPause];
-//    XCTAssert(automat.state == TrackerStateBuffering, @"State not Buffering");
-//
-//    [automat sendBufferEnd];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendSeekStart];
-//    XCTAssert(automat.state == TrackerStateSeeking, @"State not Seeking");
-//
-//    [automat sendResume];
-//    XCTAssert(automat.state == TrackerStateSeeking, @"State not Seeking");
-//
-//    [automat sendSeekEnd];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendHeartbeat];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendError:@"Test error message"];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendRenditionChange];
-//    XCTAssert(automat.state == TrackerStatePlaying, @"State not Playing");
-//
-//    [automat sendEnd];
-//    XCTAssert(automat.state == TrackerStateStopped, @"State not Stopped");
-//}
 
 - (void)runTrackerTest:(id<TrackerProtocol>)tracker {
     [tracker setOptionKey:@"option" value:@123];
@@ -221,14 +112,13 @@
     [tracker sendDownload];
     [tracker sendCustomAction:@"TEST_ACTION"];
     [tracker sendCustomAction:@"TEST_ACTION" attr:@{@"testAttr": @"testValue"}];
+    
+    if ([tracker isKindOfClass:AdsTracker.class]) {
+        [(AdsTracker *)tracker sendAdBreakStart];
+        [(AdsTracker *)tracker sendAdClick];
+        [(AdsTracker *)tracker sendAdQuartile];
+        [(AdsTracker *)tracker sendAdBreakEnd];
+    }
 }
-
-
-//- (void)testPerformanceExample {
-//    // This is an example of a performance test case.
-//    [self measureBlock:^{
-//        // Put the code you want to measure the time of here.
-//    }];
-//}
 
 @end
