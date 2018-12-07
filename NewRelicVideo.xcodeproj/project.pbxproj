@@ -28,6 +28,11 @@
 		9C414833212D7B7700850636 /* EventDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414832212D7B4C00850636 /* EventDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C414834212D7C9000850636 /* NewRelicVideoAgent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C414835212D7C9000850636 /* NewRelicVideoAgent.m */; };
+		9C46554E21BAA7BF00F91255 /* NewRelicAgent.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C41483B212D7E8000850636 /* NewRelicAgent.framework */; };
+		9C46555121BAA92A00F91255 /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555021BAA92A00F91255 /* CoreTelephony.framework */; };
+		9C46555321BAA93200F91255 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555221BAA93200F91255 /* SystemConfiguration.framework */; };
+		9C46555521BAA94000F91255 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555421BAA94000F91255 /* libc++.tbd */; };
+		9C46555721BAA94B00F91255 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555621BAA94B00F91255 /* libz.tbd */; };
 		9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */; };
 		9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */; };
 		9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C55217F22F500EECD1F /* LOGCPP.mm */; };
@@ -91,6 +96,10 @@
 		9C414834212D7C9000850636 /* NewRelicVideoAgent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoAgent.h; sourceTree = "<group>"; };
 		9C414835212D7C9000850636 /* NewRelicVideoAgent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NewRelicVideoAgent.m; sourceTree = "<group>"; };
 		9C41483B212D7E8000850636 /* NewRelicAgent.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicAgent.framework; sourceTree = "<group>"; };
+		9C46555021BAA92A00F91255 /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		9C46555221BAA93200F91255 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		9C46555421BAA94000F91255 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		9C46555621BAA94B00F91255 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DictionaryTrans.h; sourceTree = "<group>"; };
 		9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DictionaryTrans.mm; sourceTree = "<group>"; };
 		9C5E4C55217F22F500EECD1F /* LOGCPP.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LOGCPP.mm; sourceTree = "<group>"; };
@@ -150,6 +159,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C46555721BAA94B00F91255 /* libz.tbd in Frameworks */,
+				9C46555521BAA94000F91255 /* libc++.tbd in Frameworks */,
+				9C46555321BAA93200F91255 /* SystemConfiguration.framework in Frameworks */,
+				9C46555121BAA92A00F91255 /* CoreTelephony.framework in Frameworks */,
+				9C46554E21BAA7BF00F91255 /* NewRelicAgent.framework in Frameworks */,
 				9C414822212D7AD400850636 /* NewRelicVideo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -205,6 +219,10 @@
 		9C414838212D7E6800850636 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9C46555621BAA94B00F91255 /* libz.tbd */,
+				9C46555421BAA94000F91255 /* libc++.tbd */,
+				9C46555221BAA93200F91255 /* SystemConfiguration.framework */,
+				9C46555021BAA92A00F91255 /* CoreTelephony.framework */,
 				9C41483B212D7E8000850636 /* NewRelicAgent.framework */,
 			);
 			name = Frameworks;
@@ -740,7 +758,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.16.0;
+				PRODUCT_VERSION = 0.17.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -776,7 +794,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.16.0;
+				PRODUCT_VERSION = 0.17.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -786,6 +804,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = NewRelicVideoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -802,6 +824,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = NewRelicVideoTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
