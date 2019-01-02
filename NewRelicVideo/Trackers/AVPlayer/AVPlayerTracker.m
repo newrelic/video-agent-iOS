@@ -109,6 +109,11 @@
         
         //AV_LOG(@"Time Observer = %f , rate = %f", CMTimeGetSeconds(time), self.player.rate);
         
+        if (!self.player.currentItem) {
+            AV_LOG(@"Time observer event but currentIntem is Nil, aborting");
+            return;
+        }
+        
         // Seeking
         if (self.player.rate == 0) {
             self.numZeroRates ++;
@@ -130,6 +135,7 @@
         // Start
         if (!self.firstFrameHappend) {
             AV_LOG(@"First time observer event -> sendStart");
+            AV_LOG(@"Time Observer = %f , rate = %f , currentItem = %@", CMTimeGetSeconds(time), self.player.rate, self.player.currentItem);
             
             // NOTE: with AVPlayer playlists, the request event only happens for the first video, we need manually send it before start.
             if (self.state == TrackerStateStopped) {
