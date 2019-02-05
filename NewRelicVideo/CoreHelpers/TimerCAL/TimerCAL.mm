@@ -29,9 +29,8 @@
 }
 
 - (void)startTimerInternal:(double)timeInterval {
-    if (self.timer) {
-        [self abortTimerInternal];
-    }
+    
+    [self abortTimerInternal];
     
     self.timer = [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)timeInterval
                                                   target:self
@@ -41,7 +40,10 @@
 }
 
 - (void)abortTimerInternal {
-    
+    if (self.timer) {
+        [self.timer invalidate];
+    }
+    self.timer = nil;
 }
 
 - (void)internalTimerHandler:(NSTimer *)timer {
