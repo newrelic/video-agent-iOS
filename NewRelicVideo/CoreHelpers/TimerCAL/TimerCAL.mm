@@ -57,7 +57,7 @@ void startTimer(TrackerCore *trackerCore, double timeInterval) {
     [[TimerCAL sharedInstance] startTimerInternal:timeInterval];
 }
 
-void abortTimer() {
+void abortTimer(TrackerCore *trackerCore) {
     [[TimerCAL sharedInstance] abortTimerInternal];
     [TimerCAL sharedInstance].trackerCore = NULL;
 }
