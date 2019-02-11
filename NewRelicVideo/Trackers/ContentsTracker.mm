@@ -198,4 +198,12 @@
     return (BOOL)contentsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
 }
 
+- (void)enableHeartbeat {
+    contentsTrackerCore->enableHeartbeat();
+}
+
+- (void)disableHeartbeat {
+    contentsTrackerCore->disableHeartbeat();
+}
+
 @end
