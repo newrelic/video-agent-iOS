@@ -34,6 +34,12 @@
     return instance;
 }
 
+/*
+ TODO:
+ - Rework the project to allow selective compilation. Same structure used in Android, ise a XXXTrackerBuilder class to generate the trackers, instead of referencing the final classes here.
+ - Prepare the agent for mutliple trackers.
+ */
+
 + (void)startWithPlayer:(id)player {
     if ([player isKindOfClass:[AVPlayer class]]) {
         [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
