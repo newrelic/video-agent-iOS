@@ -170,7 +170,7 @@
 }
 
 - (NSNumber *)getIsMuted {
-    return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.isMuted || self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.volume == 0);
+    return @(self.sessionManager.currentCastSession.currentDeviceMuted || self.sessionManager.currentCastSession.currentDeviceVolume == 0.0f);
 }
 
 - (NSNumber *)getIsAutoplayed {
