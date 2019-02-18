@@ -12,3 +12,4 @@
 #import <NewRelicVideo/ContentsTracker.h>
 #import <NewRelicVideo/AdsTracker.h>
 #import <NewRelicVideo/AVPlayerTracker.h>
+#import <NewRelicVideo/GCastTracker.h>

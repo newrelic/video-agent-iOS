@@ -64,6 +64,9 @@
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CDFFC9B221AAED100896DCE /* GCastTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CDFFC99221AAED100896DCE /* GCastTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CDFFC9C221AAED100896DCE /* GCastTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CDFFC9A221AAED100896DCE /* GCastTracker.m */; };
+		9CDFFC9E221AB33900896DCE /* GoogleCast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CDFFC9D221AB33900896DCE /* GoogleCast.framework */; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
@@ -134,6 +137,9 @@
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
 		9CB8487821A44D6A004D161B /* CoreDefs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoreDefs.hpp; sourceTree = "<group>"; };
+		9CDFFC99221AAED100896DCE /* GCastTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GCastTracker.h; sourceTree = "<group>"; };
+		9CDFFC9A221AAED100896DCE /* GCastTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = GCastTracker.m; sourceTree = "<group>"; };
+		9CDFFC9D221AB33900896DCE /* GoogleCast.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleCast.framework; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
@@ -151,6 +157,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CDFFC9E221AB33900896DCE /* GoogleCast.framework in Frameworks */,
 				9C2E809F216672360085B62B /* NewRelicAgent.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -219,6 +226,7 @@
 		9C414838212D7E6800850636 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9CDFFC9D221AB33900896DCE /* GoogleCast.framework */,
 				9C46555621BAA94B00F91255 /* libz.tbd */,
 				9C46555421BAA94000F91255 /* libc++.tbd */,
 				9C46555221BAA93200F91255 /* SystemConfiguration.framework */,
@@ -367,6 +375,15 @@
 			path = TimerCAL;
 			sourceTree = "<group>";
 		};
+		9CDFFC98221AAE7300896DCE /* GCast */ = {
+			isa = PBXGroup;
+			children = (
+				9CDFFC99221AAED100896DCE /* GCastTracker.h */,
+				9CDFFC9A221AAED100896DCE /* GCastTracker.m */,
+			);
+			path = GCast;
+			sourceTree = "<group>";
+		};
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
@@ -376,6 +393,7 @@
 				9CB26A552146636C00A8891D /* AdsTracker.h */,
 				9CFACFB621919D98008627B9 /* AdsTracker.mm */,
 				9CE5D727212EE92F00B89D07 /* AVPlayer */,
+				9CDFFC98221AAE7300896DCE /* GCast */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -429,6 +447,7 @@
 				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
 				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
 				9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */,
+				9CDFFC9B221AAED100896DCE /* GCastTracker.h in Headers */,
 				9C8E78DA217DE911002F0524 /* NewRelicAgentCAL.h in Headers */,
 				9C8E78C8217DC286002F0524 /* BackendActionsCore.hpp in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
@@ -569,6 +588,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CFACFBA21919DF5008627B9 /* AdsTrackerCore.cpp in Sources */,
+				9CDFFC9C221AAED100896DCE /* GCastTracker.m in Sources */,
 				9CB250A3218208AE0094DFEF /* TrackerCore.cpp in Sources */,
 				9C8E78C7217DC286002F0524 /* BackendActionsCore.cpp in Sources */,
 				9CB250AA218708E20094DFEF /* TimestampHolder.cpp in Sources */,
