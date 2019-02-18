@@ -58,7 +58,9 @@
             
         case GCKMediaPlayerStateIdle:
             playerState = @"Idle";
-            [self sendEnd];
+            if (self.state != TrackerStateStopped) {
+                [self sendEnd];
+            }
             break;
             
         case GCKMediaPlayerStatePlaying:
@@ -86,7 +88,9 @@
             
         case GCKMediaPlayerStateBuffering:
             playerState = @"Buffering";
-            [self sendBufferStart];
+            if (self.state != TrackerStateBuffering) {
+                [self sendBufferStart];
+            }
             break;
             
         case GCKMediaPlayerStateLoading:
