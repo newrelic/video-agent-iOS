@@ -97,12 +97,7 @@
             break;
     }
     
-    AV_LOG(@"----------------------------------------------------------------");
-    AV_LOG(@"    Player State: %@", playerState);
-    AV_LOG(@"    Content URL: %@", client.mediaStatus.mediaInformation.contentURL);
-    AV_LOG(@"    Stream duration: %f", client.mediaStatus.mediaInformation.streamDuration);
-    AV_LOG(@"    Playback Rate: %f", client.mediaStatus.playbackRate);
-    AV_LOG(@"    Stream position: %f", client.mediaStatus.streamPosition);
+    AV_LOG(@"----> Player State: %@", playerState);
     
     if (mediaStatus.playerState == GCKMediaPlayerStateIdle) {
         
@@ -127,10 +122,8 @@
                 break;
         }
         
-        AV_LOG(@"    Idle Reason: %@", idleReason);
+        AV_LOG(@"----> Idle Reason: %@", idleReason);
     }
-    
-    AV_LOG(@"----------------------------------------------------------------");
 }
 
 #pragma mark - ContentsTracker getters
