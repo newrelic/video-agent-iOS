@@ -14,6 +14,7 @@
 @interface GCastTracker () <GCKRemoteMediaClientListener>
 
 @property (nonatomic) GCKSessionManager *sessionManager;
+@property (nonatomic) BOOL isAutoPlayed;
 
 @end
 
@@ -28,6 +29,7 @@
 
 - (void)reset {
     [super reset];
+    self.isAutoPlayed = NO;
 }
 
 - (void)setup {
@@ -36,37 +38,66 @@
     if (self.sessionManager) {
         [self.sessionManager.currentCastSession.remoteMediaClient addListener:self];
     }
+    
+    [self sendPlayerReady];
 }
+
+// TODO: capture error cases and send Errors
 
 #pragma mark - GCKRemoteMediaClientListener
 
 - (void)remoteMediaClient:(GCKRemoteMediaClient *)client didUpdateMediaStatus:(nullable GCKMediaStatus *)mediaStatus {
     
-    AV_LOG(@"remoteMediaClient - didUpdateMediaStatus");
-    
     NSString *playerState;
+    
     switch (mediaStatus.playerState) {
         default:
         case GCKMediaPlayerStateUnknown:
             playerState = @"Unknown";
             break;
+            
         case GCKMediaPlayerStateIdle:
             playerState = @"Idle";
+            [self sendEnd];
             break;
+            
         case GCKMediaPlayerStatePlaying:
             playerState = @"Playing";
+            if (self.state == TrackerStateStarting) {
+                [self sendStart];
+            }
+            else if (self.state == TrackerStateBuffering) {
+                [self sendBufferEnd];
+                if (self.state == TrackerStateStarting) {
+                    [self sendStart];
+                }
+            }
+            else if (self.state == TrackerStatePaused) {
+                [self sendResume];
+            }
             break;
+            
         case GCKMediaPlayerStatePaused:
             playerState = @"Paused";
+            if (self.state == TrackerStatePlaying) {
+                [self sendPause];
+            }
             break;
+            
         case GCKMediaPlayerStateBuffering:
             playerState = @"Buffering";
+            [self sendBufferStart];
             break;
+            
         case GCKMediaPlayerStateLoading:
             playerState = @"Loading";
+            if (self.state == TrackerStateStopped) {
+                [self sendRequest];
+            }
             break;
     }
     
+    AV_LOG(@"----------------------------------------------------------------");
     AV_LOG(@"    Player State: %@", playerState);
     AV_LOG(@"    Content URL: %@", client.mediaStatus.mediaInformation.contentURL);
     AV_LOG(@"    Stream duration: %f", client.mediaStatus.mediaInformation.streamDuration);
@@ -98,6 +129,63 @@
         
         AV_LOG(@"    Idle Reason: %@", idleReason);
     }
+    
+    AV_LOG(@"----------------------------------------------------------------");
+}
+
+#pragma mark - ContentsTracker getters
+
+- (NSString *)getTrackerName {
+    return @"gcasttracker";
+}
+
+- (NSString *)getTrackerVersion {
+    return @PRODUCT_VERSION_STR;
+}
+
+- (NSString *)getPlayerVersion {
+    return [[UIDevice currentDevice] systemVersion];
+}
+
+- (NSString *)getPlayerName {
+    return @"gcast";
+}
+
+- (NSNumber *)getDuration {
+    return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.mediaInformation.streamDuration * 1000.0f);
+}
+
+- (NSNumber *)getPlayhead {
+    return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.streamPosition * 1000.0f);
+}
+
+- (NSString *)getSrc {
+    return self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.mediaInformation.contentURL.absoluteString;
+}
+
+- (NSNumber *)getPlayrate {
+    return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.playbackRate);
+}
+
+// NOTE: should be handled by a custom tracker, subclassing it
+- (NSNumber *)getIsLive {
+    return @NO;
+}
+
+- (NSNumber *)getIsMuted {
+    return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.isMuted || self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.volume == 0);
+}
+
+- (NSNumber *)getIsAutoplayed {
+    return @(self.isAutoPlayed);
+}
+
+- (void)setIsAutoplayed:(NSNumber *)state {
+    self.isAutoPlayed = state.boolValue;
+}
+
+- (NSNumber *)getIsFullscreen {
+    return @YES;
 }
 
 @end
