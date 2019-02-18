@@ -7,6 +7,8 @@
 //
 
 #import "GCastTracker.h"
+#import "EventDefs.h"
+
 #import <GoogleCast/GoogleCast.h>
 
 @interface GCastTracker () <GCKRemoteMediaClientListener>
@@ -70,6 +72,32 @@
     AV_LOG(@"    Stream duration: %f", client.mediaStatus.mediaInformation.streamDuration);
     AV_LOG(@"    Playback Rate: %f", client.mediaStatus.playbackRate);
     AV_LOG(@"    Stream position: %f", client.mediaStatus.streamPosition);
+    
+    if (mediaStatus.playerState == GCKMediaPlayerStateIdle) {
+        
+        NSString *idleReason;
+        
+        switch (mediaStatus.idleReason) {
+            default:
+            case GCKMediaPlayerIdleReasonNone:
+                idleReason = @"None";
+                break;
+            case GCKMediaPlayerIdleReasonError:
+                idleReason = @"Error";
+                break;
+            case GCKMediaPlayerIdleReasonFinished:
+                idleReason = @"Finished";
+                break;
+            case GCKMediaPlayerIdleReasonCancelled:
+                idleReason = @"Cancelled";
+                break;
+            case GCKMediaPlayerIdleReasonInterrupted:
+                idleReason = @"Interrupted";
+                break;
+        }
+        
+        AV_LOG(@"    Idle Reason: %@", idleReason);
+    }
 }
 
 @end
