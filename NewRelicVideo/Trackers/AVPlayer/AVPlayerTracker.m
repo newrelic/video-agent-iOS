@@ -67,17 +67,7 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
 
-    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
-        AV_LOG(@"Unregister observers for multiple items");
-        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
-            AV_LOG(@" > item = %@", item);
-            [self unregisterObserversForItem:item];
-        }
-    }
-    else {
-        AV_LOG(@"Unregister observers for one item = %@", self.player.currentItem);
-        [self unregisterObserversForItem:self.player.currentItem];
-    }
+    [self unregisterAllEvents];
     
     @try {
         [self.player removeObserver:self forKeyPath:@"rate"];
@@ -168,17 +158,7 @@
     
     // Register currentItem KVO's
     
-    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
-        AV_LOG(@"Register observers for multiple items");
-        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
-            AV_LOG(@" > item = %@", item);
-            [self registerObserversForItem:item];
-        }
-    }
-    else {
-        AV_LOG(@"Register observers for one item = %@", self.player.currentItem);
-        [self registerObserversForItem:self.player.currentItem];
-    }
+    [self registerAllEvents];
     
     [self.player addObserver:self forKeyPath:@"rate"
                      options:NSKeyValueObservingOptionNew
@@ -193,6 +173,34 @@
     AV_LOG(@"Setup AVPlayer events and listener");
     
     [self sendPlayerReady];
+}
+
+- (void)registerAllEvents {
+    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
+        AV_LOG(@"Register observers for multiple items");
+        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
+            AV_LOG(@" > item = %@", item);
+            [self registerObserversForItem:item];
+        }
+    }
+    else {
+        AV_LOG(@"Register observers for one item = %@", self.player.currentItem);
+        [self registerObserversForItem:self.player.currentItem];
+    }
+}
+
+- (void)unregisterAllEvents {
+    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
+        AV_LOG(@"Unregister observers for multiple items");
+        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
+            AV_LOG(@" > item = %@", item);
+            [self unregisterObserversForItem:item];
+        }
+    }
+    else {
+        AV_LOG(@"Unregister observers for one item = %@", self.player.currentItem);
+        [self unregisterObserversForItem:self.player.currentItem];
+    }
 }
 
 - (void)registerObserversForItem:(AVPlayerItem *)item {
@@ -421,6 +429,9 @@
     self.isAutoPlayed = NO;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
+    
+    // unregister all to avoid crash in iOS10
+    [self unregisterAllEvents];
 }
 
 - (void)sendBufferStart {
