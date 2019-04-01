@@ -142,6 +142,10 @@
                 [self sendRequest];
             }
             
+            if (self.state == TrackerStateBuffering) {
+                [self sendBufferEnd];
+            }
+            
             [self sendStart];
             
             self.firstFrameHappend = YES;
@@ -248,6 +252,12 @@
     
     if (p.status == AVPlayerItemStatusReadyToPlay) {
         AV_LOG(@"status == AVPlayerItemStatusReadyToPlay");
+        
+        if (self.state == TrackerStateBuffering) {
+            AV_LOG(@"sendBufferEnd");
+            [self sendBufferEnd];
+        }
+        
         if (self.state == TrackerStateStarting) {
             AV_LOG(@"sendStart");
             [self sendStart];
@@ -292,6 +302,9 @@
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
                 // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
                 AV_LOG(@"  -> Playback Waiting Data");
+                if (self.state == TrackerStateStarting) {
+                    [self sendBufferStart];
+                }
             }
             else {
                 // Click Pause
@@ -408,6 +421,12 @@
     self.isAutoPlayed = NO;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
+}
+
+- (void)sendBufferStart {
+    if (self.state != TrackerStateBuffering) {
+        [super sendBufferStart];
+    }
 }
 
 #pragma mark - ContentsTracker getters
