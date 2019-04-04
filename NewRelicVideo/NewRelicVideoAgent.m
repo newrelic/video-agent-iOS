@@ -8,11 +8,13 @@
 
 #import "NewRelicVideoAgent.h"
 #import "AVPlayerTracker.h"
-#import "GCastTracker.h"
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
 
+#ifdef GCAST_TRACKER
+#import "GCastTracker.h"
 #import <GoogleCast/GoogleCast.h>
+#endif
 
 @import AVKit;
 
@@ -49,10 +51,12 @@
         [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
         AV_LOG(@"Created AVPlayerViewControllerTracker");
     }
+#ifdef GCAST_TRACKER
     else if ([player isKindOfClass:[GCKSessionManager class]]) {
         [self startWithTracker:[[GCastTracker alloc] initWithGoogleCast:(GCKSessionManager *)player]];
         AV_LOG(@"Created GCastTracker");
     }
+#endif
     else  {
         [[self sharedInstance] setTracker:nil];
         NSLog(@"⚠️ Not recognized player class. ⚠️");

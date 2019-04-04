@@ -530,7 +530,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo" */;
+			buildConfigurationList = 9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo-GCast" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -879,7 +879,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo" */ = {
+		9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo-GCast" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9C41482A212D7AD400850636 /* Debug */,
