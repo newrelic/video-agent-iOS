@@ -355,7 +355,8 @@
     
     // AVPlayerViewController KVOs
     if ([keyPath isEqualToString:@"videoBounds"]) {
-        AV_LOG(@"VIDEO BOUNDS CHANGE = %@", NSStringFromCGRect(self.playerViewController.videoBounds));
+        // NOTE: in tvOS we just ignore the bounds
+        //AV_LOG(@"VIDEO BOUNDS CHANGE = %@", NSStringFromCGRect(self.playerViewController.videoBounds));
         AV_LOG(@"SCREEN BOUNDS = %@", NSStringFromCGRect([UIScreen mainScreen].bounds));
         
         CGRect newBounds = [change[NSKeyValueChangeNewKey] CGRectValue];
