@@ -11,6 +11,11 @@
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
 
+#ifdef GCAST_TRACKER
+#import "GCastTracker.h"
+#import <GoogleCast/GoogleCast.h>
+#endif
+
 @import AVKit;
 
 @interface NewRelicVideoAgent ()
@@ -31,6 +36,12 @@
     return instance;
 }
 
+/*
+ TODO:
+ - Rework the project to allow selective compilation. Same structure used in Android, ise a XXXTrackerBuilder class to generate the trackers, instead of referencing the final classes here.
+ - Prepare the agent for mutliple trackers.
+ */
+
 + (void)startWithPlayer:(id)player {
     if ([player isKindOfClass:[AVPlayer class]]) {
         [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
@@ -40,6 +51,12 @@
         [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
         AV_LOG(@"Created AVPlayerViewControllerTracker");
     }
+#ifdef GCAST_TRACKER
+    else if ([player isKindOfClass:[GCKSessionManager class]]) {
+        [self startWithTracker:[[GCastTracker alloc] initWithGoogleCast:(GCKSessionManager *)player]];
+        AV_LOG(@"Created GCastTracker");
+    }
+#endif
     else  {
         [[self sharedInstance] setTracker:nil];
         NSLog(@"⚠️ Not recognized player class. ⚠️");
