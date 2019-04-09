@@ -64,7 +64,6 @@
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9CDFFC9B221AAED100896DCE /* GCastTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CDFFC99221AAED100896DCE /* GCastTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
@@ -442,7 +441,6 @@
 				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
 				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
 				9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */,
-				9CDFFC9B221AAED100896DCE /* GCastTracker.h in Headers */,
 				9C8E78DA217DE911002F0524 /* NewRelicAgentCAL.h in Headers */,
 				9C8E78C8217DC286002F0524 /* BackendActionsCore.hpp in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
