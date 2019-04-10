@@ -104,7 +104,7 @@
         }
         
         // Seeking
-        if (self.player.rate == 0) {
+        if (self.player.rate != 1) {
             self.numZeroRates ++;
             
             if (self.numZeroRates == 2) {
@@ -315,7 +315,12 @@
             }
             else {
                 // Click Pause
-                [self sendPause];
+                if (self.state == TrackerStateSeeking) {
+                    [self sendSeekEnd];
+                }
+                else {
+                    [self sendPause];
+                }
             }
         }
         else if (rate == 1.0) {
