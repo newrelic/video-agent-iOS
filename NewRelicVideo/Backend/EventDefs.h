@@ -8,7 +8,7 @@
 #ifndef EventDefs_h
 #define EventDefs_h
 
-#define VIDEO_EVENT                 @"VideoEvent"
+#define VIDEO_EVENT                 @"MobileVideo"
 
 #define CONTENT_REQUEST             @"CONTENT_REQUEST"
 #define CONTENT_START               @"CONTENT_START"
