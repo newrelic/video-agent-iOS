@@ -33,6 +33,9 @@
 		9C46555321BAA93200F91255 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555221BAA93200F91255 /* SystemConfiguration.framework */; };
 		9C46555521BAA94000F91255 /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555421BAA94000F91255 /* libc++.tbd */; };
 		9C46555721BAA94B00F91255 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C46555621BAA94B00F91255 /* libz.tbd */; };
+		9C57E2E02279EBB900AE7144 /* BrightcoveTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C57E2DE2279EBB900AE7144 /* BrightcoveTracker.h */; };
+		9C57E2E12279EBB900AE7144 /* BrightcoveTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C57E2DF2279EBB900AE7144 /* BrightcoveTracker.m */; };
+		9C57E2E32279F17400AE7144 /* NRTrackerBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C57E2E22279F17400AE7144 /* NRTrackerBuilder.h */; };
 		9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */; };
 		9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */; };
 		9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C5E4C55217F22F500EECD1F /* LOGCPP.mm */; };
@@ -100,6 +103,9 @@
 		9C46555221BAA93200F91255 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		9C46555421BAA94000F91255 /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9C46555621BAA94B00F91255 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		9C57E2DE2279EBB900AE7144 /* BrightcoveTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BrightcoveTracker.h; sourceTree = "<group>"; };
+		9C57E2DF2279EBB900AE7144 /* BrightcoveTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BrightcoveTracker.m; sourceTree = "<group>"; };
+		9C57E2E22279F17400AE7144 /* NRTrackerBuilder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NRTrackerBuilder.h; sourceTree = "<group>"; };
 		9C5E4C50217E2C8600EECD1F /* DictionaryTrans.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DictionaryTrans.h; sourceTree = "<group>"; };
 		9C5E4C51217E2C8600EECD1F /* DictionaryTrans.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DictionaryTrans.mm; sourceTree = "<group>"; };
 		9C5E4C55217F22F500EECD1F /* LOGCPP.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = LOGCPP.mm; sourceTree = "<group>"; };
@@ -228,6 +234,15 @@
 				9C41483B212D7E8000850636 /* NewRelicAgent.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9C57E2DD2279EB6A00AE7144 /* Brightcove */ = {
+			isa = PBXGroup;
+			children = (
+				9C57E2DE2279EBB900AE7144 /* BrightcoveTracker.h */,
+				9C57E2DF2279EBB900AE7144 /* BrightcoveTracker.m */,
+			);
+			path = Brightcove;
 			sourceTree = "<group>";
 		};
 		9C5E4C4F217E2C4200EECD1F /* DictionaryTrans */ = {
@@ -381,6 +396,7 @@
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				9C57E2E22279F17400AE7144 /* NRTrackerBuilder.h */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
 				9CB26A49214127E800A8891D /* ContentsTracker.h */,
 				9CB250B5218863040094DFEF /* ContentsTracker.mm */,
@@ -388,6 +404,7 @@
 				9CFACFB621919D98008627B9 /* AdsTracker.mm */,
 				9CE5D727212EE92F00B89D07 /* AVPlayer */,
 				9CDFFC98221AAE7300896DCE /* GCast */,
+				9C57E2DD2279EB6A00AE7144 /* Brightcove */,
 			);
 			path = Trackers;
 			sourceTree = "<group>";
@@ -448,12 +465,14 @@
 				9CB250AB218708E20094DFEF /* TimestampHolder.hpp in Headers */,
 				9CB2509C2181B8CB0094DFEF /* PlaybackAutomatCore.hpp in Headers */,
 				9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */,
+				9C57E2E02279EBB900AE7144 /* BrightcoveTracker.h in Headers */,
 				9CA3DE032136BB3000205DC4 /* Vars.h in Headers */,
 				9CFACFB42190570A008627B9 /* LogCAL.h in Headers */,
 				9CE5D7392133F58F00B89D07 /* LOG.h in Headers */,
 				9C414833212D7B7700850636 /* EventDefs.h in Headers */,
 				9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */,
 				9CFACFBB21919DF5008627B9 /* AdsTrackerCore.hpp in Headers */,
+				9C57E2E32279F17400AE7144 /* NRTrackerBuilder.h in Headers */,
 				9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */,
 				9CB250AF218713590094DFEF /* DatetimeCAL.h in Headers */,
 				9CB250B421875F250094DFEF /* ContentsTrackerCore.hpp in Headers */,
@@ -523,7 +542,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo" */;
+			buildConfigurationList = 9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo-Brightcove" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -589,6 +608,7 @@
 				9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CFACFB52190570A008627B9 /* LogCAL.mm in Sources */,
+				9C57E2E12279EBB900AE7144 /* BrightcoveTracker.m in Sources */,
 				9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */,
 				9CB250B6218863040094DFEF /* ContentsTracker.mm in Sources */,
 				9CE5D73A2133F58F00B89D07 /* LOG.m in Sources */,
@@ -871,7 +891,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo" */ = {
+		9C414812212D7AD400850636 /* Build configuration list for PBXProject "NewRelicVideo-Brightcove" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				9C41482A212D7AD400850636 /* Debug */,

@@ -7,16 +7,9 @@
 //
 
 #import "NewRelicVideoAgent.h"
-#import "AVPlayerTracker.h"
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
-
-#ifdef GCAST_TRACKER
-#import "GCastTracker.h"
-#import <GoogleCast/GoogleCast.h>
-#endif
-
-@import AVKit;
+#import "NRTrackerBuilder.h"
 
 @interface NewRelicVideoAgent ()
 
@@ -38,29 +31,18 @@
 
 /*
  TODO:
- - Rework the project to allow selective compilation. Same structure used in Android, ise a XXXTrackerBuilder class to generate the trackers, instead of referencing the final classes here.
  - Prepare the agent for mutliple trackers.
  */
 
-+ (void)startWithPlayer:(id)player {
-    if ([player isKindOfClass:[AVPlayer class]]) {
-        [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
-        AV_LOG(@"Created AVPlayerTracker");
-    }
-    else if ([player isKindOfClass:[AVPlayerViewController class]]) {
-        [self startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
-        AV_LOG(@"Created AVPlayerViewControllerTracker");
-    }
-#ifdef GCAST_TRACKER
-    else if ([player isKindOfClass:[GCKSessionManager class]]) {
-        [self startWithTracker:[[GCastTracker alloc] initWithGoogleCast:(GCKSessionManager *)player]];
-        AV_LOG(@"Created GCastTracker");
-    }
-#endif
-    else  {
++ (void)startWithPlayer:(id)player usingBuilder:(Class<NRTrackerBuilder>)trackerBuilderClass {
+    if (![trackerBuilderClass startWithPlayer:player]) {
         [[self sharedInstance] setTracker:nil];
         NSLog(@"⚠️ Not recognized player class. ⚠️");
     }
+}
+
++ (void)startWithPlayer:(id)player {
+    NSLog(@"⚠️ WARNING: startWithPlayer: is DEPRECATED, use startWithPlayer:usingBuilder: instead ⚠️");
 }
 
 + (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker {
