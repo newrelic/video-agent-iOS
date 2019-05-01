@@ -8,10 +8,12 @@
 #import <Foundation/Foundation.h>
 #import "ContentsTracker.h"
 
+@import BrightcovePlayerSDK;
+
 /**
  `BrightcoveTracker` is the base class to manage the content events of a Brightcove player. It can be used directly or subclassed.
  */
-@interface BrightcoveTracker : ContentsTracker <ContentsTrackerProtocol>
+@interface BrightcoveTracker : ContentsTracker <ContentsTrackerProtocol, BCOVPlaybackControllerDelegate>
 
 /**
  Create a `BrightcoveTracker` instance using a `GCKSessionManager` instance.
