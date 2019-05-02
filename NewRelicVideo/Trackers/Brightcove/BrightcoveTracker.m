@@ -179,16 +179,10 @@
     }
 }
 
-/*
 - (NSString *)getSrc {
     AVAsset *currentPlayerAsset = self.player.currentItem.asset;
     if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
     return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
-}
- */
-
-- (NSString *)getSrc {
-    return _playbackController.analytics.source;
 }
 
 - (NSNumber *)getPlayrate {

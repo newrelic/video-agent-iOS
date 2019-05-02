@@ -65,7 +65,13 @@ ValueHolder fromNSValue(id value) {
     ValueHolder fValue;
     
     if ([value isKindOfClass:[NSString class]]) {
-        fValue = ValueHolder(std::string([value UTF8String]));
+        std::string strVal = std::string([value UTF8String]);
+        if (strVal.empty()) {
+            fValue = ValueHolder();
+        }
+        else {
+            fValue = ValueHolder(strVal);
+        }
     }
     else if ([value isKindOfClass:[NSNumber class]]) {
         CFNumberType numberType = CFNumberGetType((CFNumberRef)value);
