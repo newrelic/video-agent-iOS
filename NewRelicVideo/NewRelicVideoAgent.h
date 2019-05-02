@@ -12,7 +12,7 @@
 
 @protocol ContentsTrackerProtocol;
 @protocol AdsTrackerProtocol;
-@protocol NRTrackerBuilder;
+@protocol TrackerBuilder;
 
 /**
  `NewRelicVideoAgent` contains the methods to start the Video Agent and access tracker instances.
@@ -27,7 +27,7 @@
  @param player The player object.
  @param trackerBuilderClass The tracker builder class.
  */
-+ (void)startWithPlayer:(id)player usingBuilder:(Class<NRTrackerBuilder>)trackerBuilderClass;
++ (void)startWithPlayer:(id)player usingBuilder:(Class<TrackerBuilder>)trackerBuilderClass;
 
 /**
  (DEPRECATED) Starts New Relic Video data collection for AVPlayer (using the default tracker builder).

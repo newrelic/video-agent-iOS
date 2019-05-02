@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NRTrackerBuilder.h"
+#import "TrackerBuilder.h"
 
-@interface AVPlayerTrackerBuilder : NSObject <NRTrackerBuilder>
+@interface AVPlayerTrackerBuilder : NSObject <TrackerBuilder>
 
 @end

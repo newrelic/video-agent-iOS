@@ -6,8 +6,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NRTrackerBuilder.h"
+#import "TrackerBuilder.h"
 
-@interface BrightcoveTrackerBuilder : NSObject <NRTrackerBuilder>
+@interface BrightcoveTrackerBuilder : NSObject <TrackerBuilder>
 
 @end

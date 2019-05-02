@@ -1,5 +1,5 @@
 //
-//  NRTrackerBuilder.h
+//  TrackerBuilder.h
 //  New Relic Video Agent for Mobile -- iOS edition
 //
 //  Copyright © 2019 New Relic Inc. All rights reserved.
@@ -8,9 +8,9 @@
 #import <Foundation/Foundation.h>
 
 /**
- `NRTrackerBuilder` protocol defines the methos that any tracker builder needs.
+ `TrackerBuilder` protocol defines the methos that any tracker builder needs.
  */
-@protocol NRTrackerBuilder <NSObject>
+@protocol TrackerBuilder <NSObject>
 
 @required
 

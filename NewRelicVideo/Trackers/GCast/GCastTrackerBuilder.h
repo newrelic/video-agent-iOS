@@ -7,8 +7,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NRTrackerBuilder.h"
+#import "TrackerBuilder.h"
 
-@interface GCastTrackerBuilder : NSObject <NRTrackerBuilder>
+@interface GCastTrackerBuilder : NSObject <TrackerBuilder>
 
 @end

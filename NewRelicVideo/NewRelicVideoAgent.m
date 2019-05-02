@@ -9,7 +9,7 @@
 #import "NewRelicVideoAgent.h"
 #import "ContentsTracker.h"
 #import "AdsTracker.h"
-#import "NRTrackerBuilder.h"
+#import "TrackerBuilder.h"
 
 @interface NewRelicVideoAgent ()
 
@@ -34,7 +34,7 @@
  - Prepare the agent for mutliple trackers.
  */
 
-+ (void)startWithPlayer:(id)player usingBuilder:(Class<NRTrackerBuilder>)trackerBuilderClass {
++ (void)startWithPlayer:(id)player usingBuilder:(Class<TrackerBuilder>)trackerBuilderClass {
     if (![trackerBuilderClass startWithPlayer:player]) {
         [[self sharedInstance] setTracker:nil];
         NSLog(@"⚠️ Not recognized player class. ⚠️");
