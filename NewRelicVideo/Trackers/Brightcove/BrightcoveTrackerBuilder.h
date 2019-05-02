@@ -1,8 +1,7 @@
 //
 //  BrightcoveTrackerBuilder.h
-//  NewRelicVideo
+//  New Relic Video Agent for Mobile -- iOS edition
 //
-//  Created by Andreu Santaren on 01/05/2019.
 //  Copyright © 2019 New Relic Inc. All rights reserved.
 //
 
