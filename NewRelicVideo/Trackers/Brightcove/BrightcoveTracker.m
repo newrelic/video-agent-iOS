@@ -34,10 +34,6 @@
     [self sendPlayerReady];
 }
 
-- (void)updateSession:(id<BCOVPlaybackSession>)session {
-    self.playbackSession = session;
-}
-
 - (void)updatePlayerState:(BCOVPlaybackSessionLifecycleEvent *)lifecycleEven {
     
     if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventEnd]) {
@@ -103,12 +99,11 @@
 
 - (void)playbackController:(id<BCOVPlaybackController>)controller didAdvanceToPlaybackSession:(id<BCOVPlaybackSession>)session {
     AV_LOG(@"didAdvanceToPlaybackSession");
-    [self updateSession:session];
+    self.playbackSession = session;
 }
 
 - (void)playbackController:(id<BCOVPlaybackController>)controller playbackSession:(id<BCOVPlaybackSession>)session didProgressTo:(NSTimeInterval)progress {
     //AV_LOG(@"didProgressTo = %0.2f seconds", progress);
-    [self updateSession:session];
     
     if (self.state == TrackerStateStarting) {
         [self sendStart];
@@ -121,18 +116,16 @@
 
 - (void)playbackController:(id<BCOVPlaybackController>)controller playbackSession:(id<BCOVPlaybackSession>)session didReceiveLifecycleEvent:(BCOVPlaybackSessionLifecycleEvent *)lifecycleEvent {
     AV_LOG(@"didReceiveLifecycleEvent = %@", lifecycleEvent);
-    [self updateSession:session];
+    
     [self updatePlayerState:lifecycleEvent];
 }
 
 - (void)playbackController:(id<BCOVPlaybackController>)controller playbackSession:(id<BCOVPlaybackSession>)session didPassCuePoints:(NSDictionary *)cuePointInfo {
     AV_LOG(@"didPassCuePoints = %@", cuePointInfo);
-    [self updateSession:session];
 }
 
 - (void)playbackSession:(id<BCOVPlaybackSession>)session didChangeDuration:(NSTimeInterval)duration {
     AV_LOG(@"didChangeDuration = %0.2f seconds", duration);
-    [self updateSession:session];
 }
 
 #pragma mark - ContentsTracker getters
