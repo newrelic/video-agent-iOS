@@ -141,7 +141,7 @@
 }
 
 - (NSString *)getPlayerVersion {
-    return [[UIDevice currentDevice] systemVersion];
+    return kGCKFrameworkVersion;
 }
 
 - (NSString *)getPlayerName {
