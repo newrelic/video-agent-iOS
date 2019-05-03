@@ -58,6 +58,9 @@
             if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPause]) {
                 [self sendPause];
             }
+            else if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPlaybackBufferEmpty]) {
+                [self sendBufferStart];
+            }
             
             break;
         }
@@ -65,6 +68,9 @@
         case TrackerStatePaused: {
             if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPlay]) {
                 [self sendResume];
+            }
+            else if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPlaybackBufferEmpty]) {
+                [self sendSeekStart];
             }
             break;
         }
@@ -77,12 +83,18 @@
                 [self sendBufferEnd];
                 [self sendRequest];
             }
+            else if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPlaybackLikelyToKeepUp]) {
+                [self sendBufferEnd];
+            }
             
             break;
         }
             
         case TrackerStateSeeking: {
-            
+            if ([lifecycleEven.eventType isEqualToString:kBCOVPlaybackSessionLifecycleEventPlay]) {
+                [self sendSeekEnd];
+                [self sendResume];
+            }
             break;
         }
             
@@ -103,7 +115,7 @@
 }
 
 - (void)playbackController:(id<BCOVPlaybackController>)controller playbackSession:(id<BCOVPlaybackSession>)session didProgressTo:(NSTimeInterval)progress {
-    //AV_LOG(@"didProgressTo = %0.2f seconds", progress);
+    AV_LOG(@"didProgressTo = %0.2f seconds", progress);
     
     if (self.state == TrackerStateStarting) {
         [self sendStart];
