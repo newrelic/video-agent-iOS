@@ -177,7 +177,7 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  
  @param key Name of parameter.
  @param value Value of parameter.
- @param action Name of action
+ @param action Name of action.
  */
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 
@@ -205,6 +205,23 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  @return True if attribute name is recognized, False if not.
  */
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr;
+
+/**
+ Enable heartbeats.
+ */
+- (void)enableHeartbeat;
+
+/**
+ Disable heartbeats.
+ */
+- (void)disableHeartbeat;
+
+/**
+ Set custom heartbeat time in ticks. The number of tick is multiplied by 2 to obtain the actual number of seconds.
+ 
+ @param ticks Number of ticks.
+ */
+- (void)setHeartbeatTicks:(int)ticks;
 
 @optional
 

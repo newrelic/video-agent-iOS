@@ -206,4 +206,8 @@
     contentsTrackerCore->disableHeartbeat();
 }
 
+- (void)setHeartbeatTicks:(int)ticks {
+    contentsTrackerCore->setHeartbeatTime(ticks);
+}
+
 @end

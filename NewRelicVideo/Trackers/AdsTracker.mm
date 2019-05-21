@@ -233,4 +233,16 @@
     return (BOOL)adsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
 }
 
+- (void)enableHeartbeat {
+    adsTrackerCore->enableHeartbeat();
+}
+
+- (void)disableHeartbeat {
+    adsTrackerCore->disableHeartbeat();
+}
+
+- (void)setHeartbeatTicks:(int)ticks {
+    adsTrackerCore->setHeartbeatTime(ticks);
+}
+
 @end

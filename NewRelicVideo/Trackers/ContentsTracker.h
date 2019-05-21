@@ -48,7 +48,4 @@
  */
 @interface ContentsTracker : NSObject <TrackerProtocol>
 
-- (void)enableHeartbeat;
-- (void)disableHeartbeat;
-
 @end
