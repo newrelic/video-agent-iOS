@@ -11,6 +11,7 @@
 #import "DictionaryTrans.h"
 #import "ValueHolder.hpp"
 #import "GettersCAL.h"
+#import "TimerCAL.h"
 
 @interface ContentsTracker ()
 {
@@ -84,6 +85,7 @@
 
 - (void)sendRequest {
     contentsTrackerCore->sendRequest();
+    [[TimerCAL sharedInstance] startTimer:self time:HEARTBEAT_TIME];
 }
 
 - (void)sendStart {
@@ -91,6 +93,7 @@
 }
 
 - (void)sendEnd {
+    [[TimerCAL sharedInstance] abortTimer:self];
     contentsTrackerCore->sendEnd();
 }
 
@@ -182,18 +185,6 @@
 
 #pragma mark - Time
 
-- (void)startTimerEvent {
-    contentsTrackerCore->startTimerEvent();
-}
-
-- (void)abortTimerEvent {
-    contentsTrackerCore->abortTimerEvent();
-}
-
-- (void)trackerTimeEvent {
-    contentsTrackerCore->trackerTimeEvent();
-}
-
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
     return (BOOL)contentsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
 }
@@ -204,10 +195,6 @@
 
 - (void)disableHeartbeat {
     contentsTrackerCore->disableHeartbeat();
-}
-
-- (void)setHeartbeatTicks:(int)ticks {
-    contentsTrackerCore->setHeartbeatTime(ticks);
 }
 
 @end

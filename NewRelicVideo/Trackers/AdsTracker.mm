@@ -217,18 +217,6 @@
 
 #pragma mark - Time
 
-- (void)startTimerEvent {
-    adsTrackerCore->startTimerEvent();
-}
-
-- (void)abortTimerEvent {
-    adsTrackerCore->abortTimerEvent();
-}
-
-- (void)trackerTimeEvent {
-    adsTrackerCore->trackerTimeEvent();
-}
-
 - (BOOL)setTimestamp:(NSTimeInterval)timestamp attributeName:(NSString *)attr {
     return (BOOL)adsTrackerCore->setTimestamp((double)timestamp, std::string([attr UTF8String]));
 }
@@ -239,10 +227,6 @@
 
 - (void)disableHeartbeat {
     adsTrackerCore->disableHeartbeat();
-}
-
-- (void)setHeartbeatTicks:(int)ticks {
-    adsTrackerCore->setHeartbeatTime(ticks);
 }
 
 @end

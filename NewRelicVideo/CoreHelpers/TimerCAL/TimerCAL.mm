@@ -8,11 +8,12 @@
 
 #import "TimerCAL.h"
 #import "TrackerCore.hpp"
+#import "Tracker.h"
 
 @interface TimerCAL ()
 
 @property (nonatomic) NSTimer *timer;
-@property (nonatomic) TrackerCore *trackerCore;
+@property (nonatomic) id<TrackerProtocol> tracker;
 
 @end
 
@@ -23,7 +24,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[TimerCAL alloc] init];
-        sharedInstance.trackerCore = NULL;
+        sharedInstance.tracker = nil;
     });
     return sharedInstance;
 }
@@ -47,19 +48,19 @@
 }
 
 - (void)internalTimerHandler:(NSTimer *)timer {
-    if (self.trackerCore) {
-        self.trackerCore->trackerTimeEvent();
+    if (self.tracker) {
+        [self.tracker sendHeartbeat];
     }
 }
 
-void startTimer(TrackerCore *trackerCore, double timeInterval) {
-    [TimerCAL sharedInstance].trackerCore = trackerCore;
+- (void)startTimer:(id<TrackerProtocol>)tracker time:(double)timeInterval {
+    [TimerCAL sharedInstance].tracker = tracker;
     [[TimerCAL sharedInstance] startTimerInternal:timeInterval];
 }
 
-void abortTimer(TrackerCore *trackerCore) {
+- (void)abortTimer:(id<TrackerProtocol>)tracker {
     [[TimerCAL sharedInstance] abortTimerInternal];
-    [TimerCAL sharedInstance].trackerCore = NULL;
+    [TimerCAL sharedInstance].tracker = nil;
 }
 
 @end

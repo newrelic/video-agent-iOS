@@ -272,7 +272,12 @@
     }
     else if (p.status == AVPlayerItemStatusFailed) {
         AV_LOG(@"#### ERROR WHILE PLAYING");
-        // NOTE: this is probably redundant and already catched in "rate" KVO when self.player.error != nil
+        if (p.error) {
+            [self sendError:p.error.localizedDescription];
+        }
+        else {
+            [self sendError:@"<UNKNOWN>"];
+        }
     }
     else if (p.status == AVPlayerItemStatusUnknown) {
         AV_LOG(@"status == AVPlayerItemStatusUnknown");
@@ -377,7 +382,9 @@
     }
 }
 
+// TODO: do this with an indep timer, not trackerTimerEvent
 // Time Evenent, called by a timer in the superclass, every OBSERVATION_TIME seconds
+/*
 - (void)trackerTimeEvent {
     [super trackerTimeEvent];
     
@@ -395,6 +402,7 @@
 
     [self setupBitrateOptions];
 }
+ */
 
 - (void)setupBitrateOptions {
     // Calc estimated bitrate and send a rendition change event if it changed

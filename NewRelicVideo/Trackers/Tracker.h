@@ -182,22 +182,6 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 
 /**
- Start timer. Timer is used for heartbeats and other time dependant calculations.
- It is automatically started when a `sendRequest` happens and aborted when a `sendEnd`.
- */
-- (void)startTimerEvent;
-
-/**
- Abort timer.
- */
-- (void)abortTimerEvent;
-
-/**
- Timer handler. The method called everytime a timer event happens.
- */
-- (void)trackerTimeEvent;
-
-/**
  Set custom timestamp for a given timer attribute.
  
  @param timestamp Timestamp.
@@ -215,13 +199,6 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  Disable heartbeats.
  */
 - (void)disableHeartbeat;
-
-/**
- Set custom heartbeat time in ticks. The number of tick is multiplied by 2 to obtain the actual number of seconds.
- 
- @param ticks Number of ticks.
- */
-- (void)setHeartbeatTicks:(int)ticks;
 
 @optional
 
