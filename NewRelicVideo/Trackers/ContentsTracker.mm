@@ -18,6 +18,7 @@
     ContentsTrackerCore *contentsTrackerCore;
     float heartbeatTime;
     BOOL timerIsActivated;
+    BOOL heartbeatEnabled;
 }
 @end
 
@@ -80,6 +81,8 @@
 }
 
 - (void)setup {
+    timerIsActivated = NO;
+    heartbeatEnabled = YES;
     heartbeatTime = HEARTBEAT_TIME;
     contentsTrackerCore->setup();
 }
@@ -88,8 +91,7 @@
 
 - (void)sendRequest {
     contentsTrackerCore->sendRequest();
-    [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
-    timerIsActivated = YES;
+    [self startHbTimer];
 }
 
 - (void)sendStart {
@@ -97,8 +99,7 @@
 }
 
 - (void)sendEnd {
-    [[TimerCAL sharedInstance] abortTimer:self];
-    timerIsActivated = NO;
+    [self stopHbTimer];
     contentsTrackerCore->sendEnd();
 }
 
@@ -195,11 +196,13 @@
 }
 
 - (void)enableHeartbeat {
-    contentsTrackerCore->enableHeartbeat();
+    heartbeatEnabled = YES;
+    [self startHbTimer];
 }
 
 - (void)disableHeartbeat {
-    contentsTrackerCore->disableHeartbeat();
+    heartbeatEnabled = NO;
+    [self stopHbTimer];
 }
 
 - (void)setHeartbeatTime:(int)seconds {
@@ -207,8 +210,23 @@
     heartbeatTime = (float)seconds;
     
     if (timerIsActivated) {
+        [self stopHbTimer];
+        [self startHbTimer];
+    }
+}
+
+// Private
+
+- (void)startHbTimer {
+    if (heartbeatEnabled) {
+        timerIsActivated = YES;
         [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
     }
+}
+
+- (void)stopHbTimer {
+    timerIsActivated = NO;
+    [[TimerCAL sharedInstance] abortTimer:self];
 }
 
 @end

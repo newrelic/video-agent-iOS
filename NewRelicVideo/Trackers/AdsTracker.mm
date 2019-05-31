@@ -227,11 +227,11 @@
 }
 
 - (void)enableHeartbeat {
-    adsTrackerCore->enableHeartbeat();
+    //adsTrackerCore->enableHeartbeat();
 }
 
 - (void)disableHeartbeat {
-    adsTrackerCore->disableHeartbeat();
+    //adsTrackerCore->disableHeartbeat();
 }
 
 - (void)setHeartbeatTime:(int)seconds {
