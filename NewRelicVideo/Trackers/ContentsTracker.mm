@@ -16,6 +16,8 @@
 @interface ContentsTracker ()
 {
     ContentsTrackerCore *contentsTrackerCore;
+    float heartbeatTime;
+    BOOL timerIsActivated;
 }
 @end
 
@@ -78,6 +80,7 @@
 }
 
 - (void)setup {
+    heartbeatTime = HEARTBEAT_TIME;
     contentsTrackerCore->setup();
 }
 
@@ -85,7 +88,8 @@
 
 - (void)sendRequest {
     contentsTrackerCore->sendRequest();
-    [[TimerCAL sharedInstance] startTimer:self time:HEARTBEAT_TIME];
+    [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+    timerIsActivated = YES;
 }
 
 - (void)sendStart {
@@ -94,6 +98,7 @@
 
 - (void)sendEnd {
     [[TimerCAL sharedInstance] abortTimer:self];
+    timerIsActivated = NO;
     contentsTrackerCore->sendEnd();
 }
 
@@ -195,6 +200,15 @@
 
 - (void)disableHeartbeat {
     contentsTrackerCore->disableHeartbeat();
+}
+
+- (void)setHeartbeatTime:(int)seconds {
+    seconds = MAX(5, seconds);
+    heartbeatTime = (float)seconds;
+    
+    if (timerIsActivated) {
+        [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+    }
 }
 
 @end

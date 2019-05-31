@@ -200,6 +200,13 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  */
 - (void)disableHeartbeat;
 
+/**
+ Set custom time for heartbeat.
+ 
+ @param seconds Time in seconds. Minimum 5 seconds.
+ */
+- (void)setHeartbeatTime:(int)seconds;
+
 @optional
 
 /**

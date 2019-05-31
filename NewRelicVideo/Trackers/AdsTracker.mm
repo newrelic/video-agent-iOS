@@ -13,6 +13,7 @@
 #import "GettersCAL.h"
 #import "ContentsTrackerCore.hpp"
 #import "ContentsTracker.h"
+#import "TimerCAL.h"
 
 @interface ContentsTracker ()
 
@@ -23,6 +24,7 @@
 @interface AdsTracker ()
 {
     AdsTrackerCore *adsTrackerCore;
+    float heartbeatTime;
 }
 @end
 
@@ -90,6 +92,7 @@
 }
 
 - (void)setup {
+    heartbeatTime = HEARTBEAT_TIME;
     adsTrackerCore->setup();
 }
 
@@ -97,6 +100,7 @@
 
 - (void)sendRequest {
     adsTrackerCore->sendRequest();
+    [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
 }
 
 - (void)sendStart {
@@ -104,6 +108,7 @@
 }
 
 - (void)sendEnd {
+    [[TimerCAL sharedInstance] abortTimer:self];
     adsTrackerCore->sendEnd();
 }
 
@@ -227,6 +232,11 @@
 
 - (void)disableHeartbeat {
     adsTrackerCore->disableHeartbeat();
+}
+
+- (void)setHeartbeatTime:(int)seconds {
+    seconds = MAX(5, seconds);
+    heartbeatTime = (float)seconds;
 }
 
 @end
