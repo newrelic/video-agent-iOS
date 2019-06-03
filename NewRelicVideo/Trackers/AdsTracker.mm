@@ -25,6 +25,8 @@
 {
     AdsTrackerCore *adsTrackerCore;
     float heartbeatTime;
+    BOOL timerIsActivated;
+    BOOL heartbeatEnabled;
 }
 @end
 
@@ -227,16 +229,37 @@
 }
 
 - (void)enableHeartbeat {
-    //adsTrackerCore->enableHeartbeat();
+    heartbeatEnabled = YES;
+    [self startHbTimer];
 }
 
 - (void)disableHeartbeat {
-    //adsTrackerCore->disableHeartbeat();
+    heartbeatEnabled = NO;
+    [self stopHbTimer];
 }
 
 - (void)setHeartbeatTime:(int)seconds {
     seconds = MAX(5, seconds);
     heartbeatTime = (float)seconds;
+    
+    if (timerIsActivated) {
+        [self stopHbTimer];
+        [self startHbTimer];
+    }
+}
+
+// Private
+
+- (void)startHbTimer {
+    if (heartbeatEnabled) {
+        timerIsActivated = YES;
+        [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+    }
+}
+
+- (void)stopHbTimer {
+    timerIsActivated = NO;
+    [[TimerCAL sharedInstance] abortTimer:self];
 }
 
 @end
