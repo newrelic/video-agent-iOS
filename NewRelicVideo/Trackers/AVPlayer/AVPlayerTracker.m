@@ -547,4 +547,13 @@
     return @(self.isFullScreen);
 }
 
+#pragma mark - Optonal methods
+
+- (void)stop {
+    if (self.player.currentItem != nil) {
+        [self sendEnd];
+        [self.player pause];
+    }
+}
+
 @end

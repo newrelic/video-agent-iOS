@@ -27,6 +27,13 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
  */
 @protocol TrackerProtocol <NSObject>
 
+@optional
+
+/**
+ Stop current item.
+ */
+- (void)stop;
+
 @required
 
 /**
