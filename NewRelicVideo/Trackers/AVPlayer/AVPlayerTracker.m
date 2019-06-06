@@ -65,6 +65,8 @@
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    
+    AV_LOG(@"Unregistered AVPlayerItemTimeJumpedNotification and AVPlayerItemDidPlayToEndTimeNotification");
 
     [self unregisterAllEvents];
     
@@ -80,9 +82,9 @@
             [self.playerViewController removeObserver:self forKeyPath:@"videoBounds"];
         }
         @catch (id e) {}
+        
+        AV_LOG(@"Unregistered PlayerController videoBounds");
     }
-    
-    AV_LOG(@"Unregistered PlayerController videoBounds");
 }
 
 - (void)setup {
@@ -155,6 +157,8 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
+    AV_LOG(@"Registered AVPlayerItemTimeJumpedNotification and AVPlayerItemDidPlayToEndTimeNotification");
+    
     // Register currentItem KVO's
     
     [self registerAllEvents];
@@ -163,13 +167,15 @@
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
+    AV_LOG(@"Registered Player Rate");
+    
     if (self.playerViewController) {
         [self.playerViewController addObserver:self forKeyPath:@"videoBounds"
                                        options:NSKeyValueObservingOptionNew
                                        context:NULL];
+        
+        AV_LOG(@"Registered PlayerController videoBounds");
     }
-    
-    AV_LOG(@"Setup AVPlayer events and listener");
     
     [self sendPlayerReady];
 }
@@ -208,13 +214,19 @@
               options:NSKeyValueObservingOptionNew
               context:NULL];
     
+    AV_LOG(@"Registered playbackBufferEmpty for item");
+    
     [item addObserver:self forKeyPath:@"playbackBufferFull"
               options:NSKeyValueObservingOptionNew
               context:NULL];
     
+    AV_LOG(@"Registered playbackBufferFull for item");
+    
     [item addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
               options:NSKeyValueObservingOptionNew
               context:NULL];
+    
+    AV_LOG(@"Registered playbackLikelyToKeepUp for item");
 }
 
 - (void)unregisterObserversForItem:(AVPlayerItem *)item {
@@ -451,6 +463,12 @@
     if (self.state != TrackerStateBuffering) {
         [super sendBufferStart];
     }
+}
+
+- (void)sendRequest {
+    [self unregisterAllEvents];
+    [self registerAllEvents];
+    [super sendRequest];
 }
 
 #pragma mark - ContentsTracker getters
