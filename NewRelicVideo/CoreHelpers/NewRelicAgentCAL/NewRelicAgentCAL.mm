@@ -30,7 +30,8 @@
     if (self = [super init]) {
         self.timestamp = timestamp;
         self.attributes = attributes;
-        [self.attributes setObject:@((long)(timestamp * 1000.0f)) forKey:@"timestamp"];
+        [self.attributes setObject:@((long)(timestamp * 1000.0f)) forKey:@"realTimestamp"];
+        [self.attributes setObject:@(YES) forKey:@"isBackgroundEvent"];
     }
     return self;
 }
@@ -90,6 +91,7 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
         return (bool)NO;
     }
     else {
+        [attributes setObject:@(NO) forKey:@"isBackgroundEvent"];
         if ([NewRelicAgent currentSessionId]) {
             [[NewRelicAgentCAL sharedInstance] flushBackgroundEvents];
             return (bool)[NewRelic recordCustomEvent:VIDEO_EVENT attributes:attributes];
