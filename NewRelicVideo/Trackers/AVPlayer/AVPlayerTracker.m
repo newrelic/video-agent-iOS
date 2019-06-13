@@ -568,7 +568,7 @@
 #pragma mark - Optonal methods
 
 - (void)stop {
-    if (self.player.currentItem != nil) {
+    if (self.player.currentItem != nil && self.state != TrackerStateStopped) {
         [self sendEnd];
         [self.player pause];
     }
