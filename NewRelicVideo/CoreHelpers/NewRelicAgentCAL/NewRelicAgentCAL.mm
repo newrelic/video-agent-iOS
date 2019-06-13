@@ -47,6 +47,7 @@
 @interface NewRelicAgentCAL ()
 
 @property (nonatomic) NSMutableArray<EventHolder *> *backgroundEvents;
+@property (nonatomic) NSString *uuid;
 
 @end
 
@@ -74,6 +75,10 @@
         [NewRelic recordCustomEvent:VIDEO_EVENT attributes:eh.attributes];
     }
     [self.backgroundEvents removeAllObjects];
+}
+
+- (void)generateUUID {
+    self.uuid = [[NSProcessInfo processInfo] globallyUniqueString];
 }
 
 bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)
@@ -104,7 +109,7 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
 }
 
 std::string currentSessionId() {
-    NSString *sid = [NewRelicAgent currentSessionId];
+    NSString *sid = [NewRelicAgentCAL sharedInstance].uuid;
     if (sid) {
         return std::string([sid UTF8String]);
     }
