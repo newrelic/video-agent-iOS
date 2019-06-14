@@ -31,7 +31,6 @@
         self.timestamp = timestamp;
         self.attributes = attributes;
         [self.attributes setObject:@((long)(timestamp * 1000.0f)) forKey:@"realTimestamp"];
-        [self.attributes setObject:@(YES) forKey:@"isBackgroundEvent"];
     }
     return self;
 }
@@ -107,6 +106,7 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
     //AV_LOG(@"Attr = %@", attributes);
     
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
+        [attributes setObject:@(YES) forKey:@"isBackgroundEvent"];
         [[NewRelicAgentCAL sharedInstance] storeBackgroundEvent:attributes];
         AV_LOG(@"APP IN BACKGROUND, list = %@", [NewRelicAgentCAL sharedInstance].backgroundEvents);
         return (bool)NO;
