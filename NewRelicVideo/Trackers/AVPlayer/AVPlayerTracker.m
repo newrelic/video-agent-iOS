@@ -28,6 +28,7 @@
 @property (nonatomic) BOOL firstFrameHappend;
 @property (nonatomic) int numTimeouts;
 @property (nonatomic) id timeObserver;
+@property (nonatomic) Float64 lastTime;
 
 @end
 
@@ -53,6 +54,7 @@
     self.estimatedBitrate = 0;
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
+    self.lastTime = 0;
     
     AV_LOG(@"AVPLAYER CURRENT ITEM (reset) = %@", self.player.currentItem);
     
@@ -110,7 +112,10 @@
             self.numZeroRates ++;
             
             if (self.numZeroRates == 2) {
-                [self sendSeekStart];
+                // NOTE: To avoid false seeking event when locking/unlocking the screen
+                if (CMTimeGetSeconds(time) - self.lastTime > 0.1) {
+                    [self sendSeekStart];
+                }
             }
         }
         else {
@@ -141,6 +146,8 @@
             
             self.firstFrameHappend = YES;
         }
+        
+        self.lastTime = CMTimeGetSeconds(time);
     }];
     
     AV_LOG(@"AVPLAYER CURRENT ITEM (setup) = %@", self.player.currentItem);
