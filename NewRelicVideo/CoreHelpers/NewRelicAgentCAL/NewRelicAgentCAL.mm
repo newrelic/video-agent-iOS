@@ -65,6 +65,22 @@
     return sharedInstance;
 }
 
+- (instancetype)init {
+    if (self = [super init]) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActiveNotif:) name:UIApplicationDidBecomeActiveNotification object:nil];
+    }
+    return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
+}
+
+- (void)appDidBecomeActiveNotif:(NSNotification*)notif {
+    AV_LOG(@"App Did Become Active, flush background events");
+    [[NewRelicAgentCAL sharedInstance] flushBackgroundEvents];
+}
+
 - (void)storeBackgroundEvent:(NSMutableDictionary *)event {
     EventHolder *eh = [[EventHolder alloc] initWithTimestamp:[[NSDate date] timeIntervalSince1970] andAttributes:event];
     [self.backgroundEvents addObject:eh];
@@ -98,7 +114,6 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
     else {
         [attributes setObject:@(NO) forKey:@"isBackgroundEvent"];
         if ([NewRelicAgent currentSessionId]) {
-            [[NewRelicAgentCAL sharedInstance] flushBackgroundEvents];
             return (bool)[NewRelic recordCustomEvent:VIDEO_EVENT attributes:attributes];
         }
         else {
