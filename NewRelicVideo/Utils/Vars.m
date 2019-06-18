@@ -51,12 +51,9 @@
         return [data writeToFile:path atomically:YES];
     }
     else {
+        AV_LOG(@"Error while writing the file: %@", err);
         return NO;
     }
-    
-    /*
-    return [array writeToFile:path atomically:YES];
-     */
 }
 
 + (BOOL)plistExists:(NSString *)fileName {
@@ -65,11 +62,9 @@
     NSString *path = [docsDir stringByAppendingFormat:@"/%@.plist", fileName];
     
     if ([fileManager fileExistsAtPath:path]) {
-        NSLog(@"FILE EXIST");
         return YES;
     }
     else {
-        NSLog(@"FILE NOT EXIST");
         return NO;
     }
 }
@@ -83,7 +78,7 @@
         NSError *err;
         BOOL ret = [fileManager removeItemAtPath:path error:&err];
         if (err) {
-            NSLog(@"Error while deleting file: %@", err);
+            AV_LOG(@"Error while deleting the file: %@", err);
         }
         return ret;
     }
