@@ -13,5 +13,9 @@
 + (NSString *)string:(NSString *)key;
 + (NSURL *)url:(NSString *)key;
 + (NSNumber *)appNumber:(NSString *)key;
++ (NSMutableArray *)readPlist:(NSString *)fileName;
++ (BOOL)writeArray:(NSMutableArray *)array toPlist:(NSString *)fileName;
++ (BOOL)plistExists:(NSString *)fileName;
++ (BOOL)removePlist:(NSString *)fileName;
 
 @end
