@@ -30,4 +30,61 @@
     return num;
 }
 
+#pragma mark - Methods to work with background events persiistence
+
++ (NSMutableArray *)readPlist:(NSString *)fileName {
+    NSString *docsDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [docsDir stringByAppendingFormat:@"/%@.plist", fileName];
+    NSMutableArray *arr = [NSMutableArray arrayWithContentsOfFile:path];
+    return arr == nil ? @[].mutableCopy : arr;
+}
+
++ (BOOL)writeArray:(NSMutableArray *)array toPlist:(NSString *)fileName {
+    NSString *docsDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [docsDir stringByAppendingFormat:@"/%@.plist", fileName];
+    NSError *err;
+    NSData *data = [NSPropertyListSerialization dataWithPropertyList:array
+                                                              format:NSPropertyListBinaryFormat_v1_0
+                                                             options:0
+                                                               error:&err];
+    if (!err) {
+        return [data writeToFile:path atomically:YES];
+    }
+    else {
+        AV_LOG(@"Error while writing the file: %@", err);
+        return NO;
+    }
+}
+
++ (BOOL)plistExists:(NSString *)fileName {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *docsDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [docsDir stringByAppendingFormat:@"/%@.plist", fileName];
+    
+    if ([fileManager fileExistsAtPath:path]) {
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
++ (BOOL)removePlist:(NSString *)fileName {
+    NSFileManager *fileManager = NSFileManager.defaultManager;
+    NSString *docsDir = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) firstObject];
+    NSString *path = [docsDir stringByAppendingFormat:@"/%@.plist", fileName];
+    
+    if ([fileManager fileExistsAtPath:path]) {
+        NSError *err;
+        BOOL ret = [fileManager removeItemAtPath:path error:&err];
+        if (err) {
+            AV_LOG(@"Error while deleting the file: %@", err);
+        }
+        return ret;
+    }
+    else {
+        return NO;
+    }
+}
+
 @end

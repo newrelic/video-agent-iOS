@@ -67,6 +67,8 @@
 		9CB26A4721411A4F00A8891D /* Tracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A4521411A4F00A8891D /* Tracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A49214127E800A8891D /* ContentsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB26A572146636C00A8891D /* AdsTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CB26A552146636C00A8891D /* AdsTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CD63C2722BA46BF0019B264 /* BackgroundEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CD63C2522BA46BF0019B264 /* BackgroundEvents.h */; };
+		9CD63C2822BA46BF0019B264 /* BackgroundEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CD63C2622BA46BF0019B264 /* BackgroundEvents.m */; };
 		9CE5D724212ED90A00B89D07 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */; };
 		9CE5D7392133F58F00B89D07 /* LOG.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE5D7372133F58F00B89D07 /* LOG.h */; };
@@ -140,6 +142,8 @@
 		9CB26A49214127E800A8891D /* ContentsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ContentsTracker.h; sourceTree = "<group>"; };
 		9CB26A552146636C00A8891D /* AdsTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AdsTracker.h; sourceTree = "<group>"; };
 		9CB8487821A44D6A004D161B /* CoreDefs.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CoreDefs.hpp; sourceTree = "<group>"; };
+		9CD63C2522BA46BF0019B264 /* BackgroundEvents.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BackgroundEvents.h; sourceTree = "<group>"; };
+		9CD63C2622BA46BF0019B264 /* BackgroundEvents.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BackgroundEvents.m; sourceTree = "<group>"; };
 		9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9CE5D7372133F58F00B89D07 /* LOG.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LOG.h; sourceTree = "<group>"; };
@@ -401,6 +405,8 @@
 		9CE5D72C212EF39900B89D07 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				9CD63C2522BA46BF0019B264 /* BackgroundEvents.h */,
+				9CD63C2622BA46BF0019B264 /* BackgroundEvents.m */,
 				9CA3DE012136BB2F00205DC4 /* Vars.h */,
 				9CA3DE022136BB3000205DC4 /* Vars.m */,
 				9CE5D7372133F58F00B89D07 /* LOG.h */,
@@ -456,6 +462,7 @@
 				9C5E4C52217E2C8600EECD1F /* DictionaryTrans.h in Headers */,
 				9CB250AF218713590094DFEF /* DatetimeCAL.h in Headers */,
 				9CB250B421875F250094DFEF /* ContentsTrackerCore.hpp in Headers */,
+				9CD63C2722BA46BF0019B264 /* BackgroundEvents.h in Headers */,
 				9C414836212D7C9000850636 /* NewRelicVideoAgent.h in Headers */,
 				9C414829212D7AD400850636 /* NewRelicVideo.h in Headers */,
 				9CB250A4218208AE0094DFEF /* TrackerCore.hpp in Headers */,
@@ -599,6 +606,7 @@
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */,
 				9CA3DE042136BB3000205DC4 /* Vars.m in Sources */,
+				9CD63C2822BA46BF0019B264 /* BackgroundEvents.m in Sources */,
 				9CE5D725212ED90A00B89D07 /* AVPlayerTracker.m in Sources */,
 				9CB250B321875F250094DFEF /* ContentsTrackerCore.cpp in Sources */,
 			);
@@ -770,7 +778,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.28.0;
+				PRODUCT_VERSION = 0.29.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -806,7 +814,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.28.0;
+				PRODUCT_VERSION = 0.29.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
