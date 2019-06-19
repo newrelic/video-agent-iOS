@@ -11,41 +11,13 @@
 #import <NewRelicAgent/NewRelic.h>
 #import "EventDefs.h"
 #import "DictionaryTrans.h"
+#import "BackgroundEvents.h"
 #include "ValueHolder.hpp"
 #include <string>
 #include <map>
 
-#pragma mark - EventHolder class
-
-@interface EventHolder : NSObject
-
-@property NSTimeInterval timestamp;
-@property (nonatomic) NSMutableDictionary *attributes;
-
-@end
-
-@implementation EventHolder
-
-- (instancetype)initWithTimestamp:(NSTimeInterval)timestamp andAttributes:(NSMutableDictionary *)attributes {
-    if (self = [super init]) {
-        self.timestamp = timestamp;
-        self.attributes = attributes;
-        [self.attributes setObject:@((long)(timestamp * 1000.0f)) forKey:@"realTimestamp"];
-    }
-    return self;
-}
-
-- (NSString *)description {
-    return [@"<EventHolder>: " stringByAppendingFormat:@"Timestamp = %f , Attributes = %@", self.timestamp, self.attributes];
-}
-
-@end
-
-#pragma mark - NewRelicxAgentCAL class
-
 @interface NewRelicAgentCAL ()
 
-@property (nonatomic) NSMutableArray<EventHolder *> *backgroundEvents;
 @property (nonatomic) NSString *uuid;
 
 @end
@@ -59,7 +31,6 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[NewRelicAgentCAL alloc] init];
-        sharedInstance.backgroundEvents = @[].mutableCopy;
     });
     return sharedInstance;
 }
@@ -67,6 +38,10 @@
 - (instancetype)init {
     if (self = [super init]) {
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appDidBecomeActiveNotif:) name:UIApplicationDidBecomeActiveNotification object:nil];
+        // Load array of events from plist
+        [[BackgroundEvents sharedInstance] loadEvents];
+        // And sync them (if any)
+        [self uploadBackgroundEvents];
     }
     return self;
 }
@@ -76,20 +51,22 @@
 }
 
 - (void)appDidBecomeActiveNotif:(NSNotification*)notif {
-    AV_LOG(@"App Did Become Active, flush background events");
-    [[NewRelicAgentCAL sharedInstance] flushBackgroundEvents];
+    AV_LOG(@"App Did Become Active, upload background events");
+    [self uploadBackgroundEvents];
 }
 
 - (void)storeBackgroundEvent:(NSMutableDictionary *)event {
-    EventHolder *eh = [[EventHolder alloc] initWithTimestamp:[[NSDate date] timeIntervalSince1970] andAttributes:event];
-    [self.backgroundEvents addObject:eh];
+    // Add event to array and update plist
+    [[BackgroundEvents sharedInstance] addEvent:event];
 }
 
-- (void)flushBackgroundEvents {
-    for (EventHolder *eh in self.backgroundEvents) {
-        [NewRelic recordCustomEvent:VIDEO_EVENT attributes:eh.attributes];
-    }
-    [self.backgroundEvents removeAllObjects];
+- (void)uploadBackgroundEvents {
+    // Sync all events
+    [[BackgroundEvents sharedInstance] traverseEvents:^(NSMutableDictionary *dict) {
+        [NewRelic recordCustomEvent:VIDEO_EVENT attributes:dict];
+    }];
+    // Remove events and plist
+    [[BackgroundEvents sharedInstance] flushEvents];
 }
 
 - (void)generateUUID {
@@ -108,7 +85,7 @@ bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr
     if ([[UIApplication sharedApplication] applicationState] == UIApplicationStateBackground) {
         [attributes setObject:@(YES) forKey:@"isBackgroundEvent"];
         [[NewRelicAgentCAL sharedInstance] storeBackgroundEvent:attributes];
-        AV_LOG(@"APP IN BACKGROUND, list = %@", [NewRelicAgentCAL sharedInstance].backgroundEvents);
+        AV_LOG(@"APP IN BACKGROUND, list = %@", [BackgroundEvents sharedInstance]);
         return (bool)NO;
     }
     else {
