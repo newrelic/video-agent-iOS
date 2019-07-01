@@ -34,8 +34,8 @@
 }
 
 - (void)addEvent:(NSMutableDictionary *)attributes {
-    NSTimeInterval timestamp = [NSDate date].timeIntervalSince1970;
-    [attributes setObject:@(timestamp * 1000.0f) forKey:@"realTimestamp"];
+    double timestamp = [NSDate date].timeIntervalSince1970;
+    [attributes setObject:@((long)timestamp) forKey:@"realTimestamp"];
     [self.backgroundEvents addObject:attributes];
     [Vars writeArray:self.backgroundEvents toPlist:PLIST_FILE];
 }

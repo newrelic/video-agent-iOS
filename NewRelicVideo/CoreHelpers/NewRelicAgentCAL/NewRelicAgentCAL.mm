@@ -63,6 +63,7 @@
 - (void)uploadBackgroundEvents {
     // Sync all events
     [[BackgroundEvents sharedInstance] traverseEvents:^(NSMutableDictionary *dict) {
+        AV_LOG(@"Record event that happened in background = %@", dict[@"actionName"]);
         [NewRelic recordCustomEvent:VIDEO_EVENT attributes:dict];
     }];
     // Remove events and plist
