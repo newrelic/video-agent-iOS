@@ -47,6 +47,10 @@
 		9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */; };
 		9C91E317241BAF7600B16F38 /* BackgroundEvents.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C91E315241BAF7600B16F38 /* BackgroundEvents.m */; };
 		9C91E318241BAF7600B16F38 /* BackgroundEvents.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C91E316241BAF7600B16F38 /* BackgroundEvents.h */; };
+		9C91E336241BD52100B16F38 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C91E332241BD52100B16F38 /* AVPlayerTracker.m */; };
+		9C91E337241BD52100B16F38 /* AVPlayerTrackerBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C91E333241BD52100B16F38 /* AVPlayerTrackerBuilder.m */; };
+		9C91E338241BD52100B16F38 /* AVPlayerTrackerBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C91E334241BD52100B16F38 /* AVPlayerTrackerBuilder.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C91E339241BD52100B16F38 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C91E335241BD52100B16F38 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
@@ -122,6 +126,10 @@
 		9C8E78DC217DEC87002F0524 /* CAL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CAL.hpp; sourceTree = "<group>"; };
 		9C91E315241BAF7600B16F38 /* BackgroundEvents.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BackgroundEvents.m; sourceTree = "<group>"; };
 		9C91E316241BAF7600B16F38 /* BackgroundEvents.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BackgroundEvents.h; sourceTree = "<group>"; };
+		9C91E332241BD52100B16F38 /* AVPlayerTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
+		9C91E333241BD52100B16F38 /* AVPlayerTrackerBuilder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTrackerBuilder.m; sourceTree = "<group>"; };
+		9C91E334241BD52100B16F38 /* AVPlayerTrackerBuilder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerTrackerBuilder.h; sourceTree = "<group>"; };
+		9C91E335241BD52100B16F38 /* AVPlayerTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
 		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
@@ -328,6 +336,17 @@
 			path = NewRelicAgentCAL;
 			sourceTree = "<group>";
 		};
+		9C91E331241BD52100B16F38 /* AVPlayer */ = {
+			isa = PBXGroup;
+			children = (
+				9C91E332241BD52100B16F38 /* AVPlayerTracker.m */,
+				9C91E333241BD52100B16F38 /* AVPlayerTrackerBuilder.m */,
+				9C91E334241BD52100B16F38 /* AVPlayerTrackerBuilder.h */,
+				9C91E335241BD52100B16F38 /* AVPlayerTracker.h */,
+			);
+			path = AVPlayer;
+			sourceTree = "<group>";
+		};
 		9CA3DE002136B54F00205DC4 /* Backend */ = {
 			isa = PBXGroup;
 			children = (
@@ -384,7 +403,6 @@
 		9CDFFC98221AAE7300896DCE /* GCast */ = {
 			isa = PBXGroup;
 			children = (
-				9C57E31A227B22E500AE7144 /* TrackerBuilder.h */,
 				9C57E2F42279FD4600AE7144 /* GCastTrackerBuilder.h */,
 				9C57E2F52279FD4600AE7144 /* GCastTrackerBuilder.m */,
 				9CDFFC99221AAED100896DCE /* GCastTracker.h */,
@@ -396,11 +414,13 @@
 		9CE5D721212ED8E900B89D07 /* Trackers */ = {
 			isa = PBXGroup;
 			children = (
+				9C57E31A227B22E500AE7144 /* TrackerBuilder.h */,
 				9CB26A4521411A4F00A8891D /* Tracker.h */,
 				9CB26A49214127E800A8891D /* ContentsTracker.h */,
 				9CB250B5218863040094DFEF /* ContentsTracker.mm */,
 				9CB26A552146636C00A8891D /* AdsTracker.h */,
 				9CFACFB621919D98008627B9 /* AdsTracker.mm */,
+				9C91E331241BD52100B16F38 /* AVPlayer */,
 				9CDFFC98221AAE7300896DCE /* GCast */,
 			);
 			path = Trackers;
@@ -445,10 +465,12 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C91E338241BD52100B16F38 /* AVPlayerTrackerBuilder.h in Headers */,
 				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
 				9C57E2F62279FD4600AE7144 /* GCastTrackerBuilder.h in Headers */,
 				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
 				9CB26A4721411A4F00A8891D /* Tracker.h in Headers */,
+				9C91E339241BD52100B16F38 /* AVPlayerTracker.h in Headers */,
 				9C57E31B227B22E600AE7144 /* TrackerBuilder.h in Headers */,
 				9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */,
 				9CDFFC9B221AAED100896DCE /* GCastTracker.h in Headers */,
@@ -581,7 +603,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "FRAMEWORK=NewRelicVideo\nBUILD=build\nFRAMEWORK_PATH=$FRAMEWORK.framework\n\n# Go to parent dir (project parent)\ncd ..\n\n# iOS, compile for device and simulator\nrm -Rf $FRAMEWORK/$BUILD\nrm -f $FRAMEWORK.framework.tar.gz\nxcodebuild archive -project $FRAMEWORK/$FRAMEWORK.xcodeproj -scheme $FRAMEWORK -sdk iphoneos SYMROOT=$BUILD\nxcodebuild build -project $FRAMEWORK/$FRAMEWORK.xcodeproj -target $FRAMEWORK -sdk iphonesimulator SYMROOT=$BUILD\ncp -RL $FRAMEWORK/$BUILD/Release-iphoneos $FRAMEWORK/$BUILD/Release-universal\n\n# Create fat lib\nlipo -create $FRAMEWORK/$BUILD/Release-iphoneos/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-iphonesimulator/$FRAMEWORK_PATH/$FRAMEWORK -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n// Go back to project root dir\ncd NewRelicVideo\n\n# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\ncp -r $BUILD/Release-universal/$FRAMEWORK_PATH ../build/\n\nopen ../build\n";
+			shellScript = "FRAMEWORK=NewRelicVideo\nBUILD=build\nFRAMEWORK_PATH=$FRAMEWORK.framework\n\n# Go to parent dir (project parent)\ncd ..\n\n# iOS, compile for device and simulator\nrm -Rf $FRAMEWORK/$BUILD\nrm -f $FRAMEWORK.framework.tar.gz\nxcodebuild archive -project $FRAMEWORK/$FRAMEWORK.xcodeproj -scheme $FRAMEWORK -sdk iphoneos SYMROOT=$BUILD\nxcodebuild build -project $FRAMEWORK/$FRAMEWORK.xcodeproj -target $FRAMEWORK -sdk iphonesimulator SYMROOT=$BUILD\ncp -RL $FRAMEWORK/$BUILD/Release-iphoneos $FRAMEWORK/$BUILD/Release-universal\n\n# Create fat lib\nlipo -create $FRAMEWORK/$BUILD/Release-iphoneos/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-iphonesimulator/$FRAMEWORK_PATH/$FRAMEWORK -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n// Go back to project root dir\ncd NewRelicVideo\n\n# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\n#appledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h\n\n# Copy framework to build dir\ncp -r $BUILD/Release-universal/$FRAMEWORK_PATH ../build/\n\nopen ../build\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -606,10 +628,12 @@
 				9C57E2F72279FD4600AE7144 /* GCastTrackerBuilder.m in Sources */,
 				9CFACFB721919D98008627B9 /* AdsTracker.mm in Sources */,
 				9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */,
+				9C91E337241BD52100B16F38 /* AVPlayerTrackerBuilder.m in Sources */,
 				9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */,
 				9C5E4C57217F22F500EECD1F /* LOGCPP.mm in Sources */,
 				9C414837212D7C9000850636 /* NewRelicVideoAgent.m in Sources */,
 				9C5E4C53217E2C8600EECD1F /* DictionaryTrans.mm in Sources */,
+				9C91E336241BD52100B16F38 /* AVPlayerTracker.m in Sources */,
 				9C91E317241BAF7600B16F38 /* BackgroundEvents.m in Sources */,
 				9CA3DE042136BB3000205DC4 /* Vars.m in Sources */,
 				9CB250B321875F250094DFEF /* ContentsTrackerCore.cpp in Sources */,
