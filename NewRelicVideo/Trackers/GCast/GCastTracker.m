@@ -11,7 +11,7 @@
 
 #import <GoogleCast/GoogleCast.h>
 
-@interface GCastTracker () <GCKRemoteMediaClientListener>
+@interface GCastTracker () <GCKRemoteMediaClientListener, GCKSessionManagerListener>
 
 @property (nonatomic) GCKSessionManager *sessionManager;
 @property (nonatomic) BOOL isAutoPlayed;
@@ -30,19 +30,38 @@
 - (void)reset {
     [super reset];
     self.isAutoPlayed = NO;
+    
+    if (self.sessionManager) {
+        [self.sessionManager removeListener:self];
+        [self.sessionManager.currentCastSession.remoteMediaClient removeListener:self];
+    }
 }
 
 - (void)setup {
     [super setup];
     
     if (self.sessionManager) {
+        [self.sessionManager addListener:self];
         [self.sessionManager.currentCastSession.remoteMediaClient addListener:self];
     }
     
     [self sendPlayerReady];
 }
 
-// TODO: capture error cases and send Errors
+#pragma mark - GCKSessionManagerListener
+
+- (void)sessionManager:(GCKSessionManager *)sessionManager
+didEndCastSession:(GCKCastSession *)session
+             withError:(nullable NSError *)error {
+    if (!error) {
+        if (self.state != TrackerStateStopped) {
+            [self sendEnd];
+        }
+    }
+    else {
+        [self sendError:error.localizedDescription];
+    }
+}
 
 #pragma mark - GCKRemoteMediaClientListener
 
