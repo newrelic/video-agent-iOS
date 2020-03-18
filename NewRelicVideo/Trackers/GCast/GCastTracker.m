@@ -30,29 +30,35 @@
 - (void)reset {
     [super reset];
     self.isAutoPlayed = NO;
-    
-    if (self.sessionManager) {
-        [self.sessionManager removeListener:self];
-        [self.sessionManager.currentCastSession.remoteMediaClient removeListener:self];
-    }
 }
 
 - (void)setup {
     [super setup];
-    
+    [self registerGCastListeners];
+    [self sendPlayerReady];
+}
+
+- (void)registerGCastListeners {
     if (self.sessionManager) {
         [self.sessionManager addListener:self];
         [self.sessionManager.currentCastSession.remoteMediaClient addListener:self];
     }
-    
-    [self sendPlayerReady];
 }
 
 #pragma mark - GCKSessionManagerListener
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager
-didEndCastSession:(GCKCastSession *)session
+       didStartSession:(GCKCastSession *)session {
+    AV_LOG(@"DID START GCAST SESSION");
+    
+    [self registerGCastListeners];
+}
+
+- (void)sessionManager:(GCKSessionManager *)sessionManager
+         didEndSession:(GCKCastSession *)session
              withError:(nullable NSError *)error {
+    AV_LOG(@"DID END GCAST SESSION");
+    
     if (!error) {
         if (self.state != TrackerStateStopped) {
             [self sendEnd];
@@ -61,6 +67,12 @@ didEndCastSession:(GCKCastSession *)session
     else {
         [self sendError:error.localizedDescription];
     }
+}
+
+- (void)sessionManager:(GCKSessionManager *)sessionManager didResumeSession:(GCKSession *)session {
+    AV_LOG(@"DID RESUME GCAST SESSION");
+    
+    [self registerGCastListeners];
 }
 
 #pragma mark - GCKRemoteMediaClientListener
@@ -120,7 +132,7 @@ didEndCastSession:(GCKCastSession *)session
             break;
     }
     
-    AV_LOG(@"----> Player State: %@", playerState);
+    AV_LOG(@"----> GCast Player State: %@", playerState);
     
     if (mediaStatus.playerState == GCKMediaPlayerStateIdle) {
         
@@ -145,7 +157,7 @@ didEndCastSession:(GCKCastSession *)session
                 break;
         }
         
-        AV_LOG(@"----> Idle Reason: %@", idleReason);
+        AV_LOG(@"----> GCast Idle Reason: %@", idleReason);
     }
 }
 
