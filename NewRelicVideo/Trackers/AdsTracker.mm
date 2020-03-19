@@ -28,6 +28,9 @@
     BOOL timerIsActivated;
     BOOL heartbeatEnabled;
 }
+
+@property (nonatomic) TimerCAL *timerCAL;
+
 @end
 
 @implementation AdsTracker
@@ -46,6 +49,7 @@
     if (self = [super init]) {
         adsTrackerCore = new AdsTrackerCore();
         [self setupGetters];
+        self.timerCAL = [[TimerCAL alloc] initWithTracker:self];
     }
     return self;
 }
@@ -102,7 +106,7 @@
 
 - (void)sendRequest {
     adsTrackerCore->sendRequest();
-    [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+    [self startHbTimer];
 }
 
 - (void)sendStart {
@@ -110,7 +114,7 @@
 }
 
 - (void)sendEnd {
-    [[TimerCAL sharedInstance] abortTimer:self];
+    [self stopHbTimer];
     adsTrackerCore->sendEnd();
 }
 
@@ -253,13 +257,13 @@
 - (void)startHbTimer {
     if (heartbeatEnabled) {
         timerIsActivated = YES;
-        [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+        [self.timerCAL startTimer:heartbeatTime];
     }
 }
 
 - (void)stopHbTimer {
     timerIsActivated = NO;
-    [[TimerCAL sharedInstance] abortTimer:self];
+    [self.timerCAL abortTimer];
 }
 
 @end

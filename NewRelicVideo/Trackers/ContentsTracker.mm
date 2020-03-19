@@ -20,6 +20,9 @@
     BOOL timerIsActivated;
     BOOL heartbeatEnabled;
 }
+
+@property (nonatomic) TimerCAL *timerCAL;
+
 @end
 
 @implementation ContentsTracker
@@ -35,33 +38,37 @@
 - (instancetype)init {
     if (self = [super init]) {
         contentsTrackerCore = new ContentsTrackerCore();
-        
-        [self registerGetter:@"trackerName" sel:@selector(getTrackerName)];
-        [self registerGetter:@"trackerVersion" sel:@selector(getTrackerVersion)];
-        [self registerGetter:@"playerVersion" sel:@selector(getPlayerVersion)];
-        [self registerGetter:@"playerName" sel:@selector(getPlayerName)];
-        [self registerGetter:@"isAd" sel:@selector(getIsAd)];
-        
-        [self registerGetter:@"contentTitle" sel:@selector(getTitle)];
-        [self registerGetter:@"contentBitrate" sel:@selector(getBitrate)];
-        [self registerGetter:@"contentRenditionName" sel:@selector(getRenditionName)];
-        [self registerGetter:@"contentRenditionBitrate" sel:@selector(getRenditionBitrate)];
-        [self registerGetter:@"contentRenditionWidth" sel:@selector(getRenditionWidth)];
-        [self registerGetter:@"contentRenditionHeight" sel:@selector(getRenditionHeight)];
-        [self registerGetter:@"contentDuration" sel:@selector(getDuration)];
-        [self registerGetter:@"contentPlayhead" sel:@selector(getPlayhead)];
-        [self registerGetter:@"contentLanguage" sel:@selector(getLanguage)];
-        [self registerGetter:@"contentSrc" sel:@selector(getSrc)];
-        [self registerGetter:@"contentIsMuted" sel:@selector(getIsMuted)];
-        [self registerGetter:@"contentCdn" sel:@selector(getCdn)];
-        [self registerGetter:@"contentFps" sel:@selector(getFps)];
-        [self registerGetter:@"contentPlayrate" sel:@selector(getPlayrate)];
-        [self registerGetter:@"contentIsLive" sel:@selector(getIsLive)];
-        [self registerGetter:@"contentIsAutoplayed" sel:@selector(getIsAutoplayed)];
-        [self registerGetter:@"contentPreload" sel:@selector(getPreload)];
-        [self registerGetter:@"contentIsFullscreen" sel:@selector(getIsFullscreen)];
+        [self setupGetters];
+        self.timerCAL = [[TimerCAL alloc] initWithTracker:self];
     }
     return self;
+}
+
+- (void)setupGetters {
+    [self registerGetter:@"trackerName" sel:@selector(getTrackerName)];
+    [self registerGetter:@"trackerVersion" sel:@selector(getTrackerVersion)];
+    [self registerGetter:@"playerVersion" sel:@selector(getPlayerVersion)];
+    [self registerGetter:@"playerName" sel:@selector(getPlayerName)];
+    [self registerGetter:@"isAd" sel:@selector(getIsAd)];
+    
+    [self registerGetter:@"contentTitle" sel:@selector(getTitle)];
+    [self registerGetter:@"contentBitrate" sel:@selector(getBitrate)];
+    [self registerGetter:@"contentRenditionName" sel:@selector(getRenditionName)];
+    [self registerGetter:@"contentRenditionBitrate" sel:@selector(getRenditionBitrate)];
+    [self registerGetter:@"contentRenditionWidth" sel:@selector(getRenditionWidth)];
+    [self registerGetter:@"contentRenditionHeight" sel:@selector(getRenditionHeight)];
+    [self registerGetter:@"contentDuration" sel:@selector(getDuration)];
+    [self registerGetter:@"contentPlayhead" sel:@selector(getPlayhead)];
+    [self registerGetter:@"contentLanguage" sel:@selector(getLanguage)];
+    [self registerGetter:@"contentSrc" sel:@selector(getSrc)];
+    [self registerGetter:@"contentIsMuted" sel:@selector(getIsMuted)];
+    [self registerGetter:@"contentCdn" sel:@selector(getCdn)];
+    [self registerGetter:@"contentFps" sel:@selector(getFps)];
+    [self registerGetter:@"contentPlayrate" sel:@selector(getPlayrate)];
+    [self registerGetter:@"contentIsLive" sel:@selector(getIsLive)];
+    [self registerGetter:@"contentIsAutoplayed" sel:@selector(getIsAutoplayed)];
+    [self registerGetter:@"contentPreload" sel:@selector(getPreload)];
+    [self registerGetter:@"contentIsFullscreen" sel:@selector(getIsFullscreen)];
 }
 
 - (void)dealloc {
@@ -220,13 +227,13 @@
 - (void)startHbTimer {
     if (heartbeatEnabled) {
         timerIsActivated = YES;
-        [[TimerCAL sharedInstance] startTimer:self time:heartbeatTime];
+        [self.timerCAL startTimer:heartbeatTime];
     }
 }
 
 - (void)stopHbTimer {
     timerIsActivated = NO;
-    [[TimerCAL sharedInstance] abortTimer:self];
+    [self.timerCAL abortTimer];
 }
 
 @end

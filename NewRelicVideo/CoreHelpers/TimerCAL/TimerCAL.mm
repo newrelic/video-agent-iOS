@@ -13,20 +13,17 @@
 @interface TimerCAL ()
 
 @property (nonatomic) NSTimer *timer;
-@property (nonatomic) id<TrackerProtocol> tracker;
+@property (nonatomic, weak) id<TrackerProtocol> tracker;
 
 @end
 
 @implementation TimerCAL
 
-+ (instancetype)sharedInstance {
-    static TimerCAL *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[TimerCAL alloc] init];
-        sharedInstance.tracker = nil;
-    });
-    return sharedInstance;
+- (instancetype)initWithTracker:(id<TrackerProtocol>)tracker {
+    if (self = [super init]) {
+        self.tracker = tracker;
+    }
+    return self;
 }
 
 - (void)startTimerInternal:(double)timeInterval {
@@ -53,14 +50,13 @@
     }
 }
 
-- (void)startTimer:(id<TrackerProtocol>)tracker time:(double)timeInterval {
-    [TimerCAL sharedInstance].tracker = tracker;
-    [[TimerCAL sharedInstance] startTimerInternal:timeInterval];
+- (void)startTimer:(double)timeInterval {
+    [self startTimerInternal:timeInterval];
 }
 
-- (void)abortTimer:(id<TrackerProtocol>)tracker {
-    [[TimerCAL sharedInstance] abortTimerInternal];
-    [TimerCAL sharedInstance].tracker = nil;
+- (void)abortTimer {
+    [self abortTimerInternal];
+    self.tracker = nil;
 }
 
 @end

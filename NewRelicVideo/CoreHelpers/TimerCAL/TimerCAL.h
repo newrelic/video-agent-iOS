@@ -12,9 +12,8 @@
 
 @interface TimerCAL : NSObject
 
-+ (instancetype)sharedInstance;
-
-- (void)startTimer:(id<TrackerProtocol>)tracker time:(double)timeInterval;
-- (void)abortTimer:(id<TrackerProtocol>)tracker;
+- (instancetype)initWithTracker:(id<TrackerProtocol>)tracker;
+- (void)startTimer:(double)timeInterval;
+- (void)abortTimer;
 
 @end
