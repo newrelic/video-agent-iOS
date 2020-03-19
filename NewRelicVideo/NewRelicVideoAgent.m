@@ -53,6 +53,9 @@
     else if (adsTracker != nil) {
         trackerId = @(adsTracker.hash);
     }
+    else {
+        return nil;
+    }
     
     if (tracker != nil) {
         [[[self sharedInstance] contentsTrackers] setObject:tracker forKey:trackerId];
