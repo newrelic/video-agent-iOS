@@ -129,7 +129,7 @@
         }
         
         // Start
-        if (!self.firstFrameHappend) {
+        if (!self.firstFrameHappend && CMTimeGetSeconds(time) < 0.5) {
             AV_LOG(@"First time observer event -> sendStart");
             AV_LOG(@"Time Observer = %f , rate = %f , currentItem = %@", CMTimeGetSeconds(time), self.player.rate, self.player.currentItem);
             
@@ -307,7 +307,9 @@
     AV_LOG(@"ItemDidPlayToEndTimeNotification");
     AV_LOG(@"#### FINISHED PLAYING");
     
-    [self sendEnd];
+    if (self.state != TrackerStateStopped) {
+        [self sendEnd];
+    }
 }
 
 // KVO observer method
