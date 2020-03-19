@@ -152,8 +152,8 @@
 
 - (void)sendError:(NSError *)error {
     if (error) {
-        adsTrackerCore->updateAttribute("errorDomain", fromNSValue(error.domain), "CONTENT_ERROR");
-        adsTrackerCore->updateAttribute("errorCode", fromNSValue(@(error.code)), "CONTENT_ERROR");
+        adsTrackerCore->updateAttribute("errorDomain", fromNSValue(error.domain), "AD_ERROR");
+        adsTrackerCore->updateAttribute("errorCode", fromNSValue(@(error.code)), "AD_ERROR");
         adsTrackerCore->sendError(std::string([error.localizedDescription UTF8String]));
     }
     else {
