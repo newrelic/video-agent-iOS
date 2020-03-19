@@ -13,13 +13,13 @@
 
 @implementation GCastTrackerBuilder
 
-+ (BOOL)startWithPlayer:(id)player {
++ (NSNumber *)startWithPlayer:(id)player {
     if ([player isKindOfClass:[GCKSessionManager class]]) {
-        [NewRelicVideoAgent startWithTracker:[[GCastTracker alloc] initWithGoogleCast:(GCKSessionManager *)player]];
+        NSNumber *trackerId = [NewRelicVideoAgent startWithTracker:[[GCastTracker alloc] initWithGoogleCast:(GCKSessionManager *)player]];
         AV_LOG(@"Created GCastTracker");
-        return YES;
+        return trackerId;
     }
-    return NO;
+    return nil;
 }
 
 @end

@@ -14,20 +14,20 @@
 
 @implementation AVPlayerTrackerBuilder
 
-+ (BOOL)startWithPlayer:(id)player {
++ (NSNumber *)startWithPlayer:(id)player {
     if ([player isKindOfClass:[AVPlayer class]]) {
-        [NewRelicVideoAgent startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
+        NSNumber *trackerId = [NewRelicVideoAgent startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayer:(AVPlayer *)player]];
         AV_LOG(@"Created AVPlayerTracker");
+        return trackerId;
     }
     else if ([player isKindOfClass:[AVPlayerViewController class]]) {
-        [NewRelicVideoAgent startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
+        NSNumber *trackerId = [NewRelicVideoAgent startWithTracker:[[AVPlayerTracker alloc] initWithAVPlayerViewController:(AVPlayerViewController *)player]];
         AV_LOG(@"Created AVPlayerViewControllerTracker");
+        return trackerId;
     }
     else {
-        return NO;
+        return nil;
     }
-    
-    return YES;
 }
 
 @end

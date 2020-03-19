@@ -14,8 +14,8 @@
 
 @interface NewRelicVideoAgent ()
 
-@property (nonatomic) ContentsTracker<ContentsTrackerProtocol> *tracker;
-@property (nonatomic) AdsTracker<AdsTrackerProtocol> *adsTracker;
+@property (nonatomic) NSMutableDictionary<NSNumber *, ContentsTracker<ContentsTrackerProtocol> *> *contentsTrackers;
+@property (nonatomic) NSMutableDictionary<NSNumber *, AdsTracker<AdsTrackerProtocol> *> *adsTrackers;
 
 @end
 
@@ -31,57 +31,62 @@
     return instance;
 }
 
-/*
- TODO:
- - Prepare the agent for mutliple trackers.
- */
-
-+ (void)startWithPlayer:(id)player usingBuilder:(Class<TrackerBuilder>)trackerBuilderClass {
-    if (![trackerBuilderClass startWithPlayer:player]) {
-        [[self sharedInstance] setTracker:nil];
-        NSLog(@"⚠️ Not recognized player class. ⚠️");
++ (NSNumber *)startWithPlayer:(id)player usingBuilder:(Class<TrackerBuilder>)trackerBuilderClass {
+    NSNumber *trackerId = [trackerBuilderClass startWithPlayer:player];
+    if (trackerId == nil) {
+        AV_LOG(@"⚠️ Not recognized player class. ⚠️");
     }
+    return trackerId;
 }
 
-+ (void)startWithPlayer:(id)player {
-    NSLog(@"⚠️ WARNING: startWithPlayer: is DEPRECATED, use startWithPlayer:usingBuilder: instead ⚠️");
++ (NSNumber *)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker {
+    return [self startWithTracker:tracker andAds:nil];
 }
 
-+ (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker {
-    [self startWithTracker:tracker andAds:nil];
-}
-
-+ (void)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker andAds:(AdsTracker<AdsTrackerProtocol> *)adsTracker {
++ (NSNumber *)startWithTracker:(ContentsTracker<ContentsTrackerProtocol> *)tracker andAds:(AdsTracker<AdsTrackerProtocol> *)adsTracker {
     
-    [[self sharedInstance] setTracker:tracker];
+    NSNumber *trackerId = nil;
     
-    if ([[self sharedInstance] tracker]) {
-        AV_LOG(@"Tracker exist, initialize it");
-        [[[self sharedInstance] tracker] reset];
-        [[[self sharedInstance] tracker] setup];
+    if (tracker != nil) {
+        trackerId = @(tracker.hash);
     }
-    else {
-        AV_LOG(@"Tracker is nil!");
+    else if (adsTracker != nil) {
+        trackerId = @(adsTracker.hash);
     }
     
-    [[self sharedInstance] setAdsTracker:adsTracker];
+    if (tracker != nil) {
+        [[[self sharedInstance] contentsTrackers] setObject:tracker forKey:trackerId];
+        AV_LOG(@"Contents Tracker exist, initialize it");
+        [tracker reset];
+        [tracker setup];
+    }
     
-    if ([[self sharedInstance] adsTracker]) {
+    if (adsTracker != nil) {
+        [[[self sharedInstance] adsTrackers] setObject:adsTracker forKey:trackerId];
         AV_LOG(@"Ads Tracker exist, initialize it");
-        [[[self sharedInstance] adsTracker] reset];
-        [[[self sharedInstance] adsTracker] setup];
+        [adsTracker reset];
+        [adsTracker setup];
     }
-    else {
-        AV_LOG(@"Ads Tracker is nil");
-    }
+
+    return trackerId;
 }
 
-+ (ContentsTracker<ContentsTrackerProtocol> *)trackerInstance {
-    return [[self sharedInstance] tracker];
++ (ContentsTracker<ContentsTrackerProtocol> *)getContentsTracker:(NSNumber *)trackerId {
+    return [[[self sharedInstance] contentsTrackers] objectForKey:trackerId];
 }
 
-+ (AdsTracker<AdsTrackerProtocol> *)adsTrackerInstance {
-    return [[self sharedInstance] adsTracker];
++ (AdsTracker<AdsTrackerProtocol> *)getAdsTracker:(NSNumber *)trackerId {
+    return [[[self sharedInstance] adsTrackers] objectForKey:trackerId];
+}
+
+//TODO: create method to release trackers
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.contentsTrackers = @{}.mutableCopy;
+        self.adsTrackers = @{}.mutableCopy;
+    }
+    return self;
 }
 
 @end

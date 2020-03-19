@@ -18,8 +18,8 @@
  Starts a video tracker for the specified player.
  
  @param player The player object.
- @return whether the tracker was correctly initialised or not.
+ @return Tracker ID.
  */
-+ (BOOL)startWithPlayer:(id)player;
++ (NSNumber *)startWithPlayer:(id)player;
 
 @end
