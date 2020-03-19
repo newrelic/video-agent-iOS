@@ -150,8 +150,15 @@
     adsTrackerCore->sendRenditionChange();
 }
 
-- (void)sendError:(NSString *)message {
-    adsTrackerCore->sendError(std::string([message UTF8String]));
+- (void)sendError:(NSError *)error {
+    if (error) {
+        adsTrackerCore->updateAttribute("errorDomain", fromNSValue(error.domain), "CONTENT_ERROR");
+        adsTrackerCore->updateAttribute("errorCode", fromNSValue(@(error.code)), "CONTENT_ERROR");
+        adsTrackerCore->sendError(std::string([error.localizedDescription UTF8String]));
+    }
+    else {
+        adsTrackerCore->sendError("<UNKNOWN>");
+    }
 }
 
 - (void)sendPlayerReady {

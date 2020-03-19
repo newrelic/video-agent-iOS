@@ -292,10 +292,10 @@
     else if (p.status == AVPlayerItemStatusFailed) {
         AV_LOG(@"#### ERROR WHILE PLAYING");
         if (p.error) {
-            [self sendError:p.error.localizedDescription];
+            [self sendError:p.error];
         }
         else {
-            [self sendError:@"<UNKNOWN>"];
+            [self sendError:nil];
         }
     }
     else if (p.status == AVPlayerItemStatusUnknown) {
@@ -327,7 +327,7 @@
             
             if (self.player.error != nil) {
                 AV_LOG(@"  -> Playback Failed");
-                [self sendError:self.player.error.localizedDescription];
+                [self sendError:self.player.error];
             }
             else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");

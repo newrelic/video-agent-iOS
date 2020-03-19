@@ -45,6 +45,13 @@
     }
 }
 
+- (void)sendEnd {
+    if (self.state == TrackerStateBuffering) {
+        [self sendBufferEnd];
+    }
+    [super sendEnd];
+}
+
 #pragma mark - GCKSessionManagerListener
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager
@@ -65,7 +72,7 @@
         }
     }
     else {
-        [self sendError:error.localizedDescription];
+        [self sendError:error];
     }
 }
 

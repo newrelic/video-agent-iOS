@@ -142,9 +142,9 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 /**
  Send a `_ERROR` action.
  
- @param message Error message.
+ @param error Error object.
  */
-- (void)sendError:(NSString *)message;
+- (void)sendError:(NSError *)error;
 
 /**
  Send a `PLAYER_READY` action.

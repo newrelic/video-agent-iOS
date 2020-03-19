@@ -142,8 +142,15 @@
     contentsTrackerCore->sendRenditionChange();
 }
 
-- (void)sendError:(NSString *)message {
-    contentsTrackerCore->sendError(std::string([message UTF8String]));
+- (void)sendError:(NSError *)error {
+    if (error) {
+        contentsTrackerCore->updateAttribute("errorDomain", fromNSValue(error.domain), "CONTENT_ERROR");
+        contentsTrackerCore->updateAttribute("errorCode", fromNSValue(@(error.code)), "CONTENT_ERROR");
+        contentsTrackerCore->sendError(std::string([error.localizedDescription UTF8String]));
+    }
+    else {
+        contentsTrackerCore->sendError("<UNKNOWN>");
+    }
 }
 
 - (void)sendPlayerReady {
