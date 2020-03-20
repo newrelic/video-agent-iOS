@@ -11,7 +11,7 @@
 
 #import <GoogleCast/GoogleCast.h>
 
-@interface GCastTracker () <GCKRemoteMediaClientListener, GCKSessionManagerListener>
+@interface GCastTracker () <GCKRemoteMediaClientListener, GCKSessionManagerListener, GCKRequestDelegate>
 
 @property (nonatomic) GCKSessionManager *sessionManager;
 @property (nonatomic) BOOL isAutoPlayed;
@@ -50,6 +50,13 @@
         [self sendBufferEnd];
     }
     [super sendEnd];
+}
+
+- (void)setMediaRequestInstance:(GCKRequest *)request {
+    if (request != nil) {
+        request.delegate = self;
+        
+    }
 }
 
 #pragma mark - GCKSessionManagerListener
@@ -166,6 +173,13 @@
         
         AV_LOG(@"----> GCast Idle Reason: %@", idleReason);
     }
+}
+
+#pragma mark - GCKRequestDelegate
+
+- (void)request:(GCKRequest *)request didFailWithError:(GCKError *)error {
+    AV_LOG(@"GCKRequestDelegate didFailWithError, error = %@", error);
+    [self sendError:error];
 }
 
 #pragma mark - ContentsTracker getters

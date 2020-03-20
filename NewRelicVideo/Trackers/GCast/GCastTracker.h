@@ -9,6 +9,7 @@
 #import "ContentsTracker.h"
 
 @class GCKSessionManager;
+@class GCKRequest;
 
 /**
  `GCastTracker` is the base class to manage the content events of a GoogleCast. It can be used directly or subclassed.
@@ -21,6 +22,13 @@
  @param sessionManager The `GCKSessionManager` object.
  */
 - (instancetype)initWithGoogleCast:(GCKSessionManager *)sessionManager;
+
+/**
+ Set the GCKRequest instance.
+ 
+ @param request GCKRequest object.
+ */
+- (void)setMediaRequestInstance:(GCKRequest *)request;
 
 /**
  Set the isAutoplayed state, since AVPlayer doesn't offer a method to obtain it.
