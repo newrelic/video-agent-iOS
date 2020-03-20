@@ -30,11 +30,4 @@
  */
 - (void)setMediaRequestInstance:(GCKRequest *)request;
 
-/**
- Set the isAutoplayed state, since AVPlayer doesn't offer a method to obtain it.
- 
- @param state A boolean `NSNumber` to indicate whether it is autpolayed or not.
- */
-- (void)setIsAutoplayed:(NSNumber *)state;
-
 @end

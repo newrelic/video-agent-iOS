@@ -14,7 +14,6 @@
 @interface GCastTracker () <GCKRemoteMediaClientListener, GCKSessionManagerListener, GCKRequestDelegate>
 
 @property (nonatomic) GCKSessionManager *sessionManager;
-@property (nonatomic) BOOL isAutoPlayed;
 
 @end
 
@@ -29,7 +28,6 @@
 
 - (void)reset {
     [super reset];
-    self.isAutoPlayed = NO;
 }
 
 - (void)setup {
@@ -226,11 +224,12 @@
 }
 
 - (NSNumber *)getIsAutoplayed {
-    return @(self.isAutoPlayed);
-}
-
-- (void)setIsAutoplayed:(NSNumber *)state {
-    self.isAutoPlayed = state.boolValue;
+    if (self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.currentQueueItem) {
+        return @(self.sessionManager.currentCastSession.remoteMediaClient.mediaStatus.currentQueueItem.autoplay);
+    }
+    else {
+        return nil;
+    }
 }
 
 - (NSNumber *)getIsFullscreen {
