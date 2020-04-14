@@ -82,7 +82,20 @@
     return [[[self sharedInstance] adsTrackers] objectForKey:trackerId];
 }
 
-//TODO: create method to release trackers
++ (void)unregisterTracker:(NSNumber *)trackerId {
+    ContentsTracker *ct = [[[self sharedInstance] contentsTrackers] objectForKey:trackerId];
+    AdsTracker *at = [[[self sharedInstance] adsTrackers] objectForKey:trackerId];
+    if (ct) {
+        [ct reset];
+        [ct disableHeartbeat];
+    }
+    if (at) {
+        [at reset];
+        [at disableHeartbeat];
+    }
+    [[[self sharedInstance] contentsTrackers] removeObjectForKey:trackerId];
+    [[[self sharedInstance] adsTrackers] removeObjectForKey:trackerId];
+}
 
 - (instancetype)init {
     if (self = [super init]) {

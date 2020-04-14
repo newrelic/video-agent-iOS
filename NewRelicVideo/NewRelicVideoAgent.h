@@ -63,4 +63,11 @@
  */
 + (AdsTracker<AdsTrackerProtocol> *)getAdsTracker:(NSNumber *)trackerId;
 
+/**
+Unregister a tracker.
+
+@param trackerId The tracker ID.
+*/
++ (void)unregisterTracker:(NSNumber *)trackerId;
+
 @end
