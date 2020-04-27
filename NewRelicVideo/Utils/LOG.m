@@ -15,4 +15,14 @@ void AV_LOG(NSString *format, ...) {
     LOG_CODE
 }
 
++ (void)measure:(void (^)(void))blockName name:(NSString *)name {
+    NSDate *methodStart = [NSDate date];
+    
+    blockName();
+    
+    NSDate *methodFinish = [NSDate date];
+    NSTimeInterval executionTime = [methodFinish timeIntervalSinceDate:methodStart];
+    NSLog(@"MEASURE %@ = %f", name, executionTime);
+}
+
 @end

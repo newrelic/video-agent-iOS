@@ -23,4 +23,6 @@
 
 void AV_LOG(NSString *format, ...);
 
++ (void)measure:(void (^)(void))blockName name:(NSString *)name;
+
 @end
