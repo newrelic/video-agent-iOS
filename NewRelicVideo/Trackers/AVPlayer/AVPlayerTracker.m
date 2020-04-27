@@ -542,15 +542,21 @@
 }
 
 - (NSNumber *)getFps {
-    double fps = 0.0f;
     AVAsset *asset = self.player.currentItem.asset;
     if (asset) {
+        NSError *error;
+        AVKeyValueStatus kvostatus = [asset statusOfValueForKey:@"tracks" error:&error];
+
+        if (kvostatus != AVKeyValueStatusLoaded) {
+            return nil;
+        }
+        
         AVAssetTrack *videoATrack = [[asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
         if (videoATrack) {
-            fps = videoATrack.nominalFrameRate;
+            return @(videoATrack.nominalFrameRate);
         }
     }
-    return @(fps);
+    return nil;
 }
 
 // NOTE: should be handled by a custom tracker, subclassing it
