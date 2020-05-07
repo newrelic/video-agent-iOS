@@ -43,11 +43,82 @@
     }
 }
 
+- (void)updateGCastAttributes {
+    [self setOptionKey:@"castAppId" value:[self getCastAppId]];
+    [self setOptionKey:@"castAppName" value:[self getCastAppName]];
+    [self setOptionKey:@"castDeviceStatusText" value:[self getCastDeviceStatusText]];
+    [self setOptionKey:@"castSessionId" value:[self getCastSessionId]];
+    [self setOptionKey:@"castDeviceId" value:[self getCastDeviceId]];
+    [self setOptionKey:@"castDeviceCategory" value:[self getCastDeviceCategory]];
+    [self setOptionKey:@"castDeviceVersion" value:[self getCastDeviceVersion]];
+}
+
+- (void)sendPlayerReady {
+    [self updateGCastAttributes];
+    [super sendPlayerReady];
+}
+
+- (void)sendRequest {
+    [self updateGCastAttributes];
+    [super sendRequest];
+}
+
+- (void)sendStart {
+    [self updateGCastAttributes];
+    [super sendStart];
+}
+
 - (void)sendEnd {
+    [self updateGCastAttributes];
     if (self.state == TrackerStateBuffering) {
         [self sendBufferEnd];
     }
     [super sendEnd];
+}
+
+- (void)sendPause {
+    [self updateGCastAttributes];
+    [super sendPause];
+}
+
+- (void)sendResume {
+    [self updateGCastAttributes];
+    [super sendResume];
+}
+
+- (void)sendSeekStart {
+    [self updateGCastAttributes];
+    [super sendSeekStart];
+}
+
+- (void)sendSeekEnd {
+    [self updateGCastAttributes];
+    [super sendSeekEnd];
+}
+ 
+- (void)sendBufferStart {
+    [self updateGCastAttributes];
+    [super sendBufferStart];
+}
+
+- (void)sendBufferEnd {
+    [self updateGCastAttributes];
+    [super sendBufferEnd];
+}
+
+- (void)sendHeartbeat {
+    [self updateGCastAttributes];
+    [super sendHeartbeat];
+}
+
+- (void)sendStartCastSession {
+    [self updateGCastAttributes];
+    [self sendCustomAction:@"CAST_START_SESSION"];
+}
+
+- (void)sendEndCastSession {
+    // We don't update attributes because are all empty now and we prefer to keep the previous values
+    [self sendCustomAction:@"CAST_END_SESSION"];
 }
 
 - (void)setMediaRequestInstance:(GCKRequest *)request {
@@ -57,19 +128,62 @@
     }
 }
 
+#pragma mark - Getters
+
+- (NSString *)getCastAppId {
+    return self.sessionManager.currentCastSession.applicationMetadata.applicationID;
+}
+
+- (NSString *)getCastAppName {
+    return self.sessionManager.currentCastSession.applicationMetadata.applicationName;
+}
+
+- (NSString *)getCastDeviceStatusText {
+    return self.sessionManager.currentSession.deviceStatusText;
+}
+
+- (NSString *)getCastSessionId {
+    return self.sessionManager.currentSession.sessionID;
+}
+
+- (NSString *)getCastDeviceId {
+    return self.sessionManager.currentSession.device.deviceID;
+}
+
+- (NSString *)getCastDeviceCategory {
+    return self.sessionManager.currentSession.device.category;
+}
+
+- (NSString *)getCastDeviceVersion {
+    return self.sessionManager.currentSession.device.deviceVersion;
+}
+
 #pragma mark - GCKSessionManagerListener
+
+/*
+- (void)sessionManager:(GCKSessionManager *)sessionManager didStartCastSession:(GCKCastSession *)session {
+    AV_LOG(@"DID START CAST SESSION");
+}
+
+- (void)sessionManager:(GCKSessionManager *)sessionManager didEndCastSession:(nonnull GCKCastSession *)session withError:(nullable NSError *)error {
+    AV_LOG(@"DID END CAST SESSION");
+}
+ */
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager
        didStartSession:(GCKCastSession *)session {
-    AV_LOG(@"DID START GCAST SESSION");
+    AV_LOG(@"DID START SESSION");
     
+    [self sendStartCastSession];
     [self registerGCastListeners];
 }
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager
          didEndSession:(GCKCastSession *)session
              withError:(nullable NSError *)error {
-    AV_LOG(@"DID END GCAST SESSION");
+    AV_LOG(@"DID END SESSION");
+    
+    [self sendEndCastSession];
     
     if (!error) {
         if (self.state != TrackerStateStopped) {
