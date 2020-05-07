@@ -44,13 +44,15 @@
 }
 
 - (void)updateGCastAttributes {
-    [self setOptionKey:@"castAppId" value:[self getCastAppId]];
-    [self setOptionKey:@"castAppName" value:[self getCastAppName]];
-    [self setOptionKey:@"castDeviceStatusText" value:[self getCastDeviceStatusText]];
-    [self setOptionKey:@"castSessionId" value:[self getCastSessionId]];
-    [self setOptionKey:@"castDeviceId" value:[self getCastDeviceId]];
-    [self setOptionKey:@"castDeviceCategory" value:[self getCastDeviceCategory]];
-    [self setOptionKey:@"castDeviceVersion" value:[self getCastDeviceVersion]];
+    if (self.sessionManager.currentSession) {
+        [self setOptionKey:@"castAppId" value:[self getCastAppId]];
+        [self setOptionKey:@"castAppName" value:[self getCastAppName]];
+        [self setOptionKey:@"castDeviceStatusText" value:[self getCastDeviceStatusText]];
+        [self setOptionKey:@"castSessionId" value:[self getCastSessionId]];
+        [self setOptionKey:@"castDeviceId" value:[self getCastDeviceId]];
+        [self setOptionKey:@"castDeviceCategory" value:[self getCastDeviceCategory]];
+        [self setOptionKey:@"castDeviceVersion" value:[self getCastDeviceVersion]];
+    }
 }
 
 - (void)sendPlayerReady {
@@ -117,7 +119,7 @@
 }
 
 - (void)sendEndCastSession {
-    // We don't update attributes because are all empty now and we prefer to keep the previous values
+    [self updateGCastAttributes];
     [self sendCustomAction:@"CAST_END_SESSION"];
 }
 
@@ -128,47 +130,7 @@
     }
 }
 
-#pragma mark - Getters
-
-- (NSString *)getCastAppId {
-    return self.sessionManager.currentCastSession.applicationMetadata.applicationID;
-}
-
-- (NSString *)getCastAppName {
-    return self.sessionManager.currentCastSession.applicationMetadata.applicationName;
-}
-
-- (NSString *)getCastDeviceStatusText {
-    return self.sessionManager.currentSession.deviceStatusText;
-}
-
-- (NSString *)getCastSessionId {
-    return self.sessionManager.currentSession.sessionID;
-}
-
-- (NSString *)getCastDeviceId {
-    return self.sessionManager.currentSession.device.deviceID;
-}
-
-- (NSString *)getCastDeviceCategory {
-    return self.sessionManager.currentSession.device.category;
-}
-
-- (NSString *)getCastDeviceVersion {
-    return self.sessionManager.currentSession.device.deviceVersion;
-}
-
 #pragma mark - GCKSessionManagerListener
-
-/*
-- (void)sessionManager:(GCKSessionManager *)sessionManager didStartCastSession:(GCKCastSession *)session {
-    AV_LOG(@"DID START CAST SESSION");
-}
-
-- (void)sessionManager:(GCKSessionManager *)sessionManager didEndCastSession:(nonnull GCKCastSession *)session withError:(nullable NSError *)error {
-    AV_LOG(@"DID END CAST SESSION");
-}
- */
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager
        didStartSession:(GCKCastSession *)session {
@@ -183,8 +145,6 @@
              withError:(nullable NSError *)error {
     AV_LOG(@"DID END SESSION");
     
-    [self sendEndCastSession];
-    
     if (!error) {
         if (self.state != TrackerStateStopped) {
             [self sendEnd];
@@ -193,6 +153,8 @@
     else {
         [self sendError:error];
     }
+    
+    [self sendEndCastSession];
 }
 
 - (void)sessionManager:(GCKSessionManager *)sessionManager didResumeSession:(GCKSession *)session {
@@ -348,6 +310,36 @@
 
 - (NSNumber *)getIsFullscreen {
     return @YES;
+}
+
+#pragma mark - GCast getters
+
+- (NSString *)getCastAppId {
+    return self.sessionManager.currentCastSession.applicationMetadata.applicationID;
+}
+
+- (NSString *)getCastAppName {
+    return self.sessionManager.currentCastSession.applicationMetadata.applicationName;
+}
+
+- (NSString *)getCastDeviceStatusText {
+    return self.sessionManager.currentSession.deviceStatusText;
+}
+
+- (NSString *)getCastSessionId {
+    return self.sessionManager.currentSession.sessionID;
+}
+
+- (NSString *)getCastDeviceId {
+    return self.sessionManager.currentSession.device.deviceID;
+}
+
+- (NSString *)getCastDeviceCategory {
+    return self.sessionManager.currentSession.device.category;
+}
+
+- (NSString *)getCastDeviceVersion {
+    return self.sessionManager.currentSession.device.deviceVersion;
 }
 
 @end
