@@ -52,6 +52,8 @@
         [self setOptionKey:@"castDeviceId" value:[self getCastDeviceId]];
         [self setOptionKey:@"castDeviceCategory" value:[self getCastDeviceCategory]];
         [self setOptionKey:@"castDeviceVersion" value:[self getCastDeviceVersion]];
+        [self setOptionKey:@"castDeviceModelName" value:[self getCastDeviceModelName]];
+        [self setOptionKey:@"castDeviceUniqueId" value:[self getCastDeviceUniqueId]];
     }
 }
 
@@ -340,6 +342,14 @@
 
 - (NSString *)getCastDeviceVersion {
     return self.sessionManager.currentSession.device.deviceVersion;
+}
+
+- (NSString *)getCastDeviceModelName {
+    return self.sessionManager.currentSession.device.modelName;
+}
+
+- (NSString *)getCastDeviceUniqueId {
+    return self.sessionManager.currentSession.device.uniqueID;
 }
 
 @end
