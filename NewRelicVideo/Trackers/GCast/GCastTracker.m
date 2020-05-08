@@ -54,6 +54,7 @@
         [self setOptionKey:@"castDeviceVersion" value:[self getCastDeviceVersion]];
         [self setOptionKey:@"castDeviceModelName" value:[self getCastDeviceModelName]];
         [self setOptionKey:@"castDeviceUniqueId" value:[self getCastDeviceUniqueId]];
+        [self setOptionKey:@"castDeviceFriendlyName" value:[self getCastDeviceFriendlyName]];
     }
 }
 
@@ -350,6 +351,10 @@
 
 - (NSString *)getCastDeviceUniqueId {
     return self.sessionManager.currentSession.device.uniqueID;
+}
+
+- (NSString *)getCastDeviceFriendlyName {
+    return self.sessionManager.currentSession.device.friendlyName;
 }
 
 @end
