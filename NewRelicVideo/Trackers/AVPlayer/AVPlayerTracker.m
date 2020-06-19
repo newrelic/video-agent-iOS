@@ -9,6 +9,8 @@
 #import "AVPlayerTracker.h"
 #import "EventDefs.h"
 
+#define TRACKER_TIME_EVENT 1.5
+
 @import AVKit;
 
 // KNOWN ISSUES:
@@ -29,6 +31,9 @@
 @property (nonatomic) int numTimeouts;
 @property (nonatomic) id timeObserver;
 @property (nonatomic) Float64 lastTime;
+@property (nonatomic) Float64 lastTrackerTimeEvent;
+@property (nonatomic) float lastRenditionHeight;
+@property (nonatomic) float lastRenditionWidth;
 
 @end
 
@@ -55,6 +60,9 @@
     self.firstFrameHappend = NO;
     self.numTimeouts = 0;
     self.lastTime = 0;
+    self.lastRenditionHeight = 0;
+    self.lastRenditionWidth = 0;
+    self.lastTrackerTimeEvent = 0;
     
     AV_LOG(@"AVPLAYER CURRENT ITEM (reset) = %@", self.player.currentItem);
     
@@ -93,14 +101,23 @@
     
     [super setup];
     
-    [self setupBitrateOptions];
-    
     // Register periodic time observer (an event every 1/2 seconds)
     
     self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
         //AV_LOG(@"Time Observer = %f , rate = %f", CMTimeGetSeconds(time), self.player.rate);
+        
+        if (self.lastTrackerTimeEvent == 0) {
+            self.lastTrackerTimeEvent = CMTimeGetSeconds(time);
+            [self periodicVideoStateCheck];
+        }
+        else {
+            if (CMTimeGetSeconds(time) - self.lastTrackerTimeEvent > TRACKER_TIME_EVENT) {
+                self.lastTrackerTimeEvent = CMTimeGetSeconds(time);
+                [self periodicVideoStateCheck];
+            }
+        }
         
         if (!self.player.currentItem) {
             AV_LOG(@"Time observer event but currentIntem is Nil, aborting");
@@ -403,11 +420,12 @@
     }
 }
 
-// TODO: do this with an indep timer, not trackerTimerEvent
-// Time Evenent, called by a timer in the superclass, every OBSERVATION_TIME seconds
-/*
-- (void)trackerTimeEvent {
-    [super trackerTimeEvent];
+- (void)periodicVideoStateCheck {
+    [self checkTimeout];
+    [self checkRenditionChange];
+}
+
+- (void)checkTimeout {
     
     if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         if (self.numTimeouts < 1) {
@@ -420,41 +438,34 @@
             self.numTimeouts = 0;
         }
     }
-
-    [self setupBitrateOptions];
 }
- */
 
-- (void)setupBitrateOptions {
-    // Calc estimated bitrate and send a rendition change event if it changed
-    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
-    double numberOfBitsTransferred = (event.numberOfBytesTransferred * 8);
-    double newEstimatedBitrate = numberOfBitsTransferred / event.segmentsDownloadedDuration;
-    
-    if (self.estimatedBitrate == 0) {
-        self.estimatedBitrate = newEstimatedBitrate;
+- (void)checkRenditionChange {
+    if (self.lastRenditionWidth == 0 || self.lastRenditionHeight == 0) {
+        self.lastRenditionHeight = [self getRenditionHeight].floatValue;
+        self.lastRenditionWidth = [self getRenditionWidth].floatValue;
     }
-    else if (fabs(self.estimatedBitrate - newEstimatedBitrate) >  self.estimatedBitrate * 0.01) {
-        // If bitrate changed more than 1%, rendition change event
+    else {
+        float currentRenditionHeight =  [self getRenditionHeight].floatValue;
+        float currentRenditionWidth =  [self getRenditionWidth].floatValue;
+        float currentMul = currentRenditionWidth * currentRenditionHeight;
+        float lastMul = self.lastRenditionWidth * self.lastRenditionHeight;
         
-        /*
-         TODO:
-         - Move RENDITION_CHANGE's "shift" attribute to Tracker. We could add a argument with bitrate and compare with last recorded one.
-         */
-        
-        if (self.estimatedBitrate - newEstimatedBitrate > 0) {
-            // Lower rendition
-            [self setOptionKey:@"shift" value:@"down" forAction:CONTENT_RENDITION_CHANGE];
+        if (currentMul != lastMul) {
+            AV_LOG(@"RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
+            
+            if (currentMul > lastMul) {
+                [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
+            }
+            else {
+                [self setOptionKey:@"shift" value:@"down" forAction:CONTENT_RENDITION_CHANGE];
+            }
+            
+            [self sendRenditionChange];
+            
+            self.lastRenditionHeight = currentRenditionHeight;
+            self.lastRenditionWidth = currentRenditionWidth;
         }
-        else {
-            // Higher rendition
-            [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
-        }
-        
-        [self sendRenditionChange];
-        self.estimatedBitrate = newEstimatedBitrate;
-        
-        AV_LOG(@"New Rendition Change = %d", newEstimatedBitrate);
     }
 }
 
