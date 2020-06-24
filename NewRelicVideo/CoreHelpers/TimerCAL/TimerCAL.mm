@@ -56,7 +56,6 @@
 
 - (void)abortTimer {
     [self abortTimerInternal];
-    self.tracker = nil;
 }
 
 @end
