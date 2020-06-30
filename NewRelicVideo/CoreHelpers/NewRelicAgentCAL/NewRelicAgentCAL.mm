@@ -50,6 +50,13 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIApplicationDidBecomeActiveNotification object:nil];
 }
 
+- (NSString *)uuid {
+    if (_uuid == nil) {
+        _uuid = [[NSProcessInfo processInfo] globallyUniqueString];
+    }
+    return _uuid;
+}
+
 - (void)appDidBecomeActiveNotif:(NSNotification*)notif {
     AV_LOG(@"App Did Become Active, upload background events");
     [self uploadBackgroundEvents];
@@ -68,10 +75,6 @@
     }];
     // Remove events and plist
     [[BackgroundEvents sharedInstance] flushEvents];
-}
-
-- (void)generateUUID {
-    self.uuid = [[NSProcessInfo processInfo] globallyUniqueString];
 }
 
 bool recordCustomEvent(std::string name, std::map<std::string, ValueHolder> attr)

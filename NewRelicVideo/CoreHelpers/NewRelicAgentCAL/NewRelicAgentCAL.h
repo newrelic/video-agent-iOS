@@ -11,6 +11,5 @@
 @interface NewRelicAgentCAL : NSObject
 
 + (instancetype)sharedInstance;
-- (void)generateUUID;
 
 @end

@@ -26,7 +26,6 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[NewRelicVideoAgent alloc] init];
-        [[NewRelicAgentCAL sharedInstance] generateUUID];
     });
     return instance;
 }
