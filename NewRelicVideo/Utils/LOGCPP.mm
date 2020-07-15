@@ -8,6 +8,7 @@
 
 #import "LOG.h"
 #import "Vars.h"
+#import "NewRelicVideoAgent.h"
 
 void AV_LOG(NSString *format, ...) {
     LOG_CODE

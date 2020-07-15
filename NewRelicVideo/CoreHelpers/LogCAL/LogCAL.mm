@@ -8,11 +8,12 @@
 
 #import "LogCAL.h"
 #import "Vars.h"
+#import "NewRelicVideoAgent.h"
 
 @implementation LogCAL
 
 void AV_LOG(const char *format, ...) {
-    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue]) {
+    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue] || [NewRelicVideoAgent logging]) {
         NSString *contents;
         va_list args;
         va_start(args, format);

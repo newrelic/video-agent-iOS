@@ -16,6 +16,7 @@
 
 @property (nonatomic) NSMutableDictionary<NSNumber *, ContentsTracker<ContentsTrackerProtocol> *> *contentsTrackers;
 @property (nonatomic) NSMutableDictionary<NSNumber *, AdsTracker<AdsTrackerProtocol> *> *adsTrackers;
+@property (nonatomic) BOOL isLogging;
 
 @end
 
@@ -26,6 +27,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[NewRelicVideoAgent alloc] init];
+        instance.isLogging = NO;
     });
     return instance;
 }
@@ -94,6 +96,14 @@
     }
     [[[self sharedInstance] contentsTrackers] removeObjectForKey:trackerId];
     [[[self sharedInstance] adsTrackers] removeObjectForKey:trackerId];
+}
+
++ (void)setLogging:(BOOL)state {
+    [[self sharedInstance] setIsLogging:state];
+}
+
++ (BOOL)logging {
+    return [[self sharedInstance] isLogging];
 }
 
 - (instancetype)init {

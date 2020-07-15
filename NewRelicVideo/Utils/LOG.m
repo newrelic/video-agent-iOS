@@ -8,6 +8,7 @@
 
 #import "LOG.h"
 #import "Vars.h"
+#import "NewRelicVideoAgent.h"
 
 @implementation LOG
 

@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#define LOG_CODE    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue]) {\
+#define LOG_CODE    if ([[Vars appNumber:@"NRVideoAgentDebug"] boolValue] || [NewRelicVideoAgent logging]) {\
                         NSString *contents;\
                         va_list args;\
                         va_start(args, format);\

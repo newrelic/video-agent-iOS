@@ -70,4 +70,18 @@ Unregister a tracker.
 */
 + (void)unregisterTracker:(NSNumber *)trackerId;
 
+/**
+Set logging state.
+
+@param state YES or NO.
+*/
++ (void)setLogging:(BOOL)state;
+
+/**
+Get logging state.
+
+@return The logging state.
+*/
++ (BOOL)logging;
+
 @end
