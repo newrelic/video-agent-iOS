@@ -106,7 +106,7 @@
     self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
-        //AV_LOG(@"Time Observer = %f , rate = %f", CMTimeGetSeconds(time), self.player.rate);
+        AV_LOG(@"Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
         
         if (self.lastTrackerTimeEvent == 0) {
             self.lastTrackerTimeEvent = CMTimeGetSeconds(time);
@@ -162,6 +162,22 @@
             [self sendStart];
             
             self.firstFrameHappend = YES;
+        }
+        
+        // Is Live video
+        if (isnan(CMTimeGetSeconds(self.player.currentItem.duration))) {
+            // Not started yet
+            if (!self.firstFrameHappend) {
+                if (self.player.rate == 0.0f) {
+                    // Request video
+                    [self sendRequest];
+                }
+                else if (self.player.rate == 1.0f) {
+                    // Started playing
+                    [self sendStart];
+                    self.firstFrameHappend = YES;
+                }
+            }
         }
         
         self.lastTime = CMTimeGetSeconds(time);
