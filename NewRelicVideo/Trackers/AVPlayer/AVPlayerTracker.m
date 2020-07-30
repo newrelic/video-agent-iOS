@@ -346,7 +346,7 @@
                 AV_LOG(@"  -> Playback Failed");
                 [self sendError:self.player.error];
             }
-            else if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+            else if (CMTimeGetSeconds(self.player.currentItem.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
                 AV_LOG(@"  -> Playback Reached the End");
             }
             else if (!self.player.currentItem.playbackLikelyToKeepUp) {
@@ -427,7 +427,7 @@
 
 - (void)checkTimeout {
     
-    if (CMTimeGetSeconds(self.player.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
+    if (CMTimeGetSeconds(self.player.currentItem.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
         if (self.numTimeouts < 1) {
             AV_LOG(@"Video ended? let's wait for another event to trigger a timeout.");
             self.numTimeouts ++;
