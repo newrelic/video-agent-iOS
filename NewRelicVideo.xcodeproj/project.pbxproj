@@ -47,6 +47,8 @@
 		9C8E78DB217DE911002F0524 /* NewRelicAgentCAL.mm in Sources */ = {isa = PBXBuildFile; fileRef = 9C8E78D9217DE911002F0524 /* NewRelicAgentCAL.mm */; };
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
+		9CAE601C24DAE8AD00FC7353 /* BellAVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAE601A24DAE8AD00FC7353 /* BellAVPlayerTracker.h */; };
+		9CAE601D24DAE8AD00FC7353 /* BellAVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAE601B24DAE8AD00FC7353 /* BellAVPlayerTracker.m */; };
 		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
 		9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */; };
 		9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */; };
@@ -121,6 +123,8 @@
 		9C8E78DC217DEC87002F0524 /* CAL.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = CAL.hpp; sourceTree = "<group>"; };
 		9CA3DE012136BB2F00205DC4 /* Vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Vars.h; sourceTree = "<group>"; };
 		9CA3DE022136BB3000205DC4 /* Vars.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Vars.m; sourceTree = "<group>"; };
+		9CAE601A24DAE8AD00FC7353 /* BellAVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BellAVPlayerTracker.h; sourceTree = "<group>"; };
+		9CAE601B24DAE8AD00FC7353 /* BellAVPlayerTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BellAVPlayerTracker.m; sourceTree = "<group>"; };
 		9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = DictionaryMerge.cpp; sourceTree = "<group>"; };
 		9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = DictionaryMerge.hpp; sourceTree = "<group>"; };
 		9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = PlaybackAutomatCore.cpp; sourceTree = "<group>"; };
@@ -398,6 +402,8 @@
 				9C57E2F82279FDAD00AE7144 /* AVPlayerTrackerBuilder.m */,
 				9CE5D722212ED90A00B89D07 /* AVPlayerTracker.h */,
 				9CE5D723212ED90A00B89D07 /* AVPlayerTracker.m */,
+				9CAE601A24DAE8AD00FC7353 /* BellAVPlayerTracker.h */,
+				9CAE601B24DAE8AD00FC7353 /* BellAVPlayerTracker.m */,
 			);
 			path = AVPlayer;
 			sourceTree = "<group>";
@@ -442,6 +448,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
+				9CAE601C24DAE8AD00FC7353 /* BellAVPlayerTracker.h in Headers */,
 				9C57E2FB2279FDAF00AE7144 /* AVPlayerTrackerBuilder.h in Headers */,
 				9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
@@ -593,6 +600,7 @@
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB250C02188A5D30094DFEF /* TimerCAL.mm in Sources */,
 				9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */,
+				9CAE601D24DAE8AD00FC7353 /* BellAVPlayerTracker.m in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CFACFB52190570A008627B9 /* LogCAL.mm in Sources */,
 				9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */,
