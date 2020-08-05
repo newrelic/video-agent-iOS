@@ -130,6 +130,7 @@
         
         if (self.player.rate == 1.0) {
             [self goStart];
+            [self goBufferEnd];
             [self goResume];
         }
         else if (self.player.rate == 0.0) {
@@ -149,6 +150,9 @@
     NSLog(@"(BellAVPlayerTracker) Observed keyPath = %@ , object = %@ , change = %@ , context = %@", keyPath, object, change, context);
     
     if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"]) {
+        if (!self.isBuffering && self.isPaused && self.player.rate == 0.0) {
+            [self goSeekStart];
+        }
         [self goBufferStart];
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
@@ -204,6 +208,7 @@
 
 - (BOOL)goResume {
     if (self.isPaused) {
+        [self goSeekEnd];
         [self sendResume];
         self.isPaused = NO;
         return YES;
@@ -228,6 +233,28 @@
     if (self.isBuffering) {
         [self sendBufferEnd];
         self.isBuffering = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goSeekStart {
+    if (!self.isSeeking) {
+        [self sendSeekStart];
+        self.isSeeking = YES;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goSeekEnd {
+    if (self.isSeeking) {
+        [self sendSeekEnd];
+        self.isSeeking = NO;
         return YES;
     }
     else {
