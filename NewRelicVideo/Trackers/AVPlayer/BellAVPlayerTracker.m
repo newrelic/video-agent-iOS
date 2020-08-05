@@ -241,6 +241,8 @@
 #pragma mark - Events senders
 
 - (BOOL)goRequest {
+    NSLog(@"(BellAVPlayerTracker) goRequest");
+    
     if (!self.didRequest) {
         [self sendRequest];
         self.didRequest = YES;
@@ -253,6 +255,8 @@
 }
 
 - (BOOL)goStart {
+    NSLog(@"(BellAVPlayerTracker) goStart");
+    
     if (self.didRequest && !self.didStart) {
         [self sendStart];
         self.didStart = YES;
@@ -264,6 +268,8 @@
 }
 
 - (BOOL)goPause {
+    NSLog(@"(BellAVPlayerTracker) goPause");
+    
     if (self.didEnd) return NO;
     
     if (self.didStart && !self.isPaused) {
@@ -277,6 +283,8 @@
 }
 
 - (BOOL)goResume {
+    NSLog(@"(BellAVPlayerTracker) goResume");
+    
     if (self.didEnd) return NO;
     
     if (self.isPaused) {
@@ -291,6 +299,8 @@
 }
 
 - (BOOL)goBufferStart {
+    NSLog(@"(BellAVPlayerTracker) goBufferStart");
+    
     if (self.didEnd) return NO;
     
     if (!self.isBuffering) {
@@ -304,6 +314,8 @@
 }
 
 - (BOOL)goBufferEnd {
+    NSLog(@"(BellAVPlayerTracker) goBufferEnd");
+    
     if (self.didEnd) return NO;
     
     if (self.isBuffering) {
@@ -317,6 +329,8 @@
 }
 
 - (BOOL)goSeekStart {
+    NSLog(@"(BellAVPlayerTracker) goSeekStart");
+    
     if (self.didEnd) return NO;
     
     if (!self.isSeeking) {
@@ -330,6 +344,8 @@
 }
 
 - (BOOL)goSeekEnd {
+    NSLog(@"(BellAVPlayerTracker) goSeekEnd");
+    
     if (self.didEnd) return NO;
     
     if (self.isSeeking) {
@@ -343,6 +359,8 @@
 }
 
 - (BOOL)goEnd {
+    NSLog(@"(BellAVPlayerTracker) goEnd");
+    
     if (!self.didEnd) {
         if (self.isBuffering) {
             [self goBufferEnd];
@@ -354,7 +372,6 @@
             [self goResume];
         }
         [self sendEnd];
-        self.didEnd = YES;
         return YES;
     }
     else {
@@ -449,4 +466,13 @@
     return @(self.player.muted);
 }
 
+#pragma mark - Overwrite senders
+
+- (void)sendEnd {
+    [super sendEnd];
+    NSLog(@"(BellAVPlayerTracker) sendEnd");
+    self.didEnd = YES;
+}
+
 @end
+
