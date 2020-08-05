@@ -134,7 +134,12 @@
             [self goResume];
         }
         else if (self.player.rate == 0.0) {
-            [self goPause];
+            if ([self readyToEnd]) {
+                [self goEnd];
+            }
+            else {
+                [self goPause];
+            }
         }
     }];
     
@@ -167,7 +172,18 @@
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
     NSLog(@"(BellAVPlayerTracker) Did Play To End");
-    [self goEnd];
+    if ([self readyToEnd]) {
+        [self goEnd];
+    }
+}
+
+- (BOOL)readyToEnd {
+    if (CMTimeGetSeconds(self.player.currentItem.currentTime) > CMTimeGetSeconds(self.player.currentItem.duration) - 0.6) {
+        return YES;
+    }
+    else {
+        return NO;
+    }
 }
 
 #pragma mark - Events senders
@@ -196,7 +212,9 @@
 }
 
 - (BOOL)goPause {
-    if (!self.isPaused) {
+    if (self.didEnd) return NO;
+    
+    if (self.didStart && !self.isPaused) {
         [self sendPause];
         self.isPaused = YES;
         return YES;
@@ -207,6 +225,8 @@
 }
 
 - (BOOL)goResume {
+    if (self.didEnd) return NO;
+    
     if (self.isPaused) {
         [self goSeekEnd];
         [self sendResume];
@@ -219,6 +239,8 @@
 }
 
 - (BOOL)goBufferStart {
+    if (self.didEnd) return NO;
+    
     if (!self.isBuffering) {
         [self sendBufferStart];
         self.isBuffering = YES;
@@ -230,6 +252,8 @@
 }
 
 - (BOOL)goBufferEnd {
+    if (self.didEnd) return NO;
+    
     if (self.isBuffering) {
         [self sendBufferEnd];
         self.isBuffering = NO;
@@ -241,6 +265,8 @@
 }
 
 - (BOOL)goSeekStart {
+    if (self.didEnd) return NO;
+    
     if (!self.isSeeking) {
         [self sendSeekStart];
         self.isSeeking = YES;
@@ -252,6 +278,8 @@
 }
 
 - (BOOL)goSeekEnd {
+    if (self.didEnd) return NO;
+    
     if (self.isSeeking) {
         [self sendSeekEnd];
         self.isSeeking = NO;
@@ -264,12 +292,109 @@
 
 - (BOOL)goEnd {
     if (!self.didEnd) {
+        if (self.isBuffering) {
+            [self goBufferEnd];
+        }
+        if (self.isSeeking) {
+            [self goSeekEnd];
+        }
+        if (self.isPaused) {
+            [self goResume];
+        }
+        [self sendEnd];
         self.didEnd = YES;
         return YES;
     }
     else {
         return NO;
     }
+}
+
+#pragma mark - ContentsTracker getters
+
+- (NSString *)getTrackerName {
+    return @"avplayertracker";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"0.0.0";
+}
+
+- (NSString *)getPlayerVersion {
+    return [[UIDevice currentDevice] systemVersion];
+}
+
+- (NSString *)getPlayerName {
+    return @"avplayer";
+}
+
+- (NSNumber *)getBitrate {
+    AVPlayerItemAccessLogEvent *event = [self.player.currentItem.accessLog.events lastObject];
+    return @(event.indicatedBitrate);
+}
+
+- (NSNumber *)getRenditionWidth {
+    return @(self.player.currentItem.presentationSize.width);
+}
+
+- (NSNumber *)getRenditionHeight {
+    return @(self.player.currentItem.presentationSize.height);
+}
+
+- (NSNumber *)getDuration {
+    Float64 duration = CMTimeGetSeconds(self.player.currentItem.duration);
+    if (isnan(duration)) {
+        return @0;
+    }
+    else {
+        return @(duration * 1000.0f);
+    }
+}
+
+- (NSNumber *)getPlayhead {
+    Float64 pos = CMTimeGetSeconds(self.player.currentItem.currentTime);
+    if (isnan(pos)) {
+        return @0;
+    }
+    else {
+        return @(pos * 1000.0f);
+    }
+}
+
+- (NSString *)getSrc {
+    AVAsset *currentPlayerAsset = self.player.currentItem.asset;
+    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
+    return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
+}
+
+- (NSNumber *)getPlayrate {
+    return @(self.player.rate);
+}
+
+- (NSNumber *)getFps {
+    AVAsset *asset = self.player.currentItem.asset;
+    if (asset) {
+        NSError *error;
+        AVKeyValueStatus kvostatus = [asset statusOfValueForKey:@"tracks" error:&error];
+
+        if (kvostatus != AVKeyValueStatusLoaded) {
+            return nil;
+        }
+        
+        AVAssetTrack *videoATrack = [[asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
+        if (videoATrack) {
+            return @(videoATrack.nominalFrameRate);
+        }
+    }
+    return nil;
+}
+
+- (NSNumber *)getIsLive {
+    return @(self.isLive);
+}
+
+- (NSNumber *)getIsMuted {
+    return @(self.player.muted);
 }
 
 @end

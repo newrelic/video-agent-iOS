@@ -48,7 +48,6 @@
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CAE601C24DAE8AD00FC7353 /* BellAVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAE601A24DAE8AD00FC7353 /* BellAVPlayerTracker.h */; };
-		9CAE601D24DAE8AD00FC7353 /* BellAVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAE601B24DAE8AD00FC7353 /* BellAVPlayerTracker.m */; };
 		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
 		9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */; };
 		9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */; };
@@ -600,7 +599,6 @@
 				9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */,
 				9CB250C02188A5D30094DFEF /* TimerCAL.mm in Sources */,
 				9CB250BB218870A00094DFEF /* GettersCAL.mm in Sources */,
-				9CAE601D24DAE8AD00FC7353 /* BellAVPlayerTracker.m in Sources */,
 				9C8E78D3217DE4D8002F0524 /* ValueHolder.cpp in Sources */,
 				9CFACFB52190570A008627B9 /* LogCAL.mm in Sources */,
 				9CB250B0218713590094DFEF /* DatetimeCAL.mm in Sources */,
