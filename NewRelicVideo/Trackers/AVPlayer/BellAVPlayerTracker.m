@@ -47,7 +47,57 @@
 - (void)reset {
     [super reset];
     
-    //TODO: unregister observers
+    NSLog(@"Tracker Reset");
+    
+    // Unregister observers
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"status"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"rate"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.status"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackBufferEmpty"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackBufferFull"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackLikelyToKeepUp"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"timeControlStatus"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"reasonForWaitingToPlay"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeTimeObserver:self.timeObserver];
+    }
+    @catch(id e) {}
     
     self.didRequest = NO;
     self.didStart = NO;
@@ -60,6 +110,8 @@
 
 - (void)setup {
     [super setup];
+    
+    NSLog(@"Tracker Setup");
 
     // Register observers
     
