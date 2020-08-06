@@ -95,6 +95,11 @@
     @catch (id e) {}
     
     @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem"];
+    }
+    @catch (id e) {}
+    
+    @try {
         [self.player removeTimeObserver:self.timeObserver];
     }
     @catch(id e) {}
@@ -172,6 +177,11 @@
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
     self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
@@ -216,6 +226,24 @@
         [self goRequest];
         [self goBufferEnd];
     }
+    else if ([keyPath isEqualToString:@"status"]) {
+        if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
+            NSLog(@"(BellAVPlayerTracker) Error While Playing = %@", self.player.currentItem.error);
+            
+            if (self.player.currentItem.error) {
+                [self sendError:self.player.currentItem.error];
+            }
+            else {
+                [self sendError:nil];
+            }
+        }
+    }
+    else if ([keyPath isEqualToString:@"currentItem"]) {
+        if (self.player.currentItem != nil) {
+            NSLog(@"(BellAVPlayerTracker) New Video Session!");
+            [self goNext];
+        }
+    }
 }
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
@@ -240,13 +268,31 @@
 
 #pragma mark - Events senders
 
+- (BOOL)goNext {
+    NSLog(@"(BellAVPlayerTracker) goNext");
+    
+    if (self.didRequest) {
+        [self goEnd];
+        self.didRequest = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
 - (BOOL)goRequest {
     NSLog(@"(BellAVPlayerTracker) goRequest");
     
     if (!self.didRequest) {
         [self sendRequest];
         self.didRequest = YES;
+        self.didStart = NO;
         self.didEnd = NO;
+        self.isPaused = NO;
+        self.isSeeking = NO;
+        self.isBuffering = NO;
+        self.isLive = NO;
         return YES;
     }
     else {
@@ -470,3 +516,4 @@
 }
 
 @end
+
