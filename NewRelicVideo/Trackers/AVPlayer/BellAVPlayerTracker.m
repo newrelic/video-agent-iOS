@@ -362,15 +362,6 @@
     NSLog(@"(BellAVPlayerTracker) goEnd");
     
     if (!self.didEnd) {
-        if (self.isBuffering) {
-            [self goBufferEnd];
-        }
-        if (self.isSeeking) {
-            [self goSeekEnd];
-        }
-        if (self.isPaused) {
-            [self goResume];
-        }
         [self sendEnd];
         return YES;
     }
@@ -469,10 +460,13 @@
 #pragma mark - Overwrite senders
 
 - (void)sendEnd {
+    [self goBufferEnd];
+    [self goSeekEnd];
+    [self goResume];
+    
     [super sendEnd];
     NSLog(@"(BellAVPlayerTracker) sendEnd");
     self.didEnd = YES;
 }
 
 @end
-
