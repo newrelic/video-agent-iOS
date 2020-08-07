@@ -8,6 +8,8 @@
 
 #import "BellAVPlayerTracker.h"
 
+#define TRACKER_TIME_EVENT 1.5
+
 @import AVKit;
 
 @interface BellAVPlayerTracker ()
@@ -25,6 +27,10 @@
 @property (nonatomic) BOOL isSeeking;
 @property (nonatomic) BOOL isBuffering;
 @property (nonatomic) BOOL isLive;
+
+@property (nonatomic) float lastRenditionHeight;
+@property (nonatomic) float lastRenditionWidth;
+@property (nonatomic) Float64 lastTrackerTimeEvent;
 
 @end
 
@@ -111,6 +117,10 @@
     self.isSeeking = NO;
     self.isBuffering = NO;
     self.isLive = NO;
+    
+    self.lastRenditionHeight = 0;
+    self.lastRenditionWidth = 0;
+    self.lastTrackerTimeEvent = 0;
 }
 
 - (void)setup {
@@ -186,6 +196,9 @@
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
         NSLog(@"(BellAVPlayerTracker) Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
+        
+        // Check various state changes periodically
+        [self periodicVideoStateCheck];
         
         // If duration is NaN, then is live streaming. Otherwise is VoD.
         self.isLive = isnan(CMTimeGetSeconds(self.player.currentItem.duration));
@@ -263,6 +276,48 @@
     }
     else {
         return NO;
+    }
+}
+
+- (void)periodicVideoStateCheck {
+    if (self.lastTrackerTimeEvent == 0) {
+        self.lastTrackerTimeEvent = CMTimeGetSeconds(self.player.currentItem.currentTime);
+        [self checkRenditionChange];
+    }
+    else {
+        if (CMTimeGetSeconds(self.player.currentItem.currentTime) - self.lastTrackerTimeEvent > TRACKER_TIME_EVENT) {
+            self.lastTrackerTimeEvent = CMTimeGetSeconds(self.player.currentItem.currentTime);
+            [self checkRenditionChange];
+        }
+    }
+}
+
+- (void)checkRenditionChange {
+    if (self.lastRenditionWidth == 0 || self.lastRenditionHeight == 0) {
+        self.lastRenditionHeight = [self getRenditionHeight].floatValue;
+        self.lastRenditionWidth = [self getRenditionWidth].floatValue;
+    }
+    else {
+        float currentRenditionHeight =  [self getRenditionHeight].floatValue;
+        float currentRenditionWidth =  [self getRenditionWidth].floatValue;
+        float currentMul = currentRenditionWidth * currentRenditionHeight;
+        float lastMul = self.lastRenditionWidth * self.lastRenditionHeight;
+        
+        if (currentMul != lastMul) {
+            NSLog(@"(BellAVPlayerTracker) RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
+            
+            if (currentMul > lastMul) {
+                [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
+            }
+            else {
+                [self setOptionKey:@"shift" value:@"down" forAction:CONTENT_RENDITION_CHANGE];
+            }
+            
+            [self sendRenditionChange];
+            
+            self.lastRenditionHeight = currentRenditionHeight;
+            self.lastRenditionWidth = currentRenditionWidth;
+        }
     }
 }
 
@@ -423,7 +478,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"0.0.0";
+    return @"0.9.0";
 }
 
 - (NSString *)getPlayerVersion {
