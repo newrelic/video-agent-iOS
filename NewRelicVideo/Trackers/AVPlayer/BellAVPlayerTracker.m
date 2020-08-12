@@ -233,11 +233,11 @@
         if (!self.isBuffering && self.isPaused && self.player.rate == 0.0) {
             [self goSeekStart];
         }
-        [self goBufferStart];
+        //[self goBufferStart];
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
         [self goRequest];
-        [self goBufferEnd];
+        //[self goBufferEnd];
     }
     else if ([keyPath isEqualToString:@"status"]) {
         if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
@@ -255,6 +255,14 @@
         if (self.player.currentItem != nil) {
             NSLog(@"(BellAVPlayerTracker) New Video Session!");
             [self goNext];
+        }
+    }
+    else if ([keyPath isEqualToString:@"timeControlStatus"]) {
+        if (self.player.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+            [self goBufferStart];
+        }
+        else {
+            [self goBufferEnd];
         }
     }
 }
@@ -478,7 +486,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"0.9.0";
+    return @"0.10.0";
 }
 
 - (NSString *)getPlayerVersion {
