@@ -589,4 +589,14 @@
     self.didEnd = YES;
 }
 
+- (void)sendSeekStart {
+    [super sendSeekStart];
+    self.isSeeking = YES;
+}
+
+- (void)sendSeekEnd {
+    [super sendSeekEnd];
+    self.isSeeking = NO;
+}
+
 @end
