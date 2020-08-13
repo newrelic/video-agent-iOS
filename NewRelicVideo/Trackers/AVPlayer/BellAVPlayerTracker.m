@@ -59,6 +59,7 @@
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
     
     @try {
         [self.player removeObserver:self forKeyPath:@"status"];
@@ -140,6 +141,11 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(itemFailedToPlayToEndTimeNotification:)
+                                                 name:AVPlayerItemFailedToPlayToEndTimeNotification
+                                               object:nil];
+
     [self.player addObserver:self
                   forKeyPath:@"status"
                      options:(NSKeyValueObservingOptionNew)
@@ -276,6 +282,11 @@
     if ([self readyToEnd]) {
         [self goEnd];
     }
+}
+
+- (void)itemFailedToPlayToEndTimeNotification:(NSNotification *)notification {
+    NSError *error = notification.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+    [self sendError:error];
 }
 
 - (BOOL)readyToEnd {
@@ -482,11 +493,11 @@
 #pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
-    return @"avplayertracker";
+    return @"belltracker";
 }
 
 - (NSString *)getTrackerVersion {
-    return @"0.10.0";
+    return @"0.11.0";
 }
 
 - (NSString *)getPlayerVersion {
@@ -579,4 +590,3 @@
 }
 
 @end
-
