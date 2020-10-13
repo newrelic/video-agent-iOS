@@ -172,6 +172,23 @@ typedef NS_ENUM(NSUInteger, TrackerState) {
 - (void)sendCustomAction:(NSString *)name attr:(NSDictionary *)attr;
 
 /**
+Send a custom action with custom timeSinceAttribute.
+
+@param name Name of action.
+@param timeSince Time Since attribute name.
+*/
+- (void)sendCustomAction:(NSString *)name timeSince:(NSString *)timeSince;
+
+/**
+Send a custom action with custom timeSinceAttribute.
+
+@param name Name of action.
+@param timeSince Time Since attribute name.
+@param attr Dictionary of parameters sent along the action.
+*/
+- (void)sendCustomAction:(NSString *)name timeSince:(NSString *)timeSince attr:(NSDictionary *)attr;
+
+/**
  Set custom single parameter for actions.
  
  @param key Name of parameter.

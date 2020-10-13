@@ -169,6 +169,14 @@
     contentsTrackerCore->sendCustomAction(std::string([name UTF8String]), fromDictionaryToMap(attr));
 }
 
+- (void)sendCustomAction:(NSString *)name timeSince:(NSString *)timeSince {
+    contentsTrackerCore->sendCustomAction(std::string([name UTF8String]), std::string([timeSince UTF8String]));
+}
+
+- (void)sendCustomAction:(NSString *)name timeSince:(NSString *)timeSince attr:(NSDictionary *)attr {
+    contentsTrackerCore->sendCustomAction(std::string([name UTF8String]), std::string([timeSince UTF8String]), fromDictionaryToMap(attr));
+}
+
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value {
     contentsTrackerCore->updateAttribute(std::string([key UTF8String]), fromNSValue((id)value));
 }
