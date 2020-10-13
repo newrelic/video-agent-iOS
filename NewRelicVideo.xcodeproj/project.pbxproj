@@ -583,7 +583,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "FRAMEWORK=NewRelicVideo\nBUILD=build\nFRAMEWORK_PATH=$FRAMEWORK.framework\n\n# Go to parent dir (project parent)\ncd ..\n\n# iOS, compile for device and simulator\nrm -Rf $FRAMEWORK/$BUILD\nrm -f $FRAMEWORK.framework.tar.gz\nxcodebuild archive -project $FRAMEWORK/$FRAMEWORK.xcodeproj -scheme $FRAMEWORK -sdk iphoneos SYMROOT=$BUILD\nxcodebuild build -project $FRAMEWORK/$FRAMEWORK.xcodeproj -target $FRAMEWORK -sdk iphonesimulator SYMROOT=$BUILD\ncp -RL $FRAMEWORK/$BUILD/Release-iphoneos $FRAMEWORK/$BUILD/Release-universal\n\n# Create fat lib\nlipo -create $FRAMEWORK/$BUILD/Release-iphoneos/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-iphonesimulator/$FRAMEWORK_PATH/$FRAMEWORK -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n# Remore i386 arch\nlipo -remove i386 -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n# Go back to project root dir\ncd NewRelicVideo\n\n# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/TrackerBuilder.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTrackerBuilder.h ./NewRelicVideo/Backend/EventDefs.h\n\n# Copy framework to build dir\ncp -r $BUILD/Release-universal/$FRAMEWORK_PATH ../build/\n\nopen ../build\n";
+			shellScript = "FRAMEWORK=NewRelicVideo\nBUILD=build\nFRAMEWORK_PATH=$FRAMEWORK.framework\n\n# Go to parent dir (project parent)\ncd ..\n\n# iOS, compile for device and simulator\nrm -Rf $FRAMEWORK/$BUILD\nrm -f $FRAMEWORK.framework.tar.gz\nxcodebuild archive -project $FRAMEWORK/$FRAMEWORK.xcodeproj -scheme $FRAMEWORK -sdk iphoneos SYMROOT=$BUILD\nxcodebuild build -project $FRAMEWORK/$FRAMEWORK.xcodeproj -target $FRAMEWORK -sdk iphonesimulator SYMROOT=$BUILD\ncp -RL $FRAMEWORK/$BUILD/Release-iphoneos $FRAMEWORK/$BUILD/Release-universal\n\n# Create fat lib\nlipo -create $FRAMEWORK/$BUILD/Release-iphoneos/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-iphonesimulator/$FRAMEWORK_PATH/$FRAMEWORK -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n# Remore i386 arch\n#lipo -remove i386 -output $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK $FRAMEWORK/$BUILD/Release-universal/$FRAMEWORK_PATH/$FRAMEWORK\n\n# Go back to project root dir\ncd NewRelicVideo\n\n# Create build dir\nrm -rf ../build/ 2> /dev/null\nmkdir ../build 2> /dev/null\n\n# Generate AppleDoc and copy it to build dir\nappledoc --project-name NewRelicVideo --project-company \"New Relic Inc.\" --company-id com.newrelic --create-html --no-create-docset --no-install-docset --no-publish-docset --output ../build ./NewRelicVideo/NewRelicVideoAgent.h ./NewRelicVideo/Trackers/Tracker.h ./NewRelicVideo/Trackers/ContentsTracker.h ./NewRelicVideo/Trackers/AdsTracker.h ./NewRelicVideo/Trackers/TrackerBuilder.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTracker.h ./NewRelicVideo/Trackers/AVPlayer/AVPlayerTrackerBuilder.h ./NewRelicVideo/Backend/EventDefs.h\n\n# Copy framework to build dir\ncp -r $BUILD/Release-universal/$FRAMEWORK_PATH ../build/\n\nopen ../build\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -762,7 +762,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -785,7 +785,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.44.0;
+				PRODUCT_VERSION = 0.45.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -800,7 +800,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -822,7 +822,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.44.0;
+				PRODUCT_VERSION = 0.45.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
