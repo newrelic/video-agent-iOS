@@ -1,18 +1,18 @@
 //
-//  BellAVPlayerTracker.m
+//  NewAVPlayerTracker.m
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 05/08/2020.
 //  Copyright © 2020 New Relic Inc. All rights reserved.
 //
 
-#import "BellAVPlayerTracker.h"
+#import "NewAVPlayerTracker.h"
 
 #define TRACKER_TIME_EVENT 1.5
 
 @import AVKit;
 
-@interface BellAVPlayerTracker ()
+@interface NewAVPlayerTracker ()
 
 // AVPlayer weak references
 @property (nonatomic, weak) AVPlayer *player;
@@ -34,7 +34,7 @@
 
 @end
 
-@implementation BellAVPlayerTracker
+@implementation NewAVPlayerTracker
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {
@@ -201,7 +201,7 @@
     self.timeObserver =
     [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
-        NSLog(@"(BellAVPlayerTracker) Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
+        NSLog(@"(NewAVPlayerTracker) Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
         
         // Check various state changes periodically
         [self periodicVideoStateCheck];
@@ -233,7 +233,7 @@
                         change:(NSDictionary<NSString *,id> *)change
                        context:(void *)context {
     
-    NSLog(@"(BellAVPlayerTracker) Observed keyPath = %@ , object = %@ , change = %@ , context = %@", keyPath, object, change, context);
+    NSLog(@"(NewAVPlayerTracker) Observed keyPath = %@ , object = %@ , change = %@ , context = %@", keyPath, object, change, context);
     
     if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"]) {
         if (!self.isBuffering && self.isPaused && self.player.rate == 0.0) {
@@ -247,7 +247,7 @@
     }
     else if ([keyPath isEqualToString:@"status"]) {
         if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
-            NSLog(@"(BellAVPlayerTracker) Error While Playing = %@", self.player.currentItem.error);
+            NSLog(@"(NewAVPlayerTracker) Error While Playing = %@", self.player.currentItem.error);
             
             if (self.player.currentItem.error) {
                 [self sendError:self.player.currentItem.error];
@@ -259,7 +259,7 @@
     }
     else if ([keyPath isEqualToString:@"currentItem"]) {
         if (self.player.currentItem != nil) {
-            NSLog(@"(BellAVPlayerTracker) New Video Session!");
+            NSLog(@"(NewAVPlayerTracker) New Video Session!");
             [self goNext];
         }
     }
@@ -274,11 +274,11 @@
 }
 
 - (void)itemTimeJumpedNotification:(NSNotification *)notification {
-    NSLog(@"(BellAVPlayerTracker) Time Jumped! = %f", CMTimeGetSeconds(self.player.currentItem.currentTime));
+    NSLog(@"(NewAVPlayerTracker) Time Jumped! = %f", CMTimeGetSeconds(self.player.currentItem.currentTime));
 }
 
 - (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
-    NSLog(@"(BellAVPlayerTracker) Did Play To End");
+    NSLog(@"(NewAVPlayerTracker) Did Play To End");
     if ([self readyToEnd]) {
         [self goEnd];
     }
@@ -323,7 +323,7 @@
         float lastMul = self.lastRenditionWidth * self.lastRenditionHeight;
         
         if (currentMul != lastMul) {
-            NSLog(@"(BellAVPlayerTracker) RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
+            NSLog(@"(NewAVPlayerTracker) RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
             
             if (currentMul > lastMul) {
                 [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
@@ -343,7 +343,7 @@
 #pragma mark - Events senders
 
 - (BOOL)goNext {
-    NSLog(@"(BellAVPlayerTracker) goNext");
+    NSLog(@"(NewAVPlayerTracker) goNext");
     
     if (self.didRequest) {
         [self goEnd];
@@ -356,7 +356,7 @@
 }
 
 - (BOOL)goRequest {
-    NSLog(@"(BellAVPlayerTracker) goRequest");
+    NSLog(@"(NewAVPlayerTracker) goRequest");
     
     if (!self.didRequest) {
         [self sendRequest];
@@ -365,7 +365,6 @@
         self.didEnd = NO;
         self.isPaused = NO;
         self.isSeeking = NO;
-        self.isBuffering = NO;
         self.isLive = NO;
         return YES;
     }
@@ -375,7 +374,7 @@
 }
 
 - (BOOL)goStart {
-    NSLog(@"(BellAVPlayerTracker) goStart");
+    NSLog(@"(NewAVPlayerTracker) goStart");
     
     if (self.didRequest && !self.didStart) {
         [self sendStart];
@@ -388,7 +387,7 @@
 }
 
 - (BOOL)goPause {
-    NSLog(@"(BellAVPlayerTracker) goPause");
+    NSLog(@"(NewAVPlayerTracker) goPause");
     
     if (self.didEnd) return NO;
     
@@ -403,7 +402,7 @@
 }
 
 - (BOOL)goResume {
-    NSLog(@"(BellAVPlayerTracker) goResume");
+    NSLog(@"(NewAVPlayerTracker) goResume");
     
     if (self.didEnd) return NO;
     
@@ -419,7 +418,7 @@
 }
 
 - (BOOL)goBufferStart {
-    NSLog(@"(BellAVPlayerTracker) goBufferStart");
+    NSLog(@"(NewAVPlayerTracker) goBufferStart");
     
     if (self.didEnd) return NO;
     
@@ -434,7 +433,7 @@
 }
 
 - (BOOL)goBufferEnd {
-    NSLog(@"(BellAVPlayerTracker) goBufferEnd");
+    NSLog(@"(NewAVPlayerTracker) goBufferEnd");
     
     if (self.didEnd) return NO;
     
@@ -449,7 +448,7 @@
 }
 
 - (BOOL)goSeekStart {
-    NSLog(@"(BellAVPlayerTracker) goSeekStart");
+    NSLog(@"(NewAVPlayerTracker) goSeekStart");
     
     if (self.didEnd) return NO;
     
@@ -464,7 +463,7 @@
 }
 
 - (BOOL)goSeekEnd {
-    NSLog(@"(BellAVPlayerTracker) goSeekEnd");
+    NSLog(@"(NewAVPlayerTracker) goSeekEnd");
     
     if (self.didEnd) return NO;
     
@@ -479,7 +478,7 @@
 }
 
 - (BOOL)goEnd {
-    NSLog(@"(BellAVPlayerTracker) goEnd");
+    NSLog(@"(NewAVPlayerTracker) goEnd");
     
     if (!self.didEnd) {
         [self sendEnd];
@@ -493,11 +492,11 @@
 #pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
-    return @"belltracker";
+    return @"newavplayertracker";
 }
 
 - (NSString *)getTrackerVersion {
-    return @"0.11.0";
+    return @"0.1.0";
 }
 
 - (NSString *)getPlayerVersion {
@@ -585,7 +584,7 @@
     [self goResume];
     
     [super sendEnd];
-    NSLog(@"(BellAVPlayerTracker) sendEnd");
+    NSLog(@"(NewAVPlayerTracker) sendEnd");
     self.didEnd = YES;
 }
 

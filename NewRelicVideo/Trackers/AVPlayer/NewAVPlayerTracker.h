@@ -1,5 +1,5 @@
 //
-//  BellAVPlayerTracker.h
+//  NewAVPlayerTracker.h
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 05/08/2020.
@@ -11,7 +11,7 @@
 @class AVPlayer;
 @class AVPlayerViewController;
 
-@interface BellAVPlayerTracker : ContentsTracker <ContentsTrackerProtocol>
+@interface NewAVPlayerTracker : ContentsTracker <ContentsTrackerProtocol>
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player;
 - (instancetype)initWithAVPlayerViewController:(AVPlayerViewController *)playerViewController;
