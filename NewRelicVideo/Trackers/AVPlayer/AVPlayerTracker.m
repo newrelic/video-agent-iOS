@@ -2,8 +2,8 @@
 //  AVPlayerTracker.m
 //  NewRelicVideo
 //
-//  Created by Andreu Santaren on 23/08/2018.
-//  Copyright © 2018 New Relic Inc. All rights reserved.
+//  Created by Andreu Santaren on 05/08/2020.
+//  Copyright © 2020 New Relic Inc. All rights reserved.
 //
 
 #import "AVPlayerTracker.h"
@@ -13,27 +13,25 @@
 
 @import AVKit;
 
-// KNOWN ISSUES:
-// * It sends a PAUSE right before SEEK_START and a RESUME right after SEEK_END.
-// * If seeked while paused, the SEEK_END is sent only when user resumes the video.
-
 @interface AVPlayerTracker ()
 
 // AVPlayer weak references
 @property (nonatomic, weak) AVPlayer *player;
 @property (nonatomic, weak) AVPlayerViewController *playerViewController;
 
-@property (nonatomic) int numZeroRates;
-@property (nonatomic) double estimatedBitrate;
-@property (nonatomic) BOOL isAutoPlayed;
-@property (nonatomic) BOOL isFullScreen;
-@property (nonatomic) BOOL firstFrameHappend;
-@property (nonatomic) int numTimeouts;
 @property (nonatomic) id timeObserver;
-@property (nonatomic) Float64 lastTime;
-@property (nonatomic) Float64 lastTrackerTimeEvent;
+
+@property (nonatomic) BOOL didRequest;
+@property (nonatomic) BOOL didStart;
+@property (nonatomic) BOOL didEnd;
+@property (nonatomic) BOOL isPaused;
+@property (nonatomic) BOOL isSeeking;
+@property (nonatomic) BOOL isBuffering;
+@property (nonatomic) BOOL isLive;
+
 @property (nonatomic) float lastRenditionHeight;
 @property (nonatomic) float lastRenditionWidth;
+@property (nonatomic) Float64 lastTrackerTimeEvent;
 
 @end
 
@@ -55,137 +53,84 @@
 
 - (void)reset {
     [super reset];
-    self.numZeroRates = 0;
-    self.estimatedBitrate = 0;
-    self.firstFrameHappend = NO;
-    self.numTimeouts = 0;
-    self.lastTime = 0;
-    self.lastRenditionHeight = 0;
-    self.lastRenditionWidth = 0;
-    self.lastTrackerTimeEvent = 0;
     
-    AV_LOG(@"AVPLAYER CURRENT ITEM (reset) = %@", self.player.currentItem);
+    NSLog(@"Tracker Reset");
     
-    if (self.timeObserver && self.player) {
-        @try {
-            [self.player removeTimeObserver:self.timeObserver];
-        }
-        @catch(id e) {}
-    }
+    // Unregister observers
     
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemTimeJumpedNotification object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemDidPlayToEndTimeNotification object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:AVPlayerItemFailedToPlayToEndTimeNotification object:nil];
     
-    AV_LOG(@"Unregistered AVPlayerItemTimeJumpedNotification and AVPlayerItemDidPlayToEndTimeNotification");
-
-    [self unregisterAllEvents];
+    @try {
+        [self.player removeObserver:self forKeyPath:@"status"];
+    }
+    @catch (id e) {}
     
     @try {
         [self.player removeObserver:self forKeyPath:@"rate"];
     }
     @catch (id e) {}
     
-    AV_LOG(@"Unregistered Player Rate");
-    
-    if (self.playerViewController) {
-        @try {
-            [self.playerViewController removeObserver:self forKeyPath:@"videoBounds"];
-        }
-        @catch (id e) {}
-        
-        AV_LOG(@"Unregistered PlayerController videoBounds");
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.status"];
     }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackBufferEmpty"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackBufferFull"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem.playbackLikelyToKeepUp"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"timeControlStatus"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"reasonForWaitingToPlay"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeObserver:self forKeyPath:@"currentItem"];
+    }
+    @catch (id e) {}
+    
+    @try {
+        [self.player removeTimeObserver:self.timeObserver];
+    }
+    @catch(id e) {}
+    
+    self.didRequest = NO;
+    self.didStart = NO;
+    self.didEnd = NO;
+    self.isPaused = NO;
+    self.isSeeking = NO;
+    self.isBuffering = NO;
+    self.isLive = NO;
+    
+    self.lastRenditionHeight = 0;
+    self.lastRenditionWidth = 0;
+    self.lastTrackerTimeEvent = 0;
 }
 
 - (void)setup {
-    
     [super setup];
     
-    // Register periodic time observer (an event every 1/2 seconds)
-    
-    self.timeObserver =
-    [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
-        
-        AV_LOG(@"Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
-        
-        if (self.lastTrackerTimeEvent == 0) {
-            self.lastTrackerTimeEvent = CMTimeGetSeconds(time);
-            [self periodicVideoStateCheck];
-        }
-        else {
-            if (CMTimeGetSeconds(time) - self.lastTrackerTimeEvent > TRACKER_TIME_EVENT) {
-                self.lastTrackerTimeEvent = CMTimeGetSeconds(time);
-                [self periodicVideoStateCheck];
-            }
-        }
-        
-        if (!self.player.currentItem) {
-            AV_LOG(@"Time observer event but currentIntem is Nil, aborting");
-            return;
-        }
-        
-        // Seeking
-        if (self.player.rate != 1) {
-            self.numZeroRates ++;
-            
-            if (self.numZeroRates == 2) {
-                // NOTE: To avoid false seeking event when locking/unlocking the screen
-                if (CMTimeGetSeconds(time) - self.lastTime > 0.1) {
-                    [self sendSeekStart];
-                }
-            }
-        }
-        else {
-            if (self.numZeroRates > 2) {
-                [self sendSeekEnd];
-                if (self.state == TrackerStatePaused) {
-                    [self sendResume];      // We send Resume because the Pause is sent before seek start and we neet to put the state machine in a "normal" state.
-                }
-            }
-            self.numZeroRates = 0;
-        }
-        
-        // Start
-        if (!self.firstFrameHappend && CMTimeGetSeconds(time) < 0.5) {
-            AV_LOG(@"First time observer event -> sendStart");
-            AV_LOG(@"Time Observer = %f , rate = %f , currentItem = %@", CMTimeGetSeconds(time), self.player.rate, self.player.currentItem);
-            
-            // NOTE: with AVPlayer playlists, the request event only happens for the first video, we need manually send it before start.
-            if (self.state == TrackerStateStopped) {
-                [self sendRequest];
-            }
-            
-            if (self.state == TrackerStateBuffering) {
-                [self sendBufferEnd];
-            }
-            
-            [self sendStart];
-            
-            self.firstFrameHappend = YES;
-        }
-        
-        // Is Live video
-        if (isnan(CMTimeGetSeconds(self.player.currentItem.duration))) {
-            // Not started yet
-            if (!self.firstFrameHappend) {
-                if (self.player.rate == 0.0f) {
-                    // Request video
-                    [self sendRequest];
-                }
-                else if (self.player.rate == 1.0f) {
-                    // Started playing
-                    [self sendStart];
-                    self.firstFrameHappend = YES;
-                }
-            }
-        }
-        
-        self.lastTime = CMTimeGetSeconds(time);
-    }];
-    
-    AV_LOG(@"AVPLAYER CURRENT ITEM (setup) = %@", self.player.currentItem);
-    
-    // Register NSNotification listeners
+    NSLog(@"Tracker Setup");
+
+    // Register observers
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(itemTimeJumpedNotification:)
@@ -197,152 +142,90 @@
                                                  name:AVPlayerItemDidPlayToEndTimeNotification
                                                object:nil];
     
-    AV_LOG(@"Registered AVPlayerItemTimeJumpedNotification and AVPlayerItemDidPlayToEndTimeNotification");
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(itemFailedToPlayToEndTimeNotification:)
+                                                 name:AVPlayerItemFailedToPlayToEndTimeNotification
+                                               object:nil];
+
+    [self.player addObserver:self
+                  forKeyPath:@"status"
+                     options:(NSKeyValueObservingOptionNew)
+                     context:NULL];
     
-    // Register currentItem KVO's
+    [self.player addObserver:self
+                  forKeyPath:@"rate"
+                     options:(NSKeyValueObservingOptionNew)
+                     context:NULL];
     
-    [self registerAllEvents];
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem.status"
+                     options:(NSKeyValueObservingOptionNew)
+                     context:NULL];
     
-    [self.player addObserver:self forKeyPath:@"rate"
+    /*
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem.loadedTimeRanges"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    */
+    
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem.playbackBufferEmpty"
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
-    AV_LOG(@"Registered Player Rate");
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem.playbackBufferFull"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem.playbackLikelyToKeepUp"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
     
-    if (self.playerViewController) {
-        [self.playerViewController addObserver:self forKeyPath:@"videoBounds"
-                                       options:NSKeyValueObservingOptionNew
-                                       context:NULL];
+    [self.player addObserver:self
+                  forKeyPath:@"timeControlStatus"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
+    [self.player addObserver:self
+                  forKeyPath:@"reasonForWaitingToPlay"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
+    [self.player addObserver:self
+                  forKeyPath:@"currentItem"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
+    self.timeObserver =
+    [self.player addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
-        AV_LOG(@"Registered PlayerController videoBounds");
-    }
+        NSLog(@"(AVPlayerTracker) Time Observer = %f , rate = %f , duration = %f", CMTimeGetSeconds(time), self.player.rate, CMTimeGetSeconds(self.player.currentItem.duration));
+        
+        // Check various state changes periodically
+        [self periodicVideoStateCheck];
+        
+        // If duration is NaN, then is live streaming. Otherwise is VoD.
+        self.isLive = isnan(CMTimeGetSeconds(self.player.currentItem.duration));
+        
+        if (self.player.rate == 1.0) {
+            [self goStart];
+            [self goBufferEnd];
+            [self goResume];
+        }
+        else if (self.player.rate == 0.0) {
+            if ([self readyToEnd]) {
+                [self goEnd];
+            }
+            else {
+                [self goPause];
+            }
+        }
+    }];
     
     [self sendPlayerReady];
-}
-
-- (void)registerAllEvents {
-    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
-        AV_LOG(@"Register observers for multiple items");
-        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
-            AV_LOG(@" > item = %@", item);
-            [self registerObserversForItem:item];
-        }
-    }
-    else {
-        AV_LOG(@"Register observers for one item = %@", self.player.currentItem);
-        [self registerObserversForItem:self.player.currentItem];
-    }
-}
-
-- (void)unregisterAllEvents {
-    if ([self.player isKindOfClass:[AVQueuePlayer class]]) {
-        AV_LOG(@"Unregister observers for multiple items");
-        for (AVPlayerItem *item in ((AVQueuePlayer *)self.player).items) {
-            AV_LOG(@" > item = %@", item);
-            [self unregisterObserversForItem:item];
-        }
-    }
-    else {
-        AV_LOG(@"Unregister observers for one item = %@", self.player.currentItem);
-        [self unregisterObserversForItem:self.player.currentItem];
-    }
-}
-
-- (void)registerObserversForItem:(AVPlayerItem *)item {
-    
-    [item addObserver:self forKeyPath:@"playbackBufferEmpty"
-              options:NSKeyValueObservingOptionNew
-              context:NULL];
-    
-    AV_LOG(@"Registered playbackBufferEmpty for item");
-    
-    [item addObserver:self forKeyPath:@"playbackBufferFull"
-              options:NSKeyValueObservingOptionNew
-              context:NULL];
-    
-    AV_LOG(@"Registered playbackBufferFull for item");
-    
-    [item addObserver:self forKeyPath:@"playbackLikelyToKeepUp"
-              options:NSKeyValueObservingOptionNew
-              context:NULL];
-    
-    AV_LOG(@"Registered playbackLikelyToKeepUp for item");
-}
-
-- (void)unregisterObserversForItem:(AVPlayerItem *)item {
-    AV_LOG(@"Unregister observers for item");
-    @try {
-        [item removeObserver:self forKeyPath:@"playbackBufferEmpty"];
-    }
-    @catch (id e) {}
-    AV_LOG(@"Unregistered playbackBufferEmpty for item");
-    @try {
-        [item removeObserver:self forKeyPath:@"playbackBufferFull"];
-    }
-    @catch (id e) {}
-    AV_LOG(@"Unregistered playbackBufferFull for item");
-    @try {
-        [item removeObserver:self forKeyPath:@"playbackLikelyToKeepUp"];
-    }
-    @catch (id e) {}
-    AV_LOG(@"Unregistered playbackLikelyToKeepUp for item");
-}
-
-#pragma mark - Item Handlers
-
-- (void)itemTimeJumpedNotification:(NSNotification *)notification {
-    
-    AVPlayerItem *p = [notification object];
-    NSString *statusStr = @"";
-    switch (p.status) {
-        case AVPlayerItemStatusFailed:
-            statusStr = @"Failed";
-            break;
-        case AVPlayerItemStatusUnknown:
-            statusStr = @"Unknown";
-            break;
-        case AVPlayerItemStatusReadyToPlay:
-            statusStr = @"Ready";
-            break;
-        default:
-            break;
-    }
-    AV_LOG(@"ItemTimeJumpedNotification = %@", statusStr);
-    
-    if (p.status == AVPlayerItemStatusReadyToPlay) {
-        AV_LOG(@"status == AVPlayerItemStatusReadyToPlay");
-        
-        if (self.state == TrackerStateBuffering) {
-            AV_LOG(@"sendBufferEnd");
-            [self sendBufferEnd];
-        }
-        
-        if (self.state == TrackerStateStarting) {
-            AV_LOG(@"sendStart");
-            [self sendStart];
-        }
-    }
-    else if (p.status == AVPlayerItemStatusFailed) {
-        AV_LOG(@"#### ERROR WHILE PLAYING");
-        if (p.error) {
-            [self sendError:p.error];
-        }
-        else {
-            [self sendError:nil];
-        }
-    }
-    else if (p.status == AVPlayerItemStatusUnknown) {
-        AV_LOG(@"status == AVPlayerItemStatusUnknown");
-    }
-}
-
-- (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
-    AV_LOG(@"ItemDidPlayToEndTimeNotification");
-    AV_LOG(@"#### FINISHED PLAYING");
-    
-    if (self.state != TrackerStateStopped) {
-        [self sendEnd];
-    }
 }
 
 // KVO observer method
@@ -351,107 +234,80 @@
                         change:(NSDictionary<NSString *,id> *)change
                        context:(void *)context {
     
-    if ([keyPath isEqualToString:@"rate"]) {
-        
-        float rate = [(NSNumber *)change[NSKeyValueChangeNewKey] floatValue];
-        
-        if (rate == 0.0) {
-            AV_LOG(@"Video Rate Log: Stopped Playback");
-            
-            if (self.player.error != nil) {
-                AV_LOG(@"  -> Playback Failed");
-                [self sendError:self.player.error];
-            }
-            else if (CMTimeGetSeconds(self.player.currentItem.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
-                AV_LOG(@"  -> Playback Reached the End");
-            }
-            else if (!self.player.currentItem.playbackLikelyToKeepUp) {
-                // NOTE: it happens when bad connection and user seeks back and forth and doesn't give time enought for buffering
-                AV_LOG(@"  -> Playback Waiting Data");
-                if (self.state == TrackerStateStarting) {
-                    [self sendBufferStart];
-                }
-            }
-            else {
-                // Click Pause
-                if (self.state == TrackerStateSeeking) {
-                    [self sendSeekEnd];
-                }
-                else {
-                    [self sendPause];
-                }
-            }
-        }
-        else if (rate == 1.0) {
-            AV_LOG(@"Video Rate Log: Normal Playback");
-            
-            // Click Play, may be a Request or a Resume
-            if ([self getPlayhead].doubleValue == 0) {
-                [self sendRequest];
-            }
-            else {
-                if (self.state == TrackerStateSeeking) {
-                    // In case we receive a seek_start without seek_end
-                    [self sendSeekEnd];
-                    [self sendResume];
-                }
-                else if (self.state == TrackerStatePaused) {
-                    [self sendResume];
-                }
-            }
-        }
-        else if (rate == -1.0) {
-            AV_LOG(@"Video Rate Log: Reverse Playback");
-        }
-    }
-    else if ([keyPath isEqualToString:@"playbackBufferEmpty"]) {
-        AV_LOG(@"Video Playback Buffer Empty");
-        [self sendBufferStart];
-    }
-    else if ([keyPath isEqualToString:@"playbackLikelyToKeepUp"]) {
-        AV_LOG(@"Video Playback Likely To Keep Up");
-        [self sendBufferEnd];
-    }
-    else if ([keyPath isEqualToString:@"playbackBufferFull"]) {
-        AV_LOG(@"Video Playback Buffer Full");
-        [self sendBufferEnd];
-    }
+    NSLog(@"(AVPlayerTracker) Observed keyPath = %@ , object = %@ , change = %@ , context = %@", keyPath, object, change, context);
     
-    // AVPlayerViewController KVOs
-    if ([keyPath isEqualToString:@"videoBounds"]) {
-        // NOTE: in tvOS we just ignore the bounds
-        //AV_LOG(@"VIDEO BOUNDS CHANGE = %@", NSStringFromCGRect(self.playerViewController.videoBounds));
-        AV_LOG(@"SCREEN BOUNDS = %@", NSStringFromCGRect([UIScreen mainScreen].bounds));
-        
-        CGRect newBounds = [change[NSKeyValueChangeNewKey] CGRectValue];
-        
-        if ([UIScreen mainScreen].bounds.size.height == newBounds.size.height || [UIScreen mainScreen].bounds.size.width == newBounds.size.width) {
-            AV_LOG(@"FULL SCREEN");
-            self.isFullScreen = YES;
+    if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"]) {
+        if (!self.isBuffering && self.isPaused && self.player.rate == 0.0) {
+            [self goSeekStart];
+        }
+        //[self goBufferStart];
+    }
+    else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
+        [self goRequest];
+        //[self goBufferEnd];
+    }
+    else if ([keyPath isEqualToString:@"status"]) {
+        if (self.player.currentItem.status == AVPlayerItemStatusFailed) {
+            NSLog(@"(AVPlayerTracker) Error While Playing = %@", self.player.currentItem.error);
+            
+            if (self.player.currentItem.error) {
+                [self sendError:self.player.currentItem.error];
+            }
+            else {
+                [self sendError:nil];
+            }
+        }
+    }
+    else if ([keyPath isEqualToString:@"currentItem"]) {
+        if (self.player.currentItem != nil) {
+            NSLog(@"(AVPlayerTracker) New Video Session!");
+            [self goNext];
+        }
+    }
+    else if ([keyPath isEqualToString:@"timeControlStatus"]) {
+        if (self.player.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+            [self goBufferStart];
         }
         else {
-            AV_LOG(@"NO FULL SCREEN");
-            self.isFullScreen = NO;
+            [self goBufferEnd];
         }
+    }
+}
+
+- (void)itemTimeJumpedNotification:(NSNotification *)notification {
+    NSLog(@"(AVPlayerTracker) Time Jumped! = %f", CMTimeGetSeconds(self.player.currentItem.currentTime));
+}
+
+- (void)itemDidPlayToEndTimeNotification:(NSNotification *)notification {
+    NSLog(@"(AVPlayerTracker) Did Play To End");
+    if ([self readyToEnd]) {
+        [self goEnd];
+    }
+}
+
+- (void)itemFailedToPlayToEndTimeNotification:(NSNotification *)notification {
+    NSError *error = notification.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+    [self sendError:error];
+}
+
+- (BOOL)readyToEnd {
+    if (CMTimeGetSeconds(self.player.currentItem.currentTime) > CMTimeGetSeconds(self.player.currentItem.duration) - 0.6) {
+        return YES;
+    }
+    else {
+        return NO;
     }
 }
 
 - (void)periodicVideoStateCheck {
-    [self checkTimeout];
-    [self checkRenditionChange];
-}
-
-- (void)checkTimeout {
-    
-    if (CMTimeGetSeconds(self.player.currentItem.currentTime) >= CMTimeGetSeconds(self.player.currentItem.duration)) {
-        if (self.numTimeouts < 1) {
-            AV_LOG(@"Video ended? let's wait for another event to trigger a timeout.");
-            self.numTimeouts ++;
-        }
-        else {
-            AV_LOG(@"Timeout, video ended but no event received.");
-            [self sendEnd];
-            self.numTimeouts = 0;
+    if (self.lastTrackerTimeEvent == 0) {
+        self.lastTrackerTimeEvent = CMTimeGetSeconds(self.player.currentItem.currentTime);
+        [self checkRenditionChange];
+    }
+    else {
+        if (CMTimeGetSeconds(self.player.currentItem.currentTime) - self.lastTrackerTimeEvent > TRACKER_TIME_EVENT) {
+            self.lastTrackerTimeEvent = CMTimeGetSeconds(self.player.currentItem.currentTime);
+            [self checkRenditionChange];
         }
     }
 }
@@ -468,7 +324,7 @@
         float lastMul = self.lastRenditionWidth * self.lastRenditionHeight;
         
         if (currentMul != lastMul) {
-            AV_LOG(@"RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
+            NSLog(@"(AVPlayerTracker) RESOLUTION CHANGED, H = %f, W = %f", currentRenditionHeight, currentRenditionWidth);
             
             if (currentMul > lastMul) {
                 [self setOptionKey:@"shift" value:@"up" forAction:CONTENT_RENDITION_CHANGE];
@@ -485,36 +341,163 @@
     }
 }
 
-- (void)sendEnd {
-    [super sendEnd];
-    self.isAutoPlayed = NO;
-    self.firstFrameHappend = NO;
-    self.numTimeouts = 0;
-    
-    // unregister all to avoid crash in iOS10
-    [self unregisterAllEvents];
-}
+#pragma mark - Events senders
 
-- (void)sendBufferStart {
-    if (self.state != TrackerStateBuffering) {
-        [super sendBufferStart];
+- (BOOL)goNext {
+    NSLog(@"(AVPlayerTracker) goNext");
+    
+    if (self.didRequest) {
+        [self goEnd];
+        self.didRequest = NO;
+        return YES;
+    }
+    else {
+        return NO;
     }
 }
 
-- (void)sendRequest {
-    [self unregisterAllEvents];
-    [self registerAllEvents];
-    [super sendRequest];
+- (BOOL)goRequest {
+    NSLog(@"(AVPlayerTracker) goRequest");
+    
+    if (!self.didRequest) {
+        [self sendRequest];
+        self.didRequest = YES;
+        self.didStart = NO;
+        self.didEnd = NO;
+        self.isPaused = NO;
+        self.isSeeking = NO;
+        self.isLive = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goStart {
+    NSLog(@"(AVPlayerTracker) goStart");
+    
+    if (self.didRequest && !self.didStart) {
+        [self sendStart];
+        self.didStart = YES;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goPause {
+    NSLog(@"(AVPlayerTracker) goPause");
+    
+    if (self.didEnd) return NO;
+    
+    if (self.didStart && !self.isPaused) {
+        [self sendPause];
+        self.isPaused = YES;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goResume {
+    NSLog(@"(AVPlayerTracker) goResume");
+    
+    if (self.didEnd) return NO;
+    
+    if (self.isPaused) {
+        [self goSeekEnd];
+        [self sendResume];
+        self.isPaused = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goBufferStart {
+    NSLog(@"(AVPlayerTracker) goBufferStart");
+    
+    if (self.didEnd) return NO;
+    
+    if (!self.isBuffering) {
+        [self sendBufferStart];
+        self.isBuffering = YES;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goBufferEnd {
+    NSLog(@"(AVPlayerTracker) goBufferEnd");
+    
+    if (self.didEnd) return NO;
+    
+    if (self.isBuffering) {
+        [self sendBufferEnd];
+        self.isBuffering = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goSeekStart {
+    NSLog(@"(AVPlayerTracker) goSeekStart");
+    
+    if (self.didEnd) return NO;
+    
+    if (!self.isSeeking) {
+        [self sendSeekStart];
+        self.isSeeking = YES;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goSeekEnd {
+    NSLog(@"(AVPlayerTracker) goSeekEnd");
+    
+    if (self.didEnd) return NO;
+    
+    if (self.isSeeking) {
+        [self sendSeekEnd];
+        self.isSeeking = NO;
+        return YES;
+    }
+    else {
+        return NO;
+    }
+}
+
+- (BOOL)goEnd {
+    NSLog(@"(AVPlayerTracker) goEnd");
+    
+    if (!self.didEnd) {
+        [self sendEnd];
+        return YES;
+    }
+    else {
+        return NO;
+    }
 }
 
 #pragma mark - ContentsTracker getters
 
 - (NSString *)getTrackerName {
-    return @"avplayertracker";
+    return @"AVPlayerTracker";
 }
 
 - (NSString *)getTrackerVersion {
-    return @PRODUCT_VERSION_STR;
+    return @"0.1.0";
 }
 
 - (NSString *)getPlayerVersion {
@@ -586,34 +569,34 @@
     return nil;
 }
 
-// NOTE: should be handled by a custom tracker, subclassing it
 - (NSNumber *)getIsLive {
-    return @NO;
+    return @(self.isLive);
 }
 
 - (NSNumber *)getIsMuted {
     return @(self.player.muted);
 }
 
-- (NSNumber *)getIsAutoplayed {
-    return @(self.isAutoPlayed);
+#pragma mark - Overwrite senders
+
+- (void)sendEnd {
+    [self goBufferEnd];
+    [self goSeekEnd];
+    [self goResume];
+    
+    [super sendEnd];
+    NSLog(@"(AVPlayerTracker) sendEnd");
+    self.didEnd = YES;
 }
 
-- (void)setIsAutoplayed:(NSNumber *)state {
-    self.isAutoPlayed = state.boolValue;
+- (void)sendSeekStart {
+    [super sendSeekStart];
+    self.isSeeking = YES;
 }
 
-- (NSNumber *)getIsFullscreen {
-    return @(self.isFullScreen);
-}
-
-#pragma mark - Optonal methods
-
-- (void)stop {
-    if (self.player.currentItem != nil && self.state != TrackerStateStopped) {
-        [self sendEnd];
-        [self.player pause];
-    }
+- (void)sendSeekEnd {
+    [super sendSeekEnd];
+    self.isSeeking = NO;
 }
 
 @end

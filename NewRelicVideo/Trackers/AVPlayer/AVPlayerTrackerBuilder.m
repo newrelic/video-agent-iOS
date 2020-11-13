@@ -2,8 +2,8 @@
 //  AVPlayerTrackerBuilder.m
 //  NewRelicVideo
 //
-//  Created by Andreu Santaren on 01/05/2019.
-//  Copyright © 2019 New Relic Inc. All rights reserved.
+//  Created by Andreu Santaren on 06/11/2020.
+//  Copyright © 2020 New Relic Inc. All rights reserved.
 //
 
 #import "AVPlayerTrackerBuilder.h"

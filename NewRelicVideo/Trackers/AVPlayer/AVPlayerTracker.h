@@ -1,8 +1,9 @@
 //
 //  AVPlayerTracker.h
-//  New Relic Video Agent for Mobile -- iOS edition
+//  NewRelicVideo
 //
-//  Copyright © 2018 New Relic Inc. All rights reserved.
+//  Created by Andreu Santaren on 05/08/2020.
+//  Copyright © 2020 New Relic Inc. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -29,12 +30,5 @@
  @param playerViewController The `AVPlayerViewController` object.
  */
 - (instancetype)initWithAVPlayerViewController:(AVPlayerViewController *)playerViewController;
-
-/**
- Set the isAutoplayed state, since AVPlayer doesn't offer a method to obtain it.
- 
- @param state A boolean `NSNumber` to indicate whether it is autpolayed or not.
- */
-- (void)setIsAutoplayed:(NSNumber *)state;
 
 @end
