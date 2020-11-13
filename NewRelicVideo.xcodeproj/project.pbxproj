@@ -46,9 +46,9 @@
 		9CA3DE032136BB3000205DC4 /* Vars.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA3DE012136BB2F00205DC4 /* Vars.h */; };
 		9CA3DE042136BB3000205DC4 /* Vars.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA3DE022136BB3000205DC4 /* Vars.m */; };
 		9CA90A4D255588D3000A63D5 /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAE601B24DAE8AD00FC7353 /* AVPlayerTracker.m */; };
-		9CA90A5025558933000A63D5 /* AVPlayerTrackerBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA90A4E25558933000A63D5 /* AVPlayerTrackerBuilder.h */; };
+		9CA90A5025558933000A63D5 /* AVPlayerTrackerBuilder.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CA90A4E25558933000A63D5 /* AVPlayerTrackerBuilder.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CA90A5125558933000A63D5 /* AVPlayerTrackerBuilder.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CA90A4F25558933000A63D5 /* AVPlayerTrackerBuilder.m */; };
-		9CAE601C24DAE8AD00FC7353 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAE601A24DAE8AD00FC7353 /* AVPlayerTracker.h */; };
+		9CAE601C24DAE8AD00FC7353 /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAE601A24DAE8AD00FC7353 /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CB25096217F588E0094DFEF /* DictionaryMerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB25094217F588E0094DFEF /* DictionaryMerge.cpp */; };
 		9CB25097217F588E0094DFEF /* DictionaryMerge.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 9CB25095217F588E0094DFEF /* DictionaryMerge.hpp */; };
 		9CB2509B2181B8CB0094DFEF /* PlaybackAutomatCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9CB250992181B8CB0094DFEF /* PlaybackAutomatCore.cpp */; };
@@ -441,11 +441,11 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
+				9CA90A5025558933000A63D5 /* AVPlayerTrackerBuilder.h in Headers */,
 				9CAE601C24DAE8AD00FC7353 /* AVPlayerTracker.h in Headers */,
+				9C8E78D4217DE4D8002F0524 /* ValueHolder.hpp in Headers */,
 				9CB250BA218870A00094DFEF /* GettersCAL.h in Headers */,
 				9CB26A4B214127E800A8891D /* ContentsTracker.h in Headers */,
-				9CA90A5025558933000A63D5 /* AVPlayerTrackerBuilder.h in Headers */,
 				9C57E319227B22AB00AE7144 /* TrackerBuilder.h in Headers */,
 				9C8E78DA217DE911002F0524 /* NewRelicAgentCAL.h in Headers */,
 				9CB26A572146636C00A8891D /* AdsTracker.h in Headers */,
@@ -779,7 +779,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.48.0;
+				PRODUCT_VERSION = 0.49.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -816,7 +816,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.48.0;
+				PRODUCT_VERSION = 0.49.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
