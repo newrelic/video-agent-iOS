@@ -259,6 +259,15 @@
     }
 }
 
+- (void)setCustomViewId:(NSString *)viewId {
+    adsTrackerCore->setCustomViewId(std::string([viewId UTF8String]));
+}
+
+- (void)generateCustomViewId {
+    NSString *UUID = [[NSUUID UUID] UUIDString];
+    [self setCustomViewId:UUID];
+}
+
 // Private
 
 - (void)startHbTimer {

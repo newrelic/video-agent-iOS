@@ -185,6 +185,15 @@
     contentsTrackerCore->updateAttribute(std::string([key UTF8String]), fromNSValue((id)value), std::string([action UTF8String]));
 }
 
+- (void)setCustomViewId:(NSString *)viewId {
+    contentsTrackerCore->setCustomViewId(std::string([viewId UTF8String]));
+}
+
+- (void)generateCustomViewId {
+    NSString *UUID = [[NSUUID UUID] UUIDString];
+    [self setCustomViewId:UUID];
+}
+
 #pragma mark - Getters
 
 - (NSNumber *)getIsAd {

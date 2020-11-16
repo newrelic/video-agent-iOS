@@ -206,6 +206,18 @@ Send a custom action with custom timeSinceAttribute.
 - (void)setOptionKey:(NSString *)key value:(id<NSCopying>)value forAction:(NSString *)action;
 
 /**
+ Set custom viewId attribute.
+ 
+ @param viewId Custom value for viewId.
+ */
+- (void)setCustomViewId:(NSString *)viewId;
+
+/**
+ Generate a custom viewId attribute.
+ */
+- (void)generateCustomViewId;
+
+/**
  Set custom timestamp for a given timer attribute.
  
  @param timestamp Timestamp.
