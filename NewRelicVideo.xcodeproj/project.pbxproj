@@ -779,7 +779,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.49.0;
+				PRODUCT_VERSION = 0.50.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -816,7 +816,7 @@
 				MACH_O_TYPE = staticlib;
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideo;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				PRODUCT_VERSION = 0.49.0;
+				PRODUCT_VERSION = 0.50.0;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
