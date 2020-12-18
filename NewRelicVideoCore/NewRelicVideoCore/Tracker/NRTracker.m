@@ -77,6 +77,8 @@
     
     [self.timeSinceTable applyAttributes:action attributes:attr];
     
+    AV_LOG(@"SEND EVENT %@ => %@", action, attr);
+    
     // Clean NSNull values
     NSArray *keys = [attr allKeys];
     for (NSString *key in keys) {
@@ -86,8 +88,6 @@
     }
     
     if ([self preSendAction:action attributes:attr]) {
-        AV_LOG(@"SEND EVENT %@ => %@", action, attr);
-        
         [attr setObject:action forKey:@"actionName"];
         
         if (![NewRelic recordCustomEvent:NR_VIDEO_EVENT attributes:attr]) {
