@@ -7,6 +7,7 @@
 
 #import <Foundation/Foundation.h>
 
+
 //! Project version number for NewRelicVideoCore.
 FOUNDATION_EXPORT double NewRelicVideoCoreVersionNumber;
 

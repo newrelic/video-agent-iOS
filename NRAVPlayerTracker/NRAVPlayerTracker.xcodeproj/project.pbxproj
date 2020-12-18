@@ -7,15 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9C4F8864258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework */; };
+		9C4F8864258CE1D10070CC2D /* NRAVPlayerTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker.framework */; };
 		9C4F8869258CE1D10070CC2D /* NRAVPlayerTrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F8868258CE1D10070CC2D /* NRAVPlayerTrackerTests.m */; };
 		9C4F886B258CE1D10070CC2D /* NRAVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F885D258CE1D10070CC2D /* NRAVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9C4F8884258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F887B258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework */; };
+		9C4F8884258CE2020070CC2D /* NRAVPlayerTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F887B258CE2020070CC2D /* NRAVPlayerTracker.framework */; };
 		9C4F8896258CE2520070CC2D /* NRAVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F885D258CE1D10070CC2D /* NRAVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F889E258CE28F0070CC2D /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F889C258CE28F0070CC2D /* AVPlayerTracker.m */; };
 		9C4F889F258CE28F0070CC2D /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F889C258CE28F0070CC2D /* AVPlayerTracker.m */; };
-		9C4F88A0258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; };
-		9C4F88A1258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; };
+		9C4F88A0258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C4F88A1258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C4F88F3258CF2540070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F88F2258CF2530070CC2D /* NewRelicVideoCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,16 +37,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "NRAVPlayerTracker-iOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRAVPlayerTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F885D258CE1D10070CC2D /* NRAVPlayerTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NRAVPlayerTracker.h; sourceTree = "<group>"; };
 		9C4F885E258CE1D10070CC2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C4F8863258CE1D10070CC2D /* NRAVPlayerTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NRAVPlayerTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F8868258CE1D10070CC2D /* NRAVPlayerTrackerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRAVPlayerTrackerTests.m; sourceTree = "<group>"; };
 		9C4F886A258CE1D10070CC2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9C4F887B258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "NRAVPlayerTracker-tvOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9C4F887B258CE2020070CC2D /* NRAVPlayerTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRAVPlayerTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F8883258CE2020070CC2D /* tvOS NRAVPlayerTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tvOS NRAVPlayerTrackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F889C258CE28F0070CC2D /* AVPlayerTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
+		9C4F88F2258CF2530070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C4F88F3258CF2540070CC2D /* NewRelicVideoCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,7 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C4F8864258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework in Frameworks */,
+				9C4F8864258CE1D10070CC2D /* NRAVPlayerTracker.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -75,7 +78,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C4F8884258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework in Frameworks */,
+				9C4F8884258CE2020070CC2D /* NRAVPlayerTracker.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,6 +88,7 @@
 		9C4F8850258CE1D10070CC2D = {
 			isa = PBXGroup;
 			children = (
+				9C4F88F2258CF2530070CC2D /* NewRelicVideoCore.framework */,
 				9C4F885C258CE1D10070CC2D /* NRAVPlayerTracker */,
 				9C4F8867258CE1D10070CC2D /* NRAVPlayerTrackerTests */,
 				9C4F885B258CE1D10070CC2D /* Products */,
@@ -94,9 +98,9 @@
 		9C4F885B258CE1D10070CC2D /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework */,
+				9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker.framework */,
 				9C4F8863258CE1D10070CC2D /* NRAVPlayerTrackerTests.xctest */,
-				9C4F887B258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework */,
+				9C4F887B258CE2020070CC2D /* NRAVPlayerTracker.framework */,
 				9C4F8883258CE2020070CC2D /* tvOS NRAVPlayerTrackerTests.xctest */,
 			);
 			name = Products;
@@ -169,7 +173,7 @@
 			);
 			name = "iOS NRAVPlayerTracker";
 			productName = NRAVPlayerTracker;
-			productReference = 9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker-iOS.framework */;
+			productReference = 9C4F885A258CE1D10070CC2D /* NRAVPlayerTracker.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		9C4F8862258CE1D10070CC2D /* NRAVPlayerTrackerTests */ = {
@@ -205,7 +209,7 @@
 			);
 			name = "tvOS NRAVPlayerTracker";
 			productName = "tvOS NRAVPlayerTracker";
-			productReference = 9C4F887B258CE2020070CC2D /* NRAVPlayerTracker-tvOS.framework */;
+			productReference = 9C4F887B258CE2020070CC2D /* NRAVPlayerTracker.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		9C4F8882258CE2020070CC2D /* tvOS NRAVPlayerTrackerTests */ = {
@@ -475,6 +479,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = NRAVPlayerTracker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -484,7 +492,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRAVPlayerTracker;
-				PRODUCT_NAME = "NRAVPlayerTracker-iOS";
+				PRODUCT_NAME = NRAVPlayerTracker;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -500,6 +508,10 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				INFOPLIST_FILE = NRAVPlayerTracker/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
@@ -509,7 +521,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRAVPlayerTracker;
-				PRODUCT_NAME = "NRAVPlayerTracker-iOS";
+				PRODUCT_NAME = NRAVPlayerTracker;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -567,7 +579,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.newrelic.tvOS-NRAVPlayerTracker";
-				PRODUCT_NAME = "NRAVPlayerTracker-tvOS";
+				PRODUCT_NAME = NRAVPlayerTracker;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -592,7 +604,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "com.newrelic.tvOS-NRAVPlayerTracker";
-				PRODUCT_NAME = "NRAVPlayerTracker-tvOS";
+				PRODUCT_NAME = NRAVPlayerTracker;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;

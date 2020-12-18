@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "NRVideoTracker.h"
+#import <NewRelicVideoCore/NRVideoTracker.h>
 
 @class AVPlayer;
 @class AVPlayerViewController;

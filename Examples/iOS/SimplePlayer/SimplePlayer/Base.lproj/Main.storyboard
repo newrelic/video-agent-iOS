@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="GPu-C5-SV2">
+                                <rect key="frame" x="185.5" y="89" width="43" height="30"/>
+                                <state key="normal" title="Bunny"/>
+                                <connections>
+                                    <action selector="clickBunnyVideo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ep8-A6-FhF"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0Xp-5C-brw">
+                                <rect key="frame" x="187.5" y="127" width="39" height="30"/>
+                                <state key="normal" title="Sintel"/>
+                                <connections>
+                                    <action selector="clickSintelVideo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="esA-38-1pG"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IqU-Fm-qv8">
+                                <rect key="frame" x="186.5" y="165" width="41" height="30"/>
+                                <state key="normal" title="Gears"/>
+                                <connections>
+                                    <action selector="clickGearExample:" destination="BYZ-38-t0r" eventType="touchUpInside" id="TTv-mh-kmJ"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fY2-2q-Jca">
+                                <rect key="frame" x="179.5" y="203" width="55" height="30"/>
+                                <state key="normal" title="Airshow"/>
+                                <connections>
+                                    <action selector="clickAirshowLive:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ed0-jd-K5n"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="0Xp-5C-brw" firstAttribute="top" secondItem="GPu-C5-SV2" secondAttribute="bottom" constant="8" symbolic="YES" id="0oE-xy-w58"/>
+                            <constraint firstItem="fY2-2q-Jca" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="4Ym-nS-i5p"/>
+                            <constraint firstItem="IqU-Fm-qv8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="7jg-2w-5hk"/>
+                            <constraint firstItem="fY2-2q-Jca" firstAttribute="top" secondItem="IqU-Fm-qv8" secondAttribute="bottom" constant="8" symbolic="YES" id="8lo-kp-CaR"/>
+                            <constraint firstItem="0Xp-5C-brw" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Hg6-Ar-Aez"/>
+                            <constraint firstItem="IqU-Fm-qv8" firstAttribute="top" secondItem="0Xp-5C-brw" secondAttribute="bottom" constant="8" symbolic="YES" id="OdK-CU-fpe"/>
+                            <constraint firstItem="GPu-C5-SV2" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="f4P-xy-bnf"/>
+                            <constraint firstItem="GPu-C5-SV2" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="45" id="rWB-gW-wSd"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="125" y="94"/>
+        </scene>
+    </scenes>
+    <resources>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

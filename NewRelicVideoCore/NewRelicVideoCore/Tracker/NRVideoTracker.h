@@ -5,8 +5,8 @@
 //  Created by Andreu Santaren on 14/12/2020.
 //
 
-#import "NRTracker.h"
-#import "NRTrackerState.h"
+#import <NewRelicVideoCore/NRTracker.h>
+#import <NewRelicVideoCore/NRTrackerState.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

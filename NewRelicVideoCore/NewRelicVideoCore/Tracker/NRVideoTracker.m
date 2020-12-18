@@ -180,7 +180,6 @@
     if ([self.state goRequest]) {
         self.playtimeSinceLastEventTimestamp = 0;
         self.viewIdIndex++;
-        [self startHeartbeat];
         
         if (self.state.isAd) {
             [self sendEvent:AD_REQUEST];
@@ -193,6 +192,7 @@
 
 - (void)sendStart {
     if ([self.state goStart]) {
+        [self startHeartbeat];
         if (self.state.isAd) {
             self.numberOfAds++;
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {

@@ -8,48 +8,48 @@
 
 /* Begin PBXBuildFile section */
 		9C01D71E258CD4100044FAB0 /* NewRelicVideoCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE7991D25837C9400157199 /* NewRelicVideoCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9C01D739258CD4750044FAB0 /* NRTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D724258CD4740044FAB0 /* NRTracker.h */; };
-		9C01D73A258CD4750044FAB0 /* NRTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D724258CD4740044FAB0 /* NRTracker.h */; };
+		9C01D739258CD4750044FAB0 /* NRTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D724258CD4740044FAB0 /* NRTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D73A258CD4750044FAB0 /* NRTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D724258CD4740044FAB0 /* NRTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C01D73B258CD4750044FAB0 /* NRVideoTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D725258CD4740044FAB0 /* NRVideoTracker.m */; };
 		9C01D73C258CD4750044FAB0 /* NRVideoTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D725258CD4740044FAB0 /* NRVideoTracker.m */; };
 		9C01D73D258CD4750044FAB0 /* NRTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D726258CD4740044FAB0 /* NRTracker.m */; };
 		9C01D73E258CD4760044FAB0 /* NRTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D726258CD4740044FAB0 /* NRTracker.m */; };
-		9C01D73F258CD4760044FAB0 /* NRVideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D727258CD4740044FAB0 /* NRVideoTracker.h */; };
-		9C01D740258CD4760044FAB0 /* NRVideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D727258CD4740044FAB0 /* NRVideoTracker.h */; };
-		9C01D741258CD4760044FAB0 /* NRVideoLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D729258CD4740044FAB0 /* NRVideoLog.h */; };
-		9C01D742258CD4760044FAB0 /* NRVideoLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D729258CD4740044FAB0 /* NRVideoLog.h */; };
+		9C01D73F258CD4760044FAB0 /* NRVideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D727258CD4740044FAB0 /* NRVideoTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D740258CD4760044FAB0 /* NRVideoTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D727258CD4740044FAB0 /* NRVideoTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D741258CD4760044FAB0 /* NRVideoLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D729258CD4740044FAB0 /* NRVideoLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D742258CD4760044FAB0 /* NRVideoLog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D729258CD4740044FAB0 /* NRVideoLog.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C01D743258CD4760044FAB0 /* NRVideoLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72A258CD4740044FAB0 /* NRVideoLog.m */; };
 		9C01D744258CD4760044FAB0 /* NRVideoLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72A258CD4740044FAB0 /* NRVideoLog.m */; };
 		9C01D745258CD4760044FAB0 /* NewRelicVideoAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72B258CD4740044FAB0 /* NewRelicVideoAgent.m */; };
 		9C01D746258CD4760044FAB0 /* NewRelicVideoAgent.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72B258CD4740044FAB0 /* NewRelicVideoAgent.m */; };
-		9C01D747258CD4760044FAB0 /* NRTrackerPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72D258CD4750044FAB0 /* NRTrackerPair.h */; };
-		9C01D748258CD4760044FAB0 /* NRTrackerPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72D258CD4750044FAB0 /* NRTrackerPair.h */; };
-		9C01D749258CD4770044FAB0 /* NREventAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72E258CD4750044FAB0 /* NREventAttributes.h */; };
-		9C01D74A258CD4770044FAB0 /* NREventAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72E258CD4750044FAB0 /* NREventAttributes.h */; };
+		9C01D747258CD4760044FAB0 /* NRTrackerPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72D258CD4750044FAB0 /* NRTrackerPair.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D748258CD4760044FAB0 /* NRTrackerPair.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72D258CD4750044FAB0 /* NRTrackerPair.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D749258CD4770044FAB0 /* NREventAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72E258CD4750044FAB0 /* NREventAttributes.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D74A258CD4770044FAB0 /* NREventAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D72E258CD4750044FAB0 /* NREventAttributes.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C01D74B258CD4770044FAB0 /* NRTimeSinceTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72F258CD4750044FAB0 /* NRTimeSinceTable.m */; };
 		9C01D74C258CD4770044FAB0 /* NRTimeSinceTable.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D72F258CD4750044FAB0 /* NRTimeSinceTable.m */; };
 		9C01D74D258CD4770044FAB0 /* NRTimeSince.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D730258CD4750044FAB0 /* NRTimeSince.m */; };
 		9C01D74E258CD4770044FAB0 /* NRTimeSince.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D730258CD4750044FAB0 /* NRTimeSince.m */; };
-		9C01D74F258CD4770044FAB0 /* NRTrackerState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D731258CD4750044FAB0 /* NRTrackerState.h */; };
-		9C01D750258CD4770044FAB0 /* NRTrackerState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D731258CD4750044FAB0 /* NRTrackerState.h */; };
+		9C01D74F258CD4770044FAB0 /* NRTrackerState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D731258CD4750044FAB0 /* NRTrackerState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D750258CD4770044FAB0 /* NRTrackerState.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D731258CD4750044FAB0 /* NRTrackerState.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C01D751258CD4770044FAB0 /* NRTrackerPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D732258CD4750044FAB0 /* NRTrackerPair.m */; };
 		9C01D752258CD4770044FAB0 /* NRTrackerPair.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D732258CD4750044FAB0 /* NRTrackerPair.m */; };
 		9C01D753258CD4770044FAB0 /* NREventAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D733258CD4750044FAB0 /* NREventAttributes.m */; };
 		9C01D754258CD4770044FAB0 /* NREventAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D733258CD4750044FAB0 /* NREventAttributes.m */; };
 		9C01D755258CD4770044FAB0 /* NRTrackerState.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D734258CD4750044FAB0 /* NRTrackerState.m */; };
 		9C01D756258CD4770044FAB0 /* NRTrackerState.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C01D734258CD4750044FAB0 /* NRTrackerState.m */; };
-		9C01D757258CD4780044FAB0 /* NRTimeSince.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D735258CD4750044FAB0 /* NRTimeSince.h */; };
-		9C01D758258CD4780044FAB0 /* NRTimeSince.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D735258CD4750044FAB0 /* NRTimeSince.h */; };
-		9C01D759258CD4780044FAB0 /* NRTimeSinceTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */; };
-		9C01D75A258CD4780044FAB0 /* NRTimeSinceTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */; };
-		9C01D75B258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D737258CD4750044FAB0 /* NewRelicVideoAgent.h */; };
-		9C01D75C258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D737258CD4750044FAB0 /* NewRelicVideoAgent.h */; };
-		9C01D75D258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; };
-		9C01D75E258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; };
-		9CE7992425837C9400157199 /* NewRelicVideoCore-iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7991A25837C9400157199 /* NewRelicVideoCore-iOS.framework */; };
+		9C01D757258CD4780044FAB0 /* NRTimeSince.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D735258CD4750044FAB0 /* NRTimeSince.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D758258CD4780044FAB0 /* NRTimeSince.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D735258CD4750044FAB0 /* NRTimeSince.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D759258CD4780044FAB0 /* NRTimeSinceTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D75A258CD4780044FAB0 /* NRTimeSinceTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D75B258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D737258CD4750044FAB0 /* NewRelicVideoAgent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D75C258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D737258CD4750044FAB0 /* NewRelicVideoAgent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D75D258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9C01D75E258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CE7992425837C9400157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */; };
 		9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */; };
 		9CE7992B25837C9400157199 /* NewRelicVideoCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE7991D25837C9400157199 /* NewRelicVideoCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9CE7994425837D0B00157199 /* NewRelicVideoCore-tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7993B25837D0A00157199 /* NewRelicVideoCore-tvOS.framework */; };
+		9CE7994425837D0B00157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,13 +89,13 @@
 		9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRTimeSinceTable.h; sourceTree = "<group>"; };
 		9C01D737258CD4750044FAB0 /* NewRelicVideoAgent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoAgent.h; sourceTree = "<group>"; };
 		9C01D738258CD4750044FAB0 /* NRVideoDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVideoDefs.h; sourceTree = "<group>"; };
-		9CE7991A25837C9400157199 /* NewRelicVideoCore-iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "NewRelicVideoCore-iOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7991D25837C9400157199 /* NewRelicVideoCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoCore.h; sourceTree = "<group>"; };
 		9CE7991E25837C9400157199 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CE7992325837C9400157199 /* NewRelicVideoCore-iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NewRelicVideoCore-iOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NewRelicVideoCoreTests.m; sourceTree = "<group>"; };
 		9CE7992A25837C9400157199 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		9CE7993B25837D0A00157199 /* NewRelicVideoCore-tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = "NewRelicVideoCore-tvOS.framework"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7994325837D0B00157199 /* NewRelicVideoCore-tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NewRelicVideoCore-tvOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -111,7 +111,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9CE7992425837C9400157199 /* NewRelicVideoCore-iOS.framework in Frameworks */,
+				9CE7992425837C9400157199 /* NewRelicVideoCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,7 +126,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9CE7994425837D0B00157199 /* NewRelicVideoCore-tvOS.framework in Frameworks */,
+				9CE7994425837D0B00157199 /* NewRelicVideoCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,9 +182,9 @@
 		9CE7991B25837C9400157199 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				9CE7991A25837C9400157199 /* NewRelicVideoCore-iOS.framework */,
+				9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */,
 				9CE7992325837C9400157199 /* NewRelicVideoCore-iOS.xctest */,
-				9CE7993B25837D0A00157199 /* NewRelicVideoCore-tvOS.framework */,
+				9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */,
 				9CE7994325837D0B00157199 /* NewRelicVideoCore-tvOS.xctest */,
 			);
 			name = Products;
@@ -271,7 +271,7 @@
 			);
 			name = "iOS NewRelicVideoCore";
 			productName = NewRelicVideoCore;
-			productReference = 9CE7991A25837C9400157199 /* NewRelicVideoCore-iOS.framework */;
+			productReference = 9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		9CE7992225837C9400157199 /* iOS NewRelicVideoCoreTests */ = {
@@ -307,7 +307,7 @@
 			);
 			name = "tvOS NewRelicVideoCore";
 			productName = "tvOS NewRelicVideoCore";
-			productReference = 9CE7993B25837D0A00157199 /* NewRelicVideoCore-tvOS.framework */;
+			productReference = 9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		9CE7994225837D0B00157199 /* tvOS NewRelicVideoCoreTests */ = {
@@ -602,7 +602,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideoCore;
-				PRODUCT_NAME = "NewRelicVideoCore-iOS";
+				PRODUCT_NAME = NewRelicVideoCore;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -627,7 +627,7 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideoCore;
-				PRODUCT_NAME = "NewRelicVideoCore-iOS";
+				PRODUCT_NAME = NewRelicVideoCore;
 				SKIP_INSTALL = YES;
 				SUPPORTS_MACCATALYST = NO;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -684,8 +684,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.newrelic.tvOS-NewRelicVideoCore";
-				PRODUCT_NAME = "NewRelicVideoCore-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideoCore;
+				PRODUCT_NAME = NewRelicVideoCore;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
@@ -709,8 +709,8 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.newrelic.tvOS-NewRelicVideoCore";
-				PRODUCT_NAME = "NewRelicVideoCore-tvOS";
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NewRelicVideoCore;
+				PRODUCT_NAME = NewRelicVideoCore;
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
