@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9CE7991925837C9400157199"
-               BuildableName = "NewRelicVideoCore-iOS.framework"
-               BlueprintName = "iOS NewRelicVideoCore"
-               ReferencedContainer = "container:NewRelicVideoCore.xcodeproj">
+               BlueprintIdentifier = "9C4F8859258CE1D10070CC2D"
+               BuildableName = "iOS_NRAVPlayerTracker.framework"
+               BlueprintName = "iOS NRAVPlayerTracker"
+               ReferencedContainer = "container:NRAVPlayerTracker.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,10 +32,10 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9CE7992225837C9400157199"
-               BuildableName = "NewRelicVideoCore-iOS.xctest"
-               BlueprintName = "iOS NewRelicVideoCoreTests"
-               ReferencedContainer = "container:NewRelicVideoCore.xcodeproj">
+               BlueprintIdentifier = "9C4F8862258CE1D10070CC2D"
+               BuildableName = "NRAVPlayerTrackerTests.xctest"
+               BlueprintName = "NRAVPlayerTrackerTests"
+               ReferencedContainer = "container:NRAVPlayerTracker.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -60,10 +60,10 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9CE7991925837C9400157199"
-            BuildableName = "NewRelicVideoCore-iOS.framework"
-            BlueprintName = "iOS NewRelicVideoCore"
-            ReferencedContainer = "container:NewRelicVideoCore.xcodeproj">
+            BlueprintIdentifier = "9C4F8859258CE1D10070CC2D"
+            BuildableName = "iOS_NRAVPlayerTracker.framework"
+            BlueprintName = "iOS NRAVPlayerTracker"
+            ReferencedContainer = "container:NRAVPlayerTracker.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </ProfileAction>
