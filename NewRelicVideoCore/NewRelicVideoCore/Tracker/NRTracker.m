@@ -91,7 +91,7 @@
         [attr setObject:action forKey:@"actionName"];
         
         if (![NewRelic recordCustomEvent:NR_VIDEO_EVENT attributes:attr]) {
-            AV_LOG(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+            AV_LOG(@"⚠️ Failed to recordCustomEvent. Maybe the NewRelicAgent is not initialized or the attribute list contains invalid/empty values. ⚠️");
         }
     }
 }
