@@ -401,7 +401,7 @@
 
 - (NSString *)getSrc {
     AVAsset *currentPlayerAsset = self.playerInstance.currentItem.asset;
-    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return @"";
+    if (![currentPlayerAsset isKindOfClass:AVURLAsset.class]) return [super getSrc];
     return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
 }
 

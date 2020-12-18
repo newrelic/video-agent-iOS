@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -14,10 +14,14 @@
 		9C4F8911258CF3E40070CC2D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9C4F8910258CF3E40070CC2D /* Assets.xcassets */; };
 		9C4F8914258CF3E40070CC2D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9C4F8912258CF3E40070CC2D /* LaunchScreen.storyboard */; };
 		9C4F8917258CF3E40070CC2D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F8916258CF3E40070CC2D /* main.m */; };
-		9C4F8946258CFF0E0070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8942258CFF020070CC2D /* NewRelicVideoCore.framework */; };
-		9C4F8947258CFF0E0070CC2D /* NewRelicVideoCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8942258CFF020070CC2D /* NewRelicVideoCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		9C4F8948258CFF100070CC2D /* NRAVPlayerTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8944258CFF0A0070CC2D /* NRAVPlayerTracker.framework */; };
-		9C4F8949258CFF100070CC2D /* NRAVPlayerTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8944258CFF0A0070CC2D /* NRAVPlayerTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9C4F8977258D0A910070CC2D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8976258D0A910070CC2D /* CoreTelephony.framework */; };
+		9C4F8979258D0A9A0070CC2D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8978258D0A9A0070CC2D /* SystemConfiguration.framework */; };
+		9C4F8986258D0B4F0070CC2D /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8973258D0A780070CC2D /* NewRelic.xcframework */; };
+		9C4F8987258D0B4F0070CC2D /* NewRelic.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8973258D0A780070CC2D /* NewRelic.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9C4F898A258D0B570070CC2D /* NRAVPlayerTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8984258D0B140070CC2D /* NRAVPlayerTracker.framework */; };
+		9C4F898B258D0B570070CC2D /* NRAVPlayerTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8984258D0B140070CC2D /* NRAVPlayerTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		9C4F8990258D0C040070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F898E258D0BFC0070CC2D /* NewRelicVideoCore.framework */; };
+		9C4F8991258D0C040070CC2D /* NewRelicVideoCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F898E258D0BFC0070CC2D /* NewRelicVideoCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -27,8 +31,9 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				9C4F8947258CFF0E0070CC2D /* NewRelicVideoCore.framework in Embed Frameworks */,
-				9C4F8949258CFF100070CC2D /* NRAVPlayerTracker.framework in Embed Frameworks */,
+				9C4F898B258D0B570070CC2D /* NRAVPlayerTracker.framework in Embed Frameworks */,
+				9C4F8987258D0B4F0070CC2D /* NewRelic.xcframework in Embed Frameworks */,
+				9C4F8991258D0C040070CC2D /* NewRelicVideoCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -48,8 +53,13 @@
 		9C4F8913258CF3E40070CC2D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9C4F8915258CF3E40070CC2D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9C4F8916258CF3E40070CC2D /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
-		9C4F8942258CFF020070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
-		9C4F8944258CFF0A0070CC2D /* NRAVPlayerTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NRAVPlayerTracker.framework; sourceTree = "<group>"; };
+		9C4F8973258D0A780070CC2D /* NewRelic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = NewRelic.xcframework; sourceTree = "<group>"; };
+		9C4F8976258D0A910070CC2D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		9C4F8978258D0A9A0070CC2D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		9C4F897A258D0AA50070CC2D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		9C4F897B258D0AAC0070CC2D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		9C4F8984258D0B140070CC2D /* NRAVPlayerTracker.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NRAVPlayerTracker.framework; sourceTree = "<group>"; };
+		9C4F898E258D0BFC0070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,8 +67,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C4F8946258CFF0E0070CC2D /* NewRelicVideoCore.framework in Frameworks */,
-				9C4F8948258CFF100070CC2D /* NRAVPlayerTracker.framework in Frameworks */,
+				9C4F8990258D0C040070CC2D /* NewRelicVideoCore.framework in Frameworks */,
+				9C4F898A258D0B570070CC2D /* NRAVPlayerTracker.framework in Frameworks */,
+				9C4F8977258D0A910070CC2D /* CoreTelephony.framework in Frameworks */,
+				9C4F8979258D0A9A0070CC2D /* SystemConfiguration.framework in Frameworks */,
+				9C4F8986258D0B4F0070CC2D /* NewRelic.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,10 +81,12 @@
 		9C4F88F8258CF3DE0070CC2D = {
 			isa = PBXGroup;
 			children = (
-				9C4F8942258CFF020070CC2D /* NewRelicVideoCore.framework */,
-				9C4F8944258CFF0A0070CC2D /* NRAVPlayerTracker.framework */,
+				9C4F898E258D0BFC0070CC2D /* NewRelicVideoCore.framework */,
+				9C4F8984258D0B140070CC2D /* NRAVPlayerTracker.framework */,
+				9C4F8973258D0A780070CC2D /* NewRelic.xcframework */,
 				9C4F8903258CF3DF0070CC2D /* SimplePlayer */,
 				9C4F8902258CF3DF0070CC2D /* Products */,
+				9C4F8975258D0A910070CC2D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -99,6 +114,17 @@
 				9C4F8916258CF3E40070CC2D /* main.m */,
 			);
 			path = SimplePlayer;
+			sourceTree = "<group>";
+		};
+		9C4F8975258D0A910070CC2D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				9C4F897B258D0AAC0070CC2D /* libc++.tbd */,
+				9C4F897A258D0AA50070CC2D /* libz.tbd */,
+				9C4F8978258D0A9A0070CC2D /* SystemConfiguration.framework */,
+				9C4F8976258D0A910070CC2D /* CoreTelephony.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

@@ -11,6 +11,7 @@
 #import "NRVideoDefs.h"
 #import "NRTimeSinceTable.h"
 #import "NewRelicVideoAgent.h"
+#import <NewRelic/NewRelic.h>
 
 @interface NRTracker ()
 
@@ -76,9 +77,22 @@
     
     [self.timeSinceTable applyAttributes:action attributes:attr];
     
+    // Clean NSNull values
+    NSArray *keys = [attr allKeys];
+    for (NSString *key in keys) {
+        if ([attr[key] isKindOfClass:[NSNull class]]) {
+            [attr removeObjectForKey:key];
+        }
+    }
+    
     if ([self preSendAction:action attributes:attr]) {
-        //TODO: send event
         AV_LOG(@"SEND EVENT %@ => %@", action, attr);
+        
+        [attr setObject:action forKey:@"actionName"];
+        
+        if (![NewRelic recordCustomEvent:NR_VIDEO_EVENT attributes:attr]) {
+            AV_LOG(@"⚠️ The NewRelicAgent is not initialized, you need to do it before using the NewRelicVideo. ⚠️");
+        }
     }
 }
 

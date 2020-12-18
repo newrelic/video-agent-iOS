@@ -16,7 +16,7 @@
 		9C4F889F258CE28F0070CC2D /* AVPlayerTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = 9C4F889C258CE28F0070CC2D /* AVPlayerTracker.m */; };
 		9C4F88A0258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F88A1258CE28F0070CC2D /* AVPlayerTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9C4F893D258CFED10070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F893C258CFED10070CC2D /* NewRelicVideoCore.framework */; };
+		9C4F897D258D0AEA0070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,7 +47,7 @@
 		9C4F8883258CE2020070CC2D /* tvOS NRAVPlayerTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tvOS NRAVPlayerTrackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C4F889C258CE28F0070CC2D /* AVPlayerTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AVPlayerTracker.m; sourceTree = "<group>"; };
 		9C4F889D258CE28F0070CC2D /* AVPlayerTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AVPlayerTracker.h; sourceTree = "<group>"; };
-		9C4F893C258CFED10070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
+		9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -55,7 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C4F893D258CFED10070CC2D /* NewRelicVideoCore.framework in Frameworks */,
+				9C4F897D258D0AEA0070CC2D /* NewRelicVideoCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -88,7 +88,7 @@
 		9C4F8850258CE1D10070CC2D = {
 			isa = PBXGroup;
 			children = (
-				9C4F893C258CFED10070CC2D /* NewRelicVideoCore.framework */,
+				9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */,
 				9C4F885C258CE1D10070CC2D /* NRAVPlayerTracker */,
 				9C4F8867258CE1D10070CC2D /* NRAVPlayerTrackerTests */,
 				9C4F885B258CE1D10070CC2D /* Products */,

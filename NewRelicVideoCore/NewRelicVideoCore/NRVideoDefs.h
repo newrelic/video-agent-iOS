@@ -10,6 +10,8 @@
 
 #define NRVIDEO_CORE_VERSION        @"0.0.0"
 
+#define NR_VIDEO_EVENT              @"MobileVideo"
+
 #define TRACKER_READY               @"TRACKER_READY"
 #define PLAYER_READY                @"PLAYER_READY"
 
