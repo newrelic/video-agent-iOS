@@ -6,9 +6,8 @@
 //
 
 #import "ViewController.h"
-#import <NewRelicVideoCore/NewRelicVideoAgent.h>
-#import <NewRelicVideoCore/NRVideoTracker.h>
-#import <NRAVPlayerTracker/AVPlayerTracker.h>
+#import <NewRelicVideoCore/NewRelicVideoCore.h>
+#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
 
 @import AVKit;
 
@@ -45,9 +44,10 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
+    // User closed the player
     if (self.playerController.isBeingDismissed) {
         //Send END
-        [(NRVideoTracker *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
+        [(AVPlayerTracker *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
         
         //Stop tracking
         [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];

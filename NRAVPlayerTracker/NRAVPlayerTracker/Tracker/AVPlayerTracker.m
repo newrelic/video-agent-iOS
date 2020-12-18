@@ -7,8 +7,6 @@
 //
 
 #import "AVPlayerTracker.h"
-#import <NewRelicVideoCore/NRVideoDefs.h>
-#import <NewRelicVideoCore/NRVideoLog.h>
 
 #define TRACKER_TIME_EVENT 1.5
 
