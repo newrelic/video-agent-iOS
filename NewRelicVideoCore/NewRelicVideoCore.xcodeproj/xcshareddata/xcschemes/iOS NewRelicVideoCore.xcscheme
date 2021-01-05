@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9CE7991925837C9400157199"
-               BuildableName = "NewRelicVideoCore-iOS.framework"
+               BuildableName = "NewRelicVideoCore.framework"
                BlueprintName = "iOS NewRelicVideoCore"
                ReferencedContainer = "container:NewRelicVideoCore.xcodeproj">
             </BuildableReference>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9CE7991925837C9400157199"
-            BuildableName = "NewRelicVideoCore-iOS.framework"
+            BuildableName = "NewRelicVideoCore.framework"
             BlueprintName = "iOS NewRelicVideoCore"
             ReferencedContainer = "container:NewRelicVideoCore.xcodeproj">
          </BuildableReference>

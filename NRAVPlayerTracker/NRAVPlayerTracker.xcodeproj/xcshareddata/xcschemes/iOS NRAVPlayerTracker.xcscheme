@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9C4F8859258CE1D10070CC2D"
-               BuildableName = "iOS_NRAVPlayerTracker.framework"
+               BuildableName = "NRAVPlayerTracker.framework"
                BlueprintName = "iOS NRAVPlayerTracker"
                ReferencedContainer = "container:NRAVPlayerTracker.xcodeproj">
             </BuildableReference>
@@ -61,7 +61,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9C4F8859258CE1D10070CC2D"
-            BuildableName = "iOS_NRAVPlayerTracker.framework"
+            BuildableName = "NRAVPlayerTracker.framework"
             BlueprintName = "iOS NRAVPlayerTracker"
             ReferencedContainer = "container:NRAVPlayerTracker.xcodeproj">
          </BuildableReference>
