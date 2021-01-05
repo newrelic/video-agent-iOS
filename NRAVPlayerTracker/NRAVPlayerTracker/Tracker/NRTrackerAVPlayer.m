@@ -1,18 +1,18 @@
 //
-//  AVPlayerTracker.m
+//  NRTrackerAVPlayer.m
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 05/08/2020.
 //  Copyright © 2020 New Relic Inc. All rights reserved.
 //
 
-#import "AVPlayerTracker.h"
+#import "NRTrackerAVPlayer.h"
 
 #define TRACKER_TIME_EVENT 1.5
 
 @import AVKit;
 
-@interface AVPlayerTracker ()
+@interface NRTrackerAVPlayer ()
 
 // AVPlayer weak references
 @property (nonatomic, weak) AVPlayer *playerInstance;
@@ -25,7 +25,7 @@
 
 @end
 
-@implementation AVPlayerTracker
+@implementation NRTrackerAVPlayer
 
 - (instancetype)initWithAVPlayer:(AVPlayer *)player {
     if (self = [super init]) {

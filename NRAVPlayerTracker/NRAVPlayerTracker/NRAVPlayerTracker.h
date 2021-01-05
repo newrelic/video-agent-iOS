@@ -16,4 +16,4 @@ FOUNDATION_EXPORT const unsigned char NRAVPlayerTrackerVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <NRAVPlayerTracker/PublicHeader.h>
 
 
-#import <NRAVPlayerTracker/AVPlayerTracker.h>
+#import <NRAVPlayerTracker/NRTrackerAVPlayer.h>

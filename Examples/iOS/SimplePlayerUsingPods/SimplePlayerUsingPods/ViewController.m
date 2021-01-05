@@ -47,7 +47,7 @@
     // User closed the player
     if (self.playerController.isBeingDismissed) {
         //Send END
-        [(AVPlayerTracker *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
+        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
         
         //Stop tracking
         [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
@@ -60,7 +60,7 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[AVPlayerTracker alloc] initWithAVPlayer:self.playerController.player]];
+    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]];
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];

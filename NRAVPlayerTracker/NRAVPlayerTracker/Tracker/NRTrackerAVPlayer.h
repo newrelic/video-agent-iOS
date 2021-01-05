@@ -1,5 +1,5 @@
 //
-//  AVPlayerTracker.h
+//  NRTrackerAVPlayer.h
 //  NewRelicVideo
 //
 //  Created by Andreu Santaren on 05/08/2020.
@@ -10,15 +10,14 @@
 #import <NewRelicVideoCore/NewRelicVideoCore.h>
 
 @class AVPlayer;
-@class AVPlayerViewController;
 
 /**
- `AVPlayerTracker` is the base class to manage the content events of an AVPlayer. It can be used directly or subclassed.
+ `NRTrackerAVPlayer` is the base class to manage the content events of an AVPlayer. It can be used directly or subclassed.
  */
-@interface AVPlayerTracker : NRVideoTracker
+@interface NRTrackerAVPlayer : NRVideoTracker
 
 /**
- Create a `AVPlayerTracker` instance using a `AVPlayer` instance.
+ Create a `NRTrackerAVPlayer` instance using a `AVPlayer` instance.
  
  @param player The `AVPlayer` object.
  */
