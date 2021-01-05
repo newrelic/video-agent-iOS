@@ -25,3 +25,4 @@ xcuserdata/*
 
 *.framework
 *.xcframework
+Pods

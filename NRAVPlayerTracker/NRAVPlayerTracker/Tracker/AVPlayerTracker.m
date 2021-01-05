@@ -244,11 +244,15 @@
         }
     }
     else if ([keyPath isEqualToString:@"timeControlStatus"]) {
-        if (self.playerInstance.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
-            [self sendBufferStart];
-        }
-        else {
-            [self sendBufferEnd];
+        if (@available(iOS 10.0, *)) {
+            if (self.playerInstance.timeControlStatus == AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate) {
+                [self sendBufferStart];
+            }
+            else {
+                [self sendBufferEnd];
+            }
+        } else {
+            // Fallback on earlier versions
         }
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"]) {
