@@ -171,7 +171,9 @@
         self.playtimeSinceLastEvent = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
         self.totalPlaytime += self.playtimeSinceLastEvent;
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
-        //TODO: should reset playtimeSinceLastEvent here?
+    }
+    else {
+        self.playtimeSinceLastEvent = 0;
     }
     
     [super sendEvent:action attributes:attributes];
