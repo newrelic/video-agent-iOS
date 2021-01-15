@@ -17,8 +17,6 @@ The video tracker for AVPlayer player. It depends on NewRelicVideoCore.
 
 ## Build & Setup
 
-There are two ways to build and setup the video agent:
-
 ### Install automatically using Cocoapods
 
 Add the following lines to your Podfile:
@@ -38,3 +36,6 @@ First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-mo
 4. Build (cmd+B).
 5. Include the generated .framework in your project.
 
+## Examples
+
+The `Examples` folder contains all the usage examples.
