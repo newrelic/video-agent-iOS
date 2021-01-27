@@ -71,6 +71,8 @@
 }
 
 - (void)startHeartbeat {
+    if (self.heartbeatTimeInterval == 0) return;
+    
     if (!self.timer) {
         self.timer = [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)self.heartbeatTimeInterval
                                                       target:self
@@ -94,6 +96,10 @@
             [self stopHeartbeat];
             [self startHeartbeat];
         }
+    }
+    else {
+        //if < 1 disable HB
+        self.heartbeatTimeInterval = 0;
     }
 }
 
