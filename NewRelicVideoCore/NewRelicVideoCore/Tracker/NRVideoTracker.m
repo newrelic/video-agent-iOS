@@ -372,14 +372,14 @@
 }
 
 - (void)sendAdBreakStart {
-    if (self.state.isAd) {
+    if (self.state.isAd && [self.state goAdBreakStart]) {
         self.adBreakIdIndex++;
         [self sendEvent:AD_BREAK_START];
     }
 }
 
 - (void)sendAdBreakEnd {
-    if (self.state.isAd) {
+    if (self.state.isAd && [self.state goAdBreakEnd]) {
         [self sendEvent:AD_BREAK_END];
     }
 }
