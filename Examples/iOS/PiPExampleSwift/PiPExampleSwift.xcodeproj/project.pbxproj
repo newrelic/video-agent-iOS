@@ -13,6 +13,7 @@
 		9CB2B65F25C86ADE00A3219F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CB2B65D25C86ADE00A3219F /* Main.storyboard */; };
 		9CB2B66125C86AE300A3219F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9CB2B66025C86AE300A3219F /* Assets.xcassets */; };
 		9CB2B66425C86AE300A3219F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CB2B66225C86AE300A3219F /* LaunchScreen.storyboard */; };
+		9CB2B67825CD767000A3219F /* MyAVPlayerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CB2B67725CD767000A3219F /* MyAVPlayerViewController.swift */; };
 		B31EDCD66851A53D77454183 /* Pods_PiPExampleSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 69034CBB33BFC50A49F45EF8 /* Pods_PiPExampleSwift.framework */; };
 /* End PBXBuildFile section */
 
@@ -27,6 +28,7 @@
 		9CB2B66025C86AE300A3219F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		9CB2B66325C86AE300A3219F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9CB2B66525C86AE300A3219F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		9CB2B67725CD767000A3219F /* MyAVPlayerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyAVPlayerViewController.swift; sourceTree = "<group>"; };
 		DA3DEC426458B5B221666775 /* Pods-PiPExampleSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PiPExampleSwift.release.xcconfig"; path = "Target Support Files/Pods-PiPExampleSwift/Pods-PiPExampleSwift.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -83,6 +85,7 @@
 				9CB2B65725C86ADE00A3219F /* AppDelegate.swift */,
 				9CB2B65925C86ADE00A3219F /* SceneDelegate.swift */,
 				9CB2B65B25C86ADE00A3219F /* ViewController.swift */,
+				9CB2B67725CD767000A3219F /* MyAVPlayerViewController.swift */,
 				9CB2B65D25C86ADE00A3219F /* Main.storyboard */,
 				9CB2B66025C86AE300A3219F /* Assets.xcassets */,
 				9CB2B66225C86AE300A3219F /* LaunchScreen.storyboard */,
@@ -207,6 +210,7 @@
 			files = (
 				9CB2B65C25C86ADE00A3219F /* ViewController.swift in Sources */,
 				9CB2B65825C86ADE00A3219F /* AppDelegate.swift in Sources */,
+				9CB2B67825CD767000A3219F /* MyAVPlayerViewController.swift in Sources */,
 				9CB2B65A25C86ADE00A3219F /* SceneDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -365,7 +369,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.PiPExampleSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Debug;
 		};
@@ -385,7 +389,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.PiPExampleSwift;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 2;
 			};
 			name = Release;
 		};

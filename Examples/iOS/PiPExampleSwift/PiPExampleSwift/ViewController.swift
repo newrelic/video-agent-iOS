@@ -12,7 +12,7 @@ import NRAVPlayerTracker
 
 class ViewController: UIViewController, AVPlayerViewControllerDelegate {
     
-    private var playerController: AVPlayerViewController?
+    private var playerController: MyAVPlayerViewController?
     private var trackerId: NSNumber?
     private var inPiP: Bool = false
     
@@ -29,7 +29,7 @@ class ViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     func playVideo(videoURL: String) {
         let player = AVPlayer.init(url: URL.init(string: videoURL)!)
-        self.playerController = AVPlayerViewController.init()
+        self.playerController = MyAVPlayerViewController.init()
         self.playerController?.player = player
         self.playerController?.showsPlaybackControls = true
         self.playerController?.allowsPictureInPicturePlayback = true
@@ -43,6 +43,15 @@ class ViewController: UIViewController, AVPlayerViewControllerDelegate {
         }
     }
     
+    func releaseTracker() {
+        print("====> RELEASE TRACKER")
+        
+        if let tracker = NewRelicVideoAgent.sharedInstance().contentTracker(trackerId ?? -1) as? NRVideoTracker {
+            tracker.sendEnd()
+        }
+        NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId ?? -1)
+    }
+    
     func playerViewController(_ playerViewController: AVPlayerViewController,
                               restoreUserInterfaceForPictureInPictureStopWithCompletionHandler completionHandler: @escaping (Bool) -> Void) {
         present(playerViewController, animated: true) {
@@ -51,27 +60,26 @@ class ViewController: UIViewController, AVPlayerViewControllerDelegate {
     }
     
     func playerViewController(_ playerViewController: AVPlayerViewController, willEndFullScreenPresentationWithAnimationCoordinator coordinator: UIViewControllerTransitionCoordinator) {
-                    
-        print("====> WILL END PRESENTATION")
+        print("====> WILL END PRESENTATION, inPiP = \(inPiP)")
         
         if !inPiP {
-            print("====> CLOSE TRACKER")
-            
-            if let tracker = NewRelicVideoAgent.sharedInstance().contentTracker(trackerId ?? -1) as? NRVideoTracker {
-                tracker.sendEnd()
-            }
-            NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId ?? -1)
+            releaseTracker()
         }
     }
     
     func playerViewControllerDidStartPictureInPicture(_ playerViewController: AVPlayerViewController) {
-        inPiP = true
         print("====> Start PiP")
+        
+        inPiP = true
     }
     
     func playerViewControllerDidStopPictureInPicture(_ playerViewController: AVPlayerViewController) {
-        inPiP = false
-        //TODO: how to detect that PiP was closed and close tracker
         print("====> End PiP")
+        
+        inPiP = false
+        
+        if let controller = self.playerController, !controller.playerVisible {
+            releaseTracker()
+        }
     }
 }
