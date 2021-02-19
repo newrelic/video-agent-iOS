@@ -1,8 +1,41 @@
-# video-agent-iOS
-Video Agent Framework for iOS
+# New Relic Video Agent for iOS & tvOS
 
-## Dependencies
-This video monitor solutions works on top of New Relic's **[Mobile Agent](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/get-started/introduction-new-relic-mobile-ios)**.
 
-## Installation & Usage
-Follow the steps **[here](https://docs.google.com/document/d/1UBvA86hlUCyv2LtfOrH1FXA35F_A-mRsHpzb3SaYD4w/edit)**
+The New Relic Video Agent for iOS & tvOS contains multiple modules necessary to instrument video players and send data to New Relic.
+
+## Modules
+
+There are two modules available:
+
+### NewRelicVideoCore
+
+Contains all the base classes necessary to create trackers and send data to New Relic. It depends on the New Relic Agent.
+
+### NRAVPlayerTracker
+
+The video tracker for AVPlayer player. It depends on NewRelicVideoCore.
+
+## Build & Setup
+
+### Install automatically using Cocoapods
+
+Add the following lines to your Podfile:
+
+```
+  pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS'
+  pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS'
+```
+
+### Install manually
+
+First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/installation/ios-manual-installation).
+
+1. Clone this repo.
+2. Open each one of the .xcodeproj files with Xcode.
+3. Select the appropiate scheme.
+4. Build (cmd+B).
+5. Include the generated .framework in your project.
+
+## Examples
+
+The `Examples` folder contains all the usage examples.

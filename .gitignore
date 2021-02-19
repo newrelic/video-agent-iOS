@@ -24,3 +24,5 @@ DerivedData/
 xcuserdata/*
 
 *.framework
+*.xcframework
+Pods
