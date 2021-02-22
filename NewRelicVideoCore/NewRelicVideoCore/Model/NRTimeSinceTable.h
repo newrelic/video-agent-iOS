@@ -21,7 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param action Action.
  @param attribute Attribute name.
- @param filter Filtyer for the actions where the attribute applies.
+ @param filter Filter for the actions where the attribute applies, a regular expression.
  */
 - (void)addEntryWithAction:(NSString *)action attribute:(NSString *)attribute applyTo:(NSString *)filter;
 

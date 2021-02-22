@@ -19,7 +19,7 @@ NS_ASSUME_NONNULL_BEGIN
  
  @param key Attribute name.
  @param value Attribute value.
- @param regexp Action filter.
+ @param regexp Action filter, a regular expression.
  */
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value filter:(nullable NSString *)regexp;
 

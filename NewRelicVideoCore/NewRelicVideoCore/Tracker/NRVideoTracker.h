@@ -49,7 +49,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Set heartbeat interval.
  
- @param seconds Time interval in seconds. Min 1 second.
+ @param seconds Time interval in seconds. Min 1 second.  0 disables HB.
  */
 - (void)setHeartbeatTime:(int)seconds;
 
@@ -284,6 +284,13 @@ NS_ASSUME_NONNULL_BEGIN
  @return Attribute.
  */
 - (NSString *)getAdPartner;
+
+/**
+ Get ad break id.
+ 
+ @return Attribute.
+ */
+- (NSString *)getAdBreakId;
 
 /**
  Get view session.

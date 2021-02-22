@@ -27,7 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Get attribute name.
  
- @return Atrribute name.
+ @return Attribute name.
  */
 - (NSString *)attributeName;
 
