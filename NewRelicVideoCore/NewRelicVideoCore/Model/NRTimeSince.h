@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Check if model applies to the given action.
  
+ @param action Action.
  @return True if applies, false otherwise.
  */
 - (BOOL)isAction:(NSString *)action;
@@ -41,6 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Check if model matches the action filter.
  
+ @param action Action.
  @return True if applies, false otherwise.
  */
 - (BOOL)isMatch:(NSString *)action;

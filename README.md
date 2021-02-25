@@ -36,6 +36,18 @@ First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-mo
 4. Build (cmd+B).
 5. Include the generated .framework in your project.
 
+## Documentation
+
+To generate source code documentation, you can use [appledoc](https://github.com/tomaz/appledoc) as follows:
+
+```bash
+appledoc --project-name NewRelicVideoAgent --project-company "New Relic Inc." --company-id com.newrelic --create-html --no-create-docset --output ./docs NewRelicVideoCore/NewRelicVideoCore/**/*.h
+```
+
+And then open `docs/html/index.html` with your prefered browser.
+
+You can also read the [tutorial](tutorial.md).
+
 ## Examples
 
 The `Examples` folder contains all the usage examples.

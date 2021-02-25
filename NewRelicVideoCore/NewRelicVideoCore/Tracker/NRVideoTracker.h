@@ -115,6 +115,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  Send error event with an error object.
+ 
+ @param error Error instance.
  */
 - (void)sendError:(nullable NSError *)error;
 
