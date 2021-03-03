@@ -8,6 +8,7 @@
 #import "ViewController.h"
 #import <NewRelicVideoCore.h>
 #import <NRTrackerAVPlayer.h>
+#import <NRTrackerIMA.h>
 
 @import AVKit;
 
@@ -79,7 +80,8 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]];
+    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]
+                                                                        adTracker:[[NRTrackerIMA alloc] init]];
     
     [self setupAds:player];
     
@@ -132,7 +134,7 @@
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
     NSLog(@"Error loading ads: %@", adErrorData.adError.message);
     
-    //TODO: report fail to tracker
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:adErrorData.adError.message code:(int)adErrorData.adError.code];
     
     [self.playerController.player play];
 }
@@ -141,7 +143,9 @@
 
 - (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdEvent:(IMAAdEvent *)event {
     
-    //TODO: report event to tracker
+    NSLog(@"Ads Manager did receive event = %@", event.typeString);
+    
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adEvent:event adsManager:adsManager];
     
     if (event.type == kIMAAdEvent_LOADED) {
         NSLog(@"Ads Manager call start()");
@@ -152,7 +156,7 @@
 - (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdError:(IMAAdError *)error {
     NSLog(@"Error managing ads: %@", error.message);
     
-    //TODO: report error to tracker
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:error.message code:(int)error.code];
     
     [self.playerController.player play];
 }
@@ -160,7 +164,7 @@
 - (void)adsManagerDidRequestContentPause:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request pause");
     
-    //TODO: report break start to tracker
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakStart];
     
     [self.playerController.player pause];
 }
@@ -168,7 +172,7 @@
 - (void)adsManagerDidRequestContentResume:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request resume");
     
-    //TODO: report break end to tracker
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakEnd];
     
     [self.playerController.player play];
 }
