@@ -109,6 +109,24 @@
     }
 }
 
+- (NSString *)getTitle {
+    if (self.lastEvent) {
+        return self.lastEvent.ad.adTitle;
+    }
+    else {
+        return (NSString *)[NSNull null];
+    }
+}
+
+- (NSNumber *)getBitrate {
+    if (self.lastEvent) {
+        return @(self.lastEvent.ad.VASTMediaBitrate);
+    }
+    else {
+        return (NSNumber *)[NSNull null];
+    }
+}
+
 - (NSString *)getAdPosition {
     if (self.lastEvent) {
         switch (self.lastEvent.ad.adPodInfo.podIndex) {
@@ -136,5 +154,8 @@
         return (NSString *)[NSNull null];
     }
 }
+
+//TODO: - (NSNumber *)getAdQuartile
+//TODO: - (NSString *)getAdPartner
 
 @end
