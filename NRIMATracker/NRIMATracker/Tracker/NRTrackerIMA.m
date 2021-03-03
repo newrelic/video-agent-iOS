@@ -55,6 +55,86 @@
     [self sendError:error];
 }
 
-//TODO: attribute getters
+#pragma mark - Attribute getters
+
+- (NSString *)getPlayerName {
+    return @"IMA";
+}
+
+- (NSString *)getTrackerName {
+    return @"IMATracker";
+}
+
+- (NSString *)getTrackerVersion {
+    return @"0.99.0";
+}
+
+- (NSNumber *)getPlayhead {
+    if (self.adsManager) {
+        return @(self.adsManager.adPlaybackInfo.currentMediaTime * 1000);
+    }
+    else {
+        return (NSNumber *)[NSNull null];
+    }
+}
+
+- (NSNumber *)getDuration {
+    if (self.lastEvent) {
+        return @(self.lastEvent.ad.duration * 1000);
+    }
+    else {
+        return (NSNumber *)[NSNull null];
+    }
+}
+
+- (NSNumber *)getIsAd {
+    return @(YES);
+}
+
+- (NSNumber *)getRenditionWidth {
+    if (self.lastEvent) {
+        return @(self.lastEvent.ad.VASTMediaWidth);
+    }
+    else {
+        return (NSNumber *)[NSNull null];
+    }
+}
+
+- (NSNumber *)getRenditionHeight {
+    if (self.lastEvent) {
+        return @(self.lastEvent.ad.VASTMediaHeight);
+    }
+    else {
+        return (NSNumber *)[NSNull null];
+    }
+}
+
+- (NSString *)getAdPosition {
+    if (self.lastEvent) {
+        switch (self.lastEvent.ad.adPodInfo.podIndex) {
+            case 0:
+                return @"pre";
+                break;
+            case -1:
+                return @"post";
+                break;
+            default:
+                return @"mid";
+                break;
+        }
+    }
+    else {
+        return (NSString *)[NSNull null];
+    }
+}
+
+- (NSString *)getAdCreativeId {
+    if (self.lastEvent) {
+        return self.lastEvent.ad.creativeID;
+    }
+    else {
+        return (NSString *)[NSNull null];
+    }
+}
 
 @end
