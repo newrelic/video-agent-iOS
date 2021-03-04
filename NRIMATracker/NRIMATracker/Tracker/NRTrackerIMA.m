@@ -13,32 +13,42 @@
 
 @property (nonatomic, weak) IMAAdEvent *lastEvent;
 @property (nonatomic, weak) IMAAdsManager *adsManager;
+@property (nonatomic) NSNumber *quartile;
 
 @end
 
 @implementation NRTrackerIMA
+
+- (instancetype)init {
+    if (self = [super init]) {
+        self.quartile = nil;
+    }
+    return self;
+}
 
 - (void)adEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)manager {
     self.lastEvent = event;
     self.adsManager = manager;
     
     if ([event.typeString isEqual:@"Started"]) {
+        self.quartile = @(0);
         [self sendRequest];
         [self sendStart];
     }
     else if ([event.typeString isEqual:@"Complete"]) {
         [self sendEnd];
+        self.quartile = nil;
     }
     else if ([event.typeString isEqual:@"First Quartile"]) {
-        //TODO: first quartile
+        self.quartile = @(1);
         [self sendAdQuartile];
     }
     else if ([event.typeString isEqual:@"Midpoint"]) {
-        //TODO: second quartile
+        self.quartile = @(2);
         [self sendAdQuartile];
     }
     else if ([event.typeString isEqual:@"Third Quartile"]) {
-        //TODO: third quartile
+        self.quartile = @(3);
         [self sendAdQuartile];
     }
     else if ([event.typeString isEqual:@"Tapped"] || [event.typeString isEqual:@"Clicked"]) {
@@ -155,7 +165,10 @@
     }
 }
 
-//TODO: - (NSNumber *)getAdQuartile
+- (NSNumber *)getAdQuartile {
+    return self.quartile ? self.quartile : (NSNumber *)[NSNull null];
+}
+
 //TODO: - (NSString *)getAdPartner
 
 @end
