@@ -7,6 +7,7 @@ PODS:
     - NewRelicVideoCore
   - NRIMATracker (0.1.0):
     - GoogleAds-IMA-iOS-SDK
+    - GoogleAds-IMA-tvOS-SDK
     - NewRelicVideoCore
 
 DEPENDENCIES:
@@ -32,7 +33,7 @@ SPEC CHECKSUMS:
   NewRelicAgent: 5bdff9c0e3de85eb95c54ffc2262f3e23e3d71ba
   NewRelicVideoCore: 7017e7bd15d92c771f713aa05b5fa770814dcdc1
   NRAVPlayerTracker: 1ca875104fb46c0f8df4e09a91b4faff3232d4f6
-  NRIMATracker: 7cb8a36b22069f2ec3a2a2a241c541fa9f2ab226
+  NRIMATracker: 48d96193501efc5711d764ae8f9313bccf7ef141
 
 PODFILE CHECKSUM: 18fd3f22d40d13fdb9ae6bcdb48109e1ea5f3582
 
