@@ -15,6 +15,10 @@ Contains all the base classes necessary to create trackers and send data to New 
 
 The video tracker for AVPlayer player. It depends on NewRelicVideoCore.
 
+### NRIMATracker
+
+The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
+
 ## Build & Setup
 
 ### Install automatically using Cocoapods
@@ -24,6 +28,7 @@ Add the following lines to your Podfile:
 ```
   pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS'
   pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS'
+  pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS'
 ```
 
 ### Install manually
