@@ -14,7 +14,7 @@ class ViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let testArray : [TestProtocol] = [Test1(), Test1(), Test1(), Test1(), Test1(), Test1(), Test1(), Test1()]
+        let testArray : [TestProtocol] = [Test1()]
         
         for (i,test) in testArray.enumerated() {
             textView?.insertText("Test \(i+1)\t" + (test.doTest() ? "✅" : "❌") + "\n\n")
