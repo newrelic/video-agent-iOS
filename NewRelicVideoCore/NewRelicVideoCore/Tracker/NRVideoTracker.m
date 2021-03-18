@@ -106,11 +106,6 @@
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(NSDictionary *)attributes {
     NSMutableDictionary *attr = [super getAttributes:action attributes:attributes];
     
-    if ([action hasPrefix:@"CONTENT_"]) {
-        [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"playtimeSinceLastEvent"];
-        [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
-    }
-    
     if ([action hasSuffix:@"_BUFFER_START"] || [action hasSuffix:@"_BUFFER_END"]) {
         [attr setObject:[self getBufferType] forKey:@"bufferType"];
     }
@@ -150,6 +145,8 @@
         }
     }
     else {
+        [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"playtimeSinceLastEvent"];
+        [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
         [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
