@@ -21,7 +21,16 @@ class Test1 : TestProtocol {
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult { return false }
         
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult { return false }
+        
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult { return false }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult { return false }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult { return false }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
