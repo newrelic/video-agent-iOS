@@ -10,14 +10,18 @@ import UIKit
 class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView?
+    
+    let testArray : [TestProtocol] = [Test1(), Test2()]
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        let testArray : [TestProtocol] = [Test1()]
-        
-        for (i,test) in testArray.enumerated() {
-            textView?.insertText("Test \(i+1)\t" + (test.doTest() ? "✅" : "❌") + "\n\n")
+        for test in testArray {
+            test.doTest(testResult)
         }
+    }
+    
+    func testResult(name: String, result: Bool) {
+        textView?.insertText("\(name)\t" + (result ? "✅" : "❌") + "\n\n")
     }
 }

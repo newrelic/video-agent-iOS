@@ -8,5 +8,5 @@
 import Foundation
 
 protocol TestProtocol {
-    func doTest() -> Bool
+    func doTest(_ callback: @escaping (String, Bool) -> Void)
 }
