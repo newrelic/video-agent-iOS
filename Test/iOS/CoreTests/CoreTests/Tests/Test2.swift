@@ -101,7 +101,7 @@ class Test2 : TestProtocol {
         }
         
         func checkTimeSince(value: TimeInterval, target: TimeInterval) -> Bool {
-            return value >= target && value < target + 150   //150ms margin
+            return value >= target && value < target + 200   //200ms margin
         }
     }
 }
