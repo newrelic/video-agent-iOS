@@ -124,13 +124,13 @@ class Test1 : TestProtocol {
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName + " sendSeekEnd(1)", false)
+            self.callback!(testName + " sendSeekEnd(2)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName + " sendSeekEnd(2)", false)
+            self.callback!(testName + " sendSeekEnd(3)", false)
             return
         }
         
