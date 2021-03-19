@@ -11,13 +11,15 @@ class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView?
     
-    let testArray : [TestProtocol] = [Test1(), Test2(), Test3()]
+    let testArray : [TestProtocol] = [Test1(), Test2(), Test3(), Test4()]
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
+        self.textView?.insertText("Running \(self.testArray.count) tests...\n\n\n")
+        
         DispatchQueue.global(qos: .background).async {
-            for test in self.testArray {
+            self.testArray.forEach { (test) in
                 test.doTest(self.testResult)
             }
         }
