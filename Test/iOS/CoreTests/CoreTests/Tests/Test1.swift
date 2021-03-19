@@ -134,6 +134,12 @@ class Test1 : TestProtocol {
             return
         }
         
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendHeartbeat()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendHeartbeat", false)
+            return
+        }
+        
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
             self.callback!(testName + " sendEnd(1)", false)
@@ -193,8 +199,11 @@ class Test1 : TestProtocol {
             else if action == CONTENT_SEEK_END {
                 calcPartialresult(index: 9)
             }
-            else if action == CONTENT_END {
+            else if action == CONTENT_HEARTBEAT {
                 calcPartialresult(index: 10)
+            }
+            else if action == CONTENT_END {
+                calcPartialresult(index: 11)
             }
             
             return false
