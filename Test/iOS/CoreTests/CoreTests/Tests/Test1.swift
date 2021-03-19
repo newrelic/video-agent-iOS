@@ -10,10 +10,11 @@ import NewRelicVideoCore
 
 // Test basic tracker workflow.
 
+fileprivate let testName = "Test 1"
+
 class Test1 : TestProtocol {
     
     var callback : ((String, Bool) -> Void?)? = nil
-    let testName = "Test 1"
     let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: TestContentTracker())
     
     func doTest(_ callback: @escaping (String, Bool) -> Void) {
@@ -21,50 +22,134 @@ class Test1 : TestProtocol {
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).setPlayer(NSNull())
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " setPlayer", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendRequest(1)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendRequest(2)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendStart(1)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendStart(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendPause()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendPause(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendSeekEnd(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendBufferEnd(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendPause()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendPause(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendResume()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendResume(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendResume()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendResume(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendBufferStart(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendBufferStart(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendBufferEnd(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendBufferEnd(3)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendSeekStart(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekStart()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendSeekStart(2)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendSeekEnd(1)", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
+        if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
+            self.callback!(testName + " sendSeekEnd(2)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendEnd(1)", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult {
-            self.callback!(testName, false)
+            self.callback!(testName + " sendEnd(2)", false)
             return
         }
         
         NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId)
         
         if NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) != nil {
-            self.callback!(testName, false)
+            self.callback!(testName + " release", false)
             return
         }
         
@@ -90,8 +175,26 @@ class Test1 : TestProtocol {
             else if action == CONTENT_START {
                 calcPartialresult(index: 3)
             }
-            else if action == CONTENT_END {
+            else if action == CONTENT_PAUSE {
                 calcPartialresult(index: 4)
+            }
+            else if action == CONTENT_RESUME {
+                calcPartialresult(index: 5)
+            }
+            else if action == CONTENT_BUFFER_START {
+                calcPartialresult(index: 6)
+            }
+            else if action == CONTENT_BUFFER_END {
+                calcPartialresult(index: 7)
+            }
+            else if action == CONTENT_SEEK_START {
+                calcPartialresult(index: 8)
+            }
+            else if action == CONTENT_SEEK_END {
+                calcPartialresult(index: 9)
+            }
+            else if action == CONTENT_END {
+                calcPartialresult(index: 10)
             }
             
             return false

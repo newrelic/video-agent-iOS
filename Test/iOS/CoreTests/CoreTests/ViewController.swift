@@ -11,17 +11,21 @@ class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView?
     
-    let testArray : [TestProtocol] = [Test1(), Test2()]
+    let testArray : [TestProtocol] = [Test1(), Test2(), Test3()]
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        for test in testArray {
-            test.doTest(testResult)
+        DispatchQueue.global(qos: .background).async {
+            for test in self.testArray {
+                test.doTest(self.testResult)
+            }
         }
     }
     
     func testResult(name: String, result: Bool) {
-        textView?.insertText("\(name)\t" + (result ? "✅" : "❌") + "\n\n")
+        DispatchQueue.main.async {
+            self.textView?.insertText("\(name)\t" + (result ? "✅" : "❌") + "\n\n")
+        }
     }
 }

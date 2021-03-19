@@ -10,15 +10,15 @@ import NewRelicVideoCore
 
 // Test start time, buffering, pause, seeking and related timers.
 
-fileprivate let TTFF : UInt32 = 1100
-fileprivate let BUFFER_TIME : UInt32 = 800
-fileprivate let SEEK_TIME : UInt32 = 1000
-fileprivate let PAUSE_TIME : UInt32 = 1200
+fileprivate let testName = "Test 2"
+fileprivate let TTFF : TimeInterval = 1100.0
+fileprivate let BUFFER_TIME : TimeInterval = 800.0
+fileprivate let SEEK_TIME : TimeInterval = 1000.0
+fileprivate let PAUSE_TIME : TimeInterval = 1200.0
 
 class Test2 : TestProtocol {
     
     var callback : ((String, Bool) -> Void?)? = nil
-    let testName = "Test 2"
     let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: TestContentTracker())
     
     func doTest(_ callback: @escaping (String, Bool) -> Void) {
@@ -26,36 +26,39 @@ class Test2 : TestProtocol {
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).setPlayer(NSNull())
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         
-        usleep(TTFF * 1000)
+        //Thread.current.
+        Thread.sleep(forTimeInterval: TTFF / 1000.0)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
         if !checkPartialResult() {
-            self.callback!(testName, false)
+            self.callback!(testName + " TTFF", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
-        usleep(BUFFER_TIME * 1000)
+        Thread.sleep(forTimeInterval: BUFFER_TIME / 1000.0)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
         if !checkPartialResult() {
-            self.callback!(testName, false)
+            self.callback!(testName + " BUFFER_TIME", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekStart()
-        usleep(SEEK_TIME * 1000)
+        Thread.sleep(forTimeInterval: SEEK_TIME / 1000.0)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendSeekEnd()
         if !checkPartialResult() {
-            self.callback!(testName, false)
+            self.callback!(testName + " SEEK_TIME", false)
             return
         }
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendPause()
-        usleep(PAUSE_TIME * 1000)
+        Thread.sleep(forTimeInterval: PAUSE_TIME / 1000.0)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendResume()
         if !checkPartialResult() {
-            self.callback!(testName, false)
+            self.callback!(testName + " PAUSE_TIME", false)
             return
         }
+        
+        NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId)
         
         self.callback!(testName, true)
     }
@@ -86,9 +89,9 @@ class Test2 : TestProtocol {
             return false
         }
 
-        func checkTimeSinceAttribute(attr: NSMutableDictionary, name: String, target: UInt32) {
+        func checkTimeSinceAttribute(attr: NSMutableDictionary, name: String, target: TimeInterval) {
             if let ts = attr[name] as? Int {
-                if !checkTimeSince(value: ts, target: target) {
+                if !checkTimeSince(value: TimeInterval(ts), target: target) {
                     partialResult = false
                 }
             }
@@ -97,8 +100,8 @@ class Test2 : TestProtocol {
             }
         }
         
-        func checkTimeSince(value: Int, target: UInt32) -> Bool {
-            return value >= target && value < target + 50   //50ms margin
+        func checkTimeSince(value: TimeInterval, target: TimeInterval) -> Bool {
+            return value >= target && value < target + 150   //150ms margin
         }
     }
 }
