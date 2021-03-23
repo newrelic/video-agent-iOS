@@ -8,14 +8,14 @@
 import Foundation
 import NewRelicVideoCore
 
-// Test start time, buffering, pause, seeking and related timers.
+// Test start time, buffering time, pause time, seeking time and custom time since.
 
 fileprivate let testName = "Test 2"
 fileprivate let TTFF : TimeInterval = 1100.0
 fileprivate let BUFFER_TIME : TimeInterval = 800.0
 fileprivate let SEEK_TIME : TimeInterval = 1000.0
 fileprivate let PAUSE_TIME : TimeInterval = 1200.0
-fileprivate var REQUESTED_TIME : TimeInterval = 0
+fileprivate var TESTACTION_TIME : TimeInterval = 0
 
 class Test2 : TestProtocol {
     
@@ -24,7 +24,10 @@ class Test2 : TestProtocol {
     
     func doTest(_ callback: @escaping (String, Bool) -> Void) {
         self.callback = callback
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).addTimeSinceEntry(withAction: "TEST_ACTION", attribute: "timeSinceTestAction", applyTo: "^[A-Z_]+$")
+        
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).setPlayer(NSNull())
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEvent("TEST_ACTION")
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         
         //Thread.current.
@@ -93,7 +96,7 @@ class Test2 : TestProtocol {
                 checkTimeSinceAttribute(attr: attributes, name: "timeSincePaused", target: PAUSE_TIME)
             }
             else if action == CONTENT_END {
-                checkTimeSinceAttribute(attr: attributes, name: "timeSinceRequested", target: REQUESTED_TIME)
+                checkTimeSinceAttribute(attr: attributes, name: "timeSinceTestAction", target: TESTACTION_TIME)
             }
             
             return false
@@ -101,7 +104,7 @@ class Test2 : TestProtocol {
 
         func checkTimeSinceAttribute(attr: NSMutableDictionary, name: String, target: TimeInterval) {
             if let ts = attr[name] as? Int {
-                REQUESTED_TIME = REQUESTED_TIME + TimeInterval(ts)
+                TESTACTION_TIME = TESTACTION_TIME + TimeInterval(ts)
                 if !checkTimeSince(value: TimeInterval(ts), target: target) {
                     partialResult = false
                 }
