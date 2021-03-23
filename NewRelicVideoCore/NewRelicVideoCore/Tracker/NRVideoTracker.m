@@ -68,6 +68,7 @@
 
 - (void)setPlayer:(id)player {
     [self sendEvent:PLAYER_READY];
+    [self.state goPlayerReady];
 }
 
 - (void)startHeartbeat {
