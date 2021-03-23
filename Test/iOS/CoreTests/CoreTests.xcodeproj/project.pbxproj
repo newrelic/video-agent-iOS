@@ -21,6 +21,7 @@
 		9C42B16F2604CEF700732AA5 /* Test4.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C42B16E2604CEF700732AA5 /* Test4.swift */; };
 		9C42B1722609F5F100732AA5 /* Test5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C42B1712609F5F100732AA5 /* Test5.swift */; };
 		9C42B1752609FE0100732AA5 /* Test6.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C42B1742609FE0100732AA5 /* Test6.swift */; };
+		9C42B178260A3E6400732AA5 /* Test7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C42B177260A3E6400732AA5 /* Test7.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 		9C42B16E2604CEF700732AA5 /* Test4.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test4.swift; sourceTree = "<group>"; };
 		9C42B1712609F5F100732AA5 /* Test5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test5.swift; sourceTree = "<group>"; };
 		9C42B1742609FE0100732AA5 /* Test6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test6.swift; sourceTree = "<group>"; };
+		9C42B177260A3E6400732AA5 /* Test7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Test7.swift; sourceTree = "<group>"; };
 		AEB1BB4D2145ECFBEF316313 /* Pods_CoreTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F270F724547B7DFCB1736F30 /* Pods-CoreTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreTests.release.xcconfig"; path = "Target Support Files/Pods-CoreTests/Pods-CoreTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -107,6 +109,7 @@
 				9C42B16E2604CEF700732AA5 /* Test4.swift */,
 				9C42B1712609F5F100732AA5 /* Test5.swift */,
 				9C42B1742609FE0100732AA5 /* Test6.swift */,
+				9C42B177260A3E6400732AA5 /* Test7.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -243,6 +246,7 @@
 				9C42B1662603A65600732AA5 /* Test1.swift in Sources */,
 				9C42B14B2603A1FE00732AA5 /* SceneDelegate.swift in Sources */,
 				9C42B1632603A61600732AA5 /* TestProtocol.swift in Sources */,
+				9C42B178260A3E6400732AA5 /* Test7.swift in Sources */,
 				9C42B16C2604B20200732AA5 /* Test3.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
