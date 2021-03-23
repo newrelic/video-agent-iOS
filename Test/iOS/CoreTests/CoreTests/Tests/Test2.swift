@@ -15,6 +15,7 @@ fileprivate let TTFF : TimeInterval = 1100.0
 fileprivate let BUFFER_TIME : TimeInterval = 800.0
 fileprivate let SEEK_TIME : TimeInterval = 1000.0
 fileprivate let PAUSE_TIME : TimeInterval = 1200.0
+fileprivate var REQUESTED_TIME : TimeInterval = 0
 
 class Test2 : TestProtocol {
     
@@ -58,6 +59,12 @@ class Test2 : TestProtocol {
             return
         }
         
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
+        if !checkPartialResult() {
+            self.callback!(testName + " REQUESTED_TIME", false)
+            return
+        }
+        
         NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId)
         
         self.callback!(testName, true)
@@ -85,12 +92,16 @@ class Test2 : TestProtocol {
             else if action == CONTENT_RESUME {
                 checkTimeSinceAttribute(attr: attributes, name: "timeSincePaused", target: PAUSE_TIME)
             }
+            else if action == CONTENT_END {
+                checkTimeSinceAttribute(attr: attributes, name: "timeSinceRequested", target: REQUESTED_TIME)
+            }
             
             return false
         }
 
         func checkTimeSinceAttribute(attr: NSMutableDictionary, name: String, target: TimeInterval) {
             if let ts = attr[name] as? Int {
+                REQUESTED_TIME = REQUESTED_TIME + TimeInterval(ts)
                 if !checkTimeSince(value: TimeInterval(ts), target: target) {
                     partialResult = false
                 }
