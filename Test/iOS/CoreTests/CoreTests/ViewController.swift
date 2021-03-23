@@ -11,7 +11,7 @@ class ViewController: UIViewController {
     
     @IBOutlet var textView: UITextView?
     
-    let testArray : [TestProtocol] = [Test1(), Test2(), Test3(), Test4(), Test5()]
+    let testArray : [TestProtocol] = [Test1(), Test2(), Test3(), Test4(), Test5(), Test6()]
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
