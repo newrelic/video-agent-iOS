@@ -12,6 +12,7 @@ import NewRelicVideoCore
 
 fileprivate let testName = "Test 7"
 fileprivate var numberOfAds = -1
+fileprivate var bufferType = ""
 fileprivate var ADBREAK_TIME : TimeInterval = 0
 
 class Test7 : TestProtocol {
@@ -27,7 +28,7 @@ class Test7 : TestProtocol {
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendAdBreakStart()
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
-        if !checkPartialResult() {
+        if bufferType != "ad" {
             self.callback!(testName + " sendBufferStart", false)
             return
         }
@@ -48,13 +49,24 @@ class Test7 : TestProtocol {
             return
         }
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
-        if !checkPartialResult() {
+        if bufferType != "ad" {
             self.callback!(testName + " sendBufferEnd", false)
             return
         }
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
         if !(numberOfAds == 2) {
             self.callback!(testName + " content sendStart", false)
+            return
+        }
+        
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
+        if bufferType != "initial" {
+            self.callback!(testName + " sendBufferStart(2)", false)
+            return
+        }
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
+        if bufferType != "initial" {
+            self.callback!(testName + " sendBufferEnd(2)", false)
             return
         }
         
@@ -67,12 +79,7 @@ class Test7 : TestProtocol {
         return (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! TestAdTracker).partialResult
     }
     
-    func checkPartialResult() -> Bool {
-        return (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult
-    }
-    
     class TestContentTracker : NRVideoTracker {
-        var partialResult = true
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             print("Send Event \(action) with \(attributes)")
             
@@ -82,11 +89,8 @@ class Test7 : TestProtocol {
                 }
             }
             else if action == CONTENT_BUFFER_START || action == CONTENT_BUFFER_END {
-                if let bufferType = attributes["bufferType"] as? String, bufferType == "ad" {
-                    partialResult = true
-                }
-                else {
-                    partialResult = false
+                if let bt = attributes["bufferType"] as? String {
+                    bufferType = bt
                 }
             }
             
