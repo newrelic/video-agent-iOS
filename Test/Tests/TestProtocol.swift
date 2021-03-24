@@ -1,6 +1,6 @@
 //
 //  TestProtocol.swift
-//  CoreTests
+//  Tests
 //
 //  Created by Andreu Santaren on 18/3/21.
 //

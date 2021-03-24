@@ -1,6 +1,6 @@
 //
 //  Test5.swift
-//  CoreTests
+//  Tests
 //
 //  Created by Andreu Santaren on 23/3/21.
 //

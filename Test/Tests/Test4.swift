@@ -1,6 +1,6 @@
 //
 //  Test4.swift
-//  CoreTests
+//  Tests
 //
 //  Created by Andreu Santaren on 19/3/21.
 //
