@@ -76,6 +76,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isAd;
 
 /**
+ Return state isAdBreak.
+ 
+ @return state..
+ */
+- (BOOL)isAdBreak;
+
+/**
  Set state isAd.
  
  @param isAd State.

@@ -68,6 +68,7 @@
 
 - (void)setPlayer:(id)player {
     [self sendEvent:PLAYER_READY];
+    [self.state goPlayerReady];
 }
 
 - (void)startHeartbeat {
@@ -570,6 +571,14 @@
 
 - (NSString *)calculateBufferType {
     NSNumber *playhead = [self getPlayhead];
+    
+    if (!self.state.isAd) {
+        if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+            if (((NRVideoTracker *)self.linkedTracker).state.isAdBreak) {
+                return @"ad";
+            }
+        }
+    }
     
     if ([playhead isEqual:[NSNull null]]) {
         playhead = @0;
