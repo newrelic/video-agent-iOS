@@ -70,6 +70,17 @@ class Test7 : TestProtocol {
             return
         }
         
+        (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendAdBreakStart()
+        (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendRequest()
+        Thread.sleep(forTimeInterval: 0.5)
+        (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendStart()
+        (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendEnd()
+        if numberOfAds != 3 {
+            self.callback!(testName + " content ad sendEnd", false)
+            return
+        }
+        (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendAdBreakEnd()
+        
         NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId)
         
         self.callback!(testName, true)
@@ -83,12 +94,11 @@ class Test7 : TestProtocol {
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             print("Send Event \(action) with \(attributes)")
             
-            if action == CONTENT_START {
-                if let n = attributes["numberOfAds"] as? Int {
-                    numberOfAds = n
-                }
+            if let n = attributes["numberOfAds"] as? Int {
+                numberOfAds = n
             }
-            else if action == CONTENT_BUFFER_START || action == CONTENT_BUFFER_END {
+            
+            if action == CONTENT_BUFFER_START || action == CONTENT_BUFFER_END {
                 if let bt = attributes["bufferType"] as? String {
                     bufferType = bt
                 }
@@ -102,6 +112,10 @@ class Test7 : TestProtocol {
         var partialResult = true
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             print("Send Ad Event \(action) with \(attributes)")
+            
+            if let n = attributes["numberOfAds"] as? Int {
+                numberOfAds = n
+            }
             
             if action == AD_END {
                 if let ts = attributes["timeSinceAdRequested"] as? Int {
