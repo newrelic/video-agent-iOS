@@ -26,17 +26,30 @@ class Test7 : TestProtocol {
         
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendRequest()
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendAdBreakStart()
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferStart()
+        if !checkPartialResult() {
+            self.callback!(testName + " sendBufferStart", false)
+            return
+        }
+        
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendRequest()
         Thread.sleep(forTimeInterval: 0.5)
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendStart()
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendEnd()
+        
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendRequest()
         Thread.sleep(forTimeInterval: 0.5)
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendStart()
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendEnd()
+        
         (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! NRVideoTracker).sendAdBreakEnd()
         if !checkAdPartialResult() {
             self.callback!(testName + " sendAdBreakEnd", false)
+            return
+        }
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendBufferEnd()
+        if !checkPartialResult() {
+            self.callback!(testName + " sendBufferEnd", false)
             return
         }
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
@@ -54,13 +67,26 @@ class Test7 : TestProtocol {
         return (NewRelicVideoAgent.sharedInstance().adTracker(trackerId) as! TestAdTracker).partialResult
     }
     
+    func checkPartialResult() -> Bool {
+        return (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker).partialResult
+    }
+    
     class TestContentTracker : NRVideoTracker {
+        var partialResult = true
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             print("Send Event \(action) with \(attributes)")
             
             if action == CONTENT_START {
                 if let n = attributes["numberOfAds"] as? Int {
                     numberOfAds = n
+                }
+            }
+            else if action == CONTENT_BUFFER_START || action == CONTENT_BUFFER_END {
+                if let bufferType = attributes["bufferType"] as? String, bufferType == "ad" {
+                    partialResult = true
+                }
+                else {
+                    partialResult = false
                 }
             }
             
