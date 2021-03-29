@@ -30,6 +30,7 @@
 @property (nonatomic) int adBreakIdIndex;
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) long totalPlaytime;
+@property (nonatomic) long totalAdPlaytime;
 @property (nonatomic) long playtimeSinceLastEvent;
 @property (nonatomic) NSString *bufferType;
 @property (nonatomic, weak) NRTimeSince *lastAdTimeSince;
@@ -50,6 +51,7 @@
         self.viewSessionId = [NSString stringWithFormat:@"%@-%ld%d", [self getAgentSession], (long)[[NSDate date] timeIntervalSince1970], arc4random_uniform(10000)];
         self.playtimeSinceLastEventTimestamp = 0;
         self.totalPlaytime = 0;
+        self.totalAdPlaytime = 0;
         self.playtimeSinceLastEvent = 0;
         self.bufferType = nil;
         AV_LOG(@"Init NSVideoTracker");
@@ -121,6 +123,8 @@
     [attr setObject:@(self.numberOfAds) forKey:@"numberOfAds"];
     [attr setObject:@(self.numberOfVideos) forKey:@"numberOfVideos"];
     [attr setObject:@(self.numberOfErrors) forKey:@"numberOfErrors"];
+    [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"playtimeSinceLastEvent"];
+    [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
     
     if (self.state.isAd) {
         [attr setObject:[self getTitle] forKey:@"adTitle"];
@@ -143,11 +147,22 @@
         
         if ([action hasPrefix:@"AD_BREAK_"]) {
             [attr removeObjectForKey:@"viewId"];
+            if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+                long playhead = [(NRVideoTracker *)self.linkedTracker getPlayhead].longValue;
+                if (playhead < 100) {
+                    [attr setObject:@"pre" forKey:@"adPosition"];
+                }
+            }
+        }
+        
+        if ([action isEqual:AD_BREAK_END]) {
+            [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
         }
     }
     else {
-        [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"playtimeSinceLastEvent"];
-        [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
+        if ([action isEqual:CONTENT_START]) {
+            [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
+        }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
         [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
@@ -208,6 +223,9 @@
             [self sendEvent:AD_START];
         }
         else {
+            if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+                self.totalAdPlaytime = [(NRVideoTracker *)self.linkedTracker getTotalAdPlaytime].longValue;
+            }
             self.numberOfVideos++;
             [self sendEvent:CONTENT_START];
         }
@@ -248,6 +266,7 @@
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 [(NRVideoTracker *)self.linkedTracker adHappened];
             }
+            self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
         }
         else {
             [self sendEvent:CONTENT_END];
@@ -372,6 +391,7 @@
 - (void)sendAdBreakStart {
     if (self.state.isAd && [self.state goAdBreakStart]) {
         self.adBreakIdIndex++;
+        self.totalAdPlaytime = 0;
         [self sendEvent:AD_BREAK_START];
     }
 }
@@ -482,6 +502,10 @@
 
 - (NSString *)getAdBreakId {
     return [NSString stringWithFormat:@"%@-%d", [self getViewSession], self.adBreakIdIndex];
+}
+
+- (NSNumber *)getTotalAdPlaytime {
+    return @(self.totalAdPlaytime);
 }
 
 - (NSString *)getViewSession {

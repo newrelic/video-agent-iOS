@@ -295,6 +295,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)getAdBreakId;
 
 /**
+ Get total ad playtime of the last ad break.
+ 
+ @return Attribute.
+ */
+- (NSNumber *)getTotalAdPlaytime;
+
+/**
  Get view session.
  
  @return Attribute.
