@@ -51,7 +51,7 @@ To start the video agent with AVPlayer tracker only:
 <summary>Objective-C</summary>
 <p>
 
-```Objetive-C
+```Objective-C
 NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player]];
 ```
 
@@ -74,7 +74,7 @@ To start the video agent with AVPlayer and IMA trackers:
 <summary>Objective-C</summary>
 <p>
 
-```Objetive-C
+```Objective-C
 NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player] adTracker:[[NRTrackerIMA alloc] init]];
 ```
 
