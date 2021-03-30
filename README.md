@@ -21,7 +21,7 @@ The video tracker for AVPlayer player. It depends on NewRelicVideoCore.
 
 The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
 
-## Build & Setup
+## Installation
 
 ### Install automatically using Cocoapods
 
@@ -42,6 +42,54 @@ First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-mo
 3. Select the appropiate scheme.
 4. Build (cmd+B).
 5. Include the generated .framework in your project.
+
+## Usage
+
+To start the video agent with AVPlayer tracker only:
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```Objetive-C
+NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player]];
+```
+
+</p>
+</details>
+<details>
+<summary>Swift</summary>
+<p>
+
+```Swift
+let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player))
+```
+
+</p>
+</details>
+
+To start the video agent with AVPlayer and IMA trackers:
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```Objetive-C
+NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player] adTracker:[[NRTrackerIMA alloc] init]];
+```
+
+</p>
+</details>
+<details>
+<summary>Swift</summary>
+<p>
+
+```Swift
+let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player), adTracker: NRTrackerIMA.init())
+```
+
+</p>
+</details>
 
 ## Documentation
 
