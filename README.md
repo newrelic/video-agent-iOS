@@ -7,7 +7,7 @@ The New Relic Video Agent for iOS & tvOS contains multiple modules necessary to 
 
 ## Modules
 
-There are two modules available:
+There are three modules available:
 
 ### NewRelicVideoCore
 
