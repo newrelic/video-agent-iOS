@@ -201,7 +201,6 @@
 - (void)sendRequest {
     if ([self.state goRequest]) {
         self.playtimeSinceLastEventTimestamp = 0;
-        self.viewIdIndex++;
         
         if (self.state.isAd) {
             [self sendEvent:AD_REQUEST];
@@ -274,6 +273,7 @@
         
         [self stopHeartbeat];
         
+        self.viewIdIndex++;
         self.numberOfErrors = 0;
         self.playtimeSinceLastEventTimestamp = 0;
         self.playtimeSinceLastEvent = 0;
