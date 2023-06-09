@@ -59,6 +59,16 @@
     return self;
 }
 
+- (void)trackerReady {
+    // If we are an Ad tracker, we use main tracker's viewId
+    if (self.state.isAd) {
+        if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+            self.viewSessionId = ((NRVideoTracker *)self.linkedTracker).viewSessionId;
+        }
+    }
+    [super sendEvent:TRACKER_READY];
+}
+
 - (void)dealloc {
     AV_LOG(@"Dealloc NSVideoTracker");
 }
@@ -146,7 +156,6 @@
         [attr setObject:[self getAdBreakId] forKey:@"adBreakId"];
         
         if ([action hasPrefix:@"AD_BREAK_"]) {
-            [attr removeObjectForKey:@"viewId"];
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 long playhead = [(NRVideoTracker *)self.linkedTracker getPlayhead].longValue;
                 if (playhead < 100) {
@@ -273,7 +282,10 @@
         
         [self stopHeartbeat];
         
-        self.viewIdIndex++;
+        // Only increment the viewId index if we are a content tracker, ad trackers get their viewId from their linked tracker.
+        if (!self.state.isAd) {
+            self.viewIdIndex++;
+        }
         self.numberOfErrors = 0;
         self.playtimeSinceLastEventTimestamp = 0;
         self.playtimeSinceLastEvent = 0;

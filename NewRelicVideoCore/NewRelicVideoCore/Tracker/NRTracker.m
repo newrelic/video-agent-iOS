@@ -92,6 +92,7 @@
         
         if (![NewRelic recordCustomEvent:NR_VIDEO_EVENT attributes:attr]) {
             AV_LOG(@"⚠️ Failed to recordCustomEvent. Maybe the NewRelicAgent is not initialized or the attribute list contains invalid/empty values. ⚠️");
+            AV_LOG(@"-->Attributes = %@", attr);
         }
     }
 }
