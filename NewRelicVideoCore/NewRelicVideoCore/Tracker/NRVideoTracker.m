@@ -146,7 +146,6 @@
         [attr setObject:[self getAdBreakId] forKey:@"adBreakId"];
         
         if ([action hasPrefix:@"AD_BREAK_"]) {
-            [attr removeObjectForKey:@"viewId"];
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 long playhead = [(NRVideoTracker *)self.linkedTracker getPlayhead].longValue;
                 if (playhead < 100) {
@@ -509,11 +508,23 @@
 }
 
 - (NSString *)getViewSession {
-    return self.viewSessionId;
+    // If we are an Ad tracker, we use main tracker's viewSession
+    if (self.state.isAd && [self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+        return [(NRVideoTracker *)self.linkedTracker getViewSession];
+    }
+    else {
+        return self.viewSessionId;
+    }
 }
 
 - (NSString *)getViewId {
-    return [NSString stringWithFormat:@"%@-%d", [self getViewSession], self.viewIdIndex];
+    // If we are an Ad tracker, we use main tracker's viewId
+    if (self.state.isAd && [self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+        return [(NRVideoTracker *)self.linkedTracker getViewId];
+    }
+    else {
+        return [NSString stringWithFormat:@"%@-%d", [self getViewSession], self.viewIdIndex];
+    }
 }
 
 - (NSString *)getVideoId {

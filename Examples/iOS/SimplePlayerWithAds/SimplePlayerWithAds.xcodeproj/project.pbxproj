@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9C7BCAB02A333F7A00F30D39 /* Pods_SimplePlayerWithAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44415BE075CBA2D52C30571B /* Pods_SimplePlayerWithAds.framework */; };
 		9CEE257025EE7543000491C5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE256F25EE7543000491C5 /* AppDelegate.m */; };
 		9CEE257325EE7543000491C5 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE257225EE7543000491C5 /* SceneDelegate.m */; };
 		9CEE257625EE7543000491C5 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE257525EE7543000491C5 /* ViewController.m */; };
@@ -14,8 +15,20 @@
 		9CEE257B25EE7547000491C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9CEE257A25EE7547000491C5 /* Assets.xcassets */; };
 		9CEE257E25EE7547000491C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CEE257C25EE7547000491C5 /* LaunchScreen.storyboard */; };
 		9CEE258125EE7547000491C5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE258025EE7547000491C5 /* main.m */; };
-		FCA4234BC27AAEF5803B8AC7 /* Pods_SimplePlayerWithAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 44415BE075CBA2D52C30571B /* Pods_SimplePlayerWithAds.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9C7BCAAF2A333F6600F30D39 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		44415BE075CBA2D52C30571B /* Pods_SimplePlayerWithAds.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimplePlayerWithAds.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -40,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FCA4234BC27AAEF5803B8AC7 /* Pods_SimplePlayerWithAds.framework in Frameworks */,
+				9C7BCAB02A333F7A00F30D39 /* Pods_SimplePlayerWithAds.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -61,7 +74,6 @@
 				DF11329A6C51988651C9CE47 /* Pods-SimplePlayerWithAds.debug.xcconfig */,
 				5FFB7ECB39AC3A5FBBD61477 /* Pods-SimplePlayerWithAds.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -113,6 +125,7 @@
 				9CEE256825EE7543000491C5 /* Frameworks */,
 				9CEE256925EE7543000491C5 /* Resources */,
 				F8A4C1FD42FAD3473BC50118 /* [CP] Embed Pods Frameworks */,
+				9C7BCAAF2A333F6600F30D39 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
