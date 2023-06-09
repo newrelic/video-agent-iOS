@@ -48,7 +48,8 @@
 		9C01D75E258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F8952258D077F0070CC2D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8951258D077F0070CC2D /* SystemConfiguration.framework */; };
 		9C4F8954258D07860070CC2D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8953258D07860070CC2D /* CoreTelephony.framework */; };
-		9C4F8960258D08C00070CC2D /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F895F258D08C00070CC2D /* NewRelic.xcframework */; };
+		9C7BCABF2A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
+		9C7BCAC02A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
 		9CE7992425837C9400157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */; };
 		9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */; };
 		9CE7992B25837C9400157199 /* NewRelicVideoCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE7991D25837C9400157199 /* NewRelicVideoCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -71,6 +72,19 @@
 			remoteInfo = "tvOS NewRelicVideoCore";
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		9C7BCAB72A3345C400F30D39 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		9C01D724258CD4740044FAB0 /* NRTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRTracker.h; sourceTree = "<group>"; };
@@ -96,7 +110,7 @@
 		9C4F8953258D07860070CC2D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		9C4F8955258D07940070CC2D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9C4F8956258D07A60070CC2D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		9C4F895F258D08C00070CC2D /* NewRelic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = NewRelic.xcframework; sourceTree = "<group>"; };
+		9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = NewRelic.xcframework; sourceTree = "<group>"; };
 		9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7991D25837C9400157199 /* NewRelicVideoCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoCore.h; sourceTree = "<group>"; };
 		9CE7991E25837C9400157199 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -114,7 +128,7 @@
 			files = (
 				9C4F8952258D077F0070CC2D /* SystemConfiguration.framework in Frameworks */,
 				9C4F8954258D07860070CC2D /* CoreTelephony.framework in Frameworks */,
-				9C4F8960258D08C00070CC2D /* NewRelic.xcframework in Frameworks */,
+				9C7BCABF2A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +144,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C7BCAC02A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -184,6 +199,7 @@
 		9C4F8950258D077F0070CC2D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */,
 				9C4F8956258D07A60070CC2D /* libc++.tbd */,
 				9C4F8955258D07940070CC2D /* libz.tbd */,
 				9C4F8953258D07860070CC2D /* CoreTelephony.framework */,
@@ -195,7 +211,6 @@
 		9CE7991025837C9400157199 = {
 			isa = PBXGroup;
 			children = (
-				9C4F895F258D08C00070CC2D /* NewRelic.xcframework */,
 				9CE7991C25837C9400157199 /* NewRelicVideoCore */,
 				9CE7992725837C9400157199 /* NewRelicVideoCoreTests */,
 				9CE7991B25837C9400157199 /* Products */,
@@ -288,6 +303,7 @@
 				9CE7991625837C9400157199 /* Sources */,
 				9CE7991725837C9400157199 /* Frameworks */,
 				9CE7991825837C9400157199 /* Resources */,
+				9C7BCAB72A3345C400F30D39 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
