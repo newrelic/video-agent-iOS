@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NRIMATracker'
-  s.version          = '0.99.2'
+  s.version          = '1.0.0'
   s.summary          = 'New Relic Video Agent, Google IMA Ads Tracker.'
 
 # This description is used to generate tags and improve search results.
