@@ -215,6 +215,11 @@
         if (!self.state.isBuffering && self.state.isPaused && self.playerInstance.rate == 0.0) {
             [self sendSeekStart];
         }
+        // The state isSeekingDuringPlayback can be set manually using the setIsSeekingDuringPlayback function
+        // Otherwise, KVO observers are not being notified that a seek happened during playback (rate == 1.0)
+        else if (!self.state.isBuffering && self.state.isSeekingDuringPlayback && !self.state.isPaused && self.playerInstance.rate == 1.0) {            
+            [self sendSeekStart];
+        }
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
         [self sendRequest];

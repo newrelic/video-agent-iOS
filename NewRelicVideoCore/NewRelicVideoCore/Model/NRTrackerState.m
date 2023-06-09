@@ -15,6 +15,7 @@
 @property (nonatomic) BOOL isPlaying;
 @property (nonatomic) BOOL isPaused;
 @property (nonatomic) BOOL isSeeking;
+@property (nonatomic) BOOL isSeekingDuringPlayback;
 @property (nonatomic) BOOL isBuffering;
 @property (nonatomic) BOOL isAd;
 @property (nonatomic) BOOL isAdBreak;
@@ -37,9 +38,19 @@
     self.isPlaying = NO;
     self.isPaused = NO;
     self.isSeeking = NO;
+    self.isSeekingDuringPlayback = NO;
     self.isBuffering = NO;
     self.isAd = NO;
     self.isAdBreak = NO;
+}
+
+- (void)setIsSeekingDuringPlayback {
+    if (self.isPlaying) {
+        self.isSeekingDuringPlayback = true;
+    }
+    else {
+        self.isSeekingDuringPlayback = false;
+    }
 }
 
 - (BOOL)goPlayerReady {
@@ -144,6 +155,7 @@
 - (BOOL)goSeekEnd {
     if (self.isStarted && self.isSeeking) {
         self.isSeeking = false;
+        self.isSeekingDuringPlayback = false;
         self.isPlaying = true;
         return true;
     }
