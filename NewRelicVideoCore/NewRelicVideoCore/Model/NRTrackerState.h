@@ -20,10 +20,10 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)reset;
 
 /**
- Set the state isSeekingDuringPlayback.
- This function has to be called at least when seeking occurs during playback because the KVO observer methods will not catch this type of seek.
+ Set the state isUserSeeking to true.
+ This function has to be called whenever a seek event occurs during playback.
  */
-- (void)setIsSeekingDuringPlayback;
+- (void)startSeekingEvent;
 
 /**
  Return state isPlayerReady.
@@ -68,11 +68,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isSeeking;
 
 /**
- Return state isSeekingDuringPlayback.
+ Return state isUserSeeking.
  
  @return state..
  */
-- (BOOL)isSeekingDuringPlayback;
+- (BOOL)isUserSeeking;
 
 /**
  Return state isBuffering.
