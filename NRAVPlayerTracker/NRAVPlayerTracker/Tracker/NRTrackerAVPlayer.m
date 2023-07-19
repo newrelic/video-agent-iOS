@@ -187,7 +187,7 @@
         // If duration is NaN, then is live streaming. Otherwise is VoD.
         self.isLive = isnan(CMTimeGetSeconds(self.playerInstance.currentItem.duration));
         
-        if (self.playerInstance.rate == 1.0) {
+        if (self.playerInstance.rate > 0.0) {
             [self sendStart];
             [self sendBufferEnd];
             [self sendResume];
