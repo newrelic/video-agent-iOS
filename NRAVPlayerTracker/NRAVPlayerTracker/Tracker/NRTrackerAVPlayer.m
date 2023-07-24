@@ -97,6 +97,11 @@
     @catch (id e) {}
     
     @try {
+        [self.state removeObserver:self forKeyPath:@"isUserSeeking"];
+    }
+    @catch (id e) {}
+    
+    @try {
         [self.playerInstance removeTimeObserver:self.timeObserver];
         self.timeObserver = nil;
     }
@@ -176,6 +181,11 @@
                      options:NSKeyValueObservingOptionNew
                      context:NULL];
     
+    [self.state addObserver:self
+                  forKeyPath:@"isUserSeeking"
+                     options:NSKeyValueObservingOptionNew
+                     context:NULL];
+    
     self.timeObserver =
     [self.playerInstance addPeriodicTimeObserverForInterval:CMTimeMake(1, 2) queue:NULL usingBlock:^(CMTime time) {
         
@@ -210,19 +220,26 @@
                        context:(void *)context {
     
     AV_LOG(@"(AVPlayerTracker) Observed keyPath = %@ , object = %@ , change = %@ , context = %@", keyPath, object, change, context);
-    
-    if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"]) {
-        if (!self.state.isBuffering && self.state.isPaused && self.playerInstance.rate == 0.0) {
-            [self sendSeekStart];
-        }
-        // The state isSeekingDuringPlayback can be set manually using the setIsSeekingDuringPlayback function
-        // Otherwise, KVO observers are not being notified that a seek happened during playback (rate == 1.0)
-        else if (!self.state.isBuffering && self.state.isSeekingDuringPlayback && !self.state.isPaused && self.playerInstance.rate == 1.0) {            
+    // User seek event sent by the integrators
+    if ([keyPath isEqualToString:@"isUserSeeking"]) {
+        if (self.state.isUserSeeking) {
             [self sendSeekStart];
         }
     }
+    else if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"] && self.state.isSeeking && self.state.isPaused) {
+        [self sendBufferStart];
+    }
+    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isSeeking && self.state.isPaused) {
+        [self sendBufferEnd];
+        [self sendSeekEnd];
+    }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
         [self sendRequest];
+
+        if (self.state.isSeeking && self.state.isPaused && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
+            [self sendBufferEnd];
+            [self sendSeekEnd];
+        }
     }
     else if ([keyPath isEqualToString:@"status"]) {
         if (self.playerInstance.status == AVPlayerItemStatusReadyToPlay) {
@@ -255,6 +272,7 @@
             }
             else {
                 [self sendBufferEnd];
+                [self sendSeekEnd];
             }
         } else {
             // Fallback on earlier versions
@@ -364,7 +382,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"1.0.0";
+    return @"2.0.0";
 }
 
 - (NSString *)getPlayerVersion {
@@ -459,7 +477,6 @@
 
 - (void)sendResume {
     //Make sure we close the previous blocks
-    [self sendSeekEnd];
     // Send RESUME
     [super sendResume];
     
