@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -50,6 +50,8 @@
 		9C4F8954258D07860070CC2D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8953258D07860070CC2D /* CoreTelephony.framework */; };
 		9C7BCABF2A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
 		9C7BCAC02A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
+		9CBCBDB52BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */; };
+		9CBCBDB62BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */; };
 		9CE7992425837C9400157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */; };
 		9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */; };
 		9CE7992B25837C9400157199 /* NewRelicVideoCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE7991D25837C9400157199 /* NewRelicVideoCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -111,6 +113,7 @@
 		9C4F8955258D07940070CC2D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9C4F8956258D07A60070CC2D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = NewRelic.xcframework; sourceTree = "<group>"; };
+		9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7991D25837C9400157199 /* NewRelicVideoCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoCore.h; sourceTree = "<group>"; };
 		9CE7991E25837C9400157199 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -211,6 +214,7 @@
 		9CE7991025837C9400157199 = {
 			isa = PBXGroup;
 			children = (
+				9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */,
 				9CE7991C25837C9400157199 /* NewRelicVideoCore */,
 				9CE7992725837C9400157199 /* NewRelicVideoCoreTests */,
 				9CE7991B25837C9400157199 /* Products */,
@@ -416,6 +420,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBCBDB52BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,6 +435,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBCBDB62BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

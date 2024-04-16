@@ -17,6 +17,8 @@
 		9C4F88A0258CE28F0070CC2D /* NRTrackerAVPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* NRTrackerAVPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F88A1258CE28F0070CC2D /* NRTrackerAVPlayer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C4F889D258CE28F0070CC2D /* NRTrackerAVPlayer.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F897D258D0AEA0070CC2D /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */; };
+		9CBCBDAF2BC95EB800B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDAE2BC95EB800B205EE /* PrivacyInfo.xcprivacy */; };
+		9CBCBDB02BC95EB800B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDAE2BC95EB800B205EE /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +50,7 @@
 		9C4F889C258CE28F0070CC2D /* NRTrackerAVPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRTrackerAVPlayer.m; sourceTree = "<group>"; };
 		9C4F889D258CE28F0070CC2D /* NRTrackerAVPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRTrackerAVPlayer.h; sourceTree = "<group>"; };
 		9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
+		9CBCBDAE2BC95EB800B205EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +91,7 @@
 		9C4F8850258CE1D10070CC2D = {
 			isa = PBXGroup;
 			children = (
+				9CBCBDAE2BC95EB800B205EE /* PrivacyInfo.xcprivacy */,
 				9C4F897C258D0AEA0070CC2D /* NewRelicVideoCore.framework */,
 				9C4F885C258CE1D10070CC2D /* NRAVPlayerTracker */,
 				9C4F8867258CE1D10070CC2D /* NRAVPlayerTrackerTests */,
@@ -278,6 +282,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBCBDAF2BC95EB800B205EE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -292,6 +297,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBCBDB02BC95EB800B205EE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

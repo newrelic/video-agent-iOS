@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9CBCBDB32BCD5DE000B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */; };
 		9CEE254525EE737E000491C5 /* NRIMATracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CEE253B25EE737D000491C5 /* NRIMATracker.framework */; };
 		9CEE254A25EE737E000491C5 /* NRIMATrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE254925EE737E000491C5 /* NRIMATrackerTests.m */; };
 		9CEE254C25EE737E000491C5 /* NRIMATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE253E25EE737D000491C5 /* NRIMATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -25,6 +26,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9CEE253B25EE737D000491C5 /* NRIMATracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRIMATracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CEE253E25EE737D000491C5 /* NRIMATracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NRIMATracker.h; sourceTree = "<group>"; };
 		9CEE253F25EE737D000491C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -57,6 +59,7 @@
 		9CEE253125EE737D000491C5 = {
 			isa = PBXGroup;
 			children = (
+				9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */,
 				9CEE253D25EE737D000491C5 /* NRIMATracker */,
 				9CEE254825EE737E000491C5 /* NRIMATrackerTests */,
 				9CEE253C25EE737D000491C5 /* Products */,
@@ -191,6 +194,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CBCBDB32BCD5DE000B205EE /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
