@@ -382,7 +382,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"2.0.0";
+    return @"2.0.2";
 }
 
 - (NSString *)getPlayerVersion {

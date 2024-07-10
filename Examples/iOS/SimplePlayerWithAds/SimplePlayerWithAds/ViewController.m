@@ -83,6 +83,11 @@
     self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]
                                                                         adTracker:[[NRTrackerIMA alloc] init]];
     
+    NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId];
+    [contentTracker setAttribute:@"contentTitle"
+                           value:@"A title"
+                       forAction:@"CONTENT_START"];
+    
     [self setupAds:player];
     
     [self presentViewController:self.playerController animated:YES completion:^{

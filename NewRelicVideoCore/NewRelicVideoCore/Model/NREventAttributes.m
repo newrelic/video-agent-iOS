@@ -39,6 +39,10 @@
 - (NSMutableDictionary *)generateAttributes:(NSString *)action append:(nullable NSDictionary *)attributes {
     NSMutableDictionary *attr = @{}.mutableCopy;
     
+    if (attributes) {
+        [attr addEntriesFromDictionary:attributes];
+    }
+    
     for (NSString *filter in self.attributeBuckets) {
         if ([self checkFilter:filter withAction:action]) {
             NSMutableDictionary *bucket = self.attributeBuckets[filter];
@@ -47,10 +51,6 @@
                 [attr setObject:value forKey:attribute];
             }
         }
-    }
-    
-    if (attributes) {
-        [attr addEntriesFromDictionary:attributes];
     }
     
     return attr;

@@ -107,7 +107,13 @@
 }
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(NSDictionary *)attributes {
-    NSMutableDictionary *attr = [super getAttributes:action attributes:attributes];
+    NSMutableDictionary *attr;
+    
+    if (attributes) {
+        attr = attributes.mutableCopy;
+    } else {
+        attr = @{}.mutableCopy;
+    }
     
     if ([action hasSuffix:@"_BUFFER_START"] || [action hasSuffix:@"_BUFFER_END"]) {
         [attr setObject:[self getBufferType] forKey:@"bufferType"];
@@ -176,6 +182,8 @@
         [attr setObject:[self getFps] forKey:@"contentFps"];
         [attr setObject:[self getVideoId] forKey:@"contentId"];
     }
+    
+    attr = [super getAttributes:action attributes:attr];
     
     return attr;
 }
