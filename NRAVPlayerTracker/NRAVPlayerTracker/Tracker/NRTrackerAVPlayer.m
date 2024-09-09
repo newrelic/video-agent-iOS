@@ -432,6 +432,22 @@
     return [[(AVURLAsset *)currentPlayerAsset URL] absoluteString];
 }
 
+- (NSString *)getTitle {
+    NSString *contentTitle = @"unknown";
+    AVPlayerItem *currentItem = self.playerInstance.currentItem;
+    
+    if (currentItem != nil && [currentItem.asset isKindOfClass:[AVURLAsset class]]) {
+        NSArray<AVMetadataItem *> *metadata = [currentItem.asset commonMetadata];
+        for (AVMetadataItem *item in metadata) {
+            if ([item.commonKey isEqualToString:AVMetadataCommonKeyTitle]) {
+                contentTitle = (NSString *)item.value;
+            }
+        }
+    }
+    
+    return contentTitle;
+}
+
 - (NSNumber *)getPlayrate {
     return @(self.playerInstance.rate);
 }
