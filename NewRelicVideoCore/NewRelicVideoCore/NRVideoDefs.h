@@ -8,7 +8,7 @@
 #ifndef NRVideoDefs_h
 #define NRVideoDefs_h
 
-#define NRVIDEO_CORE_VERSION        @"2.0.2"
+#define NRVIDEO_CORE_VERSION        @"2.1.0"
 
 #define NR_VIDEO_EVENT              @"MobileVideo"
 
