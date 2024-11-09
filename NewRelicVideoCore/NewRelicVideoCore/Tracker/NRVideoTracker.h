@@ -109,11 +109,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendRenditionChange;
 
 /**
- Send error event.
- */
-- (void)sendError;
-
-/**
  Send error event with an error object.
  
  @param error Error instance.

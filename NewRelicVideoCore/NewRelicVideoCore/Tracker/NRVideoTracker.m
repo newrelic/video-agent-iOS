@@ -374,10 +374,6 @@
     }
 }
 
-- (void)sendError {
-    [self sendError:nil];
-}
-
 - (void)sendError:(nullable NSError *)error {
     self.numberOfErrors++;
     
