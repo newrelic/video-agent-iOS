@@ -32,7 +32,7 @@
 }
 
 - (void)trackerReady {
-    [self sendEvent:TRACKER_READY];
+    [self sendVideoEvent:TRACKER_READY];
 }
 
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value {
@@ -47,8 +47,6 @@
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(nullable NSDictionary *)attributes {
     NSMutableDictionary *attr = [self.eventAttributes generateAttributes:action append:attributes];
-    [attr setObject:[self getCoreVersion] forKey:@"coreVersion"];
-    [attr setObject:[self getAgentSession] forKey:@"agentSession"];
     return attr;
 }
 
@@ -67,17 +65,21 @@
     return YES;
 }
 
-- (void)sendEvent:(NSString *)action {
-    [self sendEvent:action attributes:nil];
+- (void)sendEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes {
+    [self sendEvent:NR_VIDEO_CUSTOM_EVENT action:action attributes:attributes];
 }
 
-- (void)sendEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes {
-    
+- (void)sendEvent:(NSString *)eventType action:(NSString *)action attributes:(NSDictionary *)attributes {
     NSMutableDictionary *attr = (NSMutableDictionary *)[self getAttributes:action attributes:attributes];
     
     [self.timeSinceTable applyAttributes:action attributes:attr];
     
     AV_LOG(@"SEND EVENT %@ => %@", action, attr);
+    
+    [attr setObject:[self getAgentSession] forKey:@"agentSession"];
+    [attr setObject:@"newrelic" forKey:@"instrumentation.provider"];
+    [attr setObject:[self getInstrumentationName] forKey:@"instrumentation.name"];
+    [attr setObject:[self getCoreVersion] forKey:@"instrumentation.version"];
     
     // Clean NSNull values
     NSArray *keys = [attr allKeys];
@@ -90,11 +92,39 @@
     if ([self preSendAction:action attributes:attr]) {
         [attr setObject:action forKey:@"actionName"];
         
-        if (![NewRelic recordCustomEvent:NR_VIDEO_EVENT attributes:attr]) {
+        if (![NewRelic recordCustomEvent:eventType attributes:attr]) {
             AV_LOG(@"⚠️ Failed to recordCustomEvent. Maybe the NewRelicAgent is not initialized or the attribute list contains invalid/empty values. ⚠️");
             AV_LOG(@"-->Attributes = %@", attr);
         }
     }
+}
+
+- (void)sendVideoEvent:(NSString *)action {
+    [self sendVideoEvent:action attributes:nil];
+}
+
+- (void)sendVideoAdEvent:(NSString *)action {
+    [self sendVideoAdEvent:action attributes:nil];
+}
+
+- (void)sendVideoEvent:(NSString *)action attributes:(NSDictionary *)attributes {
+    [self sendEvent:NR_VIDEO_EVENT action:action attributes:attributes];
+}
+
+- (void)sendVideoAdEvent:(NSString *)action attributes:(NSDictionary *)attributes {
+    [self sendEvent:NR_VIDEO_AD_EVENT action:action attributes:attributes];
+}
+
+- (void)sendVideoErrorEvent:(NSString *)action attributes:(NSDictionary *)attributes {
+    [self sendEvent:NR_VIDEO_ERROR_EVENT action:action attributes:attributes];
+}
+
+- (NSString *)getInstrumentationName {
+    return @"Mobile/ios";
+}
+
+- (NSString *)getTrackerVersion {
+    return nil;
 }
 
 - (NSString *)getCoreVersion {
