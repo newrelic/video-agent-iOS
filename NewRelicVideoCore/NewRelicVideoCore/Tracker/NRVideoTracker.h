@@ -334,6 +334,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)adHappened;
 
+/**
+ Calculate elpased time.
+ */
+- (void)generateElapsedTime;
+
 @end
 
 NS_ASSUME_NONNULL_END
