@@ -36,6 +36,10 @@
     [[self.attributeBuckets objectForKey:regexp] setObject:value forKey:key];
 }
 
+- (void)setUserId:(NSString *)userId {
+    [self setAttribute:@"enduser.id" value:userId filter:nil];
+}
+
 - (NSMutableDictionary *)generateAttributes:(NSString *)action append:(nullable NSDictionary *)attributes {
     NSMutableDictionary *attr = @{}.mutableCopy;
     

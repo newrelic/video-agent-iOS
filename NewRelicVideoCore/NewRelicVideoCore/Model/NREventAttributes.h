@@ -24,6 +24,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value filter:(nullable NSString *)regexp;
 
 /**
+ Set userId.
+ 
+ @param userId The userId.
+ */
+- (void)setUserId:(NSString *)userId;
+
+/**
  Generate list of attributes for a given action.
  
  @param action Action.

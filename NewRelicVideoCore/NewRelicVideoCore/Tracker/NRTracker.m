@@ -39,6 +39,10 @@
     [self setAttribute:key value:value forAction:nil];
 }
 
+- (void)setUserId:(NSString *)userId {
+    [self setAttribute:@"enduser.id" value:userId];
+}
+
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value forAction:(nullable NSString *)action {
     [self.eventAttributes setAttribute:key value:value filter:action];
     

@@ -37,6 +37,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value;
 
 /**
+ Set user Id.
+ 
+ @param userId The userId.
+ */
+- (void)setUserId:(NSString *)userId;
+
+/**
  Set custom attribute for selected events.
  
  WARNING: if the same attribute is defined for multiple action filters that could potentially match the same action, the behaviour is undefined. The user is responsable for designing filters that are sufficiently selective.

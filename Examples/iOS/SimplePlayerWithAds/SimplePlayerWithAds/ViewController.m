@@ -87,6 +87,8 @@
     [contentTracker setAttribute:@"contentTitle"
                            value:@"A title"
                        forAction:@"CONTENT_START"];
+    'Uncomment the following line to set a user id'
+    [contentTracker setUserId:@"TEST_USER"];
     
     [self setupAds:player];
     
