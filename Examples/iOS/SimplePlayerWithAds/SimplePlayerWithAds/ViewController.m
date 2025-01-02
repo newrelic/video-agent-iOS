@@ -87,8 +87,8 @@
     [contentTracker setAttribute:@"contentTitle"
                            value:@"A title"
                        forAction:@"CONTENT_START"];
-    'Uncomment the following line to set a user id'
-    [contentTracker setUserId:@"TEST_USER"];
+    // Uncomment the following line to set a userId for the content
+    // [contentTracker setUserId:@"TEST_USER"];
     
     [self setupAds:player];
     
@@ -153,6 +153,8 @@
     NSLog(@"Ads Manager did receive event = %@", event.typeString);
     
     [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adEvent:event adsManager:adsManager];
+    // Uncomment below line to set userId for ad content
+    // [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] setUserId:@"TEST_USER"];
     
     if (event.type == kIMAAdEvent_LOADED) {
         NSLog(@"Ads Manager call start()");
