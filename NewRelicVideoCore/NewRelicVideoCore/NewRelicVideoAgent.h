@@ -30,6 +30,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)sessionId;
 
+
+/**
+ Sets User ID.
+ */
+- (void)setUserId:(NSString *)userId;
+
 /**
  Set logging state.
  
