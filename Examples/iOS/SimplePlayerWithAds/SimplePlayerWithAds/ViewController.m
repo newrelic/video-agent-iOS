@@ -25,7 +25,7 @@
 @implementation ViewController
 
 - (IBAction)clickBunnyVideo:(id)sender {
-    [self playVideo:@"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8123"];
+    [self playVideo:@"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8"];
 }
 
 - (IBAction)clickSintelVideo:(id)sender {
