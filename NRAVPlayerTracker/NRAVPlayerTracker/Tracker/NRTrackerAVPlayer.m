@@ -381,6 +381,11 @@
     return @"AVPlayerTracker";
 }
 
+- (NSString *)getTrackerSrc {
+    return @"IOS";
+}
+
+
 - (NSString *)getTrackerVersion {
     return @"3.0.0";
 }

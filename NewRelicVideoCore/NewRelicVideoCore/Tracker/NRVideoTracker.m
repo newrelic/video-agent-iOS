@@ -125,6 +125,7 @@
     }
     
     [attr setObject:[self getTrackerName] forKey:@"trackerName"];
+    [attr setObject:[self getTrackerSrc] forKey:@"src"];
     [attr setObject:[self getTrackerVersion] forKey:@"trackerVersion"];
     [attr setObject:[self getPlayerName] forKey:@"playerName"];
     [attr setObject:[self getPlayerVersion] forKey:@"playerVersion"];
@@ -439,6 +440,10 @@
 }
 
 - (NSString *)getTrackerName {
+    return (NSString *)[NSNull null];
+}
+
+- (NSString *)getTrackerSrc {
     return (NSString *)[NSNull null];
 }
 
