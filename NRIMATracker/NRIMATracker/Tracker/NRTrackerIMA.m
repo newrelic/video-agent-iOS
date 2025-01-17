@@ -75,6 +75,10 @@
     return @"IMATracker";
 }
 
+- (NSString *)getTrackerSrc {
+    return @"IOS";
+}
+
 - (NSString *)getTrackerVersion {
     return @"2.0.2";
 }

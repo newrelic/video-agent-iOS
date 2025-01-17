@@ -162,6 +162,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)getTrackerName;
 
 /**
+ Get the tracker src.
+ 
+ @return Attribute.
+ */
+- (NSString *)getTrackerSrc;
+
+/**
  Get player version.
  
  @return Attribute.
