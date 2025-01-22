@@ -382,14 +382,14 @@
     
     if (error) {
         errAttr = @{
-            @"errorMessage": error.localizedDescription,
+            @"errorName": error.localizedDescription,
             @"errorDomain": error.domain,
             @"errorCode": @(error.code)
         };
     }
     else {
         errAttr = @{
-            @"errorMessage": [NSNull null],
+            @"errorName": [NSNull null],
             @"errorDomain": [NSNull null],
             @"errorCode": [NSNull null]
         };
