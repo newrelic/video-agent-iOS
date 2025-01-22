@@ -83,19 +83,60 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)preSendAction:(NSString *)action attributes:(NSMutableDictionary *)attributes;
 
 /**
- Send event.
- 
- @param action Action name.
- */
-- (void)sendEvent:(NSString *)action;
-
-/**
  Send event with attributes.
+ This will use event type as VideoCusomAction
  
  @param action Action name.
  @param attributes Action atteributes.
  */
 - (void)sendEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes;
+
+/**
+ Send event with eventType and attributes.
+ 
+ @param eventType Event Type..
+ @param action Action name.
+ @param attributes Action atteributes.
+ */
+- (void)sendEvent:(NSString *)eventType action:(NSString *)action attributes:(nullable NSDictionary *)attributes;
+
+/**
+ Send VideoAction type event.
+ 
+ @param action Action name.
+ */
+- (void)sendVideoEvent:(NSString *)action;
+
+/**
+ Send VideoAdAction type event.
+ 
+ @param action Action name.
+ */
+- (void)sendVideoAdEvent:(NSString *)action;
+
+/**
+ Send VideoAction type event with attributes.
+ 
+ @param action Action name.
+ @param attributes Action atteributes.
+ */
+- (void)sendVideoEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes;
+
+/**
+ Send VideoAdAction type event with attributes.
+ 
+ @param action Action name.
+ @param attributes Action atteributes.
+ */
+- (void)sendVideoAdEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes;
+
+/**
+ Send VideoErrorAction type event with attributes.
+ 
+ @param action Action name.
+ @param attributes Action atteributes.
+ */
+- (void)sendVideoErrorEvent:(NSString *)action attributes:(nullable NSDictionary *)attributes;
 
 /**
  Get the core version.
@@ -110,6 +151,20 @@ NS_ASSUME_NONNULL_BEGIN
  @return Agent session ID.
  */
 - (NSString *)getAgentSession;
+
+/**
+ Get Instrumention agent name.
+ 
+ @return Instrumentation name like ios, tvOS.
+ */
+- (NSString *)getInstrumentationName;
+
+/**
+ Get Tracker version.
+ 
+ @return Tracker Version.
+ */
+- (NSString *)getTrackerVersion;
 
 /**
  Add an entry to the timeSince table.

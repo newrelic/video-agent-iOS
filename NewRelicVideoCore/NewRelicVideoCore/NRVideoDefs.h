@@ -8,9 +8,12 @@
 #ifndef NRVideoDefs_h
 #define NRVideoDefs_h
 
-#define NRVIDEO_CORE_VERSION        @"2.0.2"
+#define NRVIDEO_CORE_VERSION        @"3.0.0"
 
-#define NR_VIDEO_EVENT              @"MobileVideo"
+#define NR_VIDEO_EVENT              @"VideoAction"
+#define NR_VIDEO_AD_EVENT           @"VideoAdAction"
+#define NR_VIDEO_ERROR_EVENT        @"VideoErrorAction"
+#define NR_VIDEO_CUSTOM_EVENT       @"VideoCustomAction"
 
 #define TRACKER_READY               @"TRACKER_READY"
 #define PLAYER_READY                @"PLAYER_READY"
