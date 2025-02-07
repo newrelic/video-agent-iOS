@@ -395,7 +395,7 @@
 
 - (NSNumber *)getBitrate {
     AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
-    return @(event.indicatedBitrate);
+    return @(event.averageVideoBitrate);
 }
 
 - (NSNumber *)getRenditionWidth {
