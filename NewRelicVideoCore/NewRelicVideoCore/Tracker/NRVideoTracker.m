@@ -134,7 +134,7 @@
     [attr setObject:@(self.numberOfAds) forKey:@"numberOfAds"];
     [attr setObject:@(self.numberOfVideos) forKey:@"numberOfVideos"];
     [attr setObject:@(self.numberOfErrors) forKey:@"numberOfErrors"];
-    // [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
+ // [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
     [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
     
     if (self.state.isAd) {
