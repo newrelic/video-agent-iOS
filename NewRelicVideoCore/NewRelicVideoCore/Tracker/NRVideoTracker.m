@@ -9,6 +9,7 @@
 #import "NRVideoDefs.h"
 #import "NRVideoLog.h"
 #import "NRTimeSince.h"
+#import "NRChrono.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @interface NRTracker ()
@@ -34,6 +35,8 @@
 @property (nonatomic) long playtimeSinceLastEvent;
 @property (nonatomic) NSString *bufferType;
 @property (nonatomic, weak) NRTimeSince *lastAdTimeSince;
+@property (nonatomic) int acc;
+@property (nonatomic) NRChrono *chrono;
 
 @end
 
@@ -54,6 +57,8 @@
         self.totalAdPlaytime = 0;
         self.playtimeSinceLastEvent = 0;
         self.bufferType = nil;
+        self.chrono = [[NRChrono alloc] init];
+        self.acc = 0;
         AV_LOG(@"Init NSVideoTracker");
     }
     return self;
@@ -129,7 +134,7 @@
     [attr setObject:@(self.numberOfAds) forKey:@"numberOfAds"];
     [attr setObject:@(self.numberOfVideos) forKey:@"numberOfVideos"];
     [attr setObject:@(self.numberOfErrors) forKey:@"numberOfErrors"];
-    [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
+    // [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
     [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
     
     if (self.state.isAd) {
@@ -206,6 +211,7 @@
 - (void)sendStart {
     if ([self.state goStart]) {
         [self startHeartbeat];
+        [self.chrono start];
         if (self.state.isAd) {
             self.numberOfAds++;
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
@@ -226,6 +232,9 @@
 
 - (void)sendPause {
     if ([self.state goPause]) {
+        if(!self.state.isBuffering){
+            self.acc = (self.acc + [self.chrono getDeltaTime]);
+        }
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_PAUSE];
         }
@@ -238,6 +247,9 @@
 
 - (void)sendResume {
     if ([self.state goResume]) {
+        if(!self.state.isBuffering){
+            [self.chrono start];
+        }
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_RESUME];
         }
@@ -301,6 +313,9 @@
 
 - (void)sendBufferStart {
     if ([self.state goBufferStart]) {
+        if(self.state.isPlaying){
+            self.acc = (self.acc + [self.chrono getDeltaTime]);
+        }
         self.bufferType = [self calculateBufferType];
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_START];
@@ -314,6 +329,9 @@
 
 - (void)sendBufferEnd {
     if ([self.state goBufferEnd]) {
+        if(self.state.isPlaying){
+            [self.chrono start];
+        }
         if (!self.bufferType) {
             self.bufferType = [self calculateBufferType];
         }
@@ -331,6 +349,15 @@
 }
 
 - (void)sendHeartbeat {
+    int _elapsedTime=0;
+    if(self.acc > 0){
+        _elapsedTime += self.acc;
+        self.acc = 0;
+    }
+    if(self.state.isPlaying){
+        _elapsedTime += [self.chrono getDeltaTime];
+    }
+    [self.chrono start];
     if (self.state.isAd) {
         [self sendVideoAdEvent:AD_HEARTBEAT];
     }
@@ -367,7 +394,7 @@
             @"errorCode": [NSNull null]
         };
     }
-    [self generateElapsedTime];
+    // [self generateElapsedTime];
     if (self.state.isAd) {
         [self sendVideoErrorEvent:AD_ERROR attributes:errAttr];
     }
