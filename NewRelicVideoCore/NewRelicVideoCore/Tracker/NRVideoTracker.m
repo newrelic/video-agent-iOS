@@ -82,7 +82,7 @@
     if (self.heartbeatTimeInterval == 0) return;
     
     if (!self.timer) {
-        self.timer = [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval)self.heartbeatTimeInterval
+        self.timer = [NSTimer scheduledTimerWithTimeInterval:(NSTimeInterval) self.state.isAd ? 2 : self.heartbeatTimeInterval
                                                       target:self
                                                     selector:@selector(heartbeatTimerHandler:)
                                                     userInfo:nil
@@ -99,7 +99,7 @@
 
 - (void)setHeartbeatTime:(int)seconds {
     if (seconds >= 1) {
-        self.heartbeatTimeInterval = seconds;
+        self.heartbeatTimeInterval = self.state.isAd ? 2 : seconds;
         if (self.timer) {
             [self stopHeartbeat];
             [self startHeartbeat];
