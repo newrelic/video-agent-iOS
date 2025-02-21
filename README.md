@@ -1,7 +1,6 @@
-[![Experimental Project header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Experimental.png)](https://opensource.newrelic.com/oss-category/#experimental)
+[![Community Project header](https://github.com/newrelic/opensource-website/raw/master/src/images/categories/Community_Project.png)](https://opensource.newrelic.com/oss-category/#community-project)
 
 # New Relic Video Agent for iOS & tvOS
-
 
 The New Relic Video Agent for iOS & tvOS contains multiple modules necessary to instrument video players and send data to New Relic.
 
@@ -60,7 +59,6 @@ NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTrack
 <details>
 <summary>Swift</summary>
 <p>
-
 ```Swift
 let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player))
 ```
@@ -83,7 +81,6 @@ NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTrack
 <details>
 <summary>Swift</summary>
 <p>
-
 ```Swift
 let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player), adTracker: NRTrackerIMA.init())
 ```
