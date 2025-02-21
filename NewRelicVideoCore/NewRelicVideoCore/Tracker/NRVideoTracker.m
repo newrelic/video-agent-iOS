@@ -358,11 +358,12 @@
         _elapsedTime += [self.chrono getDeltaTime];
     }
     [self.chrono start];
+    NSDictionary *attributes = @{@"elapsedTime": @(_elapsedTime)};
     if (self.state.isAd) {
-        [self sendVideoAdEvent:AD_HEARTBEAT];
+        [self sendVideoAdEvent:AD_HEARTBEAT attributes:attributes];
     }
     else {
-        [self sendVideoEvent:CONTENT_HEARTBEAT];
+        [self sendVideoEvent:CONTENT_HEARTBEAT attributes:attributes];
     }
 }
 
