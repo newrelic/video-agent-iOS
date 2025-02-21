@@ -20,6 +20,74 @@ The video tracker for AVPlayer player. It depends on NewRelicVideoCore.
 
 The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
 
+## Installation
+
+### Install automatically using Cocoapods
+
+Add the following lines to your Podfile:
+
+```
+  pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS'
+  pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS'
+  pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS'
+```
+
+### Install manually
+
+First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/installation/ios-manual-installation).
+
+1. Clone this repo.
+2. Open each one of the .xcodeproj files with Xcode.
+3. Select the appropiate scheme.
+4. Build (cmd+B).
+5. Include the generated .framework in your project.
+
+## Usage
+
+To start the video agent with AVPlayer tracker only:
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```Objective-C
+NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player]];
+```
+
+</p>
+</details>
+<details>
+<summary>Swift</summary>
+<p>
+```Swift
+let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player))
+```
+
+</p>
+</details>
+
+To start the video agent with AVPlayer and IMA trackers:
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```Objective-C
+NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player] adTracker:[[NRTrackerIMA alloc] init]];
+```
+
+</p>
+</details>
+<details>
+<summary>Swift</summary>
+<p>
+```Swift
+let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player), adTracker: NRTrackerIMA.init())
+```
+
+</p>
+</details>
+
 ## Documentation
 
 To generate source code documentation, you can use [appledoc](https://github.com/tomaz/appledoc) as follows:
