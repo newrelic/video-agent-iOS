@@ -42,7 +42,7 @@ class Test6 : TestProtocol {
             self.callback!(testName + " sendRequest(2)", false)
             return
         }
-        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError()
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError(nil)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(numberOfVideos == 2 && numberOfErrors == 1) {
@@ -55,9 +55,9 @@ class Test6 : TestProtocol {
             self.callback!(testName + " sendRequest(3)", false)
             return
         }
-        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError()
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError(nil)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendStart()
-        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError()
+        (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendError(nil)
         (NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! NRVideoTracker).sendEnd()
         if !(numberOfVideos == 3 && numberOfErrors == 2) {
             self.callback!(testName + " sendEnd(3)", false)
