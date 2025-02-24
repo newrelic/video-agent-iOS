@@ -87,6 +87,7 @@
     [contentTracker setAttribute:@"contentTitle"
                            value:@"A title"
                        forAction:@"CONTENT_START"];
+    [[NewRelicVideoAgent sharedInstance] setUserId:@"TEST_USER"];
     
     [self setupAds:player];
     

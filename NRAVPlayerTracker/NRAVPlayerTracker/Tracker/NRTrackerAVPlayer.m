@@ -381,8 +381,13 @@
     return @"AVPlayerTracker";
 }
 
+- (NSString *)getTrackerSrc {
+    return @"IOS";
+}
+
+
 - (NSString *)getTrackerVersion {
-    return @"2.0.2";
+    return @"3.0.0";
 }
 
 - (NSString *)getPlayerVersion {
@@ -395,7 +400,7 @@
 
 - (NSNumber *)getBitrate {
     AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
-    return @(event.indicatedBitrate);
+    return @(event.observedBitrate);
 }
 
 - (NSNumber *)getRenditionWidth {

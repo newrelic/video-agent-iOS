@@ -105,4 +105,16 @@
     }
 }
 
+- (void)setUserId:(NSString *)userId {
+    for (NSNumber *trackerId in self.trackerPairs) {
+        NRTrackerPair *pair = self.trackerPairs[trackerId];
+        if (pair.first) {
+            [pair.first setAttribute:@"enduser.id" value:userId];
+        }
+        if (pair.second) {
+            [pair.second setAttribute:@"enduser.id" value:userId];
+        }
+    }
+}
+
 @end
