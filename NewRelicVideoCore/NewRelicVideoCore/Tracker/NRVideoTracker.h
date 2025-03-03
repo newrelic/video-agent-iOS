@@ -299,9 +299,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  Get ad skipped
  
- @return true if ad is skipped.
+ @return 1 if ad is skipped.
  */
-- (NSString *)getAdSkipped;
+- (NSNumber *)getAdSkipped;
 
 /**
  Get total ad playtime of the last ad break.
