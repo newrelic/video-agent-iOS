@@ -155,6 +155,7 @@
         [attr setObject:[self getAdPartner] forKey:@"adPartner"];
         [attr setObject:[self getVideoId] forKey:@"adId"];
         [attr setObject:[self getAdBreakId] forKey:@"adBreakId"];
+        [attr setObject:[self getAdSkipped] forKey:@"adSkipped"];
         
         if ([action hasPrefix:@"AD_BREAK_"]) {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
@@ -522,6 +523,10 @@
 
 - (NSString *)getAdBreakId {
     return [NSString stringWithFormat:@"%@-%d", [self getViewSession], self.adBreakIdIndex];
+}
+
+- (NSNumber *)getAdSkipped {
+    return (NSNumber *)[NSNull null];
 }
 
 - (NSNumber *)getTotalAdPlaytime {
