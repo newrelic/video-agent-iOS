@@ -14,6 +14,7 @@
 @property (nonatomic, weak) IMAAdEvent *lastEvent;
 @property (nonatomic, weak) IMAAdsManager *adsManager;
 @property (nonatomic) NSNumber *quartile;
+@property (nonatomic) NSNumber *skipped;
 
 @end
 
@@ -22,6 +23,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.quartile = nil;
+        self.skipped = 0;
     }
     return self;
 }
@@ -34,6 +36,11 @@
         self.quartile = @(0);
         [self sendRequest];
         [self sendStart];
+    }
+    else if([event.typeString isEqual:@"Skipped"] ){
+        self.skipped = @1;
+        [self sendEnd];
+        self.quartile = nil;
     }
     else if ([event.typeString isEqual:@"Complete"]) {
         [self sendEnd];
@@ -171,6 +178,10 @@
 
 - (NSNumber *)getAdQuartile {
     return self.quartile ? self.quartile : (NSNumber *)[NSNull null];
+}
+
+- (NSNumber *)getAdSkipped {
+    return self.skipped;
 }
 
 //TODO: - (NSString *)getAdPartner
