@@ -524,7 +524,7 @@
 }
 
 - (NSNumber *)getAdSkipped {
-    return (NSNumber *)[NSNull null];
+    return @(0);
 }
 
 - (NSNumber *)getTotalAdPlaytime {

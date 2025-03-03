@@ -23,7 +23,7 @@
 - (instancetype)init {
     if (self = [super init]) {
         self.quartile = nil;
-        self.skipped = 0;
+        self.skipped = @(0);
     }
     return self;
 }
@@ -38,7 +38,7 @@
         [self sendStart];
     }
     else if([event.typeString isEqual:@"Skipped"] ){
-        self.skipped = @1;
+        self.skipped = @(1);
         [self sendEnd];
         self.quartile = nil;
     }
