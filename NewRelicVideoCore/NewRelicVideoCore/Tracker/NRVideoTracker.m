@@ -349,16 +349,14 @@
 }
 
 - (void)sendHeartbeat {
-    int _elapsedTime=0;
-    if(self.acc > 0){
-        _elapsedTime += self.acc;
-        self.acc = 0;
-    }
+    int heartbeatInterval = self.state.isAd ? 2000 : self.heartbeatTimeInterval*1000;
     if(self.state.isPlaying){
-        _elapsedTime += [self.chrono getDeltaTime];
+        self.acc += [self.chrono getDeltaTime];
     }
+    self.acc = (abs(self.acc - heartbeatInterval) <= 5) ? heartbeatInterval : self.acc;
     [self.chrono start];
-    NSDictionary *attributes = @{@"elapsedTime": @(_elapsedTime)};
+    NSDictionary *attributes = @{@"elapsedTime": @(self.acc)};
+    self.acc = 0;
     if (self.state.isAd) {
         [self sendVideoAdEvent:AD_HEARTBEAT attributes:attributes];
     }
