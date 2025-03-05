@@ -421,6 +421,23 @@
     }
 }
 
+- (NSString *)getTitle {
+    NSString *contentTitle = @"unknown";
+    AVPlayerItem *currentItem = self.playerInstance.currentItem;
+
+    if (currentItem != nil && [currentItem.asset isKindOfClass:[AVURLAsset class]]) {
+        NSArray<AVMetadataItem *> *metadata = [currentItem.asset commonMetadata];
+        for (AVMetadataItem *item in metadata) {
+            if ([item.commonKey isEqualToString:AVMetadataCommonKeyTitle]) {
+                if ([item.value isKindOfClass:[NSString class]]) {
+                    contentTitle = (NSString *)item.value;
+                }
+            }
+        }
+    }
+    return contentTitle ?: @"unknown";
+}
+
 - (NSNumber *)getPlayhead {
     Float64 pos = CMTimeGetSeconds(self.playerInstance.currentItem.currentTime);
     if (isnan(pos)) {

@@ -59,6 +59,7 @@ NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTrack
 <details>
 <summary>Swift</summary>
 <p>
+
 ```Swift
 let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player))
 ```
@@ -81,6 +82,7 @@ NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTrack
 <details>
 <summary>Swift</summary>
 <p>
+
 ```Swift
 let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player), adTracker: NRTrackerIMA.init())
 ```
