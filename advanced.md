@@ -10,42 +10,42 @@ The data model revolves around the concept of **Event**. An event is composed by
 
 The most common actions currently supported are:
 
-| Action | Sent when... |
-| ------ | ------------ |
-| `TRACKER_READY` | The tracker is started. |
-| `PLAYER_READY` | The tracker got a valid player instance. |
-| `CONTENT_REQUEST` | A video stream is requested. |
-| `CONTENT_START` | Video started, first frame shown. |
-| `CONTENT_BUFFER_START` | Video started buffering. |
-| `CONTENT_BUFFER_END` | Video ended buffering. |
-| `CONTENT_PAUSE` | Video paused. |
-| `CONTENT_RESUME` | Video resumed after a pause. |
-| `CONTENT_END` | Video ended. |
-| `CONTENT_ERROR` | An error happened. |
-| `CONTENT_HEARTBEAT` | Every 30 seconds between `CONTENT_START` and `CONTENT_END`.  |
-| `CONTENT_RENDITION_CHANGE` | Stream quality changed. |
+| Action                     | Sent when...                                                |
+| -------------------------- | ----------------------------------------------------------- |
+| `TRACKER_READY`            | The tracker is started.                                     |
+| `PLAYER_READY`             | The tracker got a valid player instance.                    |
+| `CONTENT_REQUEST`          | A video stream is requested.                                |
+| `CONTENT_START`            | Video started, first frame shown.                           |
+| `CONTENT_BUFFER_START`     | Video started buffering.                                    |
+| `CONTENT_BUFFER_END`       | Video ended buffering.                                      |
+| `CONTENT_PAUSE`            | Video paused.                                               |
+| `CONTENT_RESUME`           | Video resumed after a pause.                                |
+| `CONTENT_END`              | Video ended.                                                |
+| `CONTENT_ERROR`            | An error happened.                                          |
+| `CONTENT_HEARTBEAT`        | Every 30 seconds between `CONTENT_START` and `CONTENT_END`. |
+| `CONTENT_RENDITION_CHANGE` | Stream quality changed.                                     |
 
 All the `CONTENT_*` actions have corresponding `AD_*` actions for Ads trackers.
 
 The most prominent attributes are:
 
-| Attribute | Description |
-| ------ | ----------- |
-| `contentTitle` | Title of the video. |
-| `contentDuration` | Video duration. |
-| `contentPlayhead` | Current playback position. |
-| `contentSrc` | Stream source (URL). |
-| `contentBitrate` | Video bitrate. |
-| `contentRenditionWidth` | Video width. |
-| `contentRenditionHeight` | Video height. |
-| `contentFps` | Video frames per second. |
-| `contentLanguage` | Video language. |
-| `contentIsMuted` | Video is muted. |
-| `contentIsLive` | Video is a live stream. |
-| `playerName` | Name of the video player. |
-| `playerVersion` | Version of the video player. |
-| `viewId` | ID of current playback. |
-| `totalPlaytime` | Total time played. |
+| Attribute                | Description                        |
+| ------------------------ | ---------------------------------- |
+| `contentTitle`           | Title of the video.                |
+| `contentDuration`        | Video duration.                    |
+| `contentPlayhead`        | Current playback position.         |
+| `contentSrc`             | Stream source (URL).               |
+| `contentBitrate`         | Video bitrate.                     |
+| `contentRenditionWidth`  | Video width.                       |
+| `contentRenditionHeight` | Video height.                      |
+| `contentFps`             | Video frames per second.           |
+| `contentLanguage`        | Video language.                    |
+| `contentIsMuted`         | Video is muted.                    |
+| `contentIsLive`          | Video is a live stream.            |
+| `playerName`             | Name of the video player.          |
+| `playerVersion`          | Version of the video player.       |
+| `viewId`                 | ID of current playback.            |
+| `totalPlaytime`          | Total time played.                 |
 | `playtimeSinceLastEvent` | Time played since last event sent. |
 
 Again, the `content*` attributes have corresponding `ad*` attributes for Ad trackers.
@@ -54,17 +54,17 @@ There are also action-specific attributes. These are attributes that are only in
 
 The TimeSince attributes are timers, they mark the time elapsed since a certain event happened. The most common ones are:
 
-| Attribute | Description | Included in |
-| ------ | ----------- | ----------- |
-| `timeSinceTrackerReady` | Time since `TRACKER_READY` was sent. | All `CONTENT_` events. |
-| `timeSinceRequested` | Time since `CONTENT_REQUEST` was sent. | All `CONTENT_` events. |
-| `timeSinceStarted` | Time since `CONTENT_START` was sent. | All `CONTENT_` events. |
-| `timeSincePaused` | Time since `CONTENT_PAUSE` was sent. | `CONTENT_RESUME` |
-| `timeSinceSeekBegin ` | Time since `CONTENT_SEEK_START` was sent. | `CONTENT_SEEK_END` |
-| `timeSinceBufferBegin ` | Time since `CONTENT_BUFFER_START` was sent. | `CONTENT_BUFFER_END` |
+| Attribute                      | Description                                     | Included in                |
+| ------------------------------ | ----------------------------------------------- | -------------------------- |
+| `timeSinceTrackerReady`        | Time since `TRACKER_READY` was sent.            | All `CONTENT_` events.     |
+| `timeSinceRequested`           | Time since `CONTENT_REQUEST` was sent.          | All `CONTENT_` events.     |
+| `timeSinceStarted`             | Time since `CONTENT_START` was sent.            | All `CONTENT_` events.     |
+| `timeSincePaused`              | Time since `CONTENT_PAUSE` was sent.            | `CONTENT_RESUME`           |
+| `timeSinceSeekBegin `          | Time since `CONTENT_SEEK_START` was sent.       | `CONTENT_SEEK_END`         |
+| `timeSinceBufferBegin `        | Time since `CONTENT_BUFFER_START` was sent.     | `CONTENT_BUFFER_END`       |
 | `timeSinceLastRenditionChange` | Time since `CONTENT_RENDITION_CHANGE` was sent. | `CONTENT_RENDITION_CHANGE` |
-| `timeSinceLastHeartbeat` | Time since `CONTENT_HEARTBEAT` was sent. | All `CONTENT_` events. |
-| `timeSinceLastAd` | Time since last Ad was played. | All `CONTENT_` events. |
+| `timeSinceLastHeartbeat`       | Time since `CONTENT_HEARTBEAT` was sent.        | All `CONTENT_` events.     |
+| `timeSinceLastAd`              | Time since last Ad was played.                  | All `CONTENT_` events.     |
 
 Once again, we have the Ad versions, like `timeSinceLastAdHeartbeat`, `timeSinceAdStarted`, `timeSinceAdRequested`, etc.
 
@@ -72,12 +72,12 @@ Once again, we have the Ad versions, like `timeSinceLastAdHeartbeat`, `timeSince
 
 There are some actions that are specific to ads. These are:
 
-| Action | Sent when... |
-| ------ | ------------ |
-| `AD_BREAK_START` | An ad break starts. |
-| `AD_BREAK_END` | And ad break ends. |
-| `AD_QUARTILE` | Every quarter of the ad viewed. |
-| `AD_CLICK` | User clicked on the ad. |
+| Action           | Sent when...                    |
+| ---------------- | ------------------------------- |
+| `AD_BREAK_START` | An ad break starts.             |
+| `AD_BREAK_END`   | And ad break ends.              |
+| `AD_QUARTILE`    | Every quarter of the ad viewed. |
+| `AD_CLICK`       | User clicked on the ad.         |
 
 The `AD_BREAK_` block can contain multiple consecutive ads (signaled with `AD_START` and `AD_END`).
 
@@ -85,7 +85,7 @@ The `AD_QUARTILE` is sent 3 times within an ad, one when the first quarter of th
 
 # Trackers
 
-Trackers are the classes used to capture data from a player and generate the events. A tracker for a video player extends the class `NRVideoTracker`. This class extends `NRTracker`, that only contains the most essential functionalities, like event and attribute generation. For example, for iOS (and tvOS) we have an AVPlayer tracker and for Android we have an Exoplayer tracker.  For ads we have a tracker for IMA.
+Trackers are the classes used to capture data from a player and generate the events. A tracker for a video player extends the class `NRVideoTracker`. This class extends `NRTracker`, that only contains the most essential functionalities, like event and attribute generation. For example, for iOS (and tvOS) we have an AVPlayer tracker and for Android we have an Exoplayer tracker. For ads we have a tracker for IMA.
 
 ### Start the New Relic Video Agent
 
@@ -148,6 +148,8 @@ We can use this instance to manually send events, or in general call the methods
 <p>
 
 ```Objective-C
+// Set User Id
+[[NewRelicVideoAgent sharedInstance] setUserId:@"TEST_USER"];
 // Get duration of current video
 NSNumber *duration = [tracker getDuration];
 // Send a custom event
@@ -163,6 +165,8 @@ NSNumber *duration = [tracker getDuration];
 <p>
 
 ```Java
+// Set User Id
+NewRelicVideoAgent.getInstance().setUserId("TEST_USER");
 // Get duration of current video
 Long duration = tracker.getDuration();
 // Send a custom event
@@ -176,7 +180,7 @@ tracker.sendEvent("MY_TEST_ACTION", att);
 </p>
 </details>
 
-We can alse set custom attributes for all events:
+We can also set custom attributes for all events:
 
 <details>
 <summary>iOS</summary>
@@ -313,7 +317,7 @@ Every tracker should provide a constructor to pass the player instance. This con
 
 Every tracker should override `registerListeners` and `unregisterListeners`. These methods do what the name suggests: register player event observers and unregister them. The `registerListeners` should be called after the player is set, and the `unregisterListeners` is automatically called when the tracker is released.
 
-A tracker contains a sender method to generate each one of the events described in the chapter *Events*. For example, to generate a `CONTENT_REQUEST` / `AD_REQUEST`, we have the method `sendRequest`. These methods are inherited from `NRVideoTracker` class, and are used in the tracker to generate the events. The main job of a tracker is to handle the player event observers, understand what each observer means and call the appropiate senders to generate the events.
+A tracker contains a sender method to generate each one of the events described in the chapter _Events_. For example, to generate a `CONTENT_REQUEST` / `AD_REQUEST`, we have the method `sendRequest`. These methods are inherited from `NRVideoTracker` class, and are used in the tracker to generate the events. The main job of a tracker is to handle the player event observers, understand what each observer means and call the appropiate senders to generate the events.
 
 Every video tracker has a `state` property, inherited from `NRVideoTracker`. This property is an instance of `NRTrackerState` and holds the state of the tracker/player, and has flags to signal if the player is seeking, or paused, or buffering, etc. This state is updated with the sender methods.
 
