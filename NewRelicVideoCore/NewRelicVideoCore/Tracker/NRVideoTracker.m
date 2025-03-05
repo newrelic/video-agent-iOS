@@ -155,6 +155,7 @@
         [attr setObject:[self getAdPartner] forKey:@"adPartner"];
         [attr setObject:[self getVideoId] forKey:@"adId"];
         [attr setObject:[self getAdBreakId] forKey:@"adBreakId"];
+        [attr setObject:[self getAdSkipped] forKey:@"adSkipped"];
         
         if ([action hasPrefix:@"AD_BREAK_"]) {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
@@ -349,16 +350,14 @@
 }
 
 - (void)sendHeartbeat {
-    int _elapsedTime=0;
-    if(self.acc > 0){
-        _elapsedTime += self.acc;
-        self.acc = 0;
-    }
+    int heartbeatInterval = self.state.isAd ? 2000 : self.heartbeatTimeInterval*1000;
     if(self.state.isPlaying){
-        _elapsedTime += [self.chrono getDeltaTime];
+        self.acc += [self.chrono getDeltaTime];
     }
+    self.acc = (abs(self.acc - heartbeatInterval) <= 5) ? heartbeatInterval : self.acc;
     [self.chrono start];
-    NSDictionary *attributes = @{@"elapsedTime": @(_elapsedTime)};
+    NSDictionary *attributes = @{@"elapsedTime": @(self.acc)};
+    self.acc = 0;
     if (self.state.isAd) {
         [self sendVideoAdEvent:AD_HEARTBEAT attributes:attributes];
     }
@@ -522,6 +521,10 @@
 
 - (NSString *)getAdBreakId {
     return [NSString stringWithFormat:@"%@-%d", [self getViewSession], self.adBreakIdIndex];
+}
+
+- (NSNumber *)getAdSkipped {
+    return @(0);
 }
 
 - (NSNumber *)getTotalAdPlaytime {
