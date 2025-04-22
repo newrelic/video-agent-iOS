@@ -1,6 +1,6 @@
 PODS:
   - NewRelicAgent (7.5.3)
-  - NewRelicVideoCore (3.0.0):
+  - NewRelicVideoCore (3.0.1):
     - NewRelicAgent
 
 DEPENDENCIES:
