@@ -13,6 +13,7 @@
 
 @property (nonatomic, weak) IMAAdEvent *lastEvent;
 @property (nonatomic, weak) IMAAdsManager *adsManager;
+@property (nonatomic, weak) IMAStreamManager *streamManager;
 @property (nonatomic) NSNumber *quartile;
 @property (nonatomic) NSNumber *skipped;
 
@@ -63,6 +64,38 @@
     }
     
     AV_LOG(@"AdEvent received = %@", event.typeString);
+}
+
+- (void)streamAdEvent:(IMAAdEvent *)event streamManager:(IMAStreamManager *)manager {
+    self.lastEvent = event;
+    self.streamManager = manager;
+    
+    if ([event.typeString isEqual:@"Started"]) {
+        self.quartile = @(0);
+        [self sendRequest];
+        [self sendStart];
+    }
+    else if ([event.typeString isEqual:@"Complete"]) {
+        [self sendEnd];
+        self.quartile = nil;
+    }
+    else if ([event.typeString isEqual:@"First Quartile"]) {
+        self.quartile = @(1);
+        [self sendAdQuartile];
+    }
+    else if ([event.typeString isEqual:@"Midpoint"]) {
+        self.quartile = @(2);
+        [self sendAdQuartile];
+    }
+    else if ([event.typeString isEqual:@"Third Quartile"]) {
+        self.quartile = @(3);
+        [self sendAdQuartile];
+    }
+    else if ([event.typeString isEqual:@"Tapped"] || [event.typeString isEqual:@"Clicked"]) {
+        [self sendAdClick];
+    }
+    
+    AV_LOG(@"Stream AdEvent received = %@", event.typeString);
 }
 
 - (void)adError:(NSString *)message code:(int)code {

@@ -17,9 +17,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    
-    #error("---- SET NEW RELIC APPLICATION TOKEN HERE ----")
-    [NewRelic startWithApplicationToken:@"APPLICATION TOKEN HERE"];
+
+    [NewRelic startWithApplicationToken:@"AAf7c565691f8ab46bdd2cdba8df9c0377798a4162-NRMA"];
     
     return YES;
 }

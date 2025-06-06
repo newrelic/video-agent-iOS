@@ -1,186 +1,115 @@
-//
-//  ViewController.m
-//  SimplePlayerWithAds
-//
-//  Created by Andreu Santaren on 2/3/21.
-//
-
 #import "ViewController.h"
-#import <NewRelicVideoCore.h>
-#import <NRTrackerAVPlayer.h>
+#import <AVKit/AVKit.h>
+#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+#import <NewRelicVideoCore/NewRelicVideoCore.h>
+#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
 #import <NRTrackerIMA.h>
-
-@import AVKit;
-
-@interface ViewController ()
-
-@property (nonatomic) AVPlayerViewController *playerController;
+static NSString *const kAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
+static NSString *const kContentSourceID = @"2548831";
+static NSString *const kVideoID = @"tears-of-steel";
+static NSString *const kBackupStreamURLString =
+    @"https://storage.googleapis.com/interactive-media-ads/media/bbb.m3u8";
+@interface ViewController () <IMAAdsLoaderDelegate, IMAStreamManagerDelegate>
+@property(nonatomic) IMAAdsLoader *adsLoader;
+@property(nonatomic) UIView *adContainerView;
+@property(nonatomic) IMAStreamManager *streamManager;
+@property(nonatomic) AVPlayerViewController *playerViewController;
 @property (nonatomic) NSNumber *trackerId;
-@property (nonatomic) NSString *multipleAdTagURL;
-@property (nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
-@property (nonatomic) IMAAdsLoader *adsLoader;
-@property (nonatomic) IMAAdsManager *adsManager;
 @end
-
 @implementation ViewController
-
-- (IBAction)clickBunnyVideo:(id)sender {
-    [self playVideo:@"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8"];
-}
-
-- (IBAction)clickSintelVideo:(id)sender {
-    [self playVideo:@"https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"];
-}
-
-- (IBAction)clickAirshowLive:(id)sender {
-    [self playVideo:@"http://cdn3.viblast.com/streams/hls/airshow/playlist.m3u8"];
-}
-
 - (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    self.multipleAdTagURL = @"http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod%26deployment%3Dgmf-js&cmsid=496&vid=short_onecue&correlator=";
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                            selector:@selector(appDidBecomeActive:)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
+  [super viewDidLoad];
+  self.view.backgroundColor = [UIColor blackColor];
+  [self setupAdsLoader];
+  // Create a stream video player.
+  AVPlayer *player = [[AVPlayer alloc] init];
+  self.playerViewController = [[AVPlayerViewController alloc] init];
+  self.playerViewController.player = player;
+  // Attach the video player to the view hierarchy.
+  [self addChildViewController:self.playerViewController];
+  self.playerViewController.view.frame = self.view.bounds;
+  [self.view addSubview:self.playerViewController.view];
+  [self.playerViewController didMoveToParentViewController:self];
     [[NewRelicVideoAgent sharedInstance] setLogging:YES];
+    [self attachAdContainer];
 }
-
-- (void)appDidBecomeActive:(NSNotification *)notif {
-    if (self.adsManager != nil) {
-        [self.adsManager resume];
-    }
-}
-
-- (void)dealloc {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 - (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    
-    // User closed the player
-    if (self.playerController.isBeingDismissed) {
-        //Send END
-        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
-        
-        //Stop tracking
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
-        
-        [self releaseAds];
-    }
+  [super viewDidAppear:animated];
+    [self requestStream];
 }
-
-- (void)playVideo:(NSString *)videoURL {
-    AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
-    self.playerController = [[AVPlayerViewController alloc] init];
-    self.playerController.player = player;
-    self.playerController.showsPlaybackControls = YES;
-    
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]
-                                                                        adTracker:[[NRTrackerIMA alloc] init]];
-    
-    NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId];
-    [contentTracker setAttribute:@"contentTitle"
-                           value:@"A title"
-                       forAction:@"CONTENT_START"];
-    [[NewRelicVideoAgent sharedInstance] setUserId:@"TEST_USER"];
-    
-    [self setupAds:player];
-    
-    [self presentViewController:self.playerController animated:YES completion:^{
-        [self.playerController.player play];
-        [self requestAds];
-    } ];
+- (void)setupAdsLoader {
+  self.adsLoader = [[IMAAdsLoader alloc] init];
+  self.adsLoader.delegate = self;
 }
-
-- (void)setupAds:(AVPlayer *)player {
-    // Set up IMA stuff
-    self.contentPlayhead = [[IMAAVPlayerContentPlayhead alloc] initWithAVPlayer:player];
-    self.adsLoader = [[IMAAdsLoader alloc] initWithSettings:nil];
-    self.adsLoader.delegate = self;
+- (void)attachAdContainer {
+  self.adContainerView = [[UIView alloc] init];
+  [self.view addSubview:self.adContainerView];
+  self.adContainerView.frame = self.view.bounds;
 }
-
-- (void)requestAds {
-    // Create ad display container for ad rendering.
-    IMAAdDisplayContainer *adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.playerController.view viewController:self.playerController];
-    // Create an ad request with our ad tag, display container, and optional user context.
-    IMAAdsRequest *request = [[IMAAdsRequest alloc] initWithAdTagUrl:self.multipleAdTagURL
-                                                  adDisplayContainer:adDisplayContainer
-                                                     contentPlayhead:self.contentPlayhead
-                                                         userContext:nil];
-    [self.adsLoader requestAdsWithRequest:request];
+-  (void)requestStream {
+    IMAAVPlayerVideoDisplay *videoDisplay =
+        [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:self.playerViewController.player];
+      IMAAdDisplayContainer *adDisplayContainer =
+          [[IMAAdDisplayContainer alloc] initWithAdContainer:self.adContainerView viewController:self companionSlots:@[]];
+      IMALiveStreamRequest *request = [[IMALiveStreamRequest alloc] initWithAssetKey:kAssetKey
+                                                                    adDisplayContainer:adDisplayContainer
+                                                                          videoDisplay:videoDisplay
+                                                                         userContext:nil];
+//     VOD request. Comment out the IMALiveStreamRequest above and uncomment this IMAVODStreamRequest
+//     to switch from a livestream to a VOD stream.
+//     IMAVODStreamRequest *request =
+//           [[IMAVODStreamRequest alloc] initWithContentSourceID:kContentSourceID
+//                                                        videoID:kVideoID
+//                                             adDisplayContainer:adDisplayContainer
+//                                                   videoDisplay:videoDisplay
+//                                                    userContext:nil];
+    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerViewController.player]
+                                                                              adTracker:[[NRTrackerIMA alloc] init]];
+    [self.adsLoader requestStreamWithRequest:request];
+  }
+- (void)playBackupStream {
+  NSURL *backupStreamURL = [NSURL URLWithString:kBackupStreamURLString];
+  AVPlayerItem *backupStreamItem = [AVPlayerItem playerItemWithURL:backupStreamURL];
+  [self.playerViewController.player replaceCurrentItemWithPlayerItem:backupStreamItem];
+    [self.playerViewController.player play];
 }
-
-- (void)releaseAds {
-    [self.adsLoader contentComplete];
-    if (self.adsManager != nil) {
-        [self.adsManager destroy];
-        self.adsManager = nil;
-    }
-    self.adsLoader = nil;
-}
-
-#pragma mark - AdsLoader delegate
-
+#pragma mark - IMAAdsLoaderDelegate
 - (void)adsLoader:(IMAAdsLoader *)loader adsLoadedWithData:(IMAAdsLoadedData *)adsLoadedData {
-    if (self.adsManager != nil) {
-        [self.adsManager destroy];
-        self.adsManager = nil;
-    }
-    self.adsManager = adsLoadedData.adsManager;
-    self.adsManager.delegate = self;
-    [self.adsManager initializeWithAdsRenderingSettings:nil];
-    NSLog(@"Ads Loader Loaded Data");
+  // Initialize and listen to stream manager's events.
+  self.streamManager = adsLoadedData.streamManager;
+  self.streamManager.delegate = self;
+  [self.streamManager initializeWithAdsRenderingSettings:nil];
+  NSLog(@"Stream created with: %@.", self.streamManager.streamId);
 }
-
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
-    NSLog(@"Error loading ads: %@", adErrorData.adError.message);
-    
+  // Fall back to playing the backup stream.
     [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:adErrorData.adError.message code:(int)adErrorData.adError.code];
-    
-    [self.playerController.player play];
+  NSLog(@"Error loading ads: %@", adErrorData.adError.message);
+  [self playBackupStream];
 }
-
-#pragma mark - AdsManager delegate
-
-- (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdEvent:(IMAAdEvent *)event {
-    
-    NSLog(@"Ads Manager did receive event = %@", event.typeString);
-    
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adEvent:event adsManager:adsManager];
-    
-    if (event.type == kIMAAdEvent_LOADED) {
-        NSLog(@"Ads Manager call start()");
-        [adsManager start];
-    }
+#pragma mark - IMAStreamManagerDelegate
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
+    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] streamAdEvent:event streamManager:streamManager];
 }
-
-- (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdError:(IMAAdError *)error {
-    NSLog(@"Error managing ads: %@", error.message);
-    
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdError:(IMAAdError *)error {
     [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:error.message code:(int)error.code];
-    
-    [self.playerController.player play];
+    NSLog(@"StreamManager error: %@", error.message);
+     [self playBackupStream];
 }
-
-- (void)adsManagerDidRequestContentPause:(IMAAdsManager *)adsManager {
+- (void)streamManager:(IMAStreamManager *)streamManager
+  adDidProgressToTime:(NSTimeInterval)time
+           adDuration:(NSTimeInterval)adDuration
+           adPosition:(NSInteger)adPosition
+             totalAds:(NSInteger)totalAds
+      adBreakDuration:(NSTimeInterval)adBreakDuration {}
+- (void)adsManagerDidRequestContentPause:(IMAStreamManager *)streamManager {
     NSLog(@"Ads request pause");
-    
     [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakStart];
-    
-    [self.playerController.player pause];
+    [self.playerViewController.player pause];
 }
-
-- (void)adsManagerDidRequestContentResume:(IMAAdsManager *)adsManager {
+- (void)adsManagerDidRequestContentResume:(IMAStreamManager *)streamManager {
     NSLog(@"Ads request resume");
-    
     [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakEnd];
-    
-    [self.playerController.player play];
+    [self.playerViewController.player play];
 }
-
 @end
