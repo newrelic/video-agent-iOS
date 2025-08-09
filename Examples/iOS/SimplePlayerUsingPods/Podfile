@@ -6,6 +6,10 @@ target 'SimplePlayerUsingPods' do
   use_frameworks!
 
   # Pods for SimplePlayerUsingPods
+  # Core video tracking functionality
   pod 'NewRelicVideoCore', :path => '../../../'
+  
+  # Tracker pods for specific player types
   pod 'NRAVPlayerTracker', :path => '../../../'
+  pod 'NRIMATracker', :path => '../../../'
 end

@@ -26,3 +26,6 @@ FOUNDATION_EXPORT const unsigned char NewRelicVideoCoreVersionString[];
 #import <NewRelicVideoCore/NRVideoTracker.h>
 #import <NewRelicVideoCore/NRTrackerState.h>
 #import <NewRelicVideoCore/NRVideoLog.h>
+#import <NewRelicVideoCore/NRVAVideo.h>
+#import <NewRelicVideoCore/NRVAVideoConfiguration.h>
+#import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>

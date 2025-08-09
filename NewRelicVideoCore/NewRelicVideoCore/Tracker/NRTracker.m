@@ -11,7 +11,9 @@
 #import "NRVideoDefs.h"
 #import "NRTimeSinceTable.h"
 #import "NewRelicVideoAgent.h"
-#import <NewRelic/NewRelic.h>
+#import "NRVAVideo.h"
+// Remove dependency on NewRelic Agent
+// #import <NewRelic/NewRelic.h>
 
 @interface NRTracker ()
 
@@ -74,7 +76,7 @@
     
     [self.timeSinceTable applyAttributes:action attributes:attr];
     
-    AV_LOG(@"SEND EVENT %@ => %@", action, attr);
+    // AV_LOG(@"SEND EVENT %@ => %@", action, attr);
     
     [attr setObject:[self getAgentSession] forKey:@"agentSession"];
     [attr setObject:@"newrelic" forKey:@"instrumentation.provider"];
@@ -92,8 +94,13 @@
     if ([self preSendAction:action attributes:attr]) {
         [attr setObject:action forKey:@"actionName"];
         
-        if (![NewRelic recordCustomEvent:eventType attributes:attr]) {
-            AV_LOG(@"⚠️ Failed to recordCustomEvent. Maybe the NewRelicAgent is not initialized or the attribute list contains invalid/empty values. ⚠️");
+        // Use our own NRVAVideo recordEvent instead of NewRelic recordCustomEvent
+        if ([NRVAVideo isInitialized]) {
+            [NRVAVideo recordEvent:eventType attributes:attr];
+            AV_LOG(@"📊 Recorded event via NRVAVideo: %@ with attributes: %@", eventType, attr);
+        } else {
+            AV_LOG(@"⚠️ Failed to record event - NRVAVideo not initialized. Call [[NRVAVideo newBuilder] withConfiguration:config].build first ⚠️");
+            AV_LOG(@"-->Event Type = %@", eventType);
             AV_LOG(@"-->Attributes = %@", attr);
         }
     }

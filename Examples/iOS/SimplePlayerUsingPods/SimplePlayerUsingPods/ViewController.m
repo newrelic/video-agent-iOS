@@ -7,14 +7,16 @@
 
 #import "ViewController.h"
 #import <NewRelicVideoCore/NewRelicVideoCore.h>
-#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
+#import <NewRelicVideoCore/NRVAVideo.h>
+#import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
+
 
 @import AVKit;
 
 @interface ViewController ()
 
 @property (nonatomic) AVPlayerViewController *playerController;
-@property (nonatomic) NSNumber *trackerId;
+@property (nonatomic) NSInteger trackerId;
 
 @end
 
@@ -39,18 +41,21 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[NewRelicVideoAgent sharedInstance] setLogging:YES];
+    // Logging is already enabled in AppDelegate through NRVAVideo configuration
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     // User closed the player
     if (self.playerController.isBeingDismissed) {
-        //Send END
-        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
+        //Send END using runtime method call
+        NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:@(self.trackerId)];
+        if (contentTracker && [contentTracker respondsToSelector:@selector(sendEnd)]) {
+            [contentTracker performSelector:@selector(sendEnd)];
+        }
         
-        //Stop tracking
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
+        //Stop tracking using NRVAVideo
+        [NRVAVideo releaseTracker:self.trackerId];
     }
 }
 
@@ -60,7 +65,16 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]];
+    // Create player configuration with ads enabled
+    
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
+        initWithPlayerName:@"main-player"
+        player:player
+        adEnabled:YES  // Enable ads
+        ];
+    
+    // Use NRVAVideo instead of NewRelicVideoAgent directly
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
