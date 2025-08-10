@@ -317,7 +317,7 @@
 
 - (NSInteger)currentBatchSize {
     // TODO: Consider live vs regular content for batch sizing
-    return self.config.regularBatchSizeBytes / 1024; // Convert to approximate event count
+    return self.config.regularBatchSizeBytes / 2048; // Convert to approximate event count (2KB per event)
 }
 
 @end
