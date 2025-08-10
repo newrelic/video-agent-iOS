@@ -88,9 +88,10 @@ static dispatch_once_t onceToken;
     }
     
     // Create content tracker (equivalent to Android's createContentTracker)
+    // Following Android pattern: create tracker WITHOUT player, then set player after start
     id contentTracker = nil;
     if (config.player) {
-        contentTracker = [self createContentTracker:config.player];
+        contentTracker = [self createContentTracker];
         if (contentTracker) {
             NRVA_DEBUG_LOG(@"Created content tracker for player '%@'", config.playerName);
         } else {
@@ -113,7 +114,7 @@ static dispatch_once_t onceToken;
         NRVA_DEBUG_LOG(@"Ad tracking disabled for player '%@', ad tracker not created", config.playerName);
     }
     
-    // Start tracking with NewRelicVideoAgent (equivalent to Android's NewRelicVideoAgent.start())
+    // Start tracking with NewRelicVideoAgent 
     if (contentTracker || adTracker) {
         NSNumber *newTrackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:contentTracker adTracker:adTracker];
         
@@ -127,7 +128,7 @@ static dispatch_once_t onceToken;
         
         NRVA_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
         
-        // Set player instance on the content tracker if available
+        // Set player instance on the content tracker 
         if (contentTracker && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
             [contentTracker setPlayer:config.player];
             NRVA_DEBUG_LOG(@"Set player instance on content tracker for '%@'", config.playerName);
@@ -153,6 +154,12 @@ static dispatch_once_t onceToken;
         @throw [NSException exceptionWithName:@"IllegalStateException"
                                        reason:@"NRVAVideo is not initialized."
                                      userInfo:nil];
+    }
+    
+    // Handle invalid tracker IDs gracefully
+    if (trackerId <= 0) {
+        NRVA_DEBUG_LOG(@"Invalid tracker ID %ld - skipping release", (long)trackerId);
+        return;
     }
     
     NRVAVideo *videoInstance = [self getInstance];
@@ -311,39 +318,24 @@ static dispatch_once_t onceToken;
 
 /**
  * Creates a content tracker for AVPlayer (equivalent to Android's createContentTracker)
- * Uses standard iOS pattern following NewRelicVideoAgent examples
+ * Uses standard iOS pattern following Android's approach: create tracker without player
  */
-+ (id)createContentTracker:(id)player {
-    if (!player) {
-        NRVA_ERROR_LOG(@"Player cannot be nil when creating content tracker");
-        return nil;
-    }
-    
-    if (![player isKindOfClass:[AVPlayer class]]) {
-        NRVA_ERROR_LOG(@"Player must be an AVPlayer instance for content tracking");
-        return nil;
-    }
-    
-    // Use the standard iOS pattern - directly create NRTrackerAVPlayer
-    // This follows the pattern from Test files: [[NRTrackerAVPlayer alloc] initWithAVPlayer:player]
++ (id)createContentTracker {
+    // Use the standard iOS pattern - directly create NRTrackerAVPlayer WITHOUT player
+    // Following Android pattern: new NRTrackerExoPlayer() without parameters
     Class trackerClass = NSClassFromString(@"NRTrackerAVPlayer");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerAVPlayer class not found - ensure NRAVPlayerTracker pod is installed");
         return nil;
     }
     
-    // Use NSSelectorFromString to avoid "undeclared selector" warning
-    SEL initSelector = NSSelectorFromString(@"initWithAVPlayer:");
-    if ([trackerClass instancesRespondToSelector:initSelector]) {
-        #pragma clang diagnostic push
-        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        id tracker = [[trackerClass alloc] performSelector:initSelector withObject:player];
-        #pragma clang diagnostic pop
-        
-        NRVA_DEBUG_LOG(@"Created content tracker for AVPlayer: %@", player);
+    // Create tracker using default constructor (no player parameter)
+    id tracker = [[trackerClass alloc] init];
+    if (tracker) {
+        NRVA_DEBUG_LOG(@"Created content tracker (without player)");
         return tracker;
     } else {
-        NRVA_ERROR_LOG(@"NRTrackerAVPlayer does not support initWithAVPlayer: method");
+        NRVA_ERROR_LOG(@"Failed to create NRTrackerAVPlayer instance");
         return nil;
     }
 }

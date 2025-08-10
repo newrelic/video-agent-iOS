@@ -42,10 +42,14 @@
     
 }
 
+- (void)dealloc {
+    // Clean up tracker when view controller is deallocated
+    [NRVAVideo releaseTracker:self.trackerId];
+}
+
+
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    [NRVAVideo releaseTracker:self.trackerId];
 }
 
 - (void)playVideo:(NSString *)videoURL {
@@ -54,10 +58,9 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    // Create player configuration 
-    
+    NSString *uniquePlayerName = [NSString stringWithFormat:@"player-%ld", (long)[[NSDate date] timeIntervalSince1970]];
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
-        initWithPlayerName:@"main-player"
+        initWithPlayerName:uniquePlayerName
         player:player
         adEnabled:NO
         ];
