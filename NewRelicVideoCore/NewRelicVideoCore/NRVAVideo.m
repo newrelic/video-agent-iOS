@@ -66,9 +66,23 @@ static dispatch_once_t onceToken;
     }
     
     NRVAVideo *videoInstance = [self getInstance];
+    
+    // Check if there's already a tracker for this player name and clean it up
+    @synchronized (videoInstance.trackerIds) {
+        NSNumber *existingTrackerId = videoInstance.trackerIds[config.playerName];
+        if (existingTrackerId) {
+            NRVA_LOG(@"Found existing tracker %@ for player '%@', cleaning up before creating new one", existingTrackerId, config.playerName);
+            
+            // Release the existing tracker
+            [[NewRelicVideoAgent sharedInstance] releaseTracker:existingTrackerId];
+            [videoInstance.trackerIds removeObjectForKey:config.playerName];
+            NRVA_DEBUG_LOG(@"Released existing tracker %@ for player '%@'", existingTrackerId, config.playerName);
+        }
+    }
+    
     NSInteger trackerId = videoInstance.nextTrackerId++;
     
-    // Store tracker mapping
+    // Store new tracker mapping
     @synchronized (videoInstance.trackerIds) {
         videoInstance.trackerIds[config.playerName] = @(trackerId);
     }
@@ -101,7 +115,16 @@ static dispatch_once_t onceToken;
     
     // Start tracking with NewRelicVideoAgent (equivalent to Android's NewRelicVideoAgent.start())
     if (contentTracker || adTracker) {
-        [[NewRelicVideoAgent sharedInstance] startWithContentTracker:contentTracker adTracker:adTracker];
+        NSNumber *newTrackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:contentTracker adTracker:adTracker];
+        
+        // Update our trackerId to match the one returned by NewRelicVideoAgent
+        trackerId = [newTrackerId integerValue];
+        
+        // Update tracker mapping with the correct ID
+        @synchronized (videoInstance.trackerIds) {
+            videoInstance.trackerIds[config.playerName] = newTrackerId;
+        }
+        
         NRVA_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
         
         // Set player instance on the content tracker if available
@@ -175,17 +198,10 @@ static dispatch_once_t onceToken;
         NSNumber *trackerIdNumber = videoInstance.trackerIds[playerName];
         if (trackerIdNumber) {
             trackerId = [trackerIdNumber integerValue];
-            [videoInstance.trackerIds removeObjectForKey:playerName];
         }
     }
-    
-    if (trackerId > 0) {
-        // Use existing NewRelicVideoAgent releaseTracker method
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:@(trackerId)];
-        NRVA_LOG(@"Released tracker '%@' with ID: %ld", playerName, (long)trackerId);
-    } else {
-        NRVA_ERROR_LOG(@"No tracker found for player name: %@", playerName);
-    }
+
+    [self releaseTracker:trackerId];
 }
 
 #pragma mark - Event Recording
@@ -295,7 +311,7 @@ static dispatch_once_t onceToken;
 
 /**
  * Creates a content tracker for AVPlayer (equivalent to Android's createContentTracker)
- * Uses runtime class loading to avoid circular dependencies
+ * Uses standard iOS pattern following NewRelicVideoAgent examples
  */
 + (id)createContentTracker:(id)player {
     if (!player) {
@@ -308,40 +324,45 @@ static dispatch_once_t onceToken;
         return nil;
     }
     
-    // Use runtime class loading to avoid circular dependency
+    // Use the standard iOS pattern - directly create NRTrackerAVPlayer
+    // This follows the pattern from Test files: [[NRTrackerAVPlayer alloc] initWithAVPlayer:player]
     Class trackerClass = NSClassFromString(@"NRTrackerAVPlayer");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerAVPlayer class not found - ensure NRAVPlayerTracker pod is installed");
         return nil;
     }
     
-    // Create instance using runtime method invocation
-    SEL initSelector = @selector(initWithAVPlayer:);
+    // Use NSSelectorFromString to avoid "undeclared selector" warning
+    SEL initSelector = NSSelectorFromString(@"initWithAVPlayer:");
     if ([trackerClass instancesRespondToSelector:initSelector]) {
-        id trackerInstance = [[trackerClass alloc] init];
-        trackerInstance = [trackerInstance performSelector:initSelector withObject:player];
-        NRVA_DEBUG_LOG(@"Created content tracker using runtime instantiation for AVPlayer: %@", player);
-        return trackerInstance;
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        id tracker = [[trackerClass alloc] performSelector:initSelector withObject:player];
+        #pragma clang diagnostic pop
+        
+        NRVA_DEBUG_LOG(@"Created content tracker for AVPlayer: %@", player);
+        return tracker;
     } else {
-        NRVA_ERROR_LOG(@"NRTrackerAVPlayer does not respond to initWithAVPlayer: selector");
+        NRVA_ERROR_LOG(@"NRTrackerAVPlayer does not support initWithAVPlayer: method");
         return nil;
     }
 }
 
 /**
  * Creates an ad tracker for IMA (equivalent to Android's createAdTracker)
- * Uses runtime class loading to avoid circular dependencies
+ * Uses standard iOS pattern following NewRelicVideoAgent examples
  */
 + (id)createAdTracker {
-    // Use runtime class loading to avoid circular dependency
+    // Use the standard iOS pattern - directly create NRTrackerIMA
     Class trackerClass = NSClassFromString(@"NRTrackerIMA");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerIMA class not found - ensure NRIMATracker pod is installed");
         return nil;
     }
     
+    // Standard iOS initialization pattern
     id adTracker = [[trackerClass alloc] init];
-    NRVA_DEBUG_LOG(@"Created ad tracker using runtime instantiation");
+    NRVA_DEBUG_LOG(@"Created ad tracker");
     return adTracker;
 }
 

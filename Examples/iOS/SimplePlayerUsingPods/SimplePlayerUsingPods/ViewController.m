@@ -6,7 +6,6 @@
 //
 
 #import "ViewController.h"
-#import <NewRelicVideoCore/NewRelicVideoCore.h>
 #import <NewRelicVideoCore/NRVAVideo.h>
 #import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
 
@@ -41,22 +40,12 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    // Logging is already enabled in AppDelegate through NRVAVideo configuration
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    // User closed the player
-    if (self.playerController.isBeingDismissed) {
-        //Send END using runtime method call
-        NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:@(self.trackerId)];
-        if (contentTracker && [contentTracker respondsToSelector:@selector(sendEnd)]) {
-            [contentTracker performSelector:@selector(sendEnd)];
-        }
-        
-        //Stop tracking using NRVAVideo
-        [NRVAVideo releaseTracker:self.trackerId];
-    }
+    
+    [NRVAVideo releaseTracker:self.trackerId];
 }
 
 - (void)playVideo:(NSString *)videoURL {
@@ -65,15 +54,14 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    // Create player configuration with ads enabled
+    // Create player configuration 
     
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
         initWithPlayerName:@"main-player"
         player:player
-        adEnabled:YES  // Enable ads
+        adEnabled:NO
         ];
     
-    // Use NRVAVideo instead of NewRelicVideoAgent directly
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
     
     [self presentViewController:self.playerController animated:YES completion:^{
