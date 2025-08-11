@@ -45,4 +45,11 @@
 - (instancetype)initWithPlayerName:(NSString *)playerName
                             player:(id)player;
 
+/**
+ * Convenience initializer for configuration without player (for convenience methods)
+ */
+- (instancetype)initWithPlayerName:(NSString *)playerName
+                         adEnabled:(BOOL)isAdEnabled
+                  customAttributes:(NSDictionary<NSString *, id> *)customAttributes;
+
 @end

@@ -9,7 +9,6 @@
 #import <NewRelicVideoCore/NRVAVideo.h>
 #import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
 
-
 @import AVKit;
 
 @interface ViewController ()
@@ -39,14 +38,14 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+    NSLog(@"🎬 [ViewController] Simple Player - Ready for video tracking");
 }
 
 - (void)dealloc {
     // Clean up tracker when view controller is deallocated
     [NRVAVideo releaseTracker:self.trackerId];
+    NSLog(@"🧹 [ViewController] Cleanup completed");
 }
-
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
@@ -58,19 +57,15 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    NSString *uniquePlayerName = [NSString stringWithFormat:@"player-%ld", (long)[[NSDate date] timeIntervalSince1970]];
-    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
-        initWithPlayerName:uniquePlayerName
-        player:player
-        adEnabled:NO
-        ];
+    // ONE-LINE VIDEO TRACKING - Simple case without ads
+    self.trackerId = [NRVAVideo addPlayerWithURL:videoURL name:@"SimplePlayer"];
     
-    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+    NSLog(@"🎥 [Video] Started simple video tracking with ID: %ld", (long)self.trackerId);
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
-    } ];
+        NSLog(@"▶️ [Video] Playback started");
+    }];
 }
-
 
 @end

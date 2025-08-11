@@ -72,6 +72,23 @@
     [self sendError:error];
 }
 
+
+/**
+ * Forward ad events - matches Android's handleAdEvent exactly
+ * Simple forwarding to existing adEvent method (no changes to core logic)
+ */
+- (void)handleAdEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager {
+    [self adEvent:event adsManager:adsManager];
+}
+
+/**
+ * Forward ad errors - matches Android's handleAdError exactly  
+ * Simple forwarding to existing adError method (no changes to core logic)
+ */
+- (void)handleAdError:(IMAAdError *)error {
+    [self adError:error.message code:(int)error.code];
+}
+
 #pragma mark - Attribute getters
 
 - (NSString *)getPlayerName {

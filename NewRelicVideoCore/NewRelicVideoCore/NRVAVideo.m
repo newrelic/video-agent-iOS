@@ -10,15 +10,19 @@
 #import "NRVAVideoConfiguration.h"
 #import "NRVAVideoPlayerConfiguration.h"
 #import "NRVAHarvestManager.h"
-#import "NRVALog.h"
+#import "Utils/NRVALog.h"
 #import "NRVAUtils.h"
 #import "NewRelicVideoAgent.h"
 #import "Tracker/NRTracker.h"
 #import <AVFoundation/AVFoundation.h>
 
+// Import IMA types for the convenience methods
+#if __has_include(<GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>)
+#import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+#endif
+
 // Forward declarations for runtime loading
 @class NRTrackerAVPlayer;
-@class NRTrackerIMA;
 
 @interface NRVAVideo ()
 
@@ -113,7 +117,7 @@ static dispatch_once_t onceToken;
     } else {
         NRVA_DEBUG_LOG(@"Ad tracking disabled for player '%@', ad tracker not created", config.playerName);
     }
-    
+
     // Start tracking with NewRelicVideoAgent 
     if (contentTracker || adTracker) {
         NSNumber *newTrackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:contentTracker adTracker:adTracker];
@@ -128,22 +132,84 @@ static dispatch_once_t onceToken;
         
         NRVA_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
         
-        // Set player instance on the content tracker 
-        if (contentTracker && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
+        // ANDROID PATTERN: Set player instance AFTER tracker initialization
+        if (contentTracker && config.player && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
             [contentTracker setPlayer:config.player];
             NRVA_DEBUG_LOG(@"Set player instance on content tracker for '%@'", config.playerName);
         }
     } else {
         NRVA_ERROR_LOG(@"No trackers created for player '%@', tracking not started", config.playerName);
-    }
-    
-    // Set custom attributes directly on the trackers (matching Android behavior)
+    }    // Set custom attributes directly on the trackers (matching Android behavior)
     if (config.customAttributes && config.customAttributes.count > 0) {
         for (NSString *key in config.customAttributes) {
             [self setAttribute:trackerId key:key value:config.customAttributes[key]];
             NRVA_DEBUG_LOG(@"Set custom attribute for tracker %ld: %@ = %@", (long)trackerId, key, config.customAttributes[key]);
         }
     }
+    
+    return trackerId;
+}
+
+#pragma mark - ONE-LINE CONVENIENCE METHODS
+
++ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName {
+    return [self addPlayerWithURL:videoURL name:playerName adTagURL:nil attributes:nil];
+}
+
++ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName adTagURL:(NSString *)adTagURL {
+    return [self addPlayerWithURL:videoURL name:playerName adTagURL:adTagURL attributes:nil];
+}
+
++ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName adTagURL:(NSString *)adTagURL attributes:(NSDictionary *)attributes {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot add player");
+        @throw [NSException exceptionWithName:@"IllegalStateException"
+                                       reason:@"NRVAVideo is not initialized. Call [[NRVAVideo newBuilder] withConfiguration:config] build] first."
+                                     userInfo:nil];
+    }
+    
+    if (!videoURL || videoURL.length == 0) {
+        NRVA_ERROR_LOG(@"Video URL cannot be nil or empty");
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Video URL cannot be nil or empty"
+                                     userInfo:nil];
+    }
+    
+    if (!playerName || playerName.length == 0) {
+        NRVA_ERROR_LOG(@"Player name cannot be nil or empty");
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Player name cannot be nil or empty"
+                                     userInfo:nil];
+    }
+    
+    // Add custom attributes with convenience info
+    NSMutableDictionary *mergedAttributes = [NSMutableDictionary dictionary];
+    mergedAttributes[@"videoURL"] = videoURL;
+    mergedAttributes[@"setupMethod"] = @"one-line-convenience";
+    BOOL adsEnabled = (adTagURL != nil && adTagURL.length > 0);
+    mergedAttributes[@"adsEnabled"] = @(adsEnabled);
+    
+    if (adTagURL && adTagURL.length > 0) {
+        mergedAttributes[@"adTagURL"] = adTagURL;
+    }
+    
+    // Merge user provided attributes
+    if (attributes && attributes.count > 0) {
+        [mergedAttributes addEntriesFromDictionary:attributes];
+    }
+    
+    // ANDROID PATTERN: Create player configuration with smart defaults
+    // Note: Unlike Android, we don't auto-create AVPlayer here as iOS pattern 
+    // typically requires developer to manage AVPlayer lifecycle
+    NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc] 
+        initWithPlayerName:playerName
+        adEnabled:adsEnabled
+        customAttributes:mergedAttributes];
+    
+    NSInteger trackerId = [self addPlayer:config];
+    
+    NRVA_LOG(@"🚀 ANDROID PATTERN: Created %@ player '%@' with ID %ld", 
+             config.isAdEnabled ? @"ads-enabled" : @"simple", playerName, (long)trackerId);
     
     return trackerId;
 }
@@ -211,12 +277,52 @@ static dispatch_once_t onceToken;
     [self releaseTracker:trackerId];
 }
 
+#pragma mark - Android Parity: Tracker Access Methods
+
++ (id)contentTracker:(NSNumber *)trackerId {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot get content tracker");
+        return nil;
+    }
+    
+    // Delegate to existing NewRelicVideoAgent method (matches Android pattern)
+    return [[NewRelicVideoAgent sharedInstance] contentTracker:trackerId];
+}
+
++ (id)adTracker:(NSNumber *)trackerId {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot get ad tracker");
+        return nil;
+    }
+    
+    // Delegate to existing NewRelicVideoAgent method (matches Android pattern)
+    return [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
+}
+
++ (void)setLogging:(BOOL)enabled {
+    // ANDROID PARITY: Enhanced logging control
+    [[NewRelicVideoAgent sharedInstance] setLogging:enabled];
+    NRVA_LOG(@"Logging %@", enabled ? @"enabled" : @"disabled");
+}
+
 #pragma mark - Event Recording
 
 + (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes {
     if ([self isInitialized]) {
         NRVAVideo *videoInstance = [self getInstance];
         [videoInstance.harvestManager recordEvent:eventType attributes:attributes];
+    } else {
+        NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
+    }
+}
+
++ (void)recordEvent:(NSString *)eventType trackerId:(NSNumber *)trackerId attributes:(NSDictionary<NSString *, id> *)attributes {
+    if ([self isInitialized]) {
+        NRVAVideo *videoInstance = [self getInstance];
+        // Add trackerId to attributes
+        NSMutableDictionary *enrichedAttributes = [attributes mutableCopy] ?: [NSMutableDictionary dictionary];
+        enrichedAttributes[@"trackerId"] = trackerId;
+        [videoInstance.harvestManager recordEvent:eventType attributes:enrichedAttributes];
     } else {
         NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
     }
@@ -342,20 +448,26 @@ static dispatch_once_t onceToken;
 
 /**
  * Creates an ad tracker for IMA (equivalent to Android's createAdTracker)
- * Uses standard iOS pattern following NewRelicVideoAgent examples
+ * Uses Android pattern: dynamic class loading with graceful fallback
+ * Follows Android approach: Always use IMA tracker for ads when available
  */
 + (id)createAdTracker {
-    // Use the standard iOS pattern - directly create NRTrackerIMA
+    // ANDROID PATTERN: Dynamic class loading with graceful fallback
     Class trackerClass = NSClassFromString(@"NRTrackerIMA");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerIMA class not found - ensure NRIMATracker pod is installed");
         return nil;
     }
     
-    // Standard iOS initialization pattern
+    // ANDROID PATTERN: Standard initialization without parameters
     id adTracker = [[trackerClass alloc] init];
-    NRVA_DEBUG_LOG(@"Created ad tracker");
-    return adTracker;
+    if (adTracker) {
+        NRVA_DEBUG_LOG(@"Created IMA ad tracker (Android pattern)");
+        return adTracker;
+    } else {
+        NRVA_ERROR_LOG(@"Failed to create NRTrackerIMA instance");
+        return nil;
+    }
 }
 
 #pragma mark - Initialization
@@ -382,6 +494,57 @@ static dispatch_once_t onceToken;
 
 - (void)dealloc {
     [self.harvestManager stopHarvesting];
+}
+
+#pragma mark - SIMPLIFIED AD EVENT API
+
++ (void)handleAdEvent:(NSNumber *)trackerId event:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager {
+    id adTracker = [self adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(handleAdEvent:adsManager:)]) {
+        // Use performSelector to avoid compiler warnings about unknown methods
+        NSMethodSignature *methodSignature = [adTracker methodSignatureForSelector:@selector(handleAdEvent:adsManager:)];
+        if (methodSignature) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+            [invocation setTarget:adTracker];
+            [invocation setSelector:@selector(handleAdEvent:adsManager:)];
+            [invocation setArgument:&event atIndex:2];
+            [invocation setArgument:&adsManager atIndex:3];
+            [invocation invoke];
+        }
+    }
+}
+
++ (void)handleAdError:(NSNumber *)trackerId error:(IMAAdError *)error adsManager:(IMAAdsManager *)adsManager {
+    // Note: NRTrackerIMA.handleAdError only takes one parameter (the error), ignoring adsManager
+    id adTracker = [self adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(handleAdError:)]) {
+        // Use performSelector to avoid compiler warnings about unknown methods
+        [adTracker performSelector:@selector(handleAdError:) withObject:error];
+    }
+}
+
++ (void)handleAdError:(NSNumber *)trackerId error:(IMAAdError *)error {
+    id adTracker = [self adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(handleAdError:)]) {
+        // Use performSelector to avoid compiler warnings about unknown methods
+        [adTracker performSelector:@selector(handleAdError:) withObject:error];
+    }
+}
+
++ (void)sendAdBreakStart:(NSNumber *)trackerId {
+    id adTracker = [self adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(sendAdBreakStart)]) {
+        // Use performSelector to avoid compiler warnings about unknown methods
+        [adTracker performSelector:@selector(sendAdBreakStart)];
+    }
+}
+
++ (void)sendAdBreakEnd:(NSNumber *)trackerId {
+    id adTracker = [self adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(sendAdBreakEnd)]) {
+        // Use performSelector to avoid compiler warnings about unknown methods
+        [adTracker performSelector:@selector(sendAdBreakEnd)];
+    }
 }
 
 @end

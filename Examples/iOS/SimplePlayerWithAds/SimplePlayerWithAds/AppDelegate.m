@@ -6,7 +6,7 @@
 //
 
 #import "AppDelegate.h"
-#import <NewRelic/NewRelic.h>
+#import <NewRelicVideoCore.h>
 
 @interface AppDelegate ()
 
@@ -18,8 +18,12 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    #error("---- SET NEW RELIC APPLICATION TOKEN HERE ----")
-    [NewRelic startWithApplicationToken:@"APPLICATION TOKEN HERE"];
+    NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
+            withApplicationToken:@"AA5285efca44722e2c6735346267c84a4447854b58-NRMA"]
+            withHarvestCycle:10]  
+            withDebugLogging:YES] build];
+        
+        [[[NRVAVideo newBuilder] withConfiguration:videoConfig] build];
     
     return YES;
 }

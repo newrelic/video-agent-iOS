@@ -11,6 +11,18 @@
 
 @implementation NRVALog
 
++ (NSString *)formatTimestamp {
+    NSDate *now = [NSDate date];
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    
+    // Get milliseconds
+    NSTimeInterval timeInterval = [now timeIntervalSince1970];
+    NSInteger milliseconds = (NSInteger)((timeInterval - floor(timeInterval)) * 1000);
+    
+    return [NSString stringWithFormat:@"%@.%03ld", [dateFormatter stringFromDate:now], (long)milliseconds];
+}
+
 void NRVA_LOG(NSString *format, ...) {
     if ([[NewRelicVideoAgent sharedInstance] logging]) {
         NSString *contents;
@@ -18,8 +30,8 @@ void NRVA_LOG(NSString *format, ...) {
         va_start(args, format);
         contents = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
-        NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-        contents = [@"NRVideoAgent " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+        NSString *timestamp = [NRVALog formatTimestamp];
+        contents = [@"NRVideoAgent " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
         NSLog(@"%@", contents);
     }
 }
@@ -31,8 +43,8 @@ void NRVA_DEBUG_LOG(NSString *format, ...) {
         va_start(args, format);
         contents = [[NSString alloc] initWithFormat:format arguments:args];
         va_end(args);
-        NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-        contents = [@"NRVideoAgent [DEBUG] " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+        NSString *timestamp = [NRVALog formatTimestamp];
+        contents = [@"NRVideoAgent [DEBUG] " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
         NSLog(@"%@", contents);
     }
 }
@@ -44,8 +56,8 @@ void NRVA_ERROR_LOG(NSString *format, ...) {
     va_start(args, format);
     contents = [[NSString alloc] initWithFormat:format arguments:args];
     va_end(args);
-    NSTimeInterval nowEpochSeconds = [[NSDate date] timeIntervalSince1970];
-    contents = [@"NRVideoAgent [ERROR] " stringByAppendingFormat:@"(%f): %@", nowEpochSeconds, contents];
+    NSString *timestamp = [NRVALog formatTimestamp];
+    contents = [@"NRVideoAgent [ERROR] " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
     NSLog(@"%@", contents);
 }
 

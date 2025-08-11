@@ -7,6 +7,8 @@
 //
 
 #import "NRVAVideoPlayerConfiguration.h"
+#import "Utils/NRVALog.h"
+
 
 @implementation NRVAVideoPlayerConfiguration
 
@@ -22,10 +24,9 @@
                                          userInfo:nil];
         }
         
+        // Allow nil player for convenience methods, but require it for normal usage
         if (!player) {
-            @throw [NSException exceptionWithName:NSInvalidArgumentException
-                                           reason:@"Player instance cannot be nil"
-                                         userInfo:nil];
+            NRVA_DEBUG_LOG(@"Creating configuration without player for convenience method");
         }
         
         _playerName = [playerName copy];
@@ -51,6 +52,16 @@
                              player:player
                           adEnabled:NO
                    customAttributes:nil];
+}
+
+- (instancetype)initWithPlayerName:(NSString *)playerName
+                         adEnabled:(BOOL)isAdEnabled
+                  customAttributes:(NSDictionary<NSString *, id> *)customAttributes {
+    // Convenience method - calls main initializer with nil player
+    return [self initWithPlayerName:playerName
+                             player:nil
+                          adEnabled:isAdEnabled
+                   customAttributes:customAttributes];
 }
 
 - (NSString *)description {

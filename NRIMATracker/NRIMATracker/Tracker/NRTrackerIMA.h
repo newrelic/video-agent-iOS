@@ -11,9 +11,11 @@
 
 @class IMAAdEvent;
 @class IMAAdsManager;
+@class IMAAdError;
 
 /**
- `NRTrackerIMA` is the base class to manage the ad events of the Google IMA library. It can be used directly or subclassed.
+ `NRTrackerIMA` is the base class to manage the ad events of the Google IMA library. 
+ It can be used directly or subclassed.
  */
 @interface NRTrackerIMA : NRVideoTracker
 
@@ -32,5 +34,23 @@
  @param code Error code.
  */
 - (void)adError:(NSString *)message code:(int)code;
+
+/**
+ ANDROID PARITY: Simple forwarding methods for user-defined listeners
+ These match Android's handleAdEvent/handleAdError exactly
+ */
+
+/**
+ Forward ad events - matches Android's handleAdEvent  
+ @param event The IMA ad event
+ @param adsManager The ads manager (can be nil)
+ */
+- (void)handleAdEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager;
+
+/**
+ Forward ad errors - matches Android's handleAdError
+ @param error The IMA ad error
+ */
+- (void)handleAdError:(IMAAdError *)error;
 
 @end

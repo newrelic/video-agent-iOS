@@ -7,15 +7,13 @@
 
 #import "ViewController.h"
 #import <NewRelicVideoCore.h>
-#import <NRTrackerAVPlayer.h>
-#import <NRTrackerIMA.h>
 
 @import AVKit;
 
 @interface ViewController ()
 
 @property (nonatomic) AVPlayerViewController *playerController;
-@property (nonatomic) NSNumber *trackerId;
+@property (nonatomic) NSInteger trackerId;
 @property (nonatomic) NSString *multipleAdTagURL;
 @property (nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property (nonatomic) IMAAdsLoader *adsLoader;
@@ -46,7 +44,6 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
-    [[NewRelicVideoAgent sharedInstance] setLogging:YES];
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notif {
@@ -64,11 +61,9 @@
     
     // User closed the player
     if (self.playerController.isBeingDismissed) {
-        //Send END
-        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
         
         //Stop tracking
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
+        [NRVAVideo releaseTracker:@(self.trackerId)];
         
         [self releaseAds];
     }
@@ -80,14 +75,20 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]
-                                                                        adTracker:[[NRTrackerIMA alloc] init]];
+   
+    NSDictionary *customAttributes = @{
+        @"contentType": @"video-on-demand",
+        @"playerVersion": @"1.0.0",
+        @"customTag": @"SimplePlayerWithAds"
+    };
     
-    NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId];
-    [contentTracker setAttribute:@"contentTitle"
-                           value:@"A title"
-                       forAction:@"CONTENT_START"];
-    [[NewRelicVideoAgent sharedInstance] setUserId:@"TEST_USER"];
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
+        initWithPlayerName:@"TEST_ADS" 
+        player:player 
+        adEnabled:YES 
+        customAttributes:customAttributes];
+    
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
     
     [self setupAds:player];
     
@@ -140,7 +141,7 @@
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
     NSLog(@"Error loading ads: %@", adErrorData.adError.message);
     
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:adErrorData.adError.message code:(int)adErrorData.adError.code];
+    [NRVAVideo handleAdError:@(self.trackerId) error:adErrorData.adError];
     
     [self.playerController.player play];
 }
@@ -151,7 +152,8 @@
     
     NSLog(@"Ads Manager did receive event = %@", event.typeString);
     
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adEvent:event adsManager:adsManager];
+    // 🤖 MUCH SIMPLER: One-line ad event handling!
+    [NRVAVideo handleAdEvent:@(self.trackerId) event:event adsManager:adsManager];
     
     if (event.type == kIMAAdEvent_LOADED) {
         NSLog(@"Ads Manager call start()");
@@ -160,17 +162,15 @@
 }
 
 - (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdError:(IMAAdError *)error {
-    NSLog(@"Error managing ads: %@", error.message);
+    NSLog(@"Ads Manager received error = %@", error.message);
     
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] adError:error.message code:(int)error.code];
-    
-    [self.playerController.player play];
+    [NRVAVideo handleAdError:@(self.trackerId) error:error adsManager:adsManager];
 }
 
 - (void)adsManagerDidRequestContentPause:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request pause");
     
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakStart];
+    [NRVAVideo sendAdBreakStart:@(self.trackerId)];
     
     [self.playerController.player pause];
 }
@@ -178,7 +178,7 @@
 - (void)adsManagerDidRequestContentResume:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request resume");
     
-    [(NRTrackerIMA *)[[NewRelicVideoAgent sharedInstance] adTracker:self.trackerId] sendAdBreakEnd];
+    [NRVAVideo sendAdBreakEnd:@(self.trackerId)];
     
     [self.playerController.player play];
 }
