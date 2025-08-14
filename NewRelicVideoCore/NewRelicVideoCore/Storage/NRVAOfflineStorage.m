@@ -53,9 +53,11 @@
         
         NSError *error = nil;
         if (data) {
-            if ([data writeToFile:[self newOfflineFilePath] options:NSDataWritingAtomic error:&error]) {
+            NSString *filePath = [self newOfflineFilePath];
+            if ([data writeToFile:filePath options:NSDataWritingAtomic error:&error]) {
                 [[NSUserDefaults standardUserDefaults] setInteger:currentOfflineStorageSize forKey:kNRVAOfflineStorageCurrentSizeKey];
-                NSLog(@"[NRVA] Successfully persisted failed upload data to disk for offline storage. Current offline storage: %lu", (unsigned long)currentOfflineStorageSize);
+                double storageSizeKB = currentOfflineStorageSize / 1024.0;
+                NSLog(@"[NRVA] Successfully persisted failed upload data to disk for offline storage. File: %@, Current offline storage: %.2f KB (%lu bytes)", filePath, storageSizeKB, (unsigned long)currentOfflineStorageSize);
                 return YES;
             }
         }

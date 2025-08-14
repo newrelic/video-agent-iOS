@@ -57,8 +57,17 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    // ONE-LINE VIDEO TRACKING - Simple case without ads
-    self.trackerId = [NRVAVideo addPlayerWithURL:videoURL name:@"SimplePlayer"];
+    // ANDROID PARITY: Use configuration-based approach
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"SimplePlayer"
+        player:player
+        adEnabled:NO
+        customAttributes:@{
+            @"videoURL": videoURL,
+            @"setupMethod": @"configuration-based"
+        }];
+    
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
     
     NSLog(@"🎥 [Video] Started simple video tracking with ID: %ld", (long)self.trackerId);
     

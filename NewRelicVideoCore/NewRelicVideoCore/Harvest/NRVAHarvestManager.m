@@ -77,7 +77,7 @@
             [self.eventQueue addObject:[event copy]];
         }
         
-        NRVA_DEBUG_LOG(@"Recorded event: %@ (queue size: %lu)", eventType, (unsigned long)[self queueSize]);
+        NRVA_DEBUG_LOG(@"🗂️ [HARVEST] Queued event: %@ (queue size: %lu/%lu)", eventType, (unsigned long)[self queueSize], (unsigned long)[self currentBatchSize]);
         
         // Check if we need to harvest immediately (queue size limit)
         if ([self queueSize] >= [self currentBatchSize]) {
@@ -246,7 +246,8 @@
         } else {
             NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
             if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
-                NRVA_DEBUG_LOG(@"Harvest successful: %ld events sent", (long)originalEvents.count);
+                double dataSizeKB = data.length / 1024.0;
+                NRVA_LOG(@"✅ Harvest successful: %ld events sent, %.2f KB transmitted", (long)originalEvents.count, dataSizeKB);
                 
                 // Process any offline data
                 [self processOfflineData];
@@ -267,9 +268,20 @@
         return;
     }
     
-    NRVA_DEBUG_LOG(@"Processing %lu offline data items", (unsigned long)offlineData.count);
-    
+    // Calculate total offline data size
+    NSUInteger totalOfflineBytes = 0;
     for (NSData *data in offlineData) {
+        totalOfflineBytes += data.length;
+    }
+    double totalOfflineSizeKB = totalOfflineBytes / 1024.0;
+    
+    NRVA_LOG(@"📦 Processing %lu offline data items, total size: %.2f KB", (unsigned long)offlineData.count, totalOfflineSizeKB);
+    
+    __block NSUInteger completedUploads = 0;
+    NSUInteger totalUploads = offlineData.count;
+    
+    for (NSUInteger i = 0; i < offlineData.count; i++) {
+        NSData *data = offlineData[i];
         NSString *endpoint = [self getHarvestEndpoint];
         
         [self.connection postData:data 
@@ -282,7 +294,23 @@
             } else {
                 NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
                 if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
-                    NRVA_DEBUG_LOG(@"Offline data uploaded successfully");
+                    double dataSizeKB = data.length / 1024.0;
+                    
+                    // Parse the offline data to extract event count
+                    NSError *jsonError;
+                    NSDictionary *offlinePayload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+                    NSUInteger eventCount = 0;
+                    if (!jsonError && [offlinePayload isKindOfClass:[NSArray class]]) {
+                        NSArray *payloadArray = (NSArray *)offlinePayload;
+                        if (payloadArray.count >= 10 && [payloadArray[9] isKindOfClass:[NSArray class]]) {
+                            eventCount = ((NSArray *)payloadArray[9]).count;
+                        }
+                    }
+                    
+                    completedUploads++;
+                    NSUInteger remaining = totalUploads - completedUploads;
+                    
+                    NRVA_LOG(@"✅ [OFFLINE] Harvest successful: %lu events sent, %.2f KB transmitted, %lu remaining", (unsigned long)eventCount, dataSizeKB, (unsigned long)remaining);
                 } else {
                     NRVA_ERROR_LOG(@"Offline data upload failed with status code: %ld", (long)httpResponse.statusCode);
                 }

@@ -85,10 +85,29 @@
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
         initWithPlayerName:@"TEST_ADS" 
         player:player 
-        adEnabled:YES 
+        adEnabled:YES
         customAttributes:customAttributes];
     
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
+
+    // ✅ GLOBAL custom event (trackerId = nil sends to ALL trackers)
+    [NRVAVideo recordCustomEvent:@"PLAYER_SETUP_COMPLETE" 
+                      trackerId:nil 
+                     attributes:@{
+                         @"setupMethod": @"configuration-based",
+                         @"customAttr1": @"1080p",
+                         @"customAttr2": @"720p"
+                     }];
+    
+    // ✅ TRACKER-SPECIFIC custom event (enriched with video attributes)
+    [NRVAVideo recordCustomEvent:@"VIDEO_READY" 
+                      trackerId:@(self.trackerId) 
+                     attributes:@{
+                         @"videoURL": videoURL,
+                         @"hasAds": @YES,
+                         @"customAttr1": @"enhanced",
+                         @"customAttr2": @"with_video_context"
+                     }];
     
     [self setupAds:player];
     

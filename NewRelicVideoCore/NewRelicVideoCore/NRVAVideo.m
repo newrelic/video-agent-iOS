@@ -150,70 +150,6 @@ static dispatch_once_t onceToken;
     return trackerId;
 }
 
-#pragma mark - ONE-LINE CONVENIENCE METHODS
-
-+ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName {
-    return [self addPlayerWithURL:videoURL name:playerName adTagURL:nil attributes:nil];
-}
-
-+ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName adTagURL:(NSString *)adTagURL {
-    return [self addPlayerWithURL:videoURL name:playerName adTagURL:adTagURL attributes:nil];
-}
-
-+ (NSInteger)addPlayerWithURL:(NSString *)videoURL name:(NSString *)playerName adTagURL:(NSString *)adTagURL attributes:(NSDictionary *)attributes {
-    if (![self isInitialized]) {
-        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot add player");
-        @throw [NSException exceptionWithName:@"IllegalStateException"
-                                       reason:@"NRVAVideo is not initialized. Call [[NRVAVideo newBuilder] withConfiguration:config] build] first."
-                                     userInfo:nil];
-    }
-    
-    if (!videoURL || videoURL.length == 0) {
-        NRVA_ERROR_LOG(@"Video URL cannot be nil or empty");
-        @throw [NSException exceptionWithName:NSInvalidArgumentException
-                                       reason:@"Video URL cannot be nil or empty"
-                                     userInfo:nil];
-    }
-    
-    if (!playerName || playerName.length == 0) {
-        NRVA_ERROR_LOG(@"Player name cannot be nil or empty");
-        @throw [NSException exceptionWithName:NSInvalidArgumentException
-                                       reason:@"Player name cannot be nil or empty"
-                                     userInfo:nil];
-    }
-    
-    // Add custom attributes with convenience info
-    NSMutableDictionary *mergedAttributes = [NSMutableDictionary dictionary];
-    mergedAttributes[@"videoURL"] = videoURL;
-    mergedAttributes[@"setupMethod"] = @"one-line-convenience";
-    BOOL adsEnabled = (adTagURL != nil && adTagURL.length > 0);
-    mergedAttributes[@"adsEnabled"] = @(adsEnabled);
-    
-    if (adTagURL && adTagURL.length > 0) {
-        mergedAttributes[@"adTagURL"] = adTagURL;
-    }
-    
-    // Merge user provided attributes
-    if (attributes && attributes.count > 0) {
-        [mergedAttributes addEntriesFromDictionary:attributes];
-    }
-    
-    // ANDROID PATTERN: Create player configuration with smart defaults
-    // Note: Unlike Android, we don't auto-create AVPlayer here as iOS pattern 
-    // typically requires developer to manage AVPlayer lifecycle
-    NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc] 
-        initWithPlayerName:playerName
-        adEnabled:adsEnabled
-        customAttributes:mergedAttributes];
-    
-    NSInteger trackerId = [self addPlayer:config];
-    
-    NRVA_LOG(@"🚀 ANDROID PATTERN: Created %@ player '%@' with ID %ld", 
-             config.isAdEnabled ? @"ads-enabled" : @"simple", playerName, (long)trackerId);
-    
-    return trackerId;
-}
-
 + (void)releaseTracker:(NSInteger)trackerId {
     if (![self isInitialized]) {
         NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot release tracker");
@@ -277,59 +213,49 @@ static dispatch_once_t onceToken;
     [self releaseTracker:trackerId];
 }
 
-#pragma mark - Android Parity: Tracker Access Methods
-
-+ (id)contentTracker:(NSNumber *)trackerId {
-    if (![self isInitialized]) {
-        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot get content tracker");
-        return nil;
-    }
-    
-    // Delegate to existing NewRelicVideoAgent method (matches Android pattern)
-    return [[NewRelicVideoAgent sharedInstance] contentTracker:trackerId];
-}
-
-+ (id)adTracker:(NSNumber *)trackerId {
-    if (![self isInitialized]) {
-        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot get ad tracker");
-        return nil;
-    }
-    
-    // Delegate to existing NewRelicVideoAgent method (matches Android pattern)
-    return [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
-}
-
-+ (void)setLogging:(BOOL)enabled {
-    // ANDROID PARITY: Enhanced logging control
-    [[NewRelicVideoAgent sharedInstance] setLogging:enabled];
-    NRVA_LOG(@"Logging %@", enabled ? @"enabled" : @"disabled");
-}
-
 #pragma mark - Event Recording
 
-+ (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes {
-    if ([self isInitialized]) {
-        NRVAVideo *videoInstance = [self getInstance];
-        [videoInstance.harvestManager recordEvent:eventType attributes:attributes];
-    } else {
-        NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
++ (void)recordCustomEvent:(NSString *)action trackerId:(NSNumber * _Nullable)trackerId attributes:(NSDictionary<NSString *, id> *)attributes {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"recordCustomEvent called before NRVAVideo is fully initialized - event dropped");
+        return;
     }
-}
-
-+ (void)recordEvent:(NSString *)eventType trackerId:(NSNumber *)trackerId attributes:(NSDictionary<NSString *, id> *)attributes {
-    if ([self isInitialized]) {
-        NRVAVideo *videoInstance = [self getInstance];
-        // Add trackerId to attributes
-        NSMutableDictionary *enrichedAttributes = [attributes mutableCopy] ?: [NSMutableDictionary dictionary];
-        enrichedAttributes[@"trackerId"] = trackerId;
-        [videoInstance.harvestManager recordEvent:eventType attributes:enrichedAttributes];
-    } else {
-        NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
+    
+    if (!action) {
+        NRVA_ERROR_LOG(@"Action parameter is mandatory for custom events");
+        return;
     }
-}
-
-+ (void)recordCustomEvent:(NSDictionary<NSString *, id> *)attributes {
-    [self recordEvent:@"VideoCustomAction" attributes:attributes];
+    
+    if (trackerId) {
+        // Tracker-specific event
+        NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:trackerId];
+        if (contentTracker) {
+            // Use the tracker's sendEvent method which automatically uses VideoCustomAction eventType
+            [contentTracker sendEvent:action attributes:attributes];
+            NRVA_DEBUG_LOG(@"📊 Recorded tracker-specific custom event via content tracker %@: action: %@ with enriched attributes", trackerId, action);
+        } else {
+            NRVA_ERROR_LOG(@"No content tracker found for tracker ID: %@ - dropping custom event: %@", trackerId, action);
+        }
+    } else {
+        // Global event - send to all trackers
+        NRVAVideo *videoInstance = [self getInstance];
+        
+        @synchronized (videoInstance.trackerIds) {
+            if (videoInstance.trackerIds.count == 0) {
+                NRVA_ERROR_LOG(@"No trackers available - dropping global custom event: %@", action);
+                return;
+            }
+            
+            // Send to all trackers
+            for (NSNumber *currentTrackerId in videoInstance.trackerIds.allValues) {
+                NRTracker *contentTracker = [[NewRelicVideoAgent sharedInstance] contentTracker:currentTrackerId];
+                if (contentTracker) {
+                    [contentTracker sendEvent:action attributes:attributes];
+                    NRVA_DEBUG_LOG(@"📊 Sent global custom event to tracker %@: action: %@ with enriched attributes", currentTrackerId, action);
+                }
+            }
+        }
+    }
 }
 
 #pragma mark - Attribute Management
@@ -420,6 +346,19 @@ static dispatch_once_t onceToken;
     [self setGlobalAttribute:key value:value action:nil];
 }
 
+#pragma mark - Internal Methods (Package Private)
+
++ (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes {
+    // Simple event recording method - no validation, just direct recording
+    if ([self isInitialized]) {
+        NRVAVideo *videoInstance = [self getInstance];
+        [videoInstance.harvestManager recordEvent:eventType attributes:attributes];
+        NRVA_DEBUG_LOG(@"📊 Recorded event: %@ with attributes %@", eventType, attributes);
+    } else {
+        NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
+    }
+}
+
 #pragma mark - Tracker Creation (Internal Methods)
 
 /**
@@ -499,7 +438,8 @@ static dispatch_once_t onceToken;
 #pragma mark - SIMPLIFIED AD EVENT API
 
 + (void)handleAdEvent:(NSNumber *)trackerId event:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager {
-    id adTracker = [self adTracker:trackerId];
+    // Access ad tracker directly from NewRelicVideoAgent (no helper method needed)
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(handleAdEvent:adsManager:)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         NSMethodSignature *methodSignature = [adTracker methodSignatureForSelector:@selector(handleAdEvent:adsManager:)];
@@ -516,7 +456,7 @@ static dispatch_once_t onceToken;
 
 + (void)handleAdError:(NSNumber *)trackerId error:(IMAAdError *)error adsManager:(IMAAdsManager *)adsManager {
     // Note: NRTrackerIMA.handleAdError only takes one parameter (the error), ignoring adsManager
-    id adTracker = [self adTracker:trackerId];
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(handleAdError:)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(handleAdError:) withObject:error];
@@ -524,7 +464,7 @@ static dispatch_once_t onceToken;
 }
 
 + (void)handleAdError:(NSNumber *)trackerId error:(IMAAdError *)error {
-    id adTracker = [self adTracker:trackerId];
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(handleAdError:)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(handleAdError:) withObject:error];
@@ -532,7 +472,7 @@ static dispatch_once_t onceToken;
 }
 
 + (void)sendAdBreakStart:(NSNumber *)trackerId {
-    id adTracker = [self adTracker:trackerId];
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(sendAdBreakStart)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(sendAdBreakStart)];
@@ -540,7 +480,7 @@ static dispatch_once_t onceToken;
 }
 
 + (void)sendAdBreakEnd:(NSNumber *)trackerId {
-    id adTracker = [self adTracker:trackerId];
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(sendAdBreakEnd)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(sendAdBreakEnd)];

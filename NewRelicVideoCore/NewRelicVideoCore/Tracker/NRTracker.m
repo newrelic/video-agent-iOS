@@ -94,15 +94,7 @@
     if ([self preSendAction:action attributes:attr]) {
         [attr setObject:action forKey:@"actionName"];
         
-        // Use our own NRVAVideo recordEvent instead of NewRelic recordCustomEvent
-        if ([NRVAVideo isInitialized]) {
-            [NRVAVideo recordEvent:eventType attributes:attr];
-            AV_LOG(@"📊 Recorded event via NRVAVideo: %@ with attributes: %@", eventType, attr);
-        } else {
-            AV_LOG(@"⚠️ Failed to record event - NRVAVideo not initialized. Call [[NRVAVideo newBuilder] withConfiguration:config].build first ⚠️");
-            AV_LOG(@"-->Event Type = %@", eventType);
-            AV_LOG(@"-->Attributes = %@", attr);
-        }
+        [NRVAVideo recordEvent:eventType attributes:attr];
     }
 }
 

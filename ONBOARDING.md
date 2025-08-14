@@ -52,32 +52,17 @@ NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[NRVAVideoConfiguration builde
 
 **Complete Configuration Reference:**
 
-| Option | Type | Default | Range | Description |
-|--------|------|---------|-------|-------------|
-| `withApplicationToken:` | NSString* | *(required)* | - | Your New Relic application token |
-| `withHarvestCycle:` | NSInteger | 300 (5 min) | 5-300 seconds | How often to send regular content data |
-| `withLiveHarvestCycle:` | NSInteger | 30 | 1-60 seconds | How often to send live content data |
-| `withRegularBatchSize:` | NSInteger | 65,536 (64KB) | 1KB-1MB | Batch size for regular content uploads |
-| `withLiveBatchSize:` | NSInteger | 32,768 (32KB) | 512B-512KB | Batch size for live content uploads |
-| `withMaxDeadLetterSize:` | NSInteger | 100 | 10-1000 | Failed request queue capacity |
-| `withMemoryOptimization:` | BOOL | NO | YES/NO | Optimize for low-memory devices |
-| `forTVOS:` | BOOL | auto-detected | YES/NO | Enable Apple TV optimizations |
-| `withDebugLogging:` | BOOL | NO | YES/NO | Enable detailed debug logging |
-
-### Default Values for Convenience Methods
-
-When using one-line convenience methods like `addPlayerWithURL:name:`, these defaults are automatically applied:
-
-**Default Attributes Added:**
-- `videoURL`: The provided video URL
-- `setupMethod`: `"one-line-convenience"`
-- `adsEnabled`: `YES` if adTagURL provided, `NO` otherwise
-- `adTagURL`: Only included if ads are enabled
-
-**Default Behavior:**
-- **No AVPlayer Created**: You manage the AVPlayer lifecycle
-- **Automatic Ad Detection**: Ads enabled if `adTagURL` is provided
-- **Smart Configuration**: Uses global configuration for harvest cycles and batch sizes
+| Option                    | Type       | Default       | Range         | Description                            |
+| ------------------------- | ---------- | ------------- | ------------- | -------------------------------------- |
+| `withApplicationToken:`   | NSString\* | _(required)_  | -             | Your New Relic application token       |
+| `withHarvestCycle:`       | NSInteger  | 300 (5 min)   | 5-300 seconds | How often to send regular content data |
+| `withLiveHarvestCycle:`   | NSInteger  | 30            | 1-60 seconds  | How often to send live content data    |
+| `withRegularBatchSize:`   | NSInteger  | 65,536 (64KB) | 1KB-1MB       | Batch size for regular content uploads |
+| `withLiveBatchSize:`      | NSInteger  | 32,768 (32KB) | 512B-512KB    | Batch size for live content uploads    |
+| `withMaxDeadLetterSize:`  | NSInteger  | 100           | 10-1000       | Failed request queue capacity          |
+| `withMemoryOptimization:` | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
+| `forTVOS:`                | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
+| `withDebugLogging:`       | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
 
 ## Video Player Integration
 
@@ -105,9 +90,18 @@ For basic video playback without advertisements:
     NSURL *videoURL = [NSURL URLWithString:@"https://example.com/video.mp4"];
     self.player = [AVPlayer playerWithURL:videoURL];
 
-    // 🚀 ONE-LINE SETUP: Add player to New Relic tracking
-    self.trackerId = [NRVAVideo addPlayerWithURL:videoURL.absoluteString
-                                            name:@"MainVideoPlayer"];
+    // ✅ CONFIGURATION-BASED SETUP (iOS-Android Parity)
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"MainVideoPlayer"
+        player:self.player
+        adEnabled:NO
+        customAttributes:@{
+            @"videoTitle": @"Sample Video",
+            @"category": @"Entertainment",
+            @"videoURL": videoURL.absoluteString
+        }];
+
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
 
     // Setup your player view
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
@@ -122,22 +116,6 @@ For basic video playback without advertisements:
     // Clean up tracking when done
     [NRVAVideo releaseTracker:self.trackerId];
 }
-```
-
-#### Alternative: Manual Configuration
-
-```objectivec
-// For more control, use manual configuration
-NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
-    initWithPlayerName:@"MainVideoPlayer"
-    player:self.player
-    adEnabled:NO
-    customAttributes:@{
-        @"videoTitle": @"Sample Video",
-        @"category": @"Entertainment"
-    }];
-
-self.trackerId = [NRVAVideo addPlayer:config];
 ```
 
 ### Option 2: Video Player with Ads
@@ -167,11 +145,20 @@ For video playback with Google IMA advertisements:
     NSURL *videoURL = [NSURL URLWithString:@"https://example.com/video.mp4"];
     self.player = [AVPlayer playerWithURL:videoURL];
 
-    // 🚀 ONE-LINE SETUP: Add player with ads to New Relic tracking
+    // ✅ CONFIGURATION-BASED SETUP WITH ADS (iOS-Android Parity)
     NSString *adTagURL = @"https://pubads.g.doubleclick.net/gampad/ads?...";
-    self.trackerId = [NRVAVideo addPlayerWithURL:videoURL.absoluteString
-                                            name:@"MainVideoPlayer"
-                                        adTagURL:adTagURL];
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"MainVideoPlayer"
+        player:self.player
+        adEnabled:YES
+        customAttributes:@{
+            @"videoTitle": @"Sample Video with Ads",
+            @"category": @"Entertainment",
+            @"videoURL": videoURL.absoluteString,
+            @"adTagURL": adTagURL
+        }];
+
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
 
     // Setup your player view
     AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
@@ -179,16 +166,16 @@ For video playback with Google IMA advertisements:
     [self.view.layer addSublayer:playerLayer];
 
     // Setup IMA ads
-    [self setupAds];
+    [self setupAds:adTagURL];
 }
 
-- (void)setupAds {
+- (void)setupAds:(NSString *)adTagURL {
     self.adsLoader = [[IMAAdsLoader alloc] init];
     self.adsLoader.delegate = self;
 
     // Load ads
     IMAAdsRequest *request = [[IMAAdsRequest alloc]
-        initWithAdTagUrl:@"YOUR_AD_TAG_URL"
+        initWithAdTagUrl:adTagURL
         adDisplayContainer:nil
         contentPlayhead:nil
         userContext:nil];
@@ -206,7 +193,7 @@ For video playback with Google IMA advertisements:
 }
 
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
-    // 🚀 ONE-LINE AD ERROR TRACKING
+    // ✅ SIMPLIFIED AD ERROR TRACKING
     [NRVAVideo handleAdError:@(self.trackerId) error:adErrorData.adError];
 
     // Continue with content
@@ -216,7 +203,7 @@ For video playback with Google IMA advertisements:
 #pragma mark - IMA Ads Manager Delegate
 
 - (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdEvent:(IMAAdEvent *)event {
-    // 🚀 ONE-LINE AD EVENT TRACKING
+    // ✅ SIMPLIFIED AD EVENT TRACKING
     [NRVAVideo handleAdEvent:@(self.trackerId) event:event adsManager:adsManager];
 
     // Handle specific events
@@ -233,7 +220,7 @@ For video playback with Google IMA advertisements:
 }
 
 - (void)adsManager:(IMAAdsManager *)adsManager didReceiveAdError:(IMAAdError *)error {
-    // 🚀 ONE-LINE AD ERROR TRACKING
+    // ✅ SIMPLIFIED AD ERROR TRACKING
     [NRVAVideo handleAdError:@(self.trackerId) error:error];
 
     // Continue with content
@@ -276,25 +263,28 @@ Associate video sessions with specific users:
 [NRVAVideo setUserId:@"user123456"];
 ```
 
-### Custom Events
+### Custom Events (Simplified API)
 
-Record custom video events:
+Record custom video events with our **simplified, user-friendly API**:
 
 ```objectivec
-// Record custom event for specific tracker
-[NRVAVideo recordEvent:@"VideoBookmarked"
-             trackerId:@(self.trackerId)
-            attributes:@{
-                @"timestamp": @([[NSDate date] timeIntervalSince1970]),
-                @"bookmarkType": @"favorite"
-            }];
 
-// Record global custom event
-[NRVAVideo recordCustomEvent:@{
-    @"action": @"QualityChanged",
-    @"newQuality": @"1080p",
-    @"previousQuality": @"720p"
-}];
+//  TRACKER-SPECIFIC CUSTOM EVENT (enriched with video attributes)
+// Optional trackerId parameter - if nil, sends globally
+[NRVAVideo recordCustomEvent:@"QualityChanged"
+                   trackerId:@(self.trackerId)
+                  attributes:@{
+                      @"newQuality": @"1080p",
+                      @"previousQuality": @"720p"
+                  }];
+
+// ✅ ALTERNATIVE: Global event by passing nil trackerId
+[NRVAVideo recordCustomEvent:@"UserInteraction"
+                   trackerId:nil
+                  attributes:@{
+                      @"interactionType": @"skip",
+                      @"skipPosition": @(30.5)
+                  }];
 ```
 
 ### Manual Ad Event Control
@@ -311,11 +301,8 @@ For advanced ad implementations, you can manually control ad break events:
 ### Tracker Management
 
 ```objectivec
-// Get content tracker for direct manipulation
-id contentTracker = [NRVAVideo contentTracker:@(self.trackerId)];
-
-// Get ad tracker for direct manipulation
-id adTracker = [NRVAVideo adTracker:@(self.trackerId)];
+// Release tracker by ID
+[NRVAVideo releaseTracker:self.trackerId];
 
 // Release tracker by player name
 [NRVAVideo releaseTrackerWithPlayerName:@"MainVideoPlayer"];
@@ -356,8 +343,9 @@ NRVAVideoConfiguration *memoryOptimizedConfig = [[[[NRVAVideoConfiguration build
 ```
 
 **Memory Optimization automatically sets:**
+
 - Harvest cycle: 60 seconds (vs 300 default)
-- Live harvest cycle: 15 seconds (vs 30 default)  
+- Live harvest cycle: 15 seconds (vs 30 default)
 - Regular batch size: 32KB (vs 64KB default)
 - Live batch size: 16KB (vs 32KB default)
 - Max dead letter size: 50 (vs 100 default)
@@ -373,6 +361,7 @@ NRVAVideoConfiguration *tvConfig = [[[[NRVAVideoConfiguration builder]
 ```
 
 **TV Optimization automatically sets:**
+
 - Harvest cycle: 180 seconds (3 minutes)
 - Live harvest cycle: 10 seconds
 - Regular batch size: 128KB
@@ -410,21 +399,29 @@ NRVAVideoConfiguration *batterySaverConfig = [[[[[[NRVAVideoConfiguration builde
 
 ### 2. **Player Setup**
 
-- Use one-line convenience methods for simple setups
-- Use manual configuration for complex scenarios
+- Use `NRVAVideoPlayerConfiguration` for all player setup (iOS-Android parity)
+- Include relevant custom attributes in configuration
 - Always release trackers in `dealloc` or appropriate cleanup methods
 
-### 3. **Ad Integration**
+### 3. **Event Recording**
 
-- Use convenience methods for automatic ad event tracking
+- **Always provide action parameter** - it's mandatory for all event methods
+- Use global events to send to all trackers (includes video attribute enrichment)
+- Use tracker-specific events for player-specific data
+- All events automatically include video context (playhead, duration, src, etc.)
+
+### 4. **Ad Integration**
+
+- Use simplified ad event methods (`handleAdEvent`, `handleAdError`)
 - Handle ad errors gracefully
 - Consider manual ad break control for custom ad implementations
 
-### 4. **Performance**
+### 5. **Performance**
 
 - Set appropriate harvest cycles (30s for production, 5-10s for development)
 - Use custom attributes sparingly
 - Release trackers when no longer needed
+- Events without trackers are automatically dropped (no unnecessary processing)
 
 ### 5. **Battery Optimization**
 
@@ -437,6 +434,7 @@ NRVAVideoConfiguration *batterySaverConfig = [[[[[[NRVAVideoConfiguration builde
 ### 6. **Performance Tuning Guidelines**
 
 **For Different Device Types:**
+
 - **iPhone/iPad Standard**: Default settings work well
 - **Low-Memory Devices**: Use `withMemoryOptimization:YES`
 - **Apple TV**: Use `forTVOS:YES` for optimal performance
@@ -444,6 +442,7 @@ NRVAVideoConfiguration *batterySaverConfig = [[[[[[NRVAVideoConfiguration builde
 - **Real-Time Apps**: Decrease live harvest cycle (5-10 seconds)
 
 **Network Considerations:**
+
 - **WiFi-Primary Apps**: Larger batches (128KB) and frequent harvesting
 - **Cellular-Primary Apps**: Smaller batches (32KB) and longer cycles
 - **International Apps**: Consider regional data costs with longer cycles
@@ -462,13 +461,25 @@ NRVAVideoConfiguration *batterySaverConfig = [[[[[[NRVAVideoConfiguration builde
 
    - Ensure you call the initialization in `AppDelegate` before using any tracking methods
 
-2. **Missing ad events**
+2. **"Action parameter is mandatory" error**
+
+   - The `recordCustomEvent` method requires an action parameter
+   - Update old API calls: `recordCustomEvent:@{@"action": @"MyAction", ...}` → `recordCustomEvent:@"MyAction" trackerId:@(trackerId) attributes:@{...}`
+   - Use `trackerId:nil` for global events, or `trackerId:@(yourTrackerId)` for tracker-specific events
+   - No need to specify `eventType` - automatically uses `VideoCustomAction`
+
+3. **"No trackers available - dropping event" warning**
+
+   - Events are dropped if no trackers exist (proper behavior for attribute enrichment)
+   - Ensure you have at least one active player/tracker before recording events
+
+4. **Missing ad events**
 
    - Verify IMA SDK is properly integrated
    - Check that ad delegates are properly implemented
-   - Ensure convenience methods are called in correct delegate methods
+   - Ensure simplified ad methods (`handleAdEvent`, `handleAdError`) are called in correct delegate methods
 
-3. **No tracking data**
+5. **No tracking data**
    - Verify your New Relic token is correct
    - Check network connectivity
    - Ensure harvest cycle is appropriate
@@ -481,7 +492,16 @@ When debug logging is enabled, you'll see detailed logs like:
 NRVideoAgent [DEBUG] (2025-08-11 14:30:45.152): Created content tracker (without player)
 NRVideoAgent [DEBUG] (2025-08-11 14:30:45.153): Created IMA ad tracker (Android pattern)
 NRVideoAgent (2025-08-11 14:30:45.154): Started tracking for player 'MainVideoPlayer' with tracker ID: 1
+NRVideoAgent [DEBUG] (2025-08-11 14:30:45.200): 📊 Sent global event to tracker 1: VideoCustomAction action: UserInteraction with enriched attributes
+NRVideoAgent [DEBUG] (2025-08-11 14:30:45.201): 📊 Recorded tracker-specific event via content tracker 1: VideoAction action: QualitySelection with enriched attributes
 ```
+
+**New Logging Features:**
+
+- Clear indication of attribute enrichment (📊 emoji)
+- Shows whether events are global (all trackers) or tracker-specific
+- Displays action parameters explicitly
+- Indicates when events are dropped due to missing trackers
 
 ## Support
 
