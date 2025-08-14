@@ -1,23 +1,16 @@
 PODS:
-  - NewRelicAgent (7.5.3)
-  - NewRelicVideoCore (3.0.1):
-    - NewRelicAgent
+  - NewRelicVideoCore (3.0.1)
 
 DEPENDENCIES:
   - NewRelicVideoCore (from `../../../`)
-
-SPEC REPOS:
-  trunk:
-    - NewRelicAgent
 
 EXTERNAL SOURCES:
   NewRelicVideoCore:
     :path: "../../../"
 
 SPEC CHECKSUMS:
-  NewRelicAgent: 97658d94f42a7e6b376009e1be39b37402a8d860
-  NewRelicVideoCore: c428d2a02d5d5576a7ddfed96b393f9b336aa65f
+  NewRelicVideoCore: 9ac5d86ee51b4f129b18ca84c2ea92f76db23e55
 
 PODFILE CHECKSUM: 4663825557d663fb01a625eecc5036b54719f10c
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2
