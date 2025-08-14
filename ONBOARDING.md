@@ -4,6 +4,29 @@
 
 The New Relic Video Agent for iOS provides comprehensive video analytics and monitoring capabilities with minimal integration effort. This guide covers everything you need to get started with video tracking for both simple video playback and ad-enabled scenarios.
 
+## Installation
+
+See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions using either:
+- **CocoaPods** (recommended)
+- **XCFramework** (binary distribution)
+
+## Dependencies
+
+**Required for all methods:**
+- iOS 12.0+ or tvOS 12.0+
+- Xcode 12.0+
+
+**Additional for IMA Ad Tracking:**
+- Google Interactive Media Ads SDK (automatically handled by CocoaPods)
+
+## Import Statements
+
+```objective-c
+#import <NewRelicVideoCore/NewRelicVideoCore.h>
+#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
+#import <NRIMATracker/NRIMATracker.h>
+```
+
 ## Quick Start
 
 ### 1. AppDelegate Setup (Required)
