@@ -36,19 +36,18 @@
 - (void)adError:(NSString *)message code:(int)code;
 
 /**
- ANDROID PARITY: Simple forwarding methods for user-defined listeners
- These match Android's handleAdEvent/handleAdError exactly
+ Simple forwarding methods for user-defined listeners
  */
 
 /**
- Forward ad events - matches Android's handleAdEvent  
+ Forward ad events
  @param event The IMA ad event
  @param adsManager The ads manager (can be nil)
  */
 - (void)handleAdEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager;
 
 /**
- Forward ad errors - matches Android's handleAdError
+ Forward ad errors
  @param error The IMA ad error
  */
 - (void)handleAdError:(IMAAdError *)error;

@@ -57,7 +57,7 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    // ANDROID PARITY: Use configuration-based approach
+    // Use configuration-based approach
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"SimplePlayer"
         player:player

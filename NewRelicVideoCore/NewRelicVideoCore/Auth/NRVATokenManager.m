@@ -175,7 +175,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
 }
 
 - (void)generateAppTokenWithCompletion:(void (^)(NSArray<NSNumber *> *token, NSError *error))completion {
-    // Build request payload following Android pattern
+    // Build request payload
     NSArray *payload = [self buildTokenRequestPayload];
     
     NSError *jsonError;
@@ -249,8 +249,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
 }
 
 - (NSArray *)buildTokenRequestPayload {
-    // Following Android pattern exactly
-    
     // Application information
     NSBundle *mainBundle = [NSBundle mainBundle];
     NSString *appName = [mainBundle objectForInfoDictionaryKey:@"CFBundleDisplayName"] ?: 

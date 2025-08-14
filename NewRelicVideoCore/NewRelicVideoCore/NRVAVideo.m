@@ -91,8 +91,7 @@ static dispatch_once_t onceToken;
         videoInstance.trackerIds[config.playerName] = @(trackerId);
     }
     
-    // Create content tracker (equivalent to Android's createContentTracker)
-    // Following Android pattern: create tracker WITHOUT player, then set player after start
+    // Create content tracker
     id contentTracker = nil;
     if (config.player) {
         contentTracker = [self createContentTracker];
@@ -105,7 +104,7 @@ static dispatch_once_t onceToken;
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
     
-    // Create ad tracker (equivalent to Android's createAdTracker)
+    // Create ad tracker
     id adTracker = nil;
     if (config.isAdEnabled) {
         adTracker = [self createAdTracker];
@@ -132,14 +131,16 @@ static dispatch_once_t onceToken;
         
         NRVA_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
         
-        // ANDROID PATTERN: Set player instance AFTER tracker initialization
+        // Set player instance after tracker initialization
         if (contentTracker && config.player && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
             [contentTracker setPlayer:config.player];
             NRVA_DEBUG_LOG(@"Set player instance on content tracker for '%@'", config.playerName);
         }
     } else {
         NRVA_ERROR_LOG(@"No trackers created for player '%@', tracking not started", config.playerName);
-    }    // Set custom attributes directly on the trackers (matching Android behavior)
+    }
+    
+    // Set custom attributes directly on the trackers
     if (config.customAttributes && config.customAttributes.count > 0) {
         for (NSString *key in config.customAttributes) {
             [self setAttribute:trackerId key:key value:config.customAttributes[key]];
@@ -362,12 +363,12 @@ static dispatch_once_t onceToken;
 #pragma mark - Tracker Creation (Internal Methods)
 
 /**
- * Creates a content tracker for AVPlayer (equivalent to Android's createContentTracker)
- * Uses standard iOS pattern following Android's approach: create tracker without player
+ * Creates a content tracker for AVPlayer
+ * Creates tracker without player, then sets player after initialization
  */
 + (id)createContentTracker {
-    // Use the standard iOS pattern - directly create NRTrackerAVPlayer WITHOUT player
-    // Following Android pattern: new NRTrackerExoPlayer() without parameters
+    // Create NRTrackerAVPlayer without player
+    // Player will be set after tracker initialization
     Class trackerClass = NSClassFromString(@"NRTrackerAVPlayer");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerAVPlayer class not found - ensure NRAVPlayerTracker pod is installed");
@@ -386,22 +387,21 @@ static dispatch_once_t onceToken;
 }
 
 /**
- * Creates an ad tracker for IMA (equivalent to Android's createAdTracker)
- * Uses Android pattern: dynamic class loading with graceful fallback
- * Follows Android approach: Always use IMA tracker for ads when available
+ * Creates an ad tracker for IMA
+ * Uses dynamic class loading with graceful fallback
  */
 + (id)createAdTracker {
-    // ANDROID PATTERN: Dynamic class loading with graceful fallback
+    // Dynamic class loading with graceful fallback
     Class trackerClass = NSClassFromString(@"NRTrackerIMA");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerIMA class not found - ensure NRIMATracker pod is installed");
         return nil;
     }
     
-    // ANDROID PATTERN: Standard initialization without parameters
+    // Standard initialization without parameters
     id adTracker = [[trackerClass alloc] init];
     if (adTracker) {
-        NRVA_DEBUG_LOG(@"Created IMA ad tracker (Android pattern)");
+        NRVA_DEBUG_LOG(@"Created IMA ad tracker");
         return adTracker;
     } else {
         NRVA_ERROR_LOG(@"Failed to create NRTrackerIMA instance");

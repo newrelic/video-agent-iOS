@@ -13,7 +13,6 @@
 /**
  * Manages authentication tokens for the video agent
  * Thread-safe token generation, caching, and validation
- * Follows Android TokenManager pattern
  */
 @interface NRVATokenManager : NSObject
 

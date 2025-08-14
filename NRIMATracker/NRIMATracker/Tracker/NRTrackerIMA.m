@@ -74,15 +74,15 @@
 
 
 /**
- * Forward ad events - matches Android's handleAdEvent exactly
- * Simple forwarding to existing adEvent method (no changes to core logic)
+ * Forward ad events
+ * Simple forwarding to existing adEvent method
  */
 - (void)handleAdEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager {
     [self adEvent:event adsManager:adsManager];
 }
 
 /**
- * Forward ad errors - matches Android's handleAdError exactly  
+ * Forward ad errors  
  * Simple forwarding to existing adError method (no changes to core logic)
  */
 - (void)handleAdError:(IMAAdError *)error {

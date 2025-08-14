@@ -90,7 +90,7 @@ For basic video playback without advertisements:
     NSURL *videoURL = [NSURL URLWithString:@"https://example.com/video.mp4"];
     self.player = [AVPlayer playerWithURL:videoURL];
 
-    // ✅ CONFIGURATION-BASED SETUP (iOS-Android Parity)
+    // ✅ CONFIGURATION-BASED SETUP
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"MainVideoPlayer"
         player:self.player
@@ -145,7 +145,7 @@ For video playback with Google IMA advertisements:
     NSURL *videoURL = [NSURL URLWithString:@"https://example.com/video.mp4"];
     self.player = [AVPlayer playerWithURL:videoURL];
 
-    // ✅ CONFIGURATION-BASED SETUP WITH ADS (iOS-Android Parity)
+    // ✅ CONFIGURATION-BASED SETUP WITH ADS
     NSString *adTagURL = @"https://pubads.g.doubleclick.net/gampad/ads?...";
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"MainVideoPlayer"
@@ -399,7 +399,7 @@ NRVAVideoConfiguration *batterySaverConfig = [[[[[[NRVAVideoConfiguration builde
 
 ### 2. **Player Setup**
 
-- Use `NRVAVideoPlayerConfiguration` for all player setup (iOS-Android parity)
+- Use `NRVAVideoPlayerConfiguration` for all player setup
 - Include relevant custom attributes in configuration
 - Always release trackers in `dealloc` or appropriate cleanup methods
 
@@ -490,7 +490,7 @@ When debug logging is enabled, you'll see detailed logs like:
 
 ```
 NRVideoAgent [DEBUG] (2025-08-11 14:30:45.152): Created content tracker (without player)
-NRVideoAgent [DEBUG] (2025-08-11 14:30:45.153): Created IMA ad tracker (Android pattern)
+NRVideoAgent [DEBUG] (2025-08-11 14:30:45.153): Created IMA ad tracker
 NRVideoAgent (2025-08-11 14:30:45.154): Started tracking for player 'MainVideoPlayer' with tracker ID: 1
 NRVideoAgent [DEBUG] (2025-08-11 14:30:45.200): 📊 Sent global event to tracker 1: VideoCustomAction action: UserInteraction with enriched attributes
 NRVideoAgent [DEBUG] (2025-08-11 14:30:45.201): 📊 Recorded tracker-specific event via content tracker 1: VideoAction action: QualitySelection with enriched attributes
