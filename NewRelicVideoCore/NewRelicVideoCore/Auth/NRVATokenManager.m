@@ -8,7 +8,6 @@
 
 #import "NRVATokenManager.h"
 #import "NRVAVideoConfiguration.h"
-#import "NRVAConnection.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
 #import "NRVAHttpDebugUtil.h"
@@ -26,7 +25,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
 @interface NRVATokenManager ()
 
 @property (nonatomic, strong) NRVAVideoConfiguration *configuration;
-@property (nonatomic, strong) NRVAConnection *connection;
 @property (nonatomic, strong) NSUserDefaults *prefs;
 @property (nonatomic, strong) NSArray<NSNumber *> *cachedToken;
 @property (nonatomic, assign) NSTimeInterval lastTokenTime;
@@ -46,12 +44,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
         }
         
         _configuration = configuration;
-        _connection = [[NRVAConnection alloc] init];
-        if (!_connection) {
-            NRVA_ERROR_LOG(@"Failed to initialize NRVAConnection");
-            return nil;
-        }
-        _connection.applicationToken = configuration.applicationToken;
         
         // Use standard NSUserDefaults instead of suite to avoid potential crashes
         _prefs = [NSUserDefaults standardUserDefaults];
