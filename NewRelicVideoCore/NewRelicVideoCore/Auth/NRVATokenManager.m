@@ -11,6 +11,7 @@
 #import "NRVAConnection.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
+#import "NRVAHttpDebugUtil.h"
 
 #import <UIKit/UIKit.h>
 
@@ -202,7 +203,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     [request setValue:self.configuration.applicationToken forHTTPHeaderField:@"X-App-License-Key"];
     
     // Log the request as curl command for debugging
-    [self logRequestAsCurl:request tag:@"TOKEN"];
+    // [NRVAHttpDebugUtil logRequestAsCurl:request tag:@"TOKEN"];
     
     // Send request
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
@@ -214,7 +215,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request
                                              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
         // Log the response for debugging
-        [self logResponse:response data:data error:error tag:@"TOKEN"];
+        // [NRVAHttpDebugUtil logResponse:response data:data error:error tag:@"TOKEN"];
         
         if (error) {
             NRVA_ERROR_LOG(@"Token request failed: %@", error.localizedDescription);
@@ -420,80 +421,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
             return @"large"; // iPad
         } else {
             return @"normal"; // iPhone
-        }
-    }
-}
-
-- (void)logRequestAsCurl:(NSURLRequest *)request tag:(NSString *)tag {
-    if (!request) return;
-    
-    NSMutableString *curlCommand = [NSMutableString stringWithString:@"curl"];
-    
-    // Add HTTP method
-    NSString *method = request.HTTPMethod ?: @"GET";
-    if (![method isEqualToString:@"GET"]) {
-        [curlCommand appendFormat:@" -X %@", method];
-    }
-    
-    // Add headers
-    NSDictionary *headers = request.allHTTPHeaderFields;
-    for (NSString *key in headers) {
-        NSString *value = headers[key];
-        [curlCommand appendFormat:@" -H \"%@: %@\"", key, value];
-    }
-    
-    // Add body data for POST/PUT requests
-    if (request.HTTPBody) {
-        NSString *bodyString = [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding];
-        if (bodyString) {
-            // Escape quotes in JSON
-            bodyString = [bodyString stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
-            [curlCommand appendFormat:@" -d \"%@\"", bodyString];
-        } else {
-            [curlCommand appendFormat:@" -d '<binary data: %lu bytes>'", (unsigned long)request.HTTPBody.length];
-        }
-    }
-    
-    // Add URL (should be last)
-    [curlCommand appendFormat:@" \"%@\"", request.URL.absoluteString];
-    
-    // Log with tag
-    NSString *tagPrefix = tag ? [NSString stringWithFormat:@"[%@] ", tag] : @"";
-    NRVA_DEBUG_LOG(@"🌐 %@API REQUEST:\n%@", tagPrefix, curlCommand);
-}
-
-- (void)logResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError *)error tag:(NSString *)tag {
-    NSString *tagPrefix = tag ? [NSString stringWithFormat:@"[%@] ", tag] : @"";
-    
-    if (error) {
-        NRVA_ERROR_LOG(@"🌐 %@API RESPONSE ERROR: %@", tagPrefix, error.localizedDescription);
-        if (error.code == NSURLErrorServerCertificateUntrusted || 
-            error.code == NSURLErrorSecureConnectionFailed ||
-            [error.localizedDescription containsString:@"SSL"]) {
-            NRVA_ERROR_LOG(@"🔒 %@SSL/Certificate Error Details: %@", tagPrefix, error.userInfo);
-        }
-        return;
-    }
-    
-    if ([response isKindOfClass:[NSHTTPURLResponse class]]) {
-        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-        NSString *statusIcon = (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) ? @"✅" : @"❌";
-        
-        NRVA_DEBUG_LOG(@"🌐 %@API RESPONSE %@ %ld: %@", 
-                tagPrefix, statusIcon, (long)httpResponse.statusCode, httpResponse.URL.absoluteString);
-        
-        // Log response data if available and reasonable size
-        if (data && data.length > 0) {
-            if (data.length < 1024) { // Only log small responses to avoid clutter
-                NSString *responseString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                if (responseString) {
-                    NRVA_DEBUG_LOG(@"🌐 %@Response Data: %@", tagPrefix, responseString);
-                } else {
-                    NRVA_DEBUG_LOG(@"🌐 %@Response Data: <binary data: %lu bytes>", tagPrefix, (unsigned long)data.length);
-                }
-            } else {
-                NRVA_DEBUG_LOG(@"🌐 %@Response Data: <large response: %lu bytes>", tagPrefix, (unsigned long)data.length);
-            }
         }
     }
 }

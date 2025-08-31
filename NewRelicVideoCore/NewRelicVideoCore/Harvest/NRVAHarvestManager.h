@@ -9,47 +9,59 @@
 #import <Foundation/Foundation.h>
 
 @class NRVAVideoConfiguration;
-@class NRVAConnection;
-@class NRVAOfflineStorage;
-@class NRVATokenManager;
+@protocol NRVAHarvestComponentFactory;
+
 
 /**
- * Manages event harvesting, batching, and transmission
- * Thread-safe singleton with automatic retry and offline storage
- */
+* Crash-safe harvest manager
+* - Manages event recording and harvesting.
+* - Uses a capacity-based trigger to start the harvest scheduler.
+*/
 @interface NRVAHarvestManager : NSObject
 
-/**
- * Initialize with configuration
- * @param config Video configuration with harvest settings
- */
-- (instancetype)initWithConfiguration:(NRVAVideoConfiguration *)config;
 
 /**
- * Record an event for harvest
- * @param eventType The event type
- * @param attributes Event attributes
- */
+* Initialize with a video agent configuration.
+* @param config The video configuration.
+*/
+- (instancetype)initWithConfiguration:(NRVAVideoConfiguration *)config;
+
+
+/**
+* Record an event for harvest.
+* @param eventType The event type.
+* @param attributes Event attributes.
+*/
 - (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes;
 
 /**
- * Start the harvest cycle
- */
-- (void)startHarvesting;
+* Harvest on-demand events with optimized batch sizes from configuration.
+*/
+- (void)harvestOnDemand;
+
 
 /**
- * Stop the harvest cycle
- */
-- (void)stopHarvesting;
+* Harvest live events with optimized batch sizes from configuration.
+*/
+- (void)harvestLive;
+
 
 /**
- * Force immediate harvest (for testing or critical events)
- */
-- (void)forceHarvest;
+* Get the underlying component factory.
+*/
+- (id<NRVAHarvestComponentFactory>)getFactory;
+
 
 /**
- * Get current queue size
- */
+* Get current queue size.
+*/
 - (NSUInteger)queueSize;
+
+
+/**
+* Get recovery status (if recovering from crash).
+*/
+- (NSString *)getRecoveryStatus;
+
 
 @end

@@ -10,6 +10,7 @@
 #import "NRVAVideoConfiguration.h"
 #import "NRVAVideoPlayerConfiguration.h"
 #import "NRVAHarvestManager.h"
+#import "NRVAVideoLifecycleObserver.h"
 #import "Utils/NRVALog.h"
 #import "NRVAUtils.h"
 #import "NewRelicVideoAgent.h"
@@ -27,6 +28,7 @@
 @interface NRVAVideo ()
 
 @property (nonatomic, strong) NRVAHarvestManager *harvestManager;
+@property (nonatomic, strong) NRVAVideoLifecycleObserver *lifecycleObserver;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *trackerIds;
 @property (nonatomic, assign) NSInteger nextTrackerId;
 
@@ -95,11 +97,6 @@ static dispatch_once_t onceToken;
     id contentTracker = nil;
     if (config.player) {
         contentTracker = [self createContentTracker];
-        if (contentTracker) {
-            NRVA_DEBUG_LOG(@"Created content tracker for player '%@'", config.playerName);
-        } else {
-            NRVA_ERROR_LOG(@"Failed to create content tracker for player '%@'", config.playerName);
-        }
     } else {
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
@@ -108,13 +105,6 @@ static dispatch_once_t onceToken;
     id adTracker = nil;
     if (config.isAdEnabled) {
         adTracker = [self createAdTracker];
-        if (adTracker) {
-            NRVA_DEBUG_LOG(@"Created ad tracker for player '%@'", config.playerName);
-        } else {
-            NRVA_ERROR_LOG(@"Failed to create ad tracker for player '%@'", config.playerName);
-        }
-    } else {
-        NRVA_DEBUG_LOG(@"Ad tracking disabled for player '%@', ad tracker not created", config.playerName);
     }
 
     // Start tracking with NewRelicVideoAgent 
@@ -354,7 +344,7 @@ static dispatch_once_t onceToken;
     if ([self isInitialized]) {
         NRVAVideo *videoInstance = [self getInstance];
         [videoInstance.harvestManager recordEvent:eventType attributes:attributes];
-        NRVA_DEBUG_LOG(@"📊 Recorded event: %@ with attributes %@", eventType, attributes);
+        // NRVA_DEBUG_LOG(@"📊 Recorded event: %@ with attributes %@", eventType, attributes);
     } else {
         NRVA_ERROR_LOG(@"recordEvent called before NRVAVideo is fully initialized - event dropped: %@", eventType);
     }
@@ -423,17 +413,23 @@ static dispatch_once_t onceToken;
             [[NewRelicVideoAgent sharedInstance] setLogging:YES];
         }
         
-        // Start harvesting
-        [_harvestManager startHarvesting];
+        // ADDED: Create and start lifecycle observer with crash-safe factory (matching Android)
+        _lifecycleObserver = [[NRVAVideoLifecycleObserver alloc] 
+                             initWithCrashSafeFactory:[_harvestManager getFactory]];
+        [_lifecycleObserver startObserving];
         
-        NRVA_LOG(@"NRVAVideo initialized successfully with token: %@", config.applicationToken);
+        NRVA_DEBUG_LOG(@"Lifecycle observer created and started with crash-safe storage");
+        
+        NRVA_LOG(@"🚀  NRVAVideo initialized successfully ");
+        
+        // Enhanced features are running automatically - no manual monitoring needed
     }
     return self;
 }
 
-- (void)dealloc {
-    [self.harvestManager stopHarvesting];
-}
+// - (void)dealloc {
+//     [self.harvestManager stopHarvesting];
+// }
 
 #pragma mark - SIMPLIFIED AD EVENT API
 

@@ -19,5 +19,15 @@
 - (void)setMaxOfflineStorageSize:(NSUInteger)size;
 - (NSString *)offlineDirectoryPath;
 + (NSString *)allOfflineDirectorysPath;
+- (NSInteger)getEventCount;
+
+// Simple selective file management
+- (NSArray<NSString *> *)getAllOfflineFileNames;
+- (NSData *)getDataFromFile:(NSString *)filename;
+- (BOOL)clearSpecificFiles:(NSArray<NSString *> *)filenames;
+
+// Clean event-level processing (your suggested approach)
+- (NSArray<NSDictionary *> *)getUnprocessedEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents;
+- (BOOL)removeProcessedEventsFromFile:(NSString *)filename;
 
 @end

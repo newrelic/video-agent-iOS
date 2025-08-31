@@ -151,4 +151,173 @@
     return [documentsDirectory stringByAppendingPathComponent:@"com.newrelic.videoAgent"];
 }
 
+- (NSInteger)getEventCount {
+    @synchronized (self) {
+        NSInteger eventCount = 0;
+        
+        // Check if offline directory exists
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[self offlineDirectoryPath] isDirectory:nil]) {
+            return 0;
+        }
+        
+        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[self offlineDirectoryPath] error:NULL];
+        
+        for (NSString *filename in files) {
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename];
+            NSData *data = [NSData dataWithContentsOfFile:filePath];
+            
+            if (data) {
+                @try {
+                    NSArray *events = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                    if ([events isKindOfClass:[NSArray class]]) {
+                        eventCount += events.count;
+                    } else {
+                        // Single event stored as object
+                        eventCount += 1;
+                    }
+                } @catch (NSException *exception) {
+                    // Skip corrupted files
+                    NSLog(@"[NRVA] Failed to parse offline file %@: %@", filename, exception.reason);
+                }
+            }
+        }
+        
+        return eventCount;
+    }
+}
+
+#pragma mark - Selective File Management
+
+- (NSArray<NSString *> *)getAllOfflineFileNames {
+    @synchronized (self) {
+        if (![[NSFileManager defaultManager] fileExistsAtPath:[self offlineDirectoryPath] isDirectory:nil]) {
+            return @[];
+        }
+        
+        NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtPath:[self offlineDirectoryPath] error:NULL];
+        return [files sortedArrayUsingSelector:@selector(compare:)]; // FIFO order
+    }
+}
+
+- (NSData *)getDataFromFile:(NSString *)filename {
+    @synchronized (self) {
+        if (!filename || filename.length == 0) return nil;
+        
+        NSString *filePath = [NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename];
+        return [[NSFileManager defaultManager] fileExistsAtPath:filePath] ? [NSData dataWithContentsOfFile:filePath] : nil;
+    }
+}
+
+- (BOOL)clearSpecificFiles:(NSArray<NSString *> *)filenames {
+    @synchronized (self) {
+        if (!filenames || filenames.count == 0) return YES;
+        
+        NSUInteger totalSizeReduced = 0;
+        for (NSString *filename in filenames) {
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename];
+            
+            if ([[NSFileManager defaultManager] fileExistsAtPath:filePath]) {
+                NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:filePath error:nil];
+                NSUInteger fileSize = [attributes fileSize];
+                
+                if ([[NSFileManager defaultManager] removeItemAtPath:filePath error:nil]) {
+                    totalSizeReduced += fileSize;
+                    NSLog(@"[NRVA] Cleared offline file: %@", filename);
+                }
+            }
+        }
+        
+        // Update storage tracking
+        if (totalSizeReduced > 0) {
+            NSUInteger currentSize = [[NSUserDefaults standardUserDefaults] integerForKey:kNRVAOfflineStorageCurrentSizeKey];
+            currentSize = (currentSize >= totalSizeReduced) ? currentSize - totalSizeReduced : 0;
+            [[NSUserDefaults standardUserDefaults] setInteger:currentSize forKey:kNRVAOfflineStorageCurrentSizeKey];
+        }
+        
+        return totalSizeReduced > 0;
+    }
+}
+
+#pragma mark - Clean Event-Level Processing
+
+- (NSArray<NSDictionary *> *)getUnprocessedEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents {
+    @synchronized (self) {
+        NSData *data = [self getDataFromFile:filename];
+        if (!data) return @[];
+        
+        @try {
+            NSArray *allEvents = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (![allEvents isKindOfClass:[NSArray class]]) {
+                allEvents = allEvents ? @[allEvents] : @[];
+            }
+            
+            // Filter unprocessed events and limit count
+            NSMutableArray *unprocessedEvents = [[NSMutableArray alloc] init];
+            for (NSDictionary *event in allEvents) {
+                if (unprocessedEvents.count >= maxEvents) break;
+                
+                // Skip events marked as processed
+                if (![event[@"_processed"] boolValue]) {
+                    [unprocessedEvents addObject:event];
+                }
+            }
+            
+            NSLog(@"[NRVA] File %@: found %ld unprocessed events (limit: %ld)", 
+                  filename, (long)unprocessedEvents.count, (long)maxEvents);
+            
+            return [unprocessedEvents copy];
+            
+        } @catch (NSException *exception) {
+            NSLog(@"[NRVA] Failed to parse file %@: %@", filename, exception.reason);
+            return @[];
+        }
+    }
+}
+
+- (BOOL)removeProcessedEventsFromFile:(NSString *)filename {
+    @synchronized (self) {
+        NSData *data = [self getDataFromFile:filename];
+        if (!data) return NO;
+        
+        @try {
+            NSArray *allEvents = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (![allEvents isKindOfClass:[NSArray class]]) {
+                allEvents = allEvents ? @[allEvents] : @[];
+            }
+            
+            // Keep only unprocessed events
+            NSMutableArray *unprocessedEvents = [[NSMutableArray alloc] init];
+            NSInteger processedCount = 0;
+            
+            for (NSDictionary *event in allEvents) {
+                if ([event[@"_processed"] boolValue]) {
+                    processedCount++;
+                } else {
+                    [unprocessedEvents addObject:event];
+                }
+            }
+            
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename];
+            
+            if (unprocessedEvents.count == 0) {
+                // No unprocessed events left - delete entire file
+                [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+                NSLog(@"[NRVA] File %@ fully processed - deleted", filename);
+                return YES;
+            } else {
+                // Update file with remaining unprocessed events
+                NSData *updatedData = [NSJSONSerialization dataWithJSONObject:unprocessedEvents options:0 error:nil];
+                BOOL success = [updatedData writeToFile:filePath atomically:YES];
+                NSLog(@"[NRVA] File %@: removed %ld processed events, %ld remaining", 
+                      filename, (long)processedCount, (long)unprocessedEvents.count);
+                return success;
+            }
+            
+        } @catch (NSException *exception) {
+            NSLog(@"[NRVA] Failed to update file %@: %@", filename, exception.reason);
+            return NO;
+        }
+    }
+}
+
 @end

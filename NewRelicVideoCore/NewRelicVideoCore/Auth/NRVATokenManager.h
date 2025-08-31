@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "NRVAHttpDebugUtil.h"
 
 @class NRVAVideoConfiguration;
 

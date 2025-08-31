@@ -18,6 +18,7 @@
 
 /**
  * New Relic Video Agent - iOS & tvOS Optimized
+ * Enhanced with crash-safe architecture and priority buffering
  * Singleton pattern with Builder for robust initialization
  * Supports AVPlayer and custom players with automatic device detection
  */
@@ -98,12 +99,6 @@
  */
 + (NRVAVideoBuilder *)newBuilder;
 
-/**
- * Record a custom video event (automatically uses VideoCustomAction eventType)
- * @param action The action name (mandatory)
- * @param trackerId The tracker ID (optional - if nil, sends to all trackers globally)
- * @param attributes A dictionary of attributes for the event
- */
 /**
  * Record a custom video event with video-specific attributes automatically added.
  * The event will be recorded with internal eventType 'VideoCustomAction'.
@@ -188,6 +183,11 @@
  * @param attributes The attributes dictionary
  */
 + (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes;
+
+/**
+ * Force emergency backup (useful for critical app state changes)
+ */
++ (void)performEmergencyBackup;
 
 @end
 

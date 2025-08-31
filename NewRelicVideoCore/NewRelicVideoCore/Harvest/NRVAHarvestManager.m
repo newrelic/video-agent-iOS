@@ -8,24 +8,25 @@
 
 #import "NRVAHarvestManager.h"
 #import "NRVAVideoConfiguration.h"
-#import "NRVAConnection.h"
-#import "NRVAOfflineStorage.h"
-#import "NRVATokenManager.h"
+#import "NRVACrashSafeHarvestFactory.h"
+#import "NRVAEventBufferInterface.h"
+#import "NRVAHttpClientInterface.h"
+#import "NRVASchedulerInterface.h"
+#import "NRVAIntegratedDeadLetterHandler.h"
+#import "NRVADefaultSizeEstimator.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
 
-#define kNRVA_VIDEO_AGENT_VERSION      @"4.0.0"
+// Define constants for event types to avoid magic strings
+static NSString * const kNRVAEventTypeOnDemand = @"ondemand";
+static NSString * const kNRVAEventTypeLive = @"live";
 
 @interface NRVAHarvestManager ()
 
 @property (nonatomic, strong) NRVAVideoConfiguration *config;
-@property (nonatomic, strong) NRVAConnection *connection;
-@property (nonatomic, strong) NRVAOfflineStorage *offlineStorage;
-@property (nonatomic, strong) NRVATokenManager *tokenManager;
-@property (nonatomic, strong) NSMutableArray<NSDictionary *> *eventQueue;
-@property (nonatomic, strong) NSTimer *harvestTimer;
+@property (nonatomic, strong) id<NRVAHarvestComponentFactory> crashSafeFactory;
+@property (nonatomic, strong) NRVADefaultSizeEstimator *sizeEstimator;
 @property (nonatomic, strong) dispatch_queue_t harvestQueue;
-@property (nonatomic, assign) BOOL isHarvesting;
 
 @end
 
@@ -35,18 +36,45 @@
     self = [super init];
     if (self) {
         _config = config;
-        _connection = [[NRVAConnection alloc] init];
-        _connection.applicationToken = config.applicationToken; // Set the application token
-        _offlineStorage = [[NRVAOfflineStorage alloc] initWithEndpoint:@"video-events"];
-        _tokenManager = [[NRVATokenManager alloc] initWithConfiguration:config];
-        _eventQueue = [[NSMutableArray alloc] init];
         _harvestQueue = dispatch_queue_create("com.newrelic.videoagent.harvest", DISPATCH_QUEUE_SERIAL);
-        _isHarvesting = NO;
+        _sizeEstimator = [[NRVADefaultSizeEstimator alloc] init];
         
-        // Configure offline storage size
-        [_offlineStorage setMaxOfflineStorageSize:100]; // 100MB
+        // Create harvest task blocks for the factory
+        __weak typeof(self) weakSelf = self;
+        void(^overflowTask)(NSString *) = ^(NSString *bufferType) {
+            NRVA_DEBUG_LOG(@"Buffer overflow detected for %@ - triggering immediate harvest", bufferType);
+            [weakSelf harvestNow:bufferType];
+        };
         
-        NRVA_DEBUG_LOG(@"HarvestManager initialized with config: %@", config.applicationToken);
+        // Start scheduler only when buffer reaches 60% capacity
+        void(^capacityCallback)(double capacity, NSString *bufferType) = ^(double capacity, NSString *bufferType) {
+           
+                NRVA_DEBUG_LOG(@"Capacity threshold reached for %@ (%.1f%%) - starting scheduler", bufferType, capacity * 100);
+                [weakSelf.crashSafeFactory.getScheduler startWithBufferType:bufferType];
+            
+        };
+        
+        void(^onDemandTask)(void) = ^{
+            [weakSelf harvestOnDemand];
+        };
+        
+        void(^liveTask)(void) = ^{
+            [weakSelf harvestLive];
+        };
+        
+        // Initialize crash-safe factory with all components
+        _crashSafeFactory = [[NRVACrashSafeHarvestFactory alloc] initWithConfiguration:config
+                                                                       overflowCallback:overflowTask
+                                                                       capacityCallback:capacityCallback
+                                                                          onDemandTask:onDemandTask
+                                                                              liveTask:liveTask];
+        
+        NRVA_DEBUG_LOG(@"HarvestManager initialized");
+        
+        // Log recovery status if in recovery mode
+        if ([_crashSafeFactory isRecovering]) {
+            NRVA_LOG(@"🔄 Recovery mode detected: %@", [_crashSafeFactory getRecoveryStats]);
+        }
     }
     return self;
 }
@@ -58,294 +86,90 @@
     }
     
     dispatch_async(self.harvestQueue, ^{
-        NSMutableDictionary *event = [[NSMutableDictionary alloc] init];
+        NSMutableDictionary *event = [NSMutableDictionary dictionaryWithDictionary:(attributes ?: @{})];
         event[@"eventType"] = eventType;
         event[@"timestamp"] = @([[NSDate date] timeIntervalSince1970] * 1000); // milliseconds
-        event[@"sessionId"] = [NRVAUtils generateSessionId];
         
-        // Add device information
-        event[@"deviceType"] = [NRVAUtils isTVDevice] ? @"tv" : @"mobile";
-        event[@"osName"] = [NRVAUtils osName];
-        event[@"deviceModel"] = [NRVAUtils deviceModel];
+        // Add to event buffer - this will trigger capacity monitoring
+        [self.crashSafeFactory.getEventBuffer addEvent:[event copy]];
         
-        // Add custom attributes directly to the main event object
-        if (attributes && attributes.count > 0) {
-            [event addEntriesFromDictionary:attributes];
-        }
-        
-        @synchronized (self.eventQueue) {
-            [self.eventQueue addObject:[event copy]];
-        }
-        
-        NRVA_DEBUG_LOG(@"🗂️ [HARVEST] Queued event: %@ (queue size: %lu/%lu)", eventType, (unsigned long)[self queueSize], (unsigned long)[self currentBatchSize]);
-        
-        // Check if we need to harvest immediately (queue size limit)
-        if ([self queueSize] >= [self currentBatchSize]) {
-            [self performHarvest];
-        }
+        NRVA_DEBUG_LOG(@"🗂️ Queued event: %@ (total queue size: %lu)",
+                      eventType, (unsigned long)[self.crashSafeFactory.getEventBuffer getEventCount]);
     });
 }
 
-- (void)startHarvesting {
-    dispatch_async(self.harvestQueue, ^{
-        if (self.isHarvesting) {
-            NRVA_DEBUG_LOG(@"Harvest already running");
-            return;
-        }
-        
-        self.isHarvesting = YES;
-        
-        // Schedule regular harvesting
-        dispatch_async(dispatch_get_main_queue(), ^{
-            self.harvestTimer = [NSTimer scheduledTimerWithTimeInterval:self.config.harvestCycleSeconds
-                                                                 target:self
-                                                               selector:@selector(harvestTimerFired:)
-                                                               userInfo:nil
-                                                                repeats:YES];
-        });
-        
-        NRVA_DEBUG_LOG(@"Harvest started with %ld second cycle", (long)self.config.harvestCycleSeconds);
-    });
+- (void)harvestOnDemand {
+    NSInteger batchSizeBytes = self.config.regularBatchSizeBytes;
+    [self harvestWithBatchSize:batchSizeBytes priorityFilter:kNRVAEventTypeOnDemand harvestType:kNRVAEventTypeOnDemand];
 }
 
-- (void)stopHarvesting {
-    dispatch_async(self.harvestQueue, ^{
-        self.isHarvesting = NO;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self.harvestTimer invalidate];
-            self.harvestTimer = nil;
-        });
-        
-        // Final harvest before stopping
-        [self performHarvest];
-        
-        NRVA_DEBUG_LOG(@"Harvest stopped");
-    });
+- (void)harvestLive {
+    NSInteger batchSizeBytes = self.config.liveBatchSizeBytes;
+    [self harvestWithBatchSize:batchSizeBytes priorityFilter:kNRVAEventTypeLive harvestType:kNRVAEventTypeLive];
 }
 
-- (void)forceHarvest {
-    dispatch_async(self.harvestQueue, ^{
-        [self performHarvest];
-    });
+- (id<NRVAHarvestComponentFactory>)getFactory {
+    return self.crashSafeFactory;
 }
 
 - (NSUInteger)queueSize {
-    @synchronized (self.eventQueue) {
-        return self.eventQueue.count;
-    }
+    // Ensure thread safety by dispatching to the harvest queue
+    __block NSUInteger count = 0;
+    dispatch_sync(self.harvestQueue, ^{
+        count = [self.crashSafeFactory.getEventBuffer getEventCount];
+    });
+    return count;
 }
 
-#pragma mark - Private Methods
+- (NSString *)getRecoveryStatus {
+    return [self.crashSafeFactory getRecoveryStats];
+}
 
-- (void)harvestTimerFired:(NSTimer *)timer {
+#pragma mark - Private Harvest Methods
+
+- (void)harvestNow:(NSString *)bufferType {
     dispatch_async(self.harvestQueue, ^{
-        [self performHarvest];
+        // STRICT: Validation to ensure a session is either 'live' or 'ondemand'
+        if ([kNRVAEventTypeLive isEqualToString:bufferType]) {
+            [self harvestLive];
+        } else if ([kNRVAEventTypeOnDemand isEqualToString:bufferType]) {
+            [self harvestOnDemand];
+        } else {
+            NRVA_ERROR_LOG(@"Invalid buffer type for immediate harvest: %@. Sessions must be either 'live' or 'ondemand'.", bufferType);
+            // Do nothing to force correct buffer type, matching Android behavior
+        }
     });
 }
 
-- (void)performHarvest {
-    NSArray<NSDictionary *> *eventsToSend;
-    
-    @synchronized (self.eventQueue) {
-        if (self.eventQueue.count == 0) {
-            NRVA_DEBUG_LOG(@"No events to harvest");
-            return;
-        }
-        
-        eventsToSend = [self.eventQueue copy];
-        [self.eventQueue removeAllObjects];
-    }
-    
-    NRVA_DEBUG_LOG(@"Harvesting %lu events", (unsigned long)eventsToSend.count);
-    
-    // Get authentication token for the harvest first
-    [self.tokenManager getAppTokenWithCompletion:^(NSArray<NSNumber *> *token, NSError *error) {
-        if (error || !token) {
-            NRVA_ERROR_LOG(@"Failed to get auth token for harvest: %@", error.localizedDescription);
-            // Put events back in queue for retry
-            @synchronized (self.eventQueue) {
-                [self.eventQueue insertObjects:eventsToSend atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, eventsToSend.count)]];
-            }
-            return;
-        }
-        
-        // Create harvest payload matching the successful format
-        NSString *sessionId = [NRVAUtils generateSessionId];
-        NSString *osVersion = [[UIDevice currentDevice] systemVersion];
-        NSString *deviceModel = [[UIDevice currentDevice] model];
-        
-        NSArray *payload = @[
-            token, // First array - data token from token manager
-            @[   // Second array - device info
-                [self osName],                                    // OS name
-                osVersion,                                        // OS version  
-                @"arm64",                                         // Architecture
-                @"NewRelicVideoAgent-iOS",                       // Agent name
-                kNRVA_VIDEO_AGENT_VERSION,                       // Agent version
-                sessionId,                                        // Session ID
-                @"",                                              // Empty string
-                @"",                                              // Empty string  
-                @"Apple",                                         // Manufacturer
-                @{                                                // Platform info
-                    @"platform": [self osName],
-                    @"size": [NRVAUtils isTVDevice] ? @"TV" : @"Phone",
-                    @"platformVersion": osVersion
-                }
-            ],
-            @0,   // Third element - number (0)
-            @[],  // Fourth array - empty
-            @[],  // Fifth array - empty
-            @[],  // Sixth array - empty
-            @[],  // Seventh array - empty
-            @[],  // Eighth array - empty
-            @{},  // Ninth element - empty object
-            eventsToSend  // Tenth element - events array
-        ];
-        
-        NSError *jsonError;
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:payload 
-                                                           options:NSJSONWritingPrettyPrinted 
-                                                             error:&jsonError];
-        
-        if (jsonError) {
-            NRVA_ERROR_LOG(@"Failed to serialize harvest payload: %@", jsonError.localizedDescription);
-            // Put events back in queue
-            @synchronized (self.eventQueue) {
-                [self.eventQueue insertObjects:eventsToSend atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, eventsToSend.count)]];
-            }
-            return;
-        }
-        
-        // Send the data
-        [self sendHarvestData:jsonData originalEvents:eventsToSend];
-    }];
-}
-
-- (void)sendHarvestData:(NSData *)data originalEvents:(NSArray<NSDictionary *> *)originalEvents {
-    NSString *endpoint = [self getHarvestEndpoint];
-    
-    [self.connection postData:data 
-                       toURL:endpoint 
-           completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
-        
-        if (error) {
-            NRVA_ERROR_LOG(@"Harvest failed: %@", error.localizedDescription);
+- (void)harvestWithBatchSize:(NSInteger)batchSizeBytes priorityFilter:(NSString *)priorityFilter harvestType:(NSString *)harvestType {
+    dispatch_async(self.harvestQueue, ^{
+        @try {
+            NSArray<NSDictionary<NSString *, id> *> *events = [self.crashSafeFactory.getEventBuffer pollBatchByPriority:batchSizeBytes
+                                                                                                           sizeEstimator:self.sizeEstimator
+                                                                                                                priority:priorityFilter];
             
-            // Check if we should store offline
-            if ([NRVAOfflineStorage checkErrorToPersist:error]) {
-                [self.offlineStorage persistDataToDisk:data];
-                NRVA_DEBUG_LOG(@"Stored failed harvest data offline");
-            } else {
-                // Put events back in queue for retry
-                @synchronized (self.eventQueue) {
-                    [self.eventQueue insertObjects:originalEvents 
-                                          atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, originalEvents.count)]];
-                }
-            }
-        } else {
-            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-            if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
-                double dataSizeKB = data.length / 1024.0;
-                NRVA_LOG(@"✅ Harvest successful: %ld events sent, %.2f KB transmitted", (long)originalEvents.count, dataSizeKB);
-                
-                // Process any offline data
-                [self processOfflineData];
-            } else {
-                NRVA_ERROR_LOG(@"Harvest failed with status code: %ld", (long)httpResponse.statusCode);
-                
-                // Store offline for retry
-                [self.offlineStorage persistDataToDisk:data];
-            }
-        }
-    }];
-}
-
-- (void)processOfflineData {
-    NSArray<NSData *> *offlineData = [self.offlineStorage getAllOfflineData:YES];
-    
-    if (offlineData.count == 0) {
-        return;
-    }
-    
-    // Calculate total offline data size
-    NSUInteger totalOfflineBytes = 0;
-    for (NSData *data in offlineData) {
-        totalOfflineBytes += data.length;
-    }
-    double totalOfflineSizeKB = totalOfflineBytes / 1024.0;
-    
-    NRVA_LOG(@"📦 Processing %lu offline data items, total size: %.2f KB", (unsigned long)offlineData.count, totalOfflineSizeKB);
-    
-    __block NSUInteger completedUploads = 0;
-    NSUInteger totalUploads = offlineData.count;
-    
-    for (NSUInteger i = 0; i < offlineData.count; i++) {
-        NSData *data = offlineData[i];
-        NSString *endpoint = [self getHarvestEndpoint];
-        
-        [self.connection postData:data 
-                           toURL:endpoint 
-               completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
-            
-            if (error) {
-                NRVA_ERROR_LOG(@"Offline data upload failed: %@", error.localizedDescription);
-                // Don't re-store, it will be retried next time
-            } else {
-                NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
-                if (httpResponse.statusCode >= 200 && httpResponse.statusCode < 300) {
-                    double dataSizeKB = data.length / 1024.0;
-                    
-                    // Parse the offline data to extract event count
-                    NSError *jsonError;
-                    NSDictionary *offlinePayload = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
-                    NSUInteger eventCount = 0;
-                    if (!jsonError && [offlinePayload isKindOfClass:[NSArray class]]) {
-                        NSArray *payloadArray = (NSArray *)offlinePayload;
-                        if (payloadArray.count >= 10 && [payloadArray[9] isKindOfClass:[NSArray class]]) {
-                            eventCount = ((NSArray *)payloadArray[9]).count;
-                        }
+            if (events && events.count > 0) {
+                [self.crashSafeFactory.getHttpClient sendEvents:events
+                                                     harvestType:harvestType
+                                                      completion:^(BOOL success) {
+                    if (success) {
+                        // Notify event buffer about successful harvest to trigger any pending recovery
+                        [self.crashSafeFactory.getEventBuffer onSuccessfulHarvest];
+                    } else {
+                        [self.crashSafeFactory.getDeadLetterHandler handleFailedEvents:events harvestType:harvestType];
                     }
-                    
-                    completedUploads++;
-                    NSUInteger remaining = totalUploads - completedUploads;
-                    
-                    NRVA_LOG(@"✅ [OFFLINE] Harvest successful: %lu events sent, %.2f KB transmitted, %lu remaining", (unsigned long)eventCount, dataSizeKB, (unsigned long)remaining);
-                } else {
-                    NRVA_ERROR_LOG(@"Offline data upload failed with status code: %ld", (long)httpResponse.statusCode);
-                }
+                    NRVA_DEBUG_LOG(@"%@ harvest: %lu events", harvestType, (unsigned long)events.count);
+                }];
             }
-        }];
-    }
+        } @catch (NSException *exception) {
+            NRVA_ERROR_LOG(@"%@ harvest failed: %@", harvestType, exception.reason);
+        }
+    });
 }
 
-- (NSString *)getHarvestEndpoint {
-    NSString *baseURL;
-    
-    if ([self.config.region isEqualToString:@"EU"]) {
-        baseURL = @"https://mobile-collector.eu.newrelic.com";
-    } else if ([self.config.region isEqualToString:@"AP"]) {
-        baseURL = @"https://mobile-collector.ap.newrelic.com";
-    } else if ([self.config.region isEqualToString:@"GOV"]) {
-        baseURL = @"https://mobile-collector.gov.newrelic.com";
-    } else {
-        baseURL = @"https://mobile-collector.newrelic.com";
-    }
-    
-    return [NSString stringWithFormat:@"%@/mobile/v3/data", baseURL];
-}
-
-- (NSString *)osName {
-    #if TARGET_OS_TV
-        return @"tvOS";
-    #else
-        return @"iOS";
-    #endif
-}
-
-- (NSInteger)currentBatchSize {
-    // TODO: Consider live vs regular content for batch sizing
-    return self.config.regularBatchSizeBytes / 2048; // Convert to approximate event count (2KB per event)
+- (void)dealloc {
+    // Perform any necessary cleanup
+    [self.crashSafeFactory cleanup];
 }
 
 @end

@@ -88,9 +88,6 @@ completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *erro
     
     request.HTTPBody = data;
     
-    // Log the request as curl command for debugging
-    [self logRequestAsCurl:request tag:@"HARVEST"];
-    
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     config.timeoutIntervalForRequest = 30.0;
     config.timeoutIntervalForResource = 60.0;
@@ -99,60 +96,9 @@ completionHandler:(void (^)(NSData *data, NSURLResponse *response, NSError *erro
     
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request 
                                              completionHandler:^(NSData *responseData, NSURLResponse *response, NSError *error) {
-        // Log the response for debugging
-        [self logResponse:response data:responseData error:error tag:@"HARVEST"];
-        
-        // Call the original completion handler
         completionHandler(responseData, response, error);
     }];
     [task resume];
-}
-
-- (void)logRequestAsCurl:(NSURLRequest *)request tag:(NSString *)tag {
-    if (!request) return;
-    
-    NSString *tagPrefix = tag ? [NSString stringWithFormat:@"[%@] ", tag] : @"";
-    
-    // Build the curl command without the body first
-    NSMutableString *curlCommand = [NSMutableString stringWithString:@"curl"];
-    
-    // Add HTTP method
-    NSString *method = request.HTTPMethod ?: @"GET";
-    if (![method isEqualToString:@"GET"]) {
-        [curlCommand appendFormat:@" -X %@", method];
-    }
-    
-    // Add headers
-    NSDictionary *headers = request.allHTTPHeaderFields;
-    for (NSString *key in headers) {
-        NSString *value = headers[key];
-        [curlCommand appendFormat:@" -H \"%@: %@\"", key, value];
-    }
-    
-    // Add URL
-    [curlCommand appendFormat:@" \"%@\"", request.URL.absoluteString];
-    
-    // Log the basic curl command first
-    NSLog(@"🌐 %@API REQUEST:", tagPrefix);
-    
-    // Add body data for POST/PUT requests as a separate log to avoid truncation
-    if (request.HTTPBody) {
-        NSString *bodyString = [[NSString alloc] initWithData:request.HTTPBody encoding:NSUTF8StringEncoding];
-        if (bodyString) {
-            // Log the full curl command with -d option but show the JSON separately
-            NSLog(@"%@ -d '", curlCommand);
-            NSLog(@"%@", bodyString);
-            NSLog(@"'");
-            
-            // Also log as a complete one-liner for easy copying (but this might truncate)
-            NSLog(@"Complete curl (might be truncated):");
-            NSLog(@"%@ -d '%@'", curlCommand, bodyString);
-        } else {
-            NSLog(@"%@ -d '<binary data: %lu bytes>'", curlCommand, (unsigned long)request.HTTPBody.length);
-        }
-    } else {
-        NSLog(@"%@", curlCommand);
-    }
 }
 
 - (void)logResponse:(NSURLResponse *)response data:(NSData *)data error:(NSError *)error tag:(NSString *)tag {
