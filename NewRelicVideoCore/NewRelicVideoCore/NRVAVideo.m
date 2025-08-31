@@ -77,7 +77,7 @@ static dispatch_once_t onceToken;
     @synchronized (videoInstance.trackerIds) {
         NSNumber *existingTrackerId = videoInstance.trackerIds[config.playerName];
         if (existingTrackerId) {
-            NRVA_LOG(@"Found existing tracker %@ for player '%@', cleaning up before creating new one", existingTrackerId, config.playerName);
+            NRVA_DEBUG_LOG(@"Found existing tracker %@ for player '%@', cleaning up before creating new one", existingTrackerId, config.playerName);
             
             // Release the existing tracker
             [[NewRelicVideoAgent sharedInstance] releaseTracker:existingTrackerId];
@@ -119,7 +119,7 @@ static dispatch_once_t onceToken;
             videoInstance.trackerIds[config.playerName] = newTrackerId;
         }
         
-        NRVA_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
+        NRVA_DEBUG_LOG(@"Started tracking for player '%@' with tracker ID: %ld", config.playerName, (long)trackerId);
         
         // Set player instance after tracker initialization
         if (contentTracker && config.player && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
@@ -175,7 +175,7 @@ static dispatch_once_t onceToken;
     // Use existing NewRelicVideoAgent releaseTracker method
     [[NewRelicVideoAgent sharedInstance] releaseTracker:@(trackerId)];
     
-    NRVA_LOG(@"Released tracker with ID: %ld", (long)trackerId);
+    NRVA_DEBUG_LOG(@"Released tracker with ID: %ld", (long)trackerId);
 }
 
 + (void)releaseTrackerWithPlayerName:(NSString *)playerName {

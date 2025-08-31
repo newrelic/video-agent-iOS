@@ -30,4 +30,7 @@
 - (NSArray<NSDictionary *> *)getUnprocessedEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents;
 - (BOOL)removeProcessedEventsFromFile:(NSString *)filename;
 
+// EFFICIENT: Simple poll-and-remove method (matches Android SQLite pattern)
+- (NSArray<NSDictionary *> *)pollAndRemoveEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents;
+
 @end

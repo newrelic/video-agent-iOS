@@ -101,7 +101,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
                 self.lastTokenTime = [[NSDate date] timeIntervalSince1970];
                 [self cacheToken:token];
                 
-                NRVA_LOG(@"New token generated and cached successfully");
+                NRVA_DEBUG_LOG(@"New token generated and cached successfully");
                 dispatch_async(dispatch_get_main_queue(), ^{
                     completion([token copy], nil);
                 });

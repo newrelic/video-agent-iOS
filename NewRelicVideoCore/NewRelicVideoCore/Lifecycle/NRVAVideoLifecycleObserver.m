@@ -103,7 +103,6 @@
        // For TV: resume with extended intervals
         [self.crashSafeFactory.getScheduler resume:self.isAppleTVDevice];
         
-        NRVA_DEBUG_LOG(@"%@ backgrounded - immediate harvest triggered", self.isAppleTVDevice ? @"TV" : @"Mobile");
     } @catch (NSException *exception) {
         NRVA_ERROR_LOG(@"Background handling error: %@", exception.reason);
     }
@@ -115,7 +114,7 @@
         [self.crashSafeFactory.getScheduler resume:NO]; // Normal intervals
         
         // Check for recovery data
-        NRVA_DEBUG_LOG(@"Recovery stats: %@", [self.crashSafeFactory getRecoveryStats]);
+        NRVA_DEBUG_LOG(@"%@", [self.crashSafeFactory getRecoveryStats]);
         
         NRVA_DEBUG_LOG(@"%@ foregrounded - normal operation resumed", self.isAppleTVDevice ? @"TV" : @"Mobile");
     } @catch (NSException *exception) {

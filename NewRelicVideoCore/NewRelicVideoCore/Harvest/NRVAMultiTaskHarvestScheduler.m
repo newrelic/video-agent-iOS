@@ -83,6 +83,7 @@ static const NSTimeInterval kInitialOnDemandDelaySeconds = 1.0;
     } else if ([bufferType isEqualToString:kOnDemandBufferType]) {
         if (!self.isOnDemandRunning) {
             self.isOnDemandRunning = YES;
+            // Immediate first harvest to prevent event loss during startup
             [self setupTimerForBufferType:kOnDemandBufferType initialDelay:kInitialOnDemandDelaySeconds interval:self.onDemandIntervalSeconds];
             NRVA_DEBUG_LOG(@"OnDemand scheduler started with quick first harvest");
         }
@@ -95,7 +96,15 @@ static const NSTimeInterval kInitialOnDemandDelaySeconds = 1.0;
     
     NRVA_DEBUG_LOG(@"Shutting down scheduler");
     [self stopAllSchedulers];
+    
+    self.isOnDemandRunning = NO;
+    self.isLiveRunning = NO;
+    
     [self executeImmediateHarvest:@"SHUTDOWN"];
+    
+    if (self.backgroundQueue) {
+        self.backgroundQueue = nil;
+    }
 }
 
 - (void)forceHarvest {
@@ -186,6 +195,7 @@ static const NSTimeInterval kInitialOnDemandDelaySeconds = 1.0;
         dispatch_source_cancel(self.liveTimerSource);
         self.liveTimerSource = nil;
     }
+
 }
 
 @end

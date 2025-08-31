@@ -73,7 +73,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
         
         // Log recovery status if in recovery mode
         if ([_crashSafeFactory isRecovering]) {
-            NRVA_LOG(@"🔄 Recovery mode detected: %@", [_crashSafeFactory getRecoveryStats]);
+            NRVA_DEBUG_LOG(@"🔄 Recovery mode detected: %@", [_crashSafeFactory getRecoveryStats]);
         }
     }
     return self;

@@ -30,6 +30,13 @@
     return self;
 }
 
+- (NSString *)description {
+    return [NSString stringWithFormat:@"RecoveryStats{recovering:%@, backupEvents:%ld, reason:%@}", 
+            self.isRecovering ? @"YES" : @"NO",
+            (long)self.backupEventCount,
+            self.recoveryReason ?: @"none"];
+}
+
 @end
 
 @interface NRVACrashSafeEventBuffer ()
@@ -96,7 +103,7 @@
         NSInteger minRecoverySize = MAX(remainingCapacity, self.isRecovering ? 5 : 0);
         
         if (minRecoverySize > 0) {
-            NSArray<NSDictionary *> *recoveryEvents = [self pollRecoveryEventsForPriority:priority maxSize:minRecoverySize];
+            NSArray<NSDictionary *> *recoveryEvents = [self pollRecoveryEvents:minRecoverySize];
             if (recoveryEvents.count > 0) {
                 [batch addObjectsFromArray:recoveryEvents];
                 NRVA_DEBUG_LOG(@"🔄 Integrated %ld recovery events into %@ harvest batch", (long)recoveryEvents.count, priority);
@@ -120,23 +127,15 @@
 - (void)onSuccessfulHarvest {
     [self.memoryBuffer onSuccessfulHarvest];
     
-    // CRITICAL FIX: Remove successfully transmitted recovery events
+    // EFFICIENT: No complex cleanup needed - events are automatically removed when polled
     if (self.isRecovering) {
-        dispatch_async(self.crashSafeQueue, ^{
-            // Clean up processed events from all files after successful harvest
-            NSArray<NSString *> *allFiles = [self.offlineStorage getAllOfflineFileNames];
-            for (NSString *filename in allFiles) {
-                [self.offlineStorage removeProcessedEventsFromFile:filename];
-            }
-            
-            // Check if recovery is complete after cleanup
-            if ([self.offlineStorage getEventCount] == 0) {
-                self.isRecovering = NO;
-                NRVA_LOG(@"🔄 Recovery complete - all offline events successfully transmitted and removed.");
-            } else {
-                NRVA_DEBUG_LOG(@"🔄 Recovery ongoing - %ld events remaining after cleanup", (long)[self.offlineStorage getEventCount]);
-            }
-        });
+        // Simply check if recovery is complete
+        if ([self.offlineStorage getEventCount] == 0) {
+            self.isRecovering = NO;
+            NRVA_DEBUG_LOG(@"🔄 Recovery complete - all offline events successfully transmitted and removed.");
+        } else {
+            NRVA_DEBUG_LOG(@"🔄 Recovery ongoing - %ld events remaining", (long)[self.offlineStorage getEventCount]);
+        }
     }
     
     BOOL shouldStartRecovery = NO;
@@ -144,17 +143,17 @@
     if (self.hasPendingRecovery && !self.isRecovering) {
         self.hasPendingRecovery = NO;
         shouldStartRecovery = YES;
-        NRVA_LOG(@"Starting crash recovery after successful harvest.");
+        NRVA_DEBUG_LOG(@"Starting crash recovery after successful harvest.");
     }
 
     if (!self.isRecovering && [self.offlineStorage getEventCount] > 0) {
         shouldStartRecovery = YES;
-        NRVA_LOG(@"Starting offline recovery after successful harvest - backup data detected.");
+        NRVA_DEBUG_LOG(@"Starting offline recovery after successful harvest - backup data detected.");
     }
 
     if (shouldStartRecovery) {
         self.isRecovering = YES;
-        NRVA_LOG(@"Recovery mode activated - offline events will be included in future harvests.");
+        NRVA_DEBUG_LOG(@"Recovery mode activated - offline events will be included in future harvests.");
     }
 }
 
@@ -186,7 +185,7 @@
             if (allEvents.count > 0) {
                 NSData *data = [NSJSONSerialization dataWithJSONObject:allEvents options:0 error:nil];
                 if (data && [self.offlineStorage persistDataToDisk:data]) {
-                    NRVA_LOG(@"Emergency backup: %ld events saved to disk.", (long)allEvents.count);
+                    NRVA_DEBUG_LOG(@"Emergency backup: %ld events saved to disk.", (long)allEvents.count);
                 }
             }
         } @catch (NSException *exception) {
@@ -203,7 +202,7 @@
         if (data && [self.offlineStorage persistDataToDisk:data]) {
             if (!self.isRecovering) {
                 self.isRecovering = YES;
-                NRVA_LOG(@"Recovery mode enabled for %ld failed events.", (long)failedEvents.count);
+                NRVA_DEBUG_LOG(@"Recovery mode enabled for %ld failed events.", (long)failedEvents.count);
             }
         }
     });
@@ -229,7 +228,7 @@
         if (wasSessionActive) {
             if ([self.offlineStorage getEventCount] > 0) {
                 self.hasPendingRecovery = YES;
-                NRVA_LOG(@"Crash detected - recovery will start after first successful harvest.");
+                NRVA_DEBUG_LOG(@"Crash detected - recovery will start after first successful harvest.");
             }
         }
     });
@@ -245,7 +244,7 @@
 
 #pragma mark - Private: Helper Methods
 
-- (NSArray<NSDictionary *> *)pollRecoveryEventsForPriority:(NSString *)priority maxSize:(NSInteger)maxSize {
+- (NSArray<NSDictionary *> *)pollRecoveryEvents:(NSInteger)maxSize {
     @try {
         NSMutableArray<NSDictionary *> *batchEvents = [NSMutableArray array];
         NSArray<NSString *> *allFiles = [self.offlineStorage getAllOfflineFileNames];
@@ -256,29 +255,23 @@
             if (batchEvents.count >= maxSize) {
                 break;
             }
-
+            
             // 3. Calculate how many more events we need to fill the batch.
             NSInteger needed = maxSize - batchEvents.count;
             
-            // 4. Read the required number of events from the current file.
-            NSArray<NSDictionary *> *eventsFromFile = [self.offlineStorage getUnprocessedEventsFromFile:filename maxEvents:needed];
+            // 4. EFFICIENT: Use poll-and-remove method (FIFO - mixed live/ondemand events)
+            NSArray<NSDictionary *> *eventsFromFile = [self.offlineStorage pollAndRemoveEventsFromFile:filename maxEvents:needed];
 
             if (eventsFromFile.count > 0) {
                 [batchEvents addObjectsFromArray:eventsFromFile];
-                
-                // CRITICAL FIX: DO NOT remove events here - only mark them as read
-                // Events will be removed only after successful HTTP transmission
-                // This prevents data loss if HTTP harvest fails
-                NRVA_DEBUG_LOG(@"🔄 Read %ld events from file %@ (not yet removed)", (long)eventsFromFile.count, filename);
+                NRVA_DEBUG_LOG(@"🔄 Polled and removed %ld offline events from file %@", (long)eventsFromFile.count, filename);
             }
         }
         
         if (batchEvents.count > 0) {
-            NRVA_DEBUG_LOG(@"🔄 Polled %ld total recovery events (will be removed after successful harvest)", (long)batchEvents.count);
+            NRVA_DEBUG_LOG(@"🔄 Total offline events polled: %ld (automatically removed from storage)", (long)batchEvents.count);
         }
 
-        // Recovery mode will be ended by onSuccessfulHarvest when storage is actually empty
-        
         return [batchEvents copy];
 
     } @catch (NSException *exception) {

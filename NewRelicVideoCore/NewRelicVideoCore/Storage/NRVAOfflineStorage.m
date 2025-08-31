@@ -8,6 +8,7 @@
 
 #import "NRVAOfflineStorage.h"
 #import "NRVAUtils.h"
+#import "NRVALog.h"
 
 #define kNRVAOfflineStorageCurrentSizeKey @"com.newrelic.videoAgent.offlineStorageCurrentSize"
 #define kNRVA_Offline_folder @"com.newrelic.videoAgent.OfflinePayloads"
@@ -34,7 +35,7 @@
                                        withIntermediateDirectories:YES 
                                                         attributes:nil 
                                                              error:&error]) {
-            NSLog(@"[NRVA] Failed to create directory \"%@\". Error: %@", [self offlineDirectoryPath], error);
+            NRVA_DEBUG_LOG(@"Failed to create directory \"%@\". Error: %@", [self offlineDirectoryPath], error);
         }
     }
 }
@@ -47,7 +48,7 @@
         currentOfflineStorageSize += data.length;
         
         if (currentOfflineStorageSize > maxOfflineStorageSize) {
-            NSLog(@"[NRVA] Not saving to offline storage because max storage size has been reached.");
+            NRVA_DEBUG_LOG(@"Not saving to offline storage because max storage size has been reached.");
             return NO;
         }
         
@@ -57,11 +58,11 @@
             if ([data writeToFile:filePath options:NSDataWritingAtomic error:&error]) {
                 [[NSUserDefaults standardUserDefaults] setInteger:currentOfflineStorageSize forKey:kNRVAOfflineStorageCurrentSizeKey];
                 double storageSizeKB = currentOfflineStorageSize / 1024.0;
-                NSLog(@"[NRVA] Successfully persisted failed upload data to disk for offline storage. File: %@, Current offline storage: %.2f KB (%lu bytes)", filePath, storageSizeKB, (unsigned long)currentOfflineStorageSize);
+                NRVA_DEBUG_LOG(@"Successfully persisted failed upload data to disk for offline storage. File: %@, Current offline storage: %.2f KB (%lu bytes)", filePath, storageSizeKB, (unsigned long)currentOfflineStorageSize);
                 return YES;
             }
         }
-        NSLog(@"[NRVA] Failed to persist data to disk %@", error.description);
+        NRVA_DEBUG_LOG(@"Failed to persist data to disk %@", error.description);
         
         return NO;
     }
@@ -76,7 +77,7 @@
         [dirs enumerateObjectsUsingBlock:^(id obj, NSUInteger idx, BOOL *stop) {
             NSString *filename = (NSString *)obj;
             NSData *data = [NSData dataWithContentsOfFile:[NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename]];
-            NSLog(@"[NRVA] Offline storage to be uploaded from %@", filename);
+            NRVA_DEBUG_LOG(@"Offline storage to be uploaded from %@", filename);
             
             [combinedPosts addObject:data];
         }];
@@ -99,7 +100,7 @@
         [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kNRVAOfflineStorageCurrentSizeKey];
         return YES;
     }
-    NSLog(@"[NRVA] Failed to clear offline storage: %@", error);
+    NRVA_DEBUG_LOG(@"Failed to clear offline storage: %@", error);
     return NO;
 }
 
@@ -113,7 +114,7 @@
         [[NSUserDefaults standardUserDefaults] setInteger:0 forKey:kNRVAOfflineStorageCurrentSizeKey];
         return YES;
     }
-    NSLog(@"[NRVA] Failed to clear offline storage: %@", error);
+    NRVA_DEBUG_LOG(@"Failed to clear offline storage: %@", error);
     return NO;
 }
 
@@ -177,7 +178,7 @@
                     }
                 } @catch (NSException *exception) {
                     // Skip corrupted files
-                    NSLog(@"[NRVA] Failed to parse offline file %@: %@", filename, exception.reason);
+                    NRVA_DEBUG_LOG(@"Failed to parse offline file %@: %@", filename, exception.reason);
                 }
             }
         }
@@ -222,7 +223,7 @@
                 
                 if ([[NSFileManager defaultManager] removeItemAtPath:filePath error:nil]) {
                     totalSizeReduced += fileSize;
-                    NSLog(@"[NRVA] Cleared offline file: %@", filename);
+                    NRVA_DEBUG_LOG(@"Cleared offline file: %@", filename);
                 }
             }
         }
@@ -262,13 +263,13 @@
                 }
             }
             
-            NSLog(@"[NRVA] File %@: found %ld unprocessed events (limit: %ld)", 
+            NRVA_DEBUG_LOG(@"File %@: found %ld unprocessed events (limit: %ld)", 
                   filename, (long)unprocessedEvents.count, (long)maxEvents);
             
             return [unprocessedEvents copy];
             
         } @catch (NSException *exception) {
-            NSLog(@"[NRVA] Failed to parse file %@: %@", filename, exception.reason);
+            NRVA_DEBUG_LOG(@"Failed to parse file %@: %@", filename, exception.reason);
             return @[];
         }
     }
@@ -302,20 +303,60 @@
             if (unprocessedEvents.count == 0) {
                 // No unprocessed events left - delete entire file
                 [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
-                NSLog(@"[NRVA] File %@ fully processed - deleted", filename);
+                NRVA_DEBUG_LOG(@"File %@ fully processed - deleted", filename);
                 return YES;
             } else {
                 // Update file with remaining unprocessed events
                 NSData *updatedData = [NSJSONSerialization dataWithJSONObject:unprocessedEvents options:0 error:nil];
                 BOOL success = [updatedData writeToFile:filePath atomically:YES];
-                NSLog(@"[NRVA] File %@: removed %ld processed events, %ld remaining", 
+                NRVA_DEBUG_LOG(@"File %@: removed %ld processed events, %ld remaining", 
                       filename, (long)processedCount, (long)unprocessedEvents.count);
                 return success;
             }
             
         } @catch (NSException *exception) {
-            NSLog(@"[NRVA] Failed to update file %@: %@", filename, exception.reason);
+            NRVA_DEBUG_LOG(@"Failed to update file %@: %@", filename, exception.reason);
             return NO;
+        }
+    }
+}
+
+// EFFICIENT: Simple poll-and-remove method (uses FIFO - no priority separation)
+- (NSArray<NSDictionary *> *)pollAndRemoveEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents {
+    @synchronized (self) {
+        NSData *data = [self getDataFromFile:filename];
+        if (!data) return @[];
+        
+        @try {
+            NSArray *allEvents = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (![allEvents isKindOfClass:[NSArray class]]) {
+                allEvents = allEvents ? @[allEvents] : @[];
+            }
+            
+            // Take up to maxEvents from the beginning (FIFO - mixed live/ondemand)
+            NSInteger eventsToTake = MIN(maxEvents, allEvents.count);
+            NSArray *polledEvents = [allEvents subarrayWithRange:NSMakeRange(0, eventsToTake)];
+            
+            // Remove polled events from file
+            NSString *filePath = [NSString stringWithFormat:@"%@/%@", [self offlineDirectoryPath], filename];
+            
+            if (eventsToTake >= allEvents.count) {
+                // All events taken - delete entire file
+                [[NSFileManager defaultManager] removeItemAtPath:filePath error:nil];
+                NRVA_DEBUG_LOG(@"File %@ fully consumed - deleted", filename);
+            } else {
+                // Keep remaining events in file
+                NSArray *remainingEvents = [allEvents subarrayWithRange:NSMakeRange(eventsToTake, allEvents.count - eventsToTake)];
+                NSData *updatedData = [NSJSONSerialization dataWithJSONObject:remainingEvents options:0 error:nil];
+                [updatedData writeToFile:filePath atomically:YES];
+                NRVA_DEBUG_LOG(@"File %@: polled %ld offline events, %ld remaining", filename, (long)eventsToTake, (long)remainingEvents.count);
+            }
+            
+            return polledEvents;
+            
+        } @catch (NSException *exception) {
+            NRVA_DEBUG_LOG(@"Failed to poll offline events from file %@: %@", filename, exception.reason);
+            return @[];
         }
     }
 }

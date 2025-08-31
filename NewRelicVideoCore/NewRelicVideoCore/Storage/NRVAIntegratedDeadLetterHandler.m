@@ -71,7 +71,7 @@
             _maxRetries = configuration.memoryOptimized ? 2 : 3;
         }
 
-        NRVA_LOG(@"Dead letter handler initialized - MaxRetries: %ld, RegularBatchSize: %ld, LiveBatchSize: %ld, RetryInterval: %.0fs, LiveRetryInterval: %.0fs",
+        NRVA_DEBUG_LOG(@"Dead letter handler initialized - MaxRetries: %ld, RegularBatchSize: %ld, LiveBatchSize: %ld, RetryInterval: %.0fs, LiveRetryInterval: %.0fs",
                  (long)_maxRetries,
                  (long)_regularBatchSizeForRetry,
                  (long)_liveBatchSizeForRetry,
@@ -89,7 +89,7 @@
     os_unfair_lock_lock(&_processingLock);
     if (_isProcessing) {
         os_unfair_lock_unlock(&_processingLock);
-        NRVA_LOG(@"Dead letter handler is already processing.");
+        NRVA_DEBUG_LOG(@"Dead letter handler is already processing.");
         return;
     }
     _isProcessing = YES;
@@ -114,7 +114,7 @@
 
         if (toBackup.count > 0) {
             [self.mainBuffer backupFailedEvents:toBackup];
-            NRVA_LOG(@"Dead letter handler: Retrying %lu events, Backing up %lu events.", (unsigned long)toRetry.count, (unsigned long)toBackup.count);
+            NRVA_DEBUG_LOG(@"Dead letter handler: Retrying %lu events, Backing up %lu events.", (unsigned long)toRetry.count, (unsigned long)toBackup.count);
         }
     } @finally {
         os_unfair_lock_lock(&_processingLock);
@@ -146,7 +146,7 @@
             
             // Delegate backup to the main crash-safe buffer
             [self.mainBuffer backupFailedEvents:cleanEvents];
-            NRVA_LOG(@"Dead letter emergency backup: %lu events saved.", (unsigned long)cleanEvents.count);
+            NRVA_DEBUG_LOG(@"Dead letter emergency backup: %lu events saved.", (unsigned long)cleanEvents.count);
         }
     } @catch (NSException *exception) {
         NRVA_ERROR_LOG(@"Dead letter emergency backup failed: %@", exception.reason);

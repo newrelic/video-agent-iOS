@@ -102,7 +102,7 @@
                       bufferType, currentCapacity);
         
         // Determine what actions need to be taken (but don't execute immediately)
-        BOOL shouldTriggerHarvest = (currentCapacity >= 0.8);  // Trigger at 60% or higher
+        BOOL shouldTriggerHarvest = (currentCapacity >= 0.85);  // Trigger at 90% or higher
         BOOL shouldStartScheduler = wasEmpty;
         
         // Fallback: if we somehow still reach max capacity, remove oldest events
@@ -119,7 +119,7 @@
         }
         
         if (liveEventsRemoved > 0 || ondemandEventsRemoved > 0) {
-            NRVA_LOG(@"⚠️ [BUFFER] OVERFLOW PROTECTION - Removed oldest events: Live=%ld, OnDemand=%ld",
+            NRVA_DEBUG_LOG(@"⚠️ [BUFFER] OVERFLOW PROTECTION - Removed oldest events: Live=%ld, OnDemand=%ld",
                     (long)liveEventsRemoved, (long)ondemandEventsRemoved);
         }
         
