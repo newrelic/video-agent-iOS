@@ -418,18 +418,61 @@ static dispatch_once_t onceToken;
                              initWithCrashSafeFactory:[_harvestManager getFactory]];
         [_lifecycleObserver startObserving];
         
-        NRVA_DEBUG_LOG(@"Lifecycle observer created and started with crash-safe storage");
-        
-        NRVA_LOG(@"🚀  NRVAVideo initialized successfully ");
-        
-        // Enhanced features are running automatically - no manual monitoring needed
+        NRVA_DEBUG_LOG(@"📋 NRVAVideo Configuration: Token=%@, Region=%@, HarvestCycle=[Regular:%lds, Live:%lds], BatchSize=[Regular:%ldKB, Live:%ldKB], DeadLetter=[MaxEvents:%ld, RetryInterval:%.1fs], Memory=%@, Debug=%@, TV=%@ 🚀",
+                 config.applicationToken ? @"[SET]" : @"[NOT SET]",
+                 config.region,
+                 (long)config.harvestCycleSeconds,
+                 (long)config.liveHarvestCycleSeconds,
+                 (long)(config.regularBatchSizeBytes / 1024),
+                 (long)(config.liveBatchSizeBytes / 1024),
+                 (long)config.maxDeadLetterSize,
+                 config.deadLetterRetryInterval,
+                 config.memoryOptimized ? @"YES" : @"NO",
+                 config.debugLoggingEnabled ? @"YES" : @"NO",
+                 config.isTV ? @"YES" : @"NO");
+
     }
     return self;
 }
 
-// - (void)dealloc {
-//     [self.harvestManager stopHarvesting];
-// }
+
+- (void)dealloc {
+    
+    @try {
+        if (_lifecycleObserver) {
+            [_lifecycleObserver stopObserving];
+            _lifecycleObserver = nil;
+        }
+        
+        @synchronized (_trackerIds) {
+            if (_trackerIds && _trackerIds.count > 0) {
+                NSArray *trackerIdsCopy = [_trackerIds.allValues copy]; // Prevent mutation during iteration
+                
+                for (NSNumber *trackerId in trackerIdsCopy) {
+                    @try {
+                        [[NewRelicVideoAgent sharedInstance] releaseTracker:trackerId];
+                    } @catch (NSException *exception) {
+                        NRVA_ERROR_LOG(@"⚠️ Failed to release tracker %@: %@", trackerId, exception.reason);
+                    }
+                }
+                [_trackerIds removeAllObjects];
+            }
+            _trackerIds = nil;
+        }
+        
+        if (_harvestManager) {
+            _harvestManager = nil;
+        }
+        
+        @synchronized ([NRVAVideo class]) {
+            instance = nil;
+            onceToken = 0; 
+        }
+        
+    } @catch (NSException *exception) {
+        NRVA_ERROR_LOG(@"💥 Critical exception during NRVAVideo cleanup: %@", exception.reason);
+    }
+}
 
 #pragma mark - SIMPLIFIED AD EVENT API
 
@@ -478,7 +521,6 @@ static dispatch_once_t onceToken;
 + (void)sendAdBreakEnd:(NSNumber *)trackerId {
     id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
     if (adTracker && [adTracker respondsToSelector:@selector(sendAdBreakEnd)]) {
-        // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(sendAdBreakEnd)];
     }
 }

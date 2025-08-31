@@ -128,7 +128,8 @@
             // Schedule callback on next run loop to avoid blocking
             dispatch_async(dispatch_get_main_queue(), ^{
                 if (_capacityCallback) {
-                    NRVA_DEBUG_LOG(@"📞 [BUFFER] Calling capacity callback for %@ scheduler startup with capacity %.3f", bufferType, currentCapacity);
+                    NRVA_DEBUG_LOG(@"📞 [BUFFER] Calling capacity callback for %@ scheduler startup with capacity %.3f - Live: %ld, OnDemand: %ld", 
+                                  bufferType, currentCapacity, (long)_liveEvents.count, (long)_ondemandEvents.count);
                     [_capacityCallback onCapacityThresholdReached:currentCapacity
                                                        bufferType:bufferType];
                 }

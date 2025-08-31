@@ -60,17 +60,24 @@
 @property (nonatomic, assign) BOOL isTV;
 
 /**
+ * Auto-detect platform capabilities and apply optimizations
+ * DEPRECATED: Auto-detection now happens automatically during initialization
+ * This method is kept for backward compatibility but is no longer required
+ */
+- (instancetype)autoDetectPlatform __attribute__((deprecated("Auto-detection now happens automatically. This method is no longer needed.")));
+
+/**
  * Set application token (required)
  */
 - (instancetype)withApplicationToken:(NSString *)applicationToken;
 
 /**
- * Configure TV-specific optimizations
+ * Configure TV-specific optimizations (overrides auto-detection)
  */
 - (instancetype)forTVOS:(BOOL)isTV;
 
 /**
- * Enable memory optimization for lower-end devices
+ * Enable memory optimization for lower-end devices (overrides auto-detection)
  */
 - (instancetype)withMemoryOptimization:(BOOL)memoryOptimized;
 
@@ -80,27 +87,27 @@
 - (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled;
 
 /**
- * Set harvest cycle in seconds (optional, defaults applied automatically)
+ * Set harvest cycle in seconds (5-300 seconds, validated)
  */
 - (instancetype)withHarvestCycle:(NSInteger)harvestCycleSeconds;
 
 /**
- * Set live harvest cycle in seconds (optional, defaults applied automatically)
+ * Set live harvest cycle in seconds (1-60 seconds, validated)
  */
 - (instancetype)withLiveHarvestCycle:(NSInteger)liveHarvestCycleSeconds;
 
 /**
- * Set batch size for regular content (optional, defaults applied automatically)
+ * Set batch size for regular content (1KB-1MB, validated)
  */
 - (instancetype)withRegularBatchSize:(NSInteger)regularBatchSizeBytes;
 
 /**
- * Set batch size for live content (optional, defaults applied automatically)
+ * Set batch size for live content (512B-512KB, validated)
  */
 - (instancetype)withLiveBatchSize:(NSInteger)liveBatchSizeBytes;
 
 /**
- * Set maximum dead letter queue size (optional, defaults applied automatically)
+ * Set maximum dead letter queue size (10-1000, validated)
  */
 - (instancetype)withMaxDeadLetterSize:(NSInteger)maxDeadLetterSize;
 

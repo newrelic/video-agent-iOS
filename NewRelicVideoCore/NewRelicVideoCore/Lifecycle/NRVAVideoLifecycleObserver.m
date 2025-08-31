@@ -95,22 +95,13 @@
 - (void)handleAppDidEnterBackground:(NSNotification *)notification {
     @try {
         NRVA_DEBUG_LOG(@"🌅 [LIFECYCLE] App entering background - starting emergency sequence");
-        
-        // IMMEDIATE harvest regardless of harvest cycle (requirement)
+
         [self performEmergencyHarvest:@"APP_BACKGROUNDED"];
         
-        // Control scheduler directly using interface methods
-        NRVA_DEBUG_LOG(@"🛑 [LIFECYCLE] About to pause scheduler");
         [self.crashSafeFactory.getScheduler pause];
-        
-        // For TV: resume with extended intervals, Mobile: stay paused
-        if (self.isAppleTVDevice) {
-            NRVA_DEBUG_LOG(@"📺 [LIFECYCLE] TV device - resuming with extended intervals");
-            [self.crashSafeFactory.getScheduler resume:YES]; // Extended intervals for TV
-        } else {
-            NRVA_DEBUG_LOG(@"📱 [LIFECYCLE] Mobile device - staying paused (no resume call)");
-            // Mobile: Do NOT call resume - scheduler stays paused until foreground
-        }
+
+       // For TV: resume with extended intervals
+        [self.crashSafeFactory.getScheduler resume:self.isAppleTVDevice];
         
         NRVA_DEBUG_LOG(@"%@ backgrounded - immediate harvest triggered", self.isAppleTVDevice ? @"TV" : @"Mobile");
     } @catch (NSException *exception) {
@@ -124,7 +115,7 @@
         [self.crashSafeFactory.getScheduler resume:NO]; // Normal intervals
         
         // Check for recovery data
-        NRVA_DEBUG_LOG(@"Recovery detected: %@", [self.crashSafeFactory getRecoveryStats]);
+        NRVA_DEBUG_LOG(@"Recovery stats: %@", [self.crashSafeFactory getRecoveryStats]);
         
         NRVA_DEBUG_LOG(@"%@ foregrounded - normal operation resumed", self.isAppleTVDevice ? @"TV" : @"Mobile");
     } @catch (NSException *exception) {

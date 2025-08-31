@@ -7,16 +7,19 @@ The New Relic Video Agent for iOS provides comprehensive video analytics and mon
 ## Installation
 
 See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions using either:
+
 - **CocoaPods** (recommended)
 - **XCFramework** (binary distribution)
 
 ## Dependencies
 
 **Required for all methods:**
+
 - iOS 12.0+ or tvOS 12.0+
 - Xcode 12.0+
 
 **Additional for IMA Ad Tracking:**
+
 - Google Interactive Media Ads SDK (automatically handled by CocoaPods)
 
 ## Import Statements
@@ -37,17 +40,24 @@ In your `AppDelegate.m`, initialize the video agent:
 #import <NewRelicVideoCore.h>
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Initialize New Relic Video Agent
-    NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
+    // Initialize New Relic Video Agent with automatic optimization
+    NRVAVideoConfiguration *videoConfig = [[[NRVAVideoConfiguration builder]
         withApplicationToken:@"YOUR_NEW_RELIC_TOKEN"]
-        withHarvestCycle:10]
-        withDebugLogging:YES] build];
+        withDebugLogging:YES]
+        build];
 
     [[[NRVAVideo newBuilder] withConfiguration:videoConfig] build];
 
     return YES;
 }
 ```
+
+**🆕 Fully Automatic Detection:**
+
+- **TV Platform Detection** - Automatically detects Apple TV vs iOS and applies optimal settings
+- **Memory Optimization** - Automatically enables memory optimization on low-memory devices (< 2GB RAM)
+- **User Agent Tagging** - Automatically adds `;TV` or `;LowMem` tags to user agent
+- **No manual calls needed** - Everything happens automatically during configuration creation
 
 **Configuration Options:**
 
@@ -86,6 +96,95 @@ NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[NRVAVideoConfiguration builde
 | `withMemoryOptimization:` | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
 | `withDebugLogging:`       | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+
+## Automatic Detection & Override Examples
+
+### Understanding Auto-Detection Behavior
+
+The New Relic Video Agent automatically detects your device capabilities and applies optimal settings. Here's how it works and how you can override when needed.
+
+#### Example 1: Pure Auto-Detection (Recommended)
+
+```objectivec
+// ✅ SIMPLEST SETUP - Everything automatic
+NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_TOKEN"]
+    withDebugLogging:YES]  // Optional: Enable logging to see what was detected
+    build];
+```
+
+**What happens automatically:**
+
+- **iPhone/iPad (Standard Memory)**: harvestCycle=300s, batchSize=64KB
+- **iPhone/iPad (Low Memory < 2GB)**: harvestCycle=60s, batchSize=32KB  
+- **Apple TV**: harvestCycle=180s, batchSize=128KB
+- **User Agent**: Automatically tagged with `;TV` or `;LowMem`
+
+#### Example 2: Override Harvest Cycle (Keep Other Auto-Settings)
+
+```objectivec
+// Device: Apple TV detected (auto: 180s harvest, 128KB batch)
+// Want: Faster harvest but keep TV batch sizes
+NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_TOKEN"]
+    withHarvestCycle:60]                    // Override: 60s instead of 180s
+    build];
+
+// Result: harvestCycle=60s, regularBatchSize=128KB (mixed auto+override)
+```
+
+**Debug Output:**
+```
+[DEBUG] Auto-detected: Apple TV platform
+[DEBUG] Applied TV optimizations: harvest=180s, batch=128KB
+[DEBUG] Override: harvestCycle set to 60s
+[DEBUG] Final config: harvest=60s, batch=128KB, isTV=YES
+```
+
+#### Example 3: Override Memory Optimization
+
+```objectivec
+// Device: Low memory detected (auto: 60s harvest, 32KB batch)
+// Want: High performance despite low memory
+NRVAVideoConfiguration *config = [[[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_TOKEN"]
+    withMemoryOptimization:NO]              // Override: Disable memory optimization
+    withHarvestCycle:30]                    // Override: Fast harvest
+    withRegularBatchSize:128 * 1024]        // Override: Large batches
+    build];
+
+// Result: All overridden - acts like high-end device
+```
+
+#### Example 4: Force TV Mode on iOS Device
+
+```objectivec
+// Device: iPhone detected (auto: standard settings)
+// Want: Use TV optimizations for testing
+NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_TOKEN"]
+    forTVOS:YES]                           // Override: Force TV mode
+    build];
+
+// Result: iPhone with TV settings (180s harvest, 128KB batch)
+```
+
+#### Example 5: Completely Custom Configuration
+
+```objectivec
+// Ignore all auto-detection, use completely custom settings
+NRVAVideoConfiguration *config = [[[[[[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_TOKEN"]
+    forTVOS:NO]                            // Override: Force non-TV
+    withMemoryOptimization:NO]             // Override: Force non-memory-optimized
+    withHarvestCycle:45]                   // Override: Custom harvest
+    withLiveHarvestCycle:8]                // Override: Custom live harvest
+    withRegularBatchSize:96 * 1024]        // Override: Custom batch size
+    withLiveBatchSize:48 * 1024]           // Override: Custom live batch size
+    build];
+
+// Result: Completely custom configuration, auto-detection ignored
+```
 
 ## Video Player Integration
 
@@ -189,7 +288,7 @@ For video playback with Google IMA advertisements:
     [self.view.layer addSublayer:playerLayer];
 
     // Setup IMA ads
-    [self setupAds:adTagURL];
+    [self.setupAds:adTagURL];
 }
 
 - (void)setupAds:(NSString *)adTagURL {

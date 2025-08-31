@@ -72,7 +72,7 @@ static dispatch_once_t onceToken;
         self.runTime = [self getRuntimeVersion];
         
         // Enhanced device detection
-        self.isTV = [NRVAUtils isTVDevice];
+        self.isTV = [self detectTVPlatform];
         self.isLowMemoryDevice = [self detectLowMemoryDevice];
         self.size = @""; // Empty string for now
         self.applicationFramework = [self determineApplicationFramework];
@@ -183,6 +183,45 @@ static dispatch_once_t onceToken;
         return NO;
     } @catch (NSException *exception) {
         NRVA_ERROR_LOG(@"Failed to detect low memory device: %@", exception.reason);
+        return NO;
+    }
+}
+
+/**
+ * Detect iOS/tvOS platform with multiple strategies
+ * Thread-safe and optimized for performance
+ */
+- (BOOL)detectTVPlatform {
+    @try {
+        // Primary detection: Compile-time check (most reliable)
+        #if TARGET_OS_TV
+            return YES;
+        #endif
+        
+        // Secondary detection: Runtime interface idiom check
+        #if TARGET_OS_IOS
+        if (@available(iOS 3.2, *)) {
+            UIUserInterfaceIdiom idiom = [[UIDevice currentDevice] userInterfaceIdiom];
+            if (idiom == UIUserInterfaceIdiomTV) {
+                return YES;
+            }
+        }
+        #endif
+        
+        // Tertiary detection: Screen size analysis for Apple TV
+        CGRect screenBounds = [[UIScreen mainScreen] bounds];
+        CGFloat screenWidth = MAX(screenBounds.size.width, screenBounds.size.height);
+        CGFloat screenHeight = MIN(screenBounds.size.width, screenBounds.size.height);
+        
+        // Apple TV typical resolutions: 1920x1080, 3840x2160
+        if ((screenWidth >= 1920 && screenHeight >= 1080) || 
+            (screenWidth >= 3840 && screenHeight >= 2160)) {
+            return YES;
+        }
+        
+        return NO;
+    } @catch (NSException *exception) {
+        NRVA_ERROR_LOG(@"Failed to detect TV platform: %@", exception.reason);
         return NO;
     }
 }

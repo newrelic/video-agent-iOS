@@ -8,6 +8,7 @@
 
 #import "NRVAVideoConfiguration.h"
 #import "NRVAUtils.h"
+#import "NRVADeviceInformation.h"
 
 // Performance optimization constants
 static const NSInteger kDefaultHarvestCycleSeconds = 5 * 60; // 5 minutes
@@ -131,16 +132,25 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
 - (instancetype)init {
     self = [super init];
     if (self) {
-        // Auto-detect device capabilities and apply defaults
-        BOOL isTV = [NRVAUtils isTVDevice];
-        _isTV = isTV;
+        // Auto-detect device capabilities using centralized device information - FULLY AUTOMATIC
+        NRVADeviceInformation *deviceInfo = [NRVADeviceInformation sharedInstance];
+        BOOL isTV = deviceInfo.isTV;
+        BOOL isLowMemory = deviceInfo.isLowMemoryDevice;
         
-        // Apply appropriate defaults based on device type and memory optimization
+        _isTV = isTV;
+        _memoryOptimized = isLowMemory;
+        
+        // Apply appropriate optimizations based on device type and memory
         if (isTV) {
             _harvestCycleSeconds = kTVHarvestCycleSeconds;
             _liveHarvestCycleSeconds = kTVLiveHarvestCycleSeconds;
             _regularBatchSizeBytes = kTVRegularBatchSizeBytes;
             _liveBatchSizeBytes = kTVLiveBatchSizeBytes;
+        } else if (isLowMemory) {
+            _harvestCycleSeconds = kMemoryOptimizedHarvestCycleSeconds;
+            _liveHarvestCycleSeconds = kMemoryOptimizedLiveHarvestCycleSeconds;
+            _regularBatchSizeBytes = kMemoryOptimizedRegularBatchSizeBytes;
+            _liveBatchSizeBytes = kMemoryOptimizedLiveBatchSizeBytes;
         } else {
             _harvestCycleSeconds = kDefaultHarvestCycleSeconds;
             _liveHarvestCycleSeconds = kDefaultLiveHarvestCycleSeconds;
@@ -148,8 +158,13 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
             _liveBatchSizeBytes = kDefaultLiveBatchSizeBytes;
         }
         
-        _maxDeadLetterSize = kDefaultMaxDeadLetterSize;
-        _memoryOptimized = NO;
+        // Apply memory-specific settings if needed
+        if (isLowMemory) {
+            _maxDeadLetterSize = kMemoryOptimizedMaxDeadLetterSize;
+        } else {
+            _maxDeadLetterSize = kDefaultMaxDeadLetterSize;
+        }
+        
         _debugLoggingEnabled = NO;
     }
     return self;
@@ -165,10 +180,7 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
     
     // Apply TV-specific optimizations
     if (isTV) {
-        self.harvestCycleSeconds = kTVHarvestCycleSeconds;
-        self.liveHarvestCycleSeconds = kTVLiveHarvestCycleSeconds;
-        self.regularBatchSizeBytes = kTVRegularBatchSizeBytes;
-        self.liveBatchSizeBytes = kTVLiveBatchSizeBytes;
+        [self applyTVOptimizations];
     }
     
     return self;
@@ -179,11 +191,7 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
     
     // Apply memory-optimized settings
     if (memoryOptimized) {
-        self.harvestCycleSeconds = kMemoryOptimizedHarvestCycleSeconds;
-        self.liveHarvestCycleSeconds = kMemoryOptimizedLiveHarvestCycleSeconds;
-        self.regularBatchSizeBytes = kMemoryOptimizedRegularBatchSizeBytes;
-        self.liveBatchSizeBytes = kMemoryOptimizedLiveBatchSizeBytes;
-        self.maxDeadLetterSize = kMemoryOptimizedMaxDeadLetterSize;
+        [self applyMemoryOptimizations];
     }
     
     return self;
@@ -195,28 +203,73 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
 }
 
 - (instancetype)withHarvestCycle:(NSInteger)harvestCycleSeconds {
+    // Input validation: Harvest cycle must be between 5-300 seconds
+    if (harvestCycleSeconds < 5 || harvestCycleSeconds > 300) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Harvest cycle must be between 5-300 seconds"
+                                     userInfo:nil];
+    }
     self.harvestCycleSeconds = harvestCycleSeconds;
     return self;
 }
 
 - (instancetype)withLiveHarvestCycle:(NSInteger)liveHarvestCycleSeconds {
+    // Input validation: Live harvest cycle must be between 1-60 seconds
+    if (liveHarvestCycleSeconds < 1 || liveHarvestCycleSeconds > 60) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Live harvest cycle must be between 1-60 seconds"
+                                     userInfo:nil];
+    }
     self.liveHarvestCycleSeconds = liveHarvestCycleSeconds;
     return self;
 }
 
 - (instancetype)withRegularBatchSize:(NSInteger)regularBatchSizeBytes {
+    // Input validation: Regular batch size must be between 1KB-1MB
+    if (regularBatchSizeBytes < 1024 || regularBatchSizeBytes > 1024 * 1024) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Regular batch size must be between 1KB-1MB"
+                                     userInfo:nil];
+    }
     self.regularBatchSizeBytes = regularBatchSizeBytes;
     return self;
 }
 
 - (instancetype)withLiveBatchSize:(NSInteger)liveBatchSizeBytes {
+    // Input validation: Live batch size must be between 512B-512KB
+    if (liveBatchSizeBytes < 512 || liveBatchSizeBytes > 512 * 1024) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Live batch size must be between 512B-512KB"
+                                     userInfo:nil];
+    }
     self.liveBatchSizeBytes = liveBatchSizeBytes;
     return self;
 }
 
 - (instancetype)withMaxDeadLetterSize:(NSInteger)maxDeadLetterSize {
+    // Input validation: Max dead letter size must be between 10-1000
+    if (maxDeadLetterSize < 10 || maxDeadLetterSize > 1000) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Max dead letter size must be between 10-1000"
+                                     userInfo:nil];
+    }
     self.maxDeadLetterSize = maxDeadLetterSize;
     return self;
+}
+
+- (void)applyTVOptimizations {
+    self.harvestCycleSeconds = kTVHarvestCycleSeconds;
+    self.liveHarvestCycleSeconds = kTVLiveHarvestCycleSeconds;
+    self.regularBatchSizeBytes = kTVRegularBatchSizeBytes;
+    self.liveBatchSizeBytes = kTVLiveBatchSizeBytes;
+}
+
+- (void)applyMemoryOptimizations {
+    self.harvestCycleSeconds = kMemoryOptimizedHarvestCycleSeconds;
+    self.liveHarvestCycleSeconds = kMemoryOptimizedLiveHarvestCycleSeconds;
+    self.regularBatchSizeBytes = kMemoryOptimizedRegularBatchSizeBytes;
+    self.liveBatchSizeBytes = kMemoryOptimizedLiveBatchSizeBytes;
+    self.maxDeadLetterSize = kMemoryOptimizedMaxDeadLetterSize;
 }
 
 - (NRVAVideoConfiguration *)build {
