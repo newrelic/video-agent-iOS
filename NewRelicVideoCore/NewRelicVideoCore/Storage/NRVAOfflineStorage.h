@@ -27,10 +27,6 @@
 - (NSData *)getDataFromFile:(NSString *)filename;
 - (BOOL)clearSpecificFiles:(NSArray<NSString *> *)filenames;
 
-// Clean event-level processing (your suggested approach)
-- (NSArray<NSDictionary *> *)getUnprocessedEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents;
-- (BOOL)removeProcessedEventsFromFile:(NSString *)filename;
-
 // EFFICIENT: Simple poll-and-remove method (matches Android SQLite pattern)
 - (NSArray<NSDictionary *> *)pollAndRemoveEventsFromFile:(NSString *)filename maxEvents:(NSInteger)maxEvents;
 
