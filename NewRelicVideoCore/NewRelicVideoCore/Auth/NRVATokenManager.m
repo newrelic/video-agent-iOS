@@ -10,7 +10,6 @@
 #import "NRVAVideoConfiguration.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
-#import "NRVAHttpDebugUtil.h"
 
 #import <UIKit/UIKit.h>
 
@@ -216,9 +215,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     [request setValue:[self getUserAgent] forHTTPHeaderField:@"User-Agent"];
     [request setValue:self.configuration.applicationToken forHTTPHeaderField:@"X-App-License-Key"];
     
-    // Log the request as curl command for debugging
-    // [NRVAHttpDebugUtil logRequestAsCurl:request tag:@"TOKEN"];
-    
     // Send request
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     config.timeoutIntervalForRequest = kNRVA_CONNECT_TIMEOUT;
@@ -228,8 +224,6 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request
                                              completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-        // Log the response for debugging
-        // [NRVAHttpDebugUtil logResponse:response data:data error:error tag:@"TOKEN"];
         
         if (error) {
             NRVA_ERROR_LOG(@"Token request failed: %@", error.localizedDescription);

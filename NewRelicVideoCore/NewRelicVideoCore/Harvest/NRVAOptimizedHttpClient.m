@@ -11,7 +11,6 @@
 #import "NRVATokenManager.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
-#import "NRVAHttpDebugUtil.h"
 
 static const int kMaxRetryAttempts = 3;
 
@@ -120,7 +119,6 @@ static const int kMaxRetryAttempts = 3;
             }
             
             [request setHTTPBody:jsonData];
-            // [NRVAHttpDebugUtil logRequestAsCurl:request tag:@"HARVEST"];
             
             NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:request
                                                                  completionHandler:^(NSData *data, NSURLResponse *urlResponse, NSError *error) {
@@ -147,8 +145,6 @@ static const int kMaxRetryAttempts = 3;
                 events:(NSArray *)events
                attempt:(int)attempt
             completion:(void (^)(BOOL success))completion {
-    
-    // [NRVAHttpDebugUtil logResponse:urlResponse data:data error:error tag:@"HARVEST"];
     
     if (error) {
         NRVA_ERROR_LOG(@"HTTP request failed on attempt %d: %@", attempt + 1, error.localizedDescription);
