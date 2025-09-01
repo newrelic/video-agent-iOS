@@ -70,13 +70,14 @@ In your `AppDelegate.m`, initialize the video agent:
 For production and performance optimization, you can configure additional options:
 
 ```objectivec
-NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[NRVAVideoConfiguration builder]
+NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[NRVAVideoConfiguration builder]
     withApplicationToken:@"YOUR_NEW_RELIC_TOKEN"]
     withHarvestCycle:30]                    // Regular harvest cycle (5-300 seconds)
     withLiveHarvestCycle:10]                // Live content harvest cycle (1-60 seconds)
     withRegularBatchSize:64 * 1024]         // Regular content batch size (64KB default)
     withLiveBatchSize:32 * 1024]            // Live content batch size (32KB default)
     withMaxDeadLetterSize:100]              // Failed request queue size (10-1000)
+    withMaxOfflineStorageSize:100]          // Offline storage limit in MB (10-1000MB)
     withMemoryOptimization:NO]              // Enable for low-memory devices
     forTVOS:NO]                             // Enable tvOS optimizations
     withDebugLogging:YES]                   // Debug logging
@@ -85,17 +86,18 @@ NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[NRVAVideoConfiguration builde
 
 **Complete Configuration Reference:**
 
-| Option                    | Type       | Default       | Range         | Description                            |
-| ------------------------- | ---------- | ------------- | ------------- | -------------------------------------- |
-| `withApplicationToken:`   | NSString\* | _(required)_  | -             | Your New Relic application token       |
-| `withHarvestCycle:`       | NSInteger  | 300 (5 min)   | 5-300 seconds | How often to send regular content data |
-| `withLiveHarvestCycle:`   | NSInteger  | 30            | 1-60 seconds  | How often to send live content data    |
-| `withRegularBatchSize:`   | NSInteger  | 65,536 (64KB) | 1KB-1MB       | Batch size for regular content uploads |
-| `withLiveBatchSize:`      | NSInteger  | 32,768 (32KB) | 512B-512KB    | Batch size for live content uploads    |
-| `withMaxDeadLetterSize:`  | NSInteger  | 100           | 10-1000       | Failed request queue capacity          |
-| `withMemoryOptimization:` | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
-| `forTVOS:`                | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
-| `withDebugLogging:`       | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+| Option                       | Type       | Default       | Range         | Description                            |
+| ---------------------------- | ---------- | ------------- | ------------- | -------------------------------------- |
+| `withApplicationToken:`      | NSString\* | _(required)_  | -             | Your New Relic application token       |
+| `withHarvestCycle:`          | NSInteger  | 300 (5 min)   | 5-300 seconds | How often to send regular content data |
+| `withLiveHarvestCycle:`      | NSInteger  | 30            | 1-60 seconds  | How often to send live content data    |
+| `withRegularBatchSize:`      | NSInteger  | 65,536 (64KB) | 1KB-1MB       | Batch size for regular content uploads |
+| `withLiveBatchSize:`         | NSInteger  | 32,768 (32KB) | 512B-512KB    | Batch size for live content uploads    |
+| `withMaxDeadLetterSize:`     | NSInteger  | 100           | 10-1000       | Failed request queue capacity          |
+| `withMaxOfflineStorageSize:` | NSInteger  | 100           | > 0 MB        | Maximum offline storage size limit     |
+| `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
+| `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
+| `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
 
 ## Automatic Detection & Override Examples
 
@@ -116,7 +118,7 @@ NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
 **What happens automatically:**
 
 - **iPhone/iPad (Standard Memory)**: harvestCycle=300s, batchSize=64KB
-- **iPhone/iPad (Low Memory < 2GB)**: harvestCycle=60s, batchSize=32KB  
+- **iPhone/iPad (Low Memory < 2GB)**: harvestCycle=60s, batchSize=32KB
 - **Apple TV**: harvestCycle=180s, batchSize=128KB
 - **User Agent**: Automatically tagged with `;TV` or `;LowMem`
 
@@ -134,6 +136,7 @@ NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
 ```
 
 **Debug Output:**
+
 ```
 [DEBUG] Auto-detected: Apple TV platform
 [DEBUG] Applied TV optimizations: harvest=180s, batch=128KB

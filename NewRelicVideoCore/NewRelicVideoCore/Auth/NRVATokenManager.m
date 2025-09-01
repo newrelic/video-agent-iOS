@@ -30,6 +30,8 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
 @property (nonatomic, assign) NSTimeInterval lastTokenTime;
 @property (nonatomic, strong) dispatch_queue_t tokenQueue;
 @property (nonatomic, strong) NSString *tokenEndpoint;
+@property (nonatomic, strong) NSMutableArray *pendingCompletions;
+@property (nonatomic, assign) BOOL isGeneratingToken;
 
 @end
 
@@ -62,6 +64,10 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
             NRVA_ERROR_LOG(@"Exception loading cached token: %@", exception.reason);
         }
         
+        // Initialize in-flight request tracking
+        _pendingCompletions = [NSMutableArray array];
+        _isGeneratingToken = NO;
+        
         NRVA_DEBUG_LOG(@"TokenManager initialized for region: %@", configuration.region);
     }
     return self;
@@ -85,24 +91,40 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
             return;
         }
         
+        if (self.isGeneratingToken) {
+            NRVA_DEBUG_LOG(@"Token generation already in progress, adding to pending completions");
+            [self.pendingCompletions addObject:[completion copy]];
+            return;
+        }
+        
         // Slow path: generate new token
         NRVA_DEBUG_LOG(@"Generating new token from API");
+        self.isGeneratingToken = YES;
+        [self.pendingCompletions addObject:[completion copy]];
+        
         [self generateAppTokenWithCompletion:^(NSArray<NSNumber *> *token, NSError *error) {
-            if (token && !error) {
-                self.cachedToken = token;
-                self.lastTokenTime = [[NSDate date] timeIntervalSince1970];
-                [self cacheToken:token];
+            dispatch_async(self.tokenQueue, ^{
+                if (token && !error) {
+                    self.cachedToken = token;
+                    self.lastTokenTime = [[NSDate date] timeIntervalSince1970];
+                    [self cacheToken:token];
+                    
+                    NRVA_DEBUG_LOG(@"New token generated and cached successfully");
+                } else {
+                    NRVA_ERROR_LOG(@"Failed to generate token: %@", error.localizedDescription);
+                }
                 
-                NRVA_DEBUG_LOG(@"New token generated and cached successfully");
+                // Call all pending completions
+                NSArray *completionsToCall = [self.pendingCompletions copy];
+                [self.pendingCompletions removeAllObjects];
+                self.isGeneratingToken = NO;
+                
                 dispatch_async(dispatch_get_main_queue(), ^{
-                    completion([token copy], nil);
+                    for (void (^pendingCompletion)(NSArray<NSNumber *> *, NSError *) in completionsToCall) {
+                        pendingCompletion(token ? [token copy] : nil, error);
+                    }
                 });
-            } else {
-                NRVA_ERROR_LOG(@"Failed to generate token: %@", error.localizedDescription);
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    completion(nil, error);
-                });
-            }
+            });
         }];
     });
 }

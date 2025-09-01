@@ -11,6 +11,7 @@
 @interface NRVAOfflineStorage : NSObject
 
 - (instancetype)initWithEndpoint:(NSString *)name;
+- (instancetype)initWithEndpoint:(NSString *)name maxStorageSizeMB:(NSUInteger)maxStorageSizeMB;
 - (BOOL)persistDataToDisk:(NSData *)data;
 - (NSArray<NSData *> *)getAllOfflineData:(BOOL)clear;
 - (BOOL)clearAllOfflineFiles;

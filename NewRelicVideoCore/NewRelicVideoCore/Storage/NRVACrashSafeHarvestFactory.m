@@ -78,7 +78,9 @@
     self = [super init];
     if (self) {
         _configuration = configuration;
-        _offlineStorage = [[NRVAOfflineStorage alloc] initWithEndpoint:@"crash-safe-events"];
+        _offlineStorage = [[NRVAOfflineStorage alloc] initWithEndpoint:@"crash-safe-events" 
+                                                       maxStorageSizeMB:configuration.maxOfflineStorageSizeMB];
+        
         _crashSafeBuffer = [[NRVACrashSafeEventBuffer alloc] initWithConfiguration:configuration
                                                                     offlineStorage:_offlineStorage];
         _httpClient = [[NRVAOptimizedHttpClient alloc] initWithConfiguration:configuration];

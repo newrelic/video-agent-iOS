@@ -27,6 +27,17 @@
     return self;
 }
 
+- (instancetype)initWithEndpoint:(NSString *)name maxStorageSizeMB:(NSUInteger)maxStorageSizeMB {
+    self = [super init];
+    if (self) {
+        _name = name;
+        maxOfflineStorageSize = maxStorageSizeMB * 1000000; // Convert MB to bytes
+        NRVA_DEBUG_LOG(@"NRVAOfflineStorage initialized with endpoint '%@' and max storage size %lu MB (%lu bytes)", 
+                      name, (unsigned long)maxStorageSizeMB, (unsigned long)maxOfflineStorageSize);
+    }
+    return self;
+}
+
 - (void)createDirectory {
     BOOL fileExists = [[NSFileManager defaultManager] fileExistsAtPath:[self offlineDirectoryPath] isDirectory:nil];
     if (!fileExists) {
@@ -58,7 +69,7 @@
             if ([data writeToFile:filePath options:NSDataWritingAtomic error:&error]) {
                 [[NSUserDefaults standardUserDefaults] setInteger:currentOfflineStorageSize forKey:kNRVAOfflineStorageCurrentSizeKey];
                 double storageSizeKB = currentOfflineStorageSize / 1024.0;
-                NRVA_DEBUG_LOG(@"Successfully persisted failed upload data to disk for offline storage. File: %@, Current offline storage: %.2f KB (%lu bytes)", filePath, storageSizeKB, (unsigned long)currentOfflineStorageSize);
+                 NRVA_DEBUG_LOG(@"Successfully persisted failed upload data to disk for offline storage. File: %@, Current offline storage: %.2f KB (%lu bytes), Total events stored: %ld", filePath, storageSizeKB, (unsigned long)currentOfflineStorageSize, (long)[self getEventCount]);
                 return YES;
             }
         }

@@ -16,12 +16,14 @@ static const NSInteger kDefaultLiveHarvestCycleSeconds = 30; // 30 seconds
 static const NSInteger kDefaultRegularBatchSizeBytes = 64 * 1024; // 64KB
 static const NSInteger kDefaultLiveBatchSizeBytes = 32 * 1024; // 32KB
 static const NSInteger kDefaultMaxDeadLetterSize = 100;
+static const NSInteger kDefaultMaxOfflineStorageSizeMB = 100; // 100MB
 
 // TV-specific optimizations
 static const NSInteger kTVHarvestCycleSeconds = 3 * 60; // 3 minutes
 static const NSInteger kTVLiveHarvestCycleSeconds = 10; // 10 seconds
 static const NSInteger kTVRegularBatchSizeBytes = 128 * 1024; // 128KB
 static const NSInteger kTVLiveBatchSizeBytes = 64 * 1024; // 64KB
+static const NSInteger kTVMaxOfflineStorageSizeMB = 200; // 200MB
 
 // Memory-optimized settings
 static const NSInteger kMemoryOptimizedHarvestCycleSeconds = 60;
@@ -29,6 +31,7 @@ static const NSInteger kMemoryOptimizedLiveHarvestCycleSeconds = 15;
 static const NSInteger kMemoryOptimizedRegularBatchSizeBytes = 32 * 1024; // 32KB
 static const NSInteger kMemoryOptimizedLiveBatchSizeBytes = 16 * 1024; // 16KB
 static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
+static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
 @implementation NRVAVideoConfiguration
 
@@ -52,6 +55,7 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
         _regularBatchSizeBytes = builder.regularBatchSizeBytes;
         _liveBatchSizeBytes = builder.liveBatchSizeBytes;
         _maxDeadLetterSize = builder.maxDeadLetterSize;
+        _maxOfflineStorageSizeMB = builder.maxOfflineStorageSizeMB;
         _memoryOptimized = builder.memoryOptimized;
         _debugLoggingEnabled = builder.debugLoggingEnabled;
         _isTV = builder.isTV;
@@ -146,16 +150,19 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
             _liveHarvestCycleSeconds = kTVLiveHarvestCycleSeconds;
             _regularBatchSizeBytes = kTVRegularBatchSizeBytes;
             _liveBatchSizeBytes = kTVLiveBatchSizeBytes;
+            _maxOfflineStorageSizeMB = kTVMaxOfflineStorageSizeMB;
         } else if (isLowMemory) {
             _harvestCycleSeconds = kMemoryOptimizedHarvestCycleSeconds;
             _liveHarvestCycleSeconds = kMemoryOptimizedLiveHarvestCycleSeconds;
             _regularBatchSizeBytes = kMemoryOptimizedRegularBatchSizeBytes;
             _liveBatchSizeBytes = kMemoryOptimizedLiveBatchSizeBytes;
+            _maxOfflineStorageSizeMB = kMemoryOptimizedMaxOfflineStorageSizeMB;
         } else {
             _harvestCycleSeconds = kDefaultHarvestCycleSeconds;
             _liveHarvestCycleSeconds = kDefaultLiveHarvestCycleSeconds;
             _regularBatchSizeBytes = kDefaultRegularBatchSizeBytes;
             _liveBatchSizeBytes = kDefaultLiveBatchSizeBytes;
+            _maxOfflineStorageSizeMB = kDefaultMaxOfflineStorageSizeMB;
         }
         
         // Apply memory-specific settings if needed
@@ -257,11 +264,23 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
     return self;
 }
 
+- (instancetype)withMaxOfflineStorageSize:(NSInteger)maxOfflineStorageSizeMB {
+    // Input validation: Max offline storage size must be greater than 0
+    if (maxOfflineStorageSizeMB <= 0) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"Max offline storage size must be greater than 0 MB"
+                                     userInfo:nil];
+    }
+    self.maxOfflineStorageSizeMB = maxOfflineStorageSizeMB;
+    return self;
+}
+
 - (void)applyTVOptimizations {
     self.harvestCycleSeconds = kTVHarvestCycleSeconds;
     self.liveHarvestCycleSeconds = kTVLiveHarvestCycleSeconds;
     self.regularBatchSizeBytes = kTVRegularBatchSizeBytes;
     self.liveBatchSizeBytes = kTVLiveBatchSizeBytes;
+    self.maxOfflineStorageSizeMB = kTVMaxOfflineStorageSizeMB;
 }
 
 - (void)applyMemoryOptimizations {
@@ -270,6 +289,7 @@ static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
     self.regularBatchSizeBytes = kMemoryOptimizedRegularBatchSizeBytes;
     self.liveBatchSizeBytes = kMemoryOptimizedLiveBatchSizeBytes;
     self.maxDeadLetterSize = kMemoryOptimizedMaxDeadLetterSize;
+    self.maxOfflineStorageSizeMB = kMemoryOptimizedMaxOfflineStorageSizeMB;
 }
 
 - (NRVAVideoConfiguration *)build {

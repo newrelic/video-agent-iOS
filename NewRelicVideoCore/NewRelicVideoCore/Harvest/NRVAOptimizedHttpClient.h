@@ -15,7 +15,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * Optimized HTTP client for video event transmission
- * Replaces basic NRVAConnection with advanced features
  */
 @interface NRVAOptimizedHttpClient : NSObject <NRVAHttpClientInterface>
 

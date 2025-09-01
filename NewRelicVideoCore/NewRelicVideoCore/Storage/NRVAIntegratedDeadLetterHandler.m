@@ -86,10 +86,12 @@
         return;
     }
     
+    NRVA_DEBUG_LOG(@"🔴 [DEAD LETTER] Processing %lu failed %@ events", (unsigned long)failedEvents.count, harvestType);
+    
     os_unfair_lock_lock(&_processingLock);
     if (_isProcessing) {
         os_unfair_lock_unlock(&_processingLock);
-        NRVA_DEBUG_LOG(@"Dead letter handler is already processing.");
+        NRVA_DEBUG_LOG(@"🔴 [DEAD LETTER] Handler is already processing - skipping");
         return;
     }
     _isProcessing = YES;
@@ -114,8 +116,12 @@
 
         if (toBackup.count > 0) {
             [self.mainBuffer backupFailedEvents:toBackup];
-            NRVA_DEBUG_LOG(@"Dead letter handler: Retrying %lu events, Backing up %lu events.", (unsigned long)toRetry.count, (unsigned long)toBackup.count);
+            NRVA_DEBUG_LOG(@"🔴 [DEAD LETTER] Retrying %lu events, Backing up %lu events to offline storage", (unsigned long)toRetry.count, (unsigned long)toBackup.count);
+        } else {
+            NRVA_DEBUG_LOG(@"🔴 [DEAD LETTER] Retrying %lu events, No events backed up (all still have retries left)", (unsigned long)toRetry.count);
         }
+        
+        NRVA_DEBUG_LOG(@"🔴 [DEAD LETTER] In-memory retry queue now has %ld events", (long)[self.inMemoryQueue getEventCount]);
     } @finally {
         os_unfair_lock_lock(&_processingLock);
         _isProcessing = NO;

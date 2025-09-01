@@ -22,6 +22,7 @@
 @property (nonatomic, readonly) NSInteger regularBatchSizeBytes;
 @property (nonatomic, readonly) NSInteger liveBatchSizeBytes;
 @property (nonatomic, readonly) NSInteger maxDeadLetterSize;
+@property (nonatomic, readonly) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, readonly) BOOL memoryOptimized;
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
 @property (nonatomic, readonly) BOOL isTV;
@@ -55,6 +56,7 @@
 @property (nonatomic, assign) NSInteger regularBatchSizeBytes;
 @property (nonatomic, assign) NSInteger liveBatchSizeBytes;
 @property (nonatomic, assign) NSInteger maxDeadLetterSize;
+@property (nonatomic, assign) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, assign) BOOL memoryOptimized;
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
 @property (nonatomic, assign) BOOL isTV;
@@ -110,6 +112,11 @@
  * Set maximum dead letter queue size (10-1000, validated)
  */
 - (instancetype)withMaxDeadLetterSize:(NSInteger)maxDeadLetterSize;
+
+/**
+ * Set maximum offline storage size in MB (> 0 MB)
+ */
+- (instancetype)withMaxOfflineStorageSize:(NSInteger)maxOfflineStorageSizeMB;
 
 /**
  * Build the configuration
