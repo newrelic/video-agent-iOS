@@ -23,19 +23,6 @@
     return [NSString stringWithFormat:@"%@.%03ld", [dateFormatter stringFromDate:now], (long)milliseconds];
 }
 
-void NRVA_LOG(NSString *format, ...) {
-    if ([[NewRelicVideoAgent sharedInstance] logging]) {
-        NSString *contents;
-        va_list args;
-        va_start(args, format);
-        contents = [[NSString alloc] initWithFormat:format arguments:args];
-        va_end(args);
-        NSString *timestamp = [NRVALog formatTimestamp];
-        contents = [@"NRVideoAgent " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
-        NSLog(@"%@", contents);
-    }
-}
-
 void NRVA_DEBUG_LOG(NSString *format, ...) {
     if ([[NewRelicVideoAgent sharedInstance] logging]) {
         NSString *contents;

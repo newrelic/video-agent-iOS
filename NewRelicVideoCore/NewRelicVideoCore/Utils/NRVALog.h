@@ -11,12 +11,6 @@
 @interface NRVALog : NSObject
 
 /**
- * Main logging function for the video agent
- * Automatically prefixes with timestamp and agent identifier
- */
-void NRVA_LOG(NSString *format, ...);
-
-/**
  * Debug logging (only when debug logging is enabled)
  */
 void NRVA_DEBUG_LOG(NSString *format, ...);
