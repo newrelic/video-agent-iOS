@@ -32,17 +32,23 @@ Add the following lines to your Podfile:
   pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS'
 ```
 
-### Install manually
+### Other Installation Methods
 
-First install the [New Relic iOS Agent](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/installation/ios-manual-installation).
+For detailed installation instructions including XCFramework integration and manual setup, see the [INSTALLATION.md](INSTALLATION.md) guide.
 
-1. Clone this repo.
-2. Open each one of the .xcodeproj files with Xcode.
-3. Select the appropiate scheme.
-4. Build (cmd+B).
-5. Include the generated .framework in your project.
+## Getting Started
 
-## Usage
+For comprehensive setup instructions, usage examples, and best practices, see the [Developer Onboarding Guide](ONBOARDING.md).
+
+The onboarding guide covers:
+- Complete installation and setup
+- AppDelegate configuration with automatic optimization
+- Video player integration (with and without ads)
+- Advanced configuration options
+- Performance tuning and battery optimization
+- Troubleshooting and best practices
+
+## Quick Usage Example
 
 To start the video agent with AVPlayer tracker only:
 
@@ -51,7 +57,20 @@ To start the video agent with AVPlayer tracker only:
 <p>
 
 ```Objective-C
-NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player]];
+// In AppDelegate - Initialize the video agent
+NRVAVideoConfiguration *config = [[[NRVAVideoConfiguration builder]
+    withApplicationToken:@"YOUR_NEW_RELIC_TOKEN"]
+    withDebugLogging:YES]
+    build];
+[[[NRVAVideo newBuilder] withConfiguration:config] build];
+
+// In your ViewController - Add player tracking
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adEnabled:NO
+    customAttributes:@{@"videoTitle": @"Sample Video"}];
+NSInteger trackerId = [NRVAVideo addPlayer:playerConfig];
 ```
 
 </p>
@@ -61,34 +80,27 @@ NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTrack
 <p>
 
 ```Swift
-let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player))
+// In AppDelegate - Initialize the video agent
+let config = NRVAVideoConfiguration.builder()
+    .withApplicationToken("YOUR_NEW_RELIC_TOKEN")
+    .withDebugLogging(true)
+    .build()
+NRVAVideo.newBuilder().with(configuration: config).build()
+
+// In your ViewController - Add player tracking
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adEnabled: false,
+    customAttributes: ["videoTitle": "Sample Video"]
+)
+let trackerId = NRVAVideo.addPlayer(playerConfig)
 ```
 
 </p>
 </details>
 
-To start the video agent with AVPlayer and IMA trackers:
-
-<details>
-<summary>Objective-C</summary>
-<p>
-
-```Objective-C
-NSNumber *trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:player] adTracker:[[NRTrackerIMA alloc] init]];
-```
-
-</p>
-</details>
-<details>
-<summary>Swift</summary>
-<p>
-
-```Swift
-let trackerId = NewRelicVideoAgent.sharedInstance().start(withContentTracker: NRTrackerAVPlayer.init(avPlayer: player), adTracker: NRTrackerIMA.init())
-```
-
-</p>
-</details>
+For complete integration examples including ad support, see the [ONBOARDING.md](ONBOARDING.md) guide.
 
 ## Documentation
 
