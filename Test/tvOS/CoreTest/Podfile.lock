@@ -1,5 +1,5 @@
 PODS:
-  - NewRelicVideoCore (3.0.1)
+  - NewRelicVideoCore (4.0.0)
 
 DEPENDENCIES:
   - NewRelicVideoCore (from `../../../`)
@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../../../"
 
 SPEC CHECKSUMS:
-  NewRelicVideoCore: 9ac5d86ee51b4f129b18ca84c2ea92f76db23e55
+  NewRelicVideoCore: 8e88213151f07631d9b3a5d026e3f8ba15826829
 
 PODFILE CHECKSUM: 3f9ba36a8d9ee8b643eb3a2bc398414fcc4f118f
 
