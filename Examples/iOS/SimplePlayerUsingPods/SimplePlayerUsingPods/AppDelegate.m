@@ -21,7 +21,7 @@
     
     // Initialize New Relic Video Agent with 5-second harvest cycle
     NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder] 
-        withApplicationToken:@"AA5285efca44722e2c6735346267c84a4447854b58-NRMA"]
+        withApplicationToken:@"YOUR_APP_TOKEN"]
         withHarvestCycle:5]
         withDebugLogging:YES] build];
     

@@ -19,7 +19,7 @@
     // Override point for customization after application launch.
     
     NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
-            withApplicationToken:@"AA10223d366d98cd4e4b9e523c641537f9b6c78257-NRMA"]
+            withApplicationToken:@"YOUR_APP_TOKEN"]
             withHarvestCycle:60]  
             withDebugLogging:YES] build];
         
