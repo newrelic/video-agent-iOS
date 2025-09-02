@@ -13,9 +13,9 @@ This guide covers the two available installation methods for the New Relic Video
    use_frameworks!
 
    target 'YourApp' do
-     pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'feat/standalone'
-     pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'feat/standalone'
-     pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'feat/standalone'  # Optional for ads
+     pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'
+     pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'
+     pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'  # Optional for ads
    end
    ```
 
@@ -32,7 +32,7 @@ This guide covers the two available installation methods for the New Relic Video
 1. **Build the XCFrameworks:**
 
    ```bash
-   git clone -b feat/standalone https://github.com/newrelic/video-agent-iOS.git
+   git clone -b stable https://github.com/newrelic/video-agent-iOS.git
    cd video-agent-iOS
    chmod +x build_xcframeworks.sh
    ./build_xcframeworks.sh
