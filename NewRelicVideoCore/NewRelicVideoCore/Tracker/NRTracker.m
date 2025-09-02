@@ -11,7 +11,9 @@
 #import "NRVideoDefs.h"
 #import "NRTimeSinceTable.h"
 #import "NewRelicVideoAgent.h"
-#import <NewRelic/NewRelic.h>
+#import "NRVAVideo.h"
+// Remove dependency on NewRelic Agent
+// #import <NewRelic/NewRelic.h>
 
 @interface NRTracker ()
 
@@ -92,10 +94,7 @@
     if ([self preSendAction:action attributes:attr]) {
         [attr setObject:action forKey:@"actionName"];
         
-        if (![NewRelic recordCustomEvent:eventType attributes:attr]) {
-            AV_LOG(@"⚠️ Failed to recordCustomEvent. Maybe the NewRelicAgent is not initialized or the attribute list contains invalid/empty values. ⚠️");
-            AV_LOG(@"-->Attributes = %@", attr);
-        }
+        [NRVAVideo recordEvent:eventType attributes:attr];
     }
 }
 

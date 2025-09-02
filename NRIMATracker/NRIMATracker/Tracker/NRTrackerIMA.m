@@ -72,6 +72,23 @@
     [self sendError:error];
 }
 
+
+/**
+ * Forward ad events
+ * Simple forwarding to existing adEvent method
+ */
+- (void)handleAdEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)adsManager {
+    [self adEvent:event adsManager:adsManager];
+}
+
+/**
+ * Forward ad errors  
+ * Simple forwarding to existing adError method (no changes to core logic)
+ */
+- (void)handleAdError:(IMAAdError *)error {
+    [self adError:error.message code:(int)error.code];
+}
+
 #pragma mark - Attribute getters
 
 - (NSString *)getPlayerName {
@@ -87,7 +104,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"3.0.1";
+    return @"4.0.0";
 }
 
 - (NSNumber *)getPlayhead {
