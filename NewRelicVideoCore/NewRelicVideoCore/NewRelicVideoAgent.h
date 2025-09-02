@@ -90,6 +90,23 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (nullable NRTracker *)adTracker:(NSNumber *)trackerId;
 
+/**
+ Set global attribute for all trackers.
+ 
+ @param key The attribute key.
+ @param value The attribute value.
+ */
+- (void)setGlobalAttribute:(NSString *)key value:(id)value;
+
+/**
+ Set global attribute for all trackers with action.
+ 
+ @param key The attribute key.
+ @param value The attribute value.
+ @param action The action name to associate with the attribute.
+ */
+- (void)setGlobalAttribute:(NSString *)key value:(id)value forAction:(NSString *)action;
+
 @end
 
 NS_ASSUME_NONNULL_END
