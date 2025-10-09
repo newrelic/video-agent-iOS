@@ -51,15 +51,6 @@ This guide covers the two available installation methods for the New Relic Video
    - Find the 3 frameworks you just added
    - Change each from "Do Not Embed" to **"Embed & Sign"**
 
-## Import Statements
-
-For both methods, use:
-
-```objective-c
-#import <NewRelicVideoCore/NewRelicVideoCore.h>
-#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
-#import <NRIMATracker/NRIMATracker.h>  // Only if using IMA ads
-```
 
 ## Next Steps
 
