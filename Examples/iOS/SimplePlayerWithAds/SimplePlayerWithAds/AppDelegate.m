@@ -19,7 +19,7 @@
     // Override point for customization after application launch.
     
     NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
-            withApplicationToken:@"YOUR_APP_TOKEN"]
+            withApplicationToken:@"YOUR_NEWRELIC_APP_TOKEN"] 
             withHarvestCycle:60]  
             withDebugLogging:YES] build];
         
