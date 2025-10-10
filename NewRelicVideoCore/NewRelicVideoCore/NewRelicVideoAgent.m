@@ -117,4 +117,28 @@
     }
 }
 
+- (void)setGlobalAttribute:(NSString *)key value:(id)value {
+    for (NSNumber *trackerId in self.trackerPairs) {
+        NRTrackerPair *pair = self.trackerPairs[trackerId];
+        if (pair.first) {
+            [pair.first setAttribute:key value:value];
+        }
+        if (pair.second) {
+            [pair.second setAttribute:key value:value];
+        }
+    }
+}
+
+- (void)setGlobalAttribute:(NSString *)key value:(id)value forAction:(NSString *)action {
+    for (NSNumber *trackerId in self.trackerPairs) {
+        NRTrackerPair *pair = self.trackerPairs[trackerId];
+        if (pair.first) {
+            [pair.first setAttribute:key value:value forAction:action];
+        }
+        if (pair.second) {
+            [pair.second setAttribute:key value:value forAction:action];
+        }
+    }
+}
+
 @end

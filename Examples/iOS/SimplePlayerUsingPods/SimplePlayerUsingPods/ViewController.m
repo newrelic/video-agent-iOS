@@ -6,15 +6,15 @@
 //
 
 #import "ViewController.h"
-#import <NewRelicVideoCore/NewRelicVideoCore.h>
-#import <NRAVPlayerTracker/NRAVPlayerTracker.h>
+#import <NewRelicVideoCore/NRVAVideo.h>
+#import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
 
 @import AVKit;
 
 @interface ViewController ()
 
 @property (nonatomic) AVPlayerViewController *playerController;
-@property (nonatomic) NSNumber *trackerId;
+@property (nonatomic) NSInteger trackerId;
 
 @end
 
@@ -38,20 +38,17 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [[NewRelicVideoAgent sharedInstance] setLogging:YES];
+    NSLog(@"🎬 [ViewController] Simple Player - Ready for video tracking");
+}
+
+- (void)dealloc {
+    // Clean up tracker when view controller is deallocated
+    [NRVAVideo releaseTracker:self.trackerId];
+    NSLog(@"🧹 [ViewController] Cleanup completed");
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    // User closed the player
-    if (self.playerController.isBeingDismissed) {
-        //Send END
-        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
-        
-        //Stop tracking
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
-    }
 }
 
 - (void)playVideo:(NSString *)videoURL {
@@ -60,12 +57,24 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]];
+    // Use configuration-based approach
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"SimplePlayer"
+        player:player
+        adEnabled:NO
+        customAttributes:@{
+            @"videoURL": videoURL,
+            @"setupMethod": @"configuration-based"
+        }];
+    
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+    
+    NSLog(@"🎥 [Video] Started simple video tracking with ID: %ld", (long)self.trackerId);
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
-    } ];
+        NSLog(@"▶️ [Video] Playback started");
+    }];
 }
-
 
 @end

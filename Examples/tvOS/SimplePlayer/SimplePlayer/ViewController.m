@@ -14,7 +14,7 @@
 @interface ViewController ()
 
 @property (nonatomic) AVPlayerViewController *playerController;
-@property (nonatomic) NSNumber *trackerId;
+@property (nonatomic) NSInteger trackerId;
 
 @end
 
@@ -39,18 +39,18 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [[NewRelicVideoAgent sharedInstance] setLogging:YES];
+}
+
+- (void)dealloc {
+    [NRVAVideo releaseTracker:@(self.trackerId)];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     // User closed the player
     if (self.playerController.isBeingDismissed) {
-        //Send END
-        [(NRTrackerAVPlayer *)[[NewRelicVideoAgent sharedInstance] contentTracker:self.trackerId] sendEnd];
-        
         //Stop tracking
-        [[NewRelicVideoAgent sharedInstance] releaseTracker:self.trackerId];
+        [NRVAVideo releaseTracker:@(self.trackerId)];
     }
 }
 
@@ -60,11 +60,34 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
     
-    self.trackerId = [[NewRelicVideoAgent sharedInstance] startWithContentTracker:[[NRTrackerAVPlayer alloc] initWithAVPlayer:self.playerController.player]];
+    // Use configuration-based approach similar to SimplePlayerWithAds
+    NSDictionary *customAttributes = @{
+        @"contentType": @"video-on-demand",
+        @"playerVersion": @"1.0.0",
+        @"customTag": @"SimplePlayer_tvOS",
+        @"videoURL": videoURL
+    };
+    
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc] 
+        initWithPlayerName:@"SimplePlayer_tvOS" 
+        player:player 
+        adEnabled:NO
+        customAttributes:customAttributes];
+    
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+    
+    // TRACKER-SPECIFIC custom event (enriched with video attributes)
+    [NRVAVideo recordCustomEvent:@"VIDEO_READY" 
+                      trackerId:@(self.trackerId) 
+                     attributes:@{
+                         @"videoURL": videoURL,
+                         @"hasAds": @NO,
+                         @"platform": @"tvOS"
+                     }];
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
-    } ];
+    }];
 }
 
 @end

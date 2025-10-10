@@ -8,8 +8,8 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NewRelicVideoCore'
-  s.version          = '3.0.1'
-  s.summary          = 'New Relic Video Agent, Core.'
+  s.version          = '4.0.0'
+  s.summary          = 'New Relic Video Agent, Core with Complete Tracking.'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,7 +18,8 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-  New Relic Video Agent, Core. Contains the base classes to build video trackers.
+  New Relic Video Agent, Core with complete tracking functionality. 
+  Includes base classes, AVPlayer tracking, and IMA ad tracking for comprehensive video observability.
                        DESC
   s.homepage         = 'https://github.com/newrelic/video-agent-iOS'
   s.license          = { :type => 'Apache-2.0', :file => 'LICENSE' }
@@ -32,5 +33,5 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'NewRelicAgent'
+  # s.dependency 'NewRelicAgent'
 end

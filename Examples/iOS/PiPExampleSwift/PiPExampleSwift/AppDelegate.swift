@@ -7,16 +7,25 @@
 
 import UIKit
 import AVKit
-import NewRelic
+import NewRelicVideoCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
-        #error("---- SET NEW RELIC APPLICATION TOKEN HERE ----")
-        NewRelic.start(withApplicationToken: "APPLICATION TOKEN HERE")
-        
+
+        // Initialize New Relic Video Agent with modern API
+        let videoConfig = NRVAVideoConfiguration.builder()
+            .withApplicationToken("YOUR_NEWRELIC_APP_TOKEN")
+            .withDebugLogging(true)
+            .withHarvestCycle(10)
+            .build()
+
+        NRVAVideo.newBuilder()
+            .withConfiguration(videoConfig)
+            .build()
+
+        // Setup audio session for PiP
         let audioSession = AVAudioSession.sharedInstance()
          do {
             try audioSession.setCategory(.playback)
