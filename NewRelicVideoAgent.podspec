@@ -26,8 +26,8 @@ Pod::Spec.new do |s|
   s.author           = { 'Andreu Santarén Llop' => 'asantaren@newrelic.com' }
   s.source           = { :git => 'https://github.com/newrelic/video-agent-iOS', :tag => s.version.to_s }
 
-  s.ios.deployment_target = '9.0'
-  s.tvos.deployment_target = '9.0'
+  s.ios.deployment_target = '12.0'
+  s.tvos.deployment_target = '12.0'
 
   # Ensure framework name stays as NewRelicVideoCore for backward compatibility
   s.module_name      = 'NewRelicVideoCore'
