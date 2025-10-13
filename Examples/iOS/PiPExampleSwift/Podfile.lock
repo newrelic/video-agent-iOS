@@ -1,16 +1,16 @@
 PODS:
   - GoogleAds-IMA-iOS-SDK (3.26.1)
-  - NewRelicVideoCore (4.0.0)
+  - NewRelicVideoAgent (4.0.0)
   - NRAVPlayerTracker (4.0.0):
-    - NewRelicVideoCore
+    - NewRelicVideoAgent
   - NRIMATracker (4.0.0):
     - GoogleAds-IMA-iOS-SDK
     - GoogleAds-IMA-tvOS-SDK
-    - NewRelicVideoCore
+    - NewRelicVideoAgent
 
 DEPENDENCIES:
   - GoogleAds-IMA-iOS-SDK (~> 3.18)
-  - NewRelicVideoCore (from `../../../`)
+  - NewRelicVideoAgent (from `../../../`)
   - NRAVPlayerTracker (from `../../../`)
   - NRIMATracker (from `../../../`)
 
@@ -19,7 +19,7 @@ SPEC REPOS:
     - GoogleAds-IMA-iOS-SDK
 
 EXTERNAL SOURCES:
-  NewRelicVideoCore:
+  NewRelicVideoAgent:
     :path: "../../../"
   NRAVPlayerTracker:
     :path: "../../../"
@@ -28,10 +28,10 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   GoogleAds-IMA-iOS-SDK: 10b8f194e7cd2714d4de9a0587c46c8aaf06c620
-  NewRelicVideoCore: 8e88213151f07631d9b3a5d026e3f8ba15826829
-  NRAVPlayerTracker: ee412d06e48947d9ce03778bb5100e56050f449b
-  NRIMATracker: c05e23b675f878c1aafd4fc435233c428748d180
+  NewRelicVideoAgent: ee0c43d7490ab9d259c04e531f9b7fec95704033
+  NRAVPlayerTracker: 08d98564362d7a83873de2ef4e443e2027b7138a
+  NRIMATracker: 96a64252d8a7f0569c2af1b129bbfbf44353e8ad
 
-PODFILE CHECKSUM: 656cd7bffa205f594ff9ecee15b9bf92746a9483
+PODFILE CHECKSUM: 577d5bb1bd0d417e12376581ed4a227569b488b2
 
 COCOAPODS: 1.16.2
