@@ -13,9 +13,9 @@ This guide covers the two available installation methods for the New Relic Video
    use_frameworks!
 
    target 'YourApp' do
-     pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'
-     pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'
-     pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS', :branch => 'stable'  # Optional for ads
+     pod 'NewRelicVideoAgent'
+     pod 'NRAVPlayerTracker'
+     pod 'NRIMATracker'  # Optional for ads
    end
    ```
 

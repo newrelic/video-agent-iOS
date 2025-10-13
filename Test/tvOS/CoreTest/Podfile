@@ -6,5 +6,5 @@ target 'CoreTest' do
   use_frameworks!
 
   # Pods for CoreTest
-  pod 'NewRelicVideoCore', :path => '../../../'
+  pod 'NewRelicVideoAgent', :path => '../../../'
 end

@@ -1,22 +1,22 @@
 PODS:
-  - NewRelicVideoCore (4.0.0)
+  - NewRelicVideoAgent (4.0.0)
   - NRAVPlayerTracker (4.0.0):
-    - NewRelicVideoCore
+    - NewRelicVideoAgent
 
 DEPENDENCIES:
-  - NewRelicVideoCore (from `../../../`)
+  - NewRelicVideoAgent (from `../../../`)
   - NRAVPlayerTracker (from `../../../`)
 
 EXTERNAL SOURCES:
-  NewRelicVideoCore:
+  NewRelicVideoAgent:
     :path: "../../../"
   NRAVPlayerTracker:
     :path: "../../../"
 
 SPEC CHECKSUMS:
-  NewRelicVideoCore: 8e88213151f07631d9b3a5d026e3f8ba15826829
-  NRAVPlayerTracker: ee412d06e48947d9ce03778bb5100e56050f449b
+  NewRelicVideoAgent: ee0c43d7490ab9d259c04e531f9b7fec95704033
+  NRAVPlayerTracker: 08d98564362d7a83873de2ef4e443e2027b7138a
 
-PODFILE CHECKSUM: f23d4932d2178ffa8fd8a0d1afe4e0b969bce8ae
+PODFILE CHECKSUM: 031f0ab0c47d49d9c05c14f35c409c6afefe9991
 
 COCOAPODS: 1.16.2

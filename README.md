@@ -27,9 +27,9 @@ The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
 Add the following lines to your Podfile:
 
 ```
-  pod 'NewRelicVideoCore', :git => 'https://github.com/newrelic/video-agent-iOS'
-  pod 'NRAVPlayerTracker', :git => 'https://github.com/newrelic/video-agent-iOS'
-  pod 'NRIMATracker', :git => 'https://github.com/newrelic/video-agent-iOS'
+  pod 'NewRelicVideoAgent'
+  pod 'NRAVPlayerTracker'
+  pod 'NRIMATracker'
 ```
 
 ### Other Installation Methods

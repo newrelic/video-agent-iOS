@@ -7,6 +7,6 @@ target 'SimplePlayer' do
 
   # Pods for SimplePlayer
   # Pods for SimplePlayerUsingPods
-  pod 'NewRelicVideoCore', :path => '../../../'
+  pod 'NewRelicVideoAgent', :path => '../../../'
   pod 'NRAVPlayerTracker', :path => '../../../'
 end
