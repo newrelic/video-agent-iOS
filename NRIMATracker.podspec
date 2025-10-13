@@ -32,7 +32,7 @@ Pod::Spec.new do |s|
 
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
-  s.dependency 'NewRelicVideoCore'
+  s.dependency 'NewRelicVideoAgent'
   s.ios.dependency 'GoogleAds-IMA-iOS-SDK'
   s.tvos.dependency 'GoogleAds-IMA-tvOS-SDK'
 end
