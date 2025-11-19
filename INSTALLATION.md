@@ -25,31 +25,15 @@ This guide covers the two available installation methods for the New Relic Video
    open YourApp.xcworkspace
    ```
 
-## Method 2: XCFramework (Binary Distribution)
+## Method 2: Manual Build of Frameworks
 
 #### Steps:
 
-1. **Build the XCFrameworks:**
-
-   ```bash
-   git clone -b stable https://github.com/newrelic/video-agent-iOS.git
-   cd video-agent-iOS
-   chmod +x build_xcframeworks.sh
-   ./build_xcframeworks.sh
-   ```
-
-   This creates: `./XCFrameworks/NewRelicVideoCore.xcframework`, `./XCFrameworks/NRAVPlayerTracker.xcframework`, `./XCFrameworks/NRIMATracker.xcframework`
-
-2. **Add frameworks to your Xcode project:**
-
-   - Drag the 3 `.xcframework` files from `./XCFrameworks/` into your Xcode project
-   - When prompted, choose "Copy items if needed" ✅
-   - Make sure "Add to target" includes your app target ✅
-
-3. **Configure embedding:**
-   - Go to your app target → "General" tab → "Frameworks, Libraries, and Embedded Content"
-   - Find the 3 frameworks you just added
-   - Change each from "Do Not Embed" to **"Embed & Sign"**
+1. Clone this repository.
+2. Open each `.xcodeproj` in Xcode.
+3. Select the scheme.
+4. Build (Cmd+B).
+5. Include the generated `.framework` in your project.
 
 
 ## Next Steps
