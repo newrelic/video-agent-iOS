@@ -77,7 +77,7 @@ First, download Google IMA SDK:
 ```bash
 cd NRIMATracker
 curl -L "https://imasdk.googleapis.com/downloads/ima/ios/GoogleInteractiveMediaAds-ios-v3.27.4.zip" -o GoogleIMA.zip
-unzip GoogleIMA.zip && rm GoogleIMA.zip
+unzip -o GoogleIMA.zip && rm GoogleIMA.zip
 cd ..
 ```
 
@@ -107,7 +107,30 @@ Built frameworks are in `~/Library/Developer/Xcode/DerivedData/[ProjectName]-*/B
 
 ### Add to Your Project
 
-Drag the `.framework` files into your Xcode project and embed them in your app target.
+**1. Copy frameworks to your project directory:**
+
+```bash
+cd /path/to/your/project
+mkdir -p Frameworks
+
+# Copy the frameworks you need
+cp -R ~/Library/Developer/Xcode/DerivedData/NewRelicVideoCore-*/Build/Products/Release-iphonesimulator/NewRelicVideoCore.framework Frameworks/
+cp -R ~/Library/Developer/Xcode/DerivedData/NRAVPlayerTracker-*/Build/Products/Release-iphonesimulator/NRAVPlayerTracker.framework Frameworks/
+cp -R ~/Library/Developer/Xcode/DerivedData/NRIMATracker-*/Build/Products/Release-iphonesimulator/NRIMATracker.framework Frameworks/
+```
+
+**Note:** Replace `Release-iphonesimulator` with `Release-iphoneos` if building for device. For production, consider creating XCFrameworks that support both architectures.
+
+**2. Add frameworks to Xcode:**
+
+1. In Xcode, select your app target
+2. Go to "General" tab → "Frameworks, Libraries, and Embedded Content"
+3. Click "+" and then "Add Other..." → "Add Files..."
+4. Navigate to your project's `Frameworks` folder
+5. Select the `.framework` files
+6. **Important:** Check "Copy items if needed"
+7. Click "Add"
+8. Set each framework to "Embed & Sign"
 
 ## Next Steps
 
