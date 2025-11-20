@@ -48,8 +48,96 @@
 		9C01D75E258CD4780044FAB0 /* NRVideoDefs.h in Headers */ = {isa = PBXBuildFile; fileRef = 9C01D738258CD4750044FAB0 /* NRVideoDefs.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9C4F8952258D077F0070CC2D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8951258D077F0070CC2D /* SystemConfiguration.framework */; };
 		9C4F8954258D07860070CC2D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C4F8953258D07860070CC2D /* CoreTelephony.framework */; };
-		9C7BCABF2A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
-		9C7BCAC02A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */; };
+		9CCH0001258CD4750044FAB0 /* NRChrono.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CCH0003258CD4750044FAB0 /* NRChrono.h */; };
+		9CCH0002258CD4750044FAB0 /* NRChrono.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CCH0003258CD4750044FAB0 /* NRChrono.h */; };
+		9CCH0004258CD4750044FAB0 /* NRChrono.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CCH0005258CD4750044FAB0 /* NRChrono.m */; };
+		9CCH0006258CD4750044FAB0 /* NRChrono.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CCH0005258CD4750044FAB0 /* NRChrono.m */; };
+		9CNEW71CE35C656124EB2B8CA /* NRVAVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW82553CBB1CF24833872D /* NRVAVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEW675C6E5EA3634CCC8FC6 /* NRVAVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW82553CBB1CF24833872D /* NRVAVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEWE7DE82391DA345968344 /* NRVAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */; };
+		9CNEWA32CB040EC9043BC8378 /* NRVAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */; };
+		9CNEW12E01B93C3F0469BA1C2 /* NRVAVideoConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW585E2C2BCA524422AABE /* NRVAVideoConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEW727ADBB0BAB745EA9FA7 /* NRVAVideoConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW585E2C2BCA524422AABE /* NRVAVideoConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEW8D97F29E74D14E979C78 /* NRVAVideoConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEW6F7A756201134FD4AE0B /* NRVAVideoConfiguration.m */; };
+		9CNEW6D58B157475C47B9B313 /* NRVAVideoConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEW6F7A756201134FD4AE0B /* NRVAVideoConfiguration.m */; };
+		9CNEW5DA15487F5374398B9C0 /* NRVAVideoPlayerConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW2DBF4ECA16594F079F83 /* NRVAVideoPlayerConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEW676BA960CA6441BE893A /* NRVAVideoPlayerConfiguration.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW2DBF4ECA16594F079F83 /* NRVAVideoPlayerConfiguration.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		9CNEW6165FB0E3C314395A50D /* NRVAVideoPlayerConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEWFA75BA3A2E954FBE9116 /* NRVAVideoPlayerConfiguration.m */; };
+		9CNEW6DA1F57BE71348A2BF7A /* NRVAVideoPlayerConfiguration.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEWFA75BA3A2E954FBE9116 /* NRVAVideoPlayerConfiguration.m */; };
+		9CAUTO488422E6C1ED424E935E /* NRVATokenManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOA0823B66BDC7454495BF /* NRVATokenManager.h */; };
+		9CAUTO761A787F2EF549C18276 /* NRVATokenManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOA0823B66BDC7454495BF /* NRVATokenManager.h */; };
+		9CAUTODD8295253288469EA1D6 /* NRVATokenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO393BB16A6D494655B394 /* NRVATokenManager.m */; };
+		9CAUTOE34D9BC26960450D8121 /* NRVATokenManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO393BB16A6D494655B394 /* NRVATokenManager.m */; };
+		9CAUTO9545923D2DBA4455844D /* NRVADeviceInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO7F598A7E48424656BD8A /* NRVADeviceInformation.h */; };
+		9CAUTO61915BEAA21949C3AB3C /* NRVADeviceInformation.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO7F598A7E48424656BD8A /* NRVADeviceInformation.h */; };
+		9CAUTO5E814DBD0F3D490E8B22 /* NRVADeviceInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO87B39528EA5A412EBA75 /* NRVADeviceInformation.m */; };
+		9CAUTO5B9CFA2E6CFA4963ADDF /* NRVADeviceInformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO87B39528EA5A412EBA75 /* NRVADeviceInformation.m */; };
+		9CAUTO65776617E5044569938E /* NRVAErrorExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO6494AFBCB6694ABFA730 /* NRVAErrorExceptionHandler.h */; };
+		9CAUTOE8D981FA37A746A19244 /* NRVAErrorExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO6494AFBCB6694ABFA730 /* NRVAErrorExceptionHandler.h */; };
+		9CAUTO48DC8EEB9B2F49E0B595 /* NRVAErrorExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8D630C58962B4E43AEA7 /* NRVAErrorExceptionHandler.m */; };
+		9CAUTO287CD7A1C9B44561AF4F /* NRVAErrorExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8D630C58962B4E43AEA7 /* NRVAErrorExceptionHandler.m */; };
+		9CAUTO7A7969714108486E8ACC /* NRVADeadLetterEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOEB80D317F616410981C2 /* NRVADeadLetterEventBuffer.h */; };
+		9CAUTO19321CFE837344B48697 /* NRVADeadLetterEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOEB80D317F616410981C2 /* NRVADeadLetterEventBuffer.h */; };
+		9CAUTOBD8C1B2E58FA407FA6DD /* NRVADeadLetterEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO2851392D60A144438286 /* NRVADeadLetterEventBuffer.m */; };
+		9CAUTOC202DF5FD094460FAF57 /* NRVADeadLetterEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO2851392D60A144438286 /* NRVADeadLetterEventBuffer.m */; };
+		9CAUTODE811BA6469844B09B98 /* NRVADefaultSizeEstimator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0A63D03D7B5F4DFE9F22 /* NRVADefaultSizeEstimator.h */; };
+		9CAUTOC934278640464CEB829F /* NRVADefaultSizeEstimator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0A63D03D7B5F4DFE9F22 /* NRVADefaultSizeEstimator.h */; };
+		9CAUTOFB4962202C9F4E8D9D0F /* NRVADefaultSizeEstimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8FFB0DE496B34DFEBA03 /* NRVADefaultSizeEstimator.m */; };
+		9CAUTO8F5800F0C7FD4AA3B3F0 /* NRVADefaultSizeEstimator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8FFB0DE496B34DFEBA03 /* NRVADefaultSizeEstimator.m */; };
+		9CAUTO104A037177F24D39A55E /* NRVAEventBufferInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOAFE8BE46C0674086A519 /* NRVAEventBufferInterface.h */; };
+		9CAUTO8E8A0BBB92D84A95B39E /* NRVAEventBufferInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOAFE8BE46C0674086A519 /* NRVAEventBufferInterface.h */; };
+		9CAUTO8AB9B76A72E94CB39198 /* NRVAHarvestComponentFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO80C37BDDCEA146AEA9E1 /* NRVAHarvestComponentFactory.h */; };
+		9CAUTOCC26632D4A1A4BC6BACA /* NRVAHarvestComponentFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO80C37BDDCEA146AEA9E1 /* NRVAHarvestComponentFactory.h */; };
+		9CAUTO9979DEC0F7ED4BBF84C8 /* NRVAHarvestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO2012CF9D629447F6BB2D /* NRVAHarvestManager.h */; };
+		9CAUTOCD08D97333254BDC91D5 /* NRVAHarvestManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO2012CF9D629447F6BB2D /* NRVAHarvestManager.h */; };
+		9CAUTOE7E52635C7134A9AB1E1 /* NRVAHarvestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTODB0CC6EE005E4EEF96EB /* NRVAHarvestManager.m */; };
+		9CAUTO7AC67B03D0654F8BBF10 /* NRVAHarvestManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTODB0CC6EE005E4EEF96EB /* NRVAHarvestManager.m */; };
+		9CAUTO0A2209229D344B69A6D8 /* NRVAHttpClientInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOD57954B194154DC19558 /* NRVAHttpClientInterface.h */; };
+		9CAUTO5333C1098004457B8CFA /* NRVAHttpClientInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOD57954B194154DC19558 /* NRVAHttpClientInterface.h */; };
+		9CAUTOFF15BB458E2A435F9559 /* NRVAMultiTaskHarvestScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO2684A6E002BC461B91BA /* NRVAMultiTaskHarvestScheduler.h */; };
+		9CAUTO25434215B3AF4394A53B /* NRVAMultiTaskHarvestScheduler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO2684A6E002BC461B91BA /* NRVAMultiTaskHarvestScheduler.h */; };
+		9CAUTOEA1123DDE95F44128A23 /* NRVAMultiTaskHarvestScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTOD894600173434D11957B /* NRVAMultiTaskHarvestScheduler.m */; };
+		9CAUTO8204D3B8C55B46DF8689 /* NRVAMultiTaskHarvestScheduler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTOD894600173434D11957B /* NRVAMultiTaskHarvestScheduler.m */; };
+		9CAUTO767EE83511EB4B608626 /* NRVAOptimizedHttpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0CD9F3C56E32479DB5A7 /* NRVAOptimizedHttpClient.h */; };
+		9CAUTO367D337E93B5486B976B /* NRVAOptimizedHttpClient.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0CD9F3C56E32479DB5A7 /* NRVAOptimizedHttpClient.h */; };
+		9CAUTO33EE5A93540449A69AF4 /* NRVAOptimizedHttpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTOA667807066E44FB09962 /* NRVAOptimizedHttpClient.m */; };
+		9CAUTOCB407E87BC7D4F6E9146 /* NRVAOptimizedHttpClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTOA667807066E44FB09962 /* NRVAOptimizedHttpClient.m */; };
+		9CAUTO39AE398CB33F44CC8D03 /* NRVAPriorityEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO08B8071893004616A008 /* NRVAPriorityEventBuffer.h */; };
+		9CAUTODE0A0525C31341C19313 /* NRVAPriorityEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO08B8071893004616A008 /* NRVAPriorityEventBuffer.h */; };
+		9CAUTOD7A4D3F4F18A4D23A521 /* NRVAPriorityEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO1C79A32239E74F82803C /* NRVAPriorityEventBuffer.m */; };
+		9CAUTO692BDD150A6F41359CD1 /* NRVAPriorityEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO1C79A32239E74F82803C /* NRVAPriorityEventBuffer.m */; };
+		9CAUTO20F5C4B78E6D4CE7A2A5 /* NRVASchedulerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO993BF5A856DF403686E1 /* NRVASchedulerInterface.h */; };
+		9CAUTO938CB7898E2D409B8D5C /* NRVASchedulerInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO993BF5A856DF403686E1 /* NRVASchedulerInterface.h */; };
+		9CAUTO2A78D4D780EB4321A278 /* NRVASizeEstimator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0F169CC3CADE46059117 /* NRVASizeEstimator.h */; };
+		9CAUTO5A4D108D3B34428BAD46 /* NRVASizeEstimator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO0F169CC3CADE46059117 /* NRVASizeEstimator.h */; };
+		9CAUTOA31590E3FB094381BBB3 /* NRVAVideoLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO8196F66DA79947CC8197 /* NRVAVideoLifecycleObserver.h */; };
+		9CAUTOBD36FB7A018440B4B9EE /* NRVAVideoLifecycleObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO8196F66DA79947CC8197 /* NRVAVideoLifecycleObserver.h */; };
+		9CAUTOF1104EFB48F048A2908E /* NRVAVideoLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO4BA1B16F84D34161A25E /* NRVAVideoLifecycleObserver.m */; };
+		9CAUTO236F6787CB434B7EABEC /* NRVAVideoLifecycleObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO4BA1B16F84D34161A25E /* NRVAVideoLifecycleObserver.m */; };
+		9CAUTO38EDCC33EF6947F4B917 /* NRVACrashSafeEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO82E7D83ACD7A413CA002 /* NRVACrashSafeEventBuffer.h */; };
+		9CAUTOA6D2EA005CEA422DBA87 /* NRVACrashSafeEventBuffer.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO82E7D83ACD7A413CA002 /* NRVACrashSafeEventBuffer.h */; };
+		9CAUTO418519C975EA40649C3F /* NRVACrashSafeEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO45CB648C10544CBD9105 /* NRVACrashSafeEventBuffer.m */; };
+		9CAUTO4A3CD4D48E6946B9AFB0 /* NRVACrashSafeEventBuffer.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO45CB648C10544CBD9105 /* NRVACrashSafeEventBuffer.m */; };
+		9CAUTO9454452CD631419E8B75 /* NRVACrashSafeHarvestFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOE020CA10AE744ADCAFA8 /* NRVACrashSafeHarvestFactory.h */; };
+		9CAUTOAF3B3A6B11614B3F8AD4 /* NRVACrashSafeHarvestFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOE020CA10AE744ADCAFA8 /* NRVACrashSafeHarvestFactory.h */; };
+		9CAUTO21587EE7DD294A12BC26 /* NRVACrashSafeHarvestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO3B83B9EC55E9477B906C /* NRVACrashSafeHarvestFactory.m */; };
+		9CAUTOB109CBEFED14473EBF6F /* NRVACrashSafeHarvestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO3B83B9EC55E9477B906C /* NRVACrashSafeHarvestFactory.m */; };
+		9CAUTO0B43EE9421CD4D6DA028 /* NRVAIntegratedDeadLetterHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO4AAE511A7E05466B9956 /* NRVAIntegratedDeadLetterHandler.h */; };
+		9CAUTO2512011AD1CE4A4AA542 /* NRVAIntegratedDeadLetterHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO4AAE511A7E05466B9956 /* NRVAIntegratedDeadLetterHandler.h */; };
+		9CAUTOF67AE8CFCA044718BEEA /* NRVAIntegratedDeadLetterHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO9719BA5E72FC433583FB /* NRVAIntegratedDeadLetterHandler.m */; };
+		9CAUTOBBD84AA7FFDD499F8BCC /* NRVAIntegratedDeadLetterHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO9719BA5E72FC433583FB /* NRVAIntegratedDeadLetterHandler.m */; };
+		9CAUTO4ABD4C4A6CC54E549CE5 /* NRVAOfflineStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO07BB415B385044A1A273 /* NRVAOfflineStorage.h */; };
+		9CAUTODFD95E6696A84B738FE9 /* NRVAOfflineStorage.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO07BB415B385044A1A273 /* NRVAOfflineStorage.h */; };
+		9CAUTO3C4A2A196F4B49DABB92 /* NRVAOfflineStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8C050B89E4D14DA299FF /* NRVAOfflineStorage.m */; };
+		9CAUTO1FE342C617EF496D9766 /* NRVAOfflineStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO8C050B89E4D14DA299FF /* NRVAOfflineStorage.m */; };
+		9CAUTO548538F5FF19413A9531 /* NRVALog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO8A7AAFB3EDA34BF991EC /* NRVALog.h */; };
+		9CAUTO68EAB110F25840B4AEE9 /* NRVALog.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTO8A7AAFB3EDA34BF991EC /* NRVALog.h */; };
+		9CAUTO6CC60C6D1DCB4215A86F /* NRVALog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO696DB7F7FB00490D8843 /* NRVALog.m */; };
+		9CAUTO9A55C0F00EF94183AAFD /* NRVALog.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO696DB7F7FB00490D8843 /* NRVALog.m */; };
+		9CAUTO5DE4B83357F04B64B3D3 /* NRVAUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOC6AC506039984440B52D /* NRVAUtils.h */; };
+		9CAUTO84350987865E41688594 /* NRVAUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CAUTOC6AC506039984440B52D /* NRVAUtils.h */; };
+		9CAUTO351BA49C82D24D51A969 /* NRVAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO492BFEAB19AB45BEA106 /* NRVAUtils.m */; };
+		9CAUTOBCAD2BC8B6AA4A3BBE71 /* NRVAUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CAUTO492BFEAB19AB45BEA106 /* NRVAUtils.m */; };
 		9CBCBDB52BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */; };
 		9CBCBDB62BCD5E7700B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */; };
 		9CE7992425837C9400157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */; };
@@ -112,7 +200,51 @@
 		9C4F8953258D07860070CC2D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
 		9C4F8955258D07940070CC2D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 		9C4F8956258D07A60070CC2D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
-		9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = NewRelic.xcframework; sourceTree = "<group>"; };
+		9CCH0003258CD4750044FAB0 /* NRChrono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRChrono.h; sourceTree = "<group>"; };
+		9CCH0005258CD4750044FAB0 /* NRChrono.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRChrono.m; sourceTree = "<group>"; };
+		9CNEW82553CBB1CF24833872D /* NRVAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideo.h; sourceTree = "<group>"; };
+		9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAVideo.m; sourceTree = "<group>"; };
+		9CNEW585E2C2BCA524422AABE /* NRVAVideoConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideoConfiguration.h; sourceTree = "<group>"; };
+		9CNEW6F7A756201134FD4AE0B /* NRVAVideoConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAVideoConfiguration.m; sourceTree = "<group>"; };
+		9CNEW2DBF4ECA16594F079F83 /* NRVAVideoPlayerConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideoPlayerConfiguration.h; sourceTree = "<group>"; };
+		9CNEWFA75BA3A2E954FBE9116 /* NRVAVideoPlayerConfiguration.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAVideoPlayerConfiguration.m; sourceTree = "<group>"; };
+		9CAUTOA0823B66BDC7454495BF /* NRVATokenManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVATokenManager.h; sourceTree = "<group>"; };
+		9CAUTO393BB16A6D494655B394 /* NRVATokenManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVATokenManager.m; sourceTree = "<group>"; };
+		9CAUTO7F598A7E48424656BD8A /* NRVADeviceInformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVADeviceInformation.h; sourceTree = "<group>"; };
+		9CAUTO87B39528EA5A412EBA75 /* NRVADeviceInformation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVADeviceInformation.m; sourceTree = "<group>"; };
+		9CAUTO6494AFBCB6694ABFA730 /* NRVAErrorExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAErrorExceptionHandler.h; sourceTree = "<group>"; };
+		9CAUTO8D630C58962B4E43AEA7 /* NRVAErrorExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAErrorExceptionHandler.m; sourceTree = "<group>"; };
+		9CAUTOEB80D317F616410981C2 /* NRVADeadLetterEventBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVADeadLetterEventBuffer.h; sourceTree = "<group>"; };
+		9CAUTO2851392D60A144438286 /* NRVADeadLetterEventBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVADeadLetterEventBuffer.m; sourceTree = "<group>"; };
+		9CAUTO0A63D03D7B5F4DFE9F22 /* NRVADefaultSizeEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVADefaultSizeEstimator.h; sourceTree = "<group>"; };
+		9CAUTO8FFB0DE496B34DFEBA03 /* NRVADefaultSizeEstimator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVADefaultSizeEstimator.m; sourceTree = "<group>"; };
+		9CAUTOAFE8BE46C0674086A519 /* NRVAEventBufferInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAEventBufferInterface.h; sourceTree = "<group>"; };
+		9CAUTO80C37BDDCEA146AEA9E1 /* NRVAHarvestComponentFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAHarvestComponentFactory.h; sourceTree = "<group>"; };
+		9CAUTO2012CF9D629447F6BB2D /* NRVAHarvestManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAHarvestManager.h; sourceTree = "<group>"; };
+		9CAUTODB0CC6EE005E4EEF96EB /* NRVAHarvestManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAHarvestManager.m; sourceTree = "<group>"; };
+		9CAUTOD57954B194154DC19558 /* NRVAHttpClientInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAHttpClientInterface.h; sourceTree = "<group>"; };
+		9CAUTO2684A6E002BC461B91BA /* NRVAMultiTaskHarvestScheduler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAMultiTaskHarvestScheduler.h; sourceTree = "<group>"; };
+		9CAUTOD894600173434D11957B /* NRVAMultiTaskHarvestScheduler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAMultiTaskHarvestScheduler.m; sourceTree = "<group>"; };
+		9CAUTO0CD9F3C56E32479DB5A7 /* NRVAOptimizedHttpClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAOptimizedHttpClient.h; sourceTree = "<group>"; };
+		9CAUTOA667807066E44FB09962 /* NRVAOptimizedHttpClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAOptimizedHttpClient.m; sourceTree = "<group>"; };
+		9CAUTO08B8071893004616A008 /* NRVAPriorityEventBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAPriorityEventBuffer.h; sourceTree = "<group>"; };
+		9CAUTO1C79A32239E74F82803C /* NRVAPriorityEventBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAPriorityEventBuffer.m; sourceTree = "<group>"; };
+		9CAUTO993BF5A856DF403686E1 /* NRVASchedulerInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVASchedulerInterface.h; sourceTree = "<group>"; };
+		9CAUTO0F169CC3CADE46059117 /* NRVASizeEstimator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVASizeEstimator.h; sourceTree = "<group>"; };
+		9CAUTO8196F66DA79947CC8197 /* NRVAVideoLifecycleObserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideoLifecycleObserver.h; sourceTree = "<group>"; };
+		9CAUTO4BA1B16F84D34161A25E /* NRVAVideoLifecycleObserver.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAVideoLifecycleObserver.m; sourceTree = "<group>"; };
+		9CAUTO82E7D83ACD7A413CA002 /* NRVACrashSafeEventBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVACrashSafeEventBuffer.h; sourceTree = "<group>"; };
+		9CAUTO45CB648C10544CBD9105 /* NRVACrashSafeEventBuffer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVACrashSafeEventBuffer.m; sourceTree = "<group>"; };
+		9CAUTOE020CA10AE744ADCAFA8 /* NRVACrashSafeHarvestFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVACrashSafeHarvestFactory.h; sourceTree = "<group>"; };
+		9CAUTO3B83B9EC55E9477B906C /* NRVACrashSafeHarvestFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVACrashSafeHarvestFactory.m; sourceTree = "<group>"; };
+		9CAUTO4AAE511A7E05466B9956 /* NRVAIntegratedDeadLetterHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAIntegratedDeadLetterHandler.h; sourceTree = "<group>"; };
+		9CAUTO9719BA5E72FC433583FB /* NRVAIntegratedDeadLetterHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAIntegratedDeadLetterHandler.m; sourceTree = "<group>"; };
+		9CAUTO07BB415B385044A1A273 /* NRVAOfflineStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAOfflineStorage.h; sourceTree = "<group>"; };
+		9CAUTO8C050B89E4D14DA299FF /* NRVAOfflineStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAOfflineStorage.m; sourceTree = "<group>"; };
+		9CAUTO8A7AAFB3EDA34BF991EC /* NRVALog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVALog.h; sourceTree = "<group>"; };
+		9CAUTO696DB7F7FB00490D8843 /* NRVALog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVALog.m; sourceTree = "<group>"; };
+		9CAUTOC6AC506039984440B52D /* NRVAUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAUtils.h; sourceTree = "<group>"; };
+		9CAUTO492BFEAB19AB45BEA106 /* NRVAUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAUtils.m; sourceTree = "<group>"; };
 		9CBCBDB42BCD5E7700B205EE /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		9CE7991A25837C9400157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7991D25837C9400157199 /* NewRelicVideoCore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NewRelicVideoCore.h; sourceTree = "<group>"; };
@@ -131,7 +263,6 @@
 			files = (
 				9C4F8952258D077F0070CC2D /* SystemConfiguration.framework in Frameworks */,
 				9C4F8954258D07860070CC2D /* CoreTelephony.framework in Frameworks */,
-				9C7BCABF2A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,7 +278,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C7BCAC02A335AEE00F30D39 /* NewRelic.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +303,92 @@
 			path = Tracker;
 			sourceTree = "<group>";
 		};
+		9CGRPAUTHB34C8F9BA7 /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTOA0823B66BDC7454495BF /* NRVATokenManager.h */,
+				9CAUTO393BB16A6D494655B394 /* NRVATokenManager.m */,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		9CGRPDEVICE2449859931 /* Device */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTO7F598A7E48424656BD8A /* NRVADeviceInformation.h */,
+				9CAUTO87B39528EA5A412EBA75 /* NRVADeviceInformation.m */,
+			);
+			path = Device;
+			sourceTree = "<group>";
+		};
+		9CGRPEXCEPTION784A798A52 /* Exception */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTO6494AFBCB6694ABFA730 /* NRVAErrorExceptionHandler.h */,
+				9CAUTO8D630C58962B4E43AEA7 /* NRVAErrorExceptionHandler.m */,
+			);
+			path = Exception;
+			sourceTree = "<group>";
+		};
+		9CGRPHARVEST2D483DAB1F /* Harvest */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTOEB80D317F616410981C2 /* NRVADeadLetterEventBuffer.h */,
+				9CAUTO2851392D60A144438286 /* NRVADeadLetterEventBuffer.m */,
+				9CAUTO0A63D03D7B5F4DFE9F22 /* NRVADefaultSizeEstimator.h */,
+				9CAUTO8FFB0DE496B34DFEBA03 /* NRVADefaultSizeEstimator.m */,
+				9CAUTOAFE8BE46C0674086A519 /* NRVAEventBufferInterface.h */,
+				9CAUTO80C37BDDCEA146AEA9E1 /* NRVAHarvestComponentFactory.h */,
+				9CAUTO2012CF9D629447F6BB2D /* NRVAHarvestManager.h */,
+				9CAUTODB0CC6EE005E4EEF96EB /* NRVAHarvestManager.m */,
+				9CAUTOD57954B194154DC19558 /* NRVAHttpClientInterface.h */,
+				9CAUTO2684A6E002BC461B91BA /* NRVAMultiTaskHarvestScheduler.h */,
+				9CAUTOD894600173434D11957B /* NRVAMultiTaskHarvestScheduler.m */,
+				9CAUTO0CD9F3C56E32479DB5A7 /* NRVAOptimizedHttpClient.h */,
+				9CAUTOA667807066E44FB09962 /* NRVAOptimizedHttpClient.m */,
+				9CAUTO08B8071893004616A008 /* NRVAPriorityEventBuffer.h */,
+				9CAUTO1C79A32239E74F82803C /* NRVAPriorityEventBuffer.m */,
+				9CAUTO993BF5A856DF403686E1 /* NRVASchedulerInterface.h */,
+				9CAUTO0F169CC3CADE46059117 /* NRVASizeEstimator.h */,
+			);
+			path = Harvest;
+			sourceTree = "<group>";
+		};
+		9CGRPLIFECYCLE1547798B68 /* Lifecycle */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTO8196F66DA79947CC8197 /* NRVAVideoLifecycleObserver.h */,
+				9CAUTO4BA1B16F84D34161A25E /* NRVAVideoLifecycleObserver.m */,
+			);
+			path = Lifecycle;
+			sourceTree = "<group>";
+		};
+		9CGRPSTORAGEBA46228F6B /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTO82E7D83ACD7A413CA002 /* NRVACrashSafeEventBuffer.h */,
+				9CAUTO45CB648C10544CBD9105 /* NRVACrashSafeEventBuffer.m */,
+				9CAUTOE020CA10AE744ADCAFA8 /* NRVACrashSafeHarvestFactory.h */,
+				9CAUTO3B83B9EC55E9477B906C /* NRVACrashSafeHarvestFactory.m */,
+				9CAUTO4AAE511A7E05466B9956 /* NRVAIntegratedDeadLetterHandler.h */,
+				9CAUTO9719BA5E72FC433583FB /* NRVAIntegratedDeadLetterHandler.m */,
+				9CAUTO07BB415B385044A1A273 /* NRVAOfflineStorage.h */,
+				9CAUTO8C050B89E4D14DA299FF /* NRVAOfflineStorage.m */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		9CGRPUTILSFA4251817B /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				9CAUTO8A7AAFB3EDA34BF991EC /* NRVALog.h */,
+				9CAUTO696DB7F7FB00490D8843 /* NRVALog.m */,
+				9CAUTOC6AC506039984440B52D /* NRVAUtils.h */,
+				9CAUTO492BFEAB19AB45BEA106 /* NRVAUtils.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
 		9C01D728258CD4740044FAB0 /* Util */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,6 +411,8 @@
 				9C01D734258CD4750044FAB0 /* NRTrackerState.m */,
 				9C01D735258CD4750044FAB0 /* NRTimeSince.h */,
 				9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */,
+				9CCH0003258CD4750044FAB0 /* NRChrono.h */,
+				9CCH0005258CD4750044FAB0 /* NRChrono.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -202,7 +420,6 @@
 		9C4F8950258D077F0070CC2D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				9C7BCABE2A335AEE00F30D39 /* NewRelic.xcframework */,
 				9C4F8956258D07A60070CC2D /* libc++.tbd */,
 				9C4F8955258D07940070CC2D /* libz.tbd */,
 				9C4F8953258D07860070CC2D /* CoreTelephony.framework */,
@@ -242,8 +459,21 @@
 				9C01D738258CD4750044FAB0 /* NRVideoDefs.h */,
 				9C01D723258CD4740044FAB0 /* Tracker */,
 				9C01D728258CD4740044FAB0 /* Util */,
+				9CGRPAUTHB34C8F9BA7 /* Auth */,
+				9CGRPDEVICE2449859931 /* Device */,
+				9CGRPEXCEPTION784A798A52 /* Exception */,
+				9CGRPHARVEST2D483DAB1F /* Harvest */,
+				9CGRPLIFECYCLE1547798B68 /* Lifecycle */,
+				9CGRPSTORAGEBA46228F6B /* Storage */,
+				9CGRPUTILSFA4251817B /* Utils */,
 				9CE7991D25837C9400157199 /* NewRelicVideoCore.h */,
 				9CE7991E25837C9400157199 /* Info.plist */,
+				9CNEW82553CBB1CF24833872D /* NRVAVideo.h */,
+				9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */,
+				9CNEW585E2C2BCA524422AABE /* NRVAVideoConfiguration.h */,
+				9CNEW6F7A756201134FD4AE0B /* NRVAVideoConfiguration.m */,
+				9CNEW2DBF4ECA16594F079F83 /* NRVAVideoPlayerConfiguration.h */,
+				9CNEWFA75BA3A2E954FBE9116 /* NRVAVideoPlayerConfiguration.m */,
 			);
 			path = NewRelicVideoCore;
 			sourceTree = "<group>";
@@ -275,6 +505,31 @@
 				9C01D75D258CD4780044FAB0 /* NRVideoDefs.h in Headers */,
 				9C01D741258CD4760044FAB0 /* NRVideoLog.h in Headers */,
 				9C01D75B258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */,
+				9CCH0001258CD4750044FAB0 /* NRChrono.h in Headers */,
+				9CNEW71CE35C656124EB2B8CA /* NRVAVideo.h in Headers */,
+				9CNEW12E01B93C3F0469BA1C2 /* NRVAVideoConfiguration.h in Headers */,
+				9CNEW5DA15487F5374398B9C0 /* NRVAVideoPlayerConfiguration.h in Headers */,
+				9CAUTO488422E6C1ED424E935E /* NRVATokenManager.h in Headers */,
+				9CAUTO9545923D2DBA4455844D /* NRVADeviceInformation.h in Headers */,
+				9CAUTO65776617E5044569938E /* NRVAErrorExceptionHandler.h in Headers */,
+				9CAUTO7A7969714108486E8ACC /* NRVADeadLetterEventBuffer.h in Headers */,
+				9CAUTODE811BA6469844B09B98 /* NRVADefaultSizeEstimator.h in Headers */,
+				9CAUTO104A037177F24D39A55E /* NRVAEventBufferInterface.h in Headers */,
+				9CAUTO8AB9B76A72E94CB39198 /* NRVAHarvestComponentFactory.h in Headers */,
+				9CAUTO9979DEC0F7ED4BBF84C8 /* NRVAHarvestManager.h in Headers */,
+				9CAUTO0A2209229D344B69A6D8 /* NRVAHttpClientInterface.h in Headers */,
+				9CAUTOFF15BB458E2A435F9559 /* NRVAMultiTaskHarvestScheduler.h in Headers */,
+				9CAUTO767EE83511EB4B608626 /* NRVAOptimizedHttpClient.h in Headers */,
+				9CAUTO39AE398CB33F44CC8D03 /* NRVAPriorityEventBuffer.h in Headers */,
+				9CAUTO20F5C4B78E6D4CE7A2A5 /* NRVASchedulerInterface.h in Headers */,
+				9CAUTO2A78D4D780EB4321A278 /* NRVASizeEstimator.h in Headers */,
+				9CAUTOA31590E3FB094381BBB3 /* NRVAVideoLifecycleObserver.h in Headers */,
+				9CAUTO38EDCC33EF6947F4B917 /* NRVACrashSafeEventBuffer.h in Headers */,
+				9CAUTO9454452CD631419E8B75 /* NRVACrashSafeHarvestFactory.h in Headers */,
+				9CAUTO0B43EE9421CD4D6DA028 /* NRVAIntegratedDeadLetterHandler.h in Headers */,
+				9CAUTO4ABD4C4A6CC54E549CE5 /* NRVAOfflineStorage.h in Headers */,
+				9CAUTO548538F5FF19413A9531 /* NRVALog.h in Headers */,
+				9CAUTO5DE4B83357F04B64B3D3 /* NRVAUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -293,6 +548,31 @@
 				9C01D75E258CD4780044FAB0 /* NRVideoDefs.h in Headers */,
 				9C01D742258CD4760044FAB0 /* NRVideoLog.h in Headers */,
 				9C01D75C258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */,
+				9CCH0002258CD4750044FAB0 /* NRChrono.h in Headers */,
+				9CNEW675C6E5EA3634CCC8FC6 /* NRVAVideo.h in Headers */,
+				9CNEW727ADBB0BAB745EA9FA7 /* NRVAVideoConfiguration.h in Headers */,
+				9CNEW676BA960CA6441BE893A /* NRVAVideoPlayerConfiguration.h in Headers */,
+				9CAUTO761A787F2EF549C18276 /* NRVATokenManager.h in Headers */,
+				9CAUTO61915BEAA21949C3AB3C /* NRVADeviceInformation.h in Headers */,
+				9CAUTOE8D981FA37A746A19244 /* NRVAErrorExceptionHandler.h in Headers */,
+				9CAUTO19321CFE837344B48697 /* NRVADeadLetterEventBuffer.h in Headers */,
+				9CAUTOC934278640464CEB829F /* NRVADefaultSizeEstimator.h in Headers */,
+				9CAUTO8E8A0BBB92D84A95B39E /* NRVAEventBufferInterface.h in Headers */,
+				9CAUTOCC26632D4A1A4BC6BACA /* NRVAHarvestComponentFactory.h in Headers */,
+				9CAUTOCD08D97333254BDC91D5 /* NRVAHarvestManager.h in Headers */,
+				9CAUTO5333C1098004457B8CFA /* NRVAHttpClientInterface.h in Headers */,
+				9CAUTO25434215B3AF4394A53B /* NRVAMultiTaskHarvestScheduler.h in Headers */,
+				9CAUTO367D337E93B5486B976B /* NRVAOptimizedHttpClient.h in Headers */,
+				9CAUTODE0A0525C31341C19313 /* NRVAPriorityEventBuffer.h in Headers */,
+				9CAUTO938CB7898E2D409B8D5C /* NRVASchedulerInterface.h in Headers */,
+				9CAUTO5A4D108D3B34428BAD46 /* NRVASizeEstimator.h in Headers */,
+				9CAUTOBD36FB7A018440B4B9EE /* NRVAVideoLifecycleObserver.h in Headers */,
+				9CAUTOA6D2EA005CEA422DBA87 /* NRVACrashSafeEventBuffer.h in Headers */,
+				9CAUTOAF3B3A6B11614B3F8AD4 /* NRVACrashSafeHarvestFactory.h in Headers */,
+				9CAUTO2512011AD1CE4A4AA542 /* NRVAIntegratedDeadLetterHandler.h in Headers */,
+				9CAUTODFD95E6696A84B738FE9 /* NRVAOfflineStorage.h in Headers */,
+				9CAUTO68EAB110F25840B4AEE9 /* NRVALog.h in Headers */,
+				9CAUTO84350987865E41688594 /* NRVAUtils.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,6 +742,26 @@
 				9C01D751258CD4770044FAB0 /* NRTrackerPair.m in Sources */,
 				9C01D73B258CD4750044FAB0 /* NRVideoTracker.m in Sources */,
 				9C01D753258CD4770044FAB0 /* NREventAttributes.m in Sources */,
+				9CCH0004258CD4750044FAB0 /* NRChrono.m in Sources */,
+				9CNEWE7DE82391DA345968344 /* NRVAVideo.m in Sources */,
+				9CNEW8D97F29E74D14E979C78 /* NRVAVideoConfiguration.m in Sources */,
+				9CNEW6165FB0E3C314395A50D /* NRVAVideoPlayerConfiguration.m in Sources */,
+				9CAUTODD8295253288469EA1D6 /* NRVATokenManager.m in Sources */,
+				9CAUTO5E814DBD0F3D490E8B22 /* NRVADeviceInformation.m in Sources */,
+				9CAUTO48DC8EEB9B2F49E0B595 /* NRVAErrorExceptionHandler.m in Sources */,
+				9CAUTOBD8C1B2E58FA407FA6DD /* NRVADeadLetterEventBuffer.m in Sources */,
+				9CAUTOFB4962202C9F4E8D9D0F /* NRVADefaultSizeEstimator.m in Sources */,
+				9CAUTOE7E52635C7134A9AB1E1 /* NRVAHarvestManager.m in Sources */,
+				9CAUTOEA1123DDE95F44128A23 /* NRVAMultiTaskHarvestScheduler.m in Sources */,
+				9CAUTO33EE5A93540449A69AF4 /* NRVAOptimizedHttpClient.m in Sources */,
+				9CAUTOD7A4D3F4F18A4D23A521 /* NRVAPriorityEventBuffer.m in Sources */,
+				9CAUTOF1104EFB48F048A2908E /* NRVAVideoLifecycleObserver.m in Sources */,
+				9CAUTO418519C975EA40649C3F /* NRVACrashSafeEventBuffer.m in Sources */,
+				9CAUTO21587EE7DD294A12BC26 /* NRVACrashSafeHarvestFactory.m in Sources */,
+				9CAUTOF67AE8CFCA044718BEEA /* NRVAIntegratedDeadLetterHandler.m in Sources */,
+				9CAUTO3C4A2A196F4B49DABB92 /* NRVAOfflineStorage.m in Sources */,
+				9CAUTO6CC60C6D1DCB4215A86F /* NRVALog.m in Sources */,
+				9CAUTO351BA49C82D24D51A969 /* NRVAUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -486,6 +786,26 @@
 				9C01D752258CD4770044FAB0 /* NRTrackerPair.m in Sources */,
 				9C01D73C258CD4750044FAB0 /* NRVideoTracker.m in Sources */,
 				9C01D754258CD4770044FAB0 /* NREventAttributes.m in Sources */,
+				9CCH0006258CD4750044FAB0 /* NRChrono.m in Sources */,
+				9CNEWA32CB040EC9043BC8378 /* NRVAVideo.m in Sources */,
+				9CNEW6D58B157475C47B9B313 /* NRVAVideoConfiguration.m in Sources */,
+				9CNEW6DA1F57BE71348A2BF7A /* NRVAVideoPlayerConfiguration.m in Sources */,
+				9CAUTOE34D9BC26960450D8121 /* NRVATokenManager.m in Sources */,
+				9CAUTO5B9CFA2E6CFA4963ADDF /* NRVADeviceInformation.m in Sources */,
+				9CAUTO287CD7A1C9B44561AF4F /* NRVAErrorExceptionHandler.m in Sources */,
+				9CAUTOC202DF5FD094460FAF57 /* NRVADeadLetterEventBuffer.m in Sources */,
+				9CAUTO8F5800F0C7FD4AA3B3F0 /* NRVADefaultSizeEstimator.m in Sources */,
+				9CAUTO7AC67B03D0654F8BBF10 /* NRVAHarvestManager.m in Sources */,
+				9CAUTO8204D3B8C55B46DF8689 /* NRVAMultiTaskHarvestScheduler.m in Sources */,
+				9CAUTOCB407E87BC7D4F6E9146 /* NRVAOptimizedHttpClient.m in Sources */,
+				9CAUTO692BDD150A6F41359CD1 /* NRVAPriorityEventBuffer.m in Sources */,
+				9CAUTO236F6787CB434B7EABEC /* NRVAVideoLifecycleObserver.m in Sources */,
+				9CAUTO4A3CD4D48E6946B9AFB0 /* NRVACrashSafeEventBuffer.m in Sources */,
+				9CAUTOB109CBEFED14473EBF6F /* NRVACrashSafeHarvestFactory.m in Sources */,
+				9CAUTOBBD84AA7FFDD499F8BCC /* NRVAIntegratedDeadLetterHandler.m in Sources */,
+				9CAUTO1FE342C617EF496D9766 /* NRVAOfflineStorage.m in Sources */,
+				9CAUTO9A55C0F00EF94183AAFD /* NRVALog.m in Sources */,
+				9CAUTOBCAD2BC8B6AA4A3BBE71 /* NRVAUtils.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -645,7 +965,7 @@
 				);
 				INFOPLIST_FILE = NewRelicVideoCore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -674,7 +994,7 @@
 				);
 				INFOPLIST_FILE = NewRelicVideoCore/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 10.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -743,7 +1063,7 @@
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Debug;
 		};
@@ -768,7 +1088,7 @@
 				SDKROOT = appletvos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = 3;
-				TVOS_DEPLOYMENT_TARGET = 10.0;
+				TVOS_DEPLOYMENT_TARGET = 12.0;
 			};
 			name = Release;
 		};
