@@ -112,6 +112,8 @@
 }
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(NSDictionary *)attributes {
+    [self generateElapsedTime];
+
     NSMutableDictionary *attr;
     
     if (attributes) {
@@ -394,7 +396,7 @@
             @"errorCode": [NSNull null]
         };
     }
-    // [self generateElapsedTime];
+    [self generateElapsedTime];
     if (self.state.isAd) {
         [self sendVideoErrorEvent:AD_ERROR attributes:errAttr];
     }
