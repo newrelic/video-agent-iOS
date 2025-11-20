@@ -13,6 +13,8 @@
 		9CEE254C25EE737E000491C5 /* NRIMATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE253E25EE737D000491C5 /* NRIMATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CEE255C25EE74C9000491C5 /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; };
 		9CEE255D25EE74C9000491C5 /* NRTrackerIMA.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */; };
+		9CIM33A8D4441D714479B72A /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
+		9CIMDA78CE5FF3EC4778A707 /* GoogleInteractiveMediaAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,8 @@
 		9CEE254B25EE737E000491C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NRTrackerIMA.h; sourceTree = "<group>"; };
 		9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerIMA.m; sourceTree = "<group>"; };
+		9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NewRelicVideoCore.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
+		9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleInteractiveMediaAds.xcframework; path = GoogleInteractiveMediaAds.xcframework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +46,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CIM33A8D4441D714479B72A /* NewRelicVideoCore.framework in Frameworks */,
+				9CIMDA78CE5FF3EC4778A707 /* GoogleInteractiveMediaAds.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -369,6 +375,11 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -391,6 +402,11 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
