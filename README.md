@@ -22,19 +22,9 @@ The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
 
 ## Installation
 
-### Install automatically using Cocoapods
+Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
-Add the following lines to your Podfile:
-
-```
-  pod 'NewRelicVideoAgent'
-  pod 'NRAVPlayerTracker'
-  pod 'NRIMATracker'
-```
-
-### Other Installation Methods
-
-For detailed installation instructions including XCFramework integration and manual setup, see the [INSTALLATION.md](INSTALLATION.md) guide.
+For other installation methods including CocoaPods and manual builds, see [INSTALLATION.md](INSTALLATION.md).
 
 ## Getting Started
 
