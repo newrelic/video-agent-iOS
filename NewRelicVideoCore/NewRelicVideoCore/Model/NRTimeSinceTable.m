@@ -28,11 +28,18 @@
 }
 
 - (void)addEntry:(NRTimeSince *)ts {
-    [self.timeSinceTable addObject:ts];
+    @synchronized(self.timeSinceTable) {
+        [self.timeSinceTable addObject:ts];
+    }
 }
 
 - (void)applyAttributes:(NSString *)action attributes:(NSMutableDictionary *)attr {
-    for (NRTimeSince *ts in self.timeSinceTable) {
+    NSArray<NRTimeSince *> *timeSinceCopy;
+    @synchronized(self.timeSinceTable) {
+        timeSinceCopy = [self.timeSinceTable copy];
+    }
+
+    for (NRTimeSince *ts in timeSinceCopy) {
         if ([ts isMatch:action]) {
             [attr setObject:[ts timeSince] forKey:[ts attributeName]];
         }
