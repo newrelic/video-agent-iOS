@@ -194,3 +194,14 @@ echo "Note: NRIMATracker is iOS-only (Google IMA SDK doesn't support tvOS)"
 echo ""
 echo "🔍 To verify architectures:"
 echo "   find NewRelicVideoCore.xcframework -name 'NewRelicVideoCore' -type f -exec lipo -info {} \\;"
+
+echo ""
+# Group all .xcframeworks in a folder called xcframeworks
+mkdir -p xcframeworks
+mv *.xcframework xcframeworks/
+
+# Zip the xcframeworks folder
+zip -rq xcframeworks.zip xcframeworks
+
+# Remove the folder and .xcframeworks
+rm -rf xcframeworks

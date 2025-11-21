@@ -144,6 +144,7 @@
 		9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */; };
 		9CE7992B25837C9400157199 /* NewRelicVideoCore.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CE7991D25837C9400157199 /* NewRelicVideoCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CE7994425837D0B00157199 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */; };
+		72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -254,6 +255,7 @@
 		9CE7992A25837C9400157199 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CE7993B25837D0A00157199 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NewRelicVideoCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CE7994325837D0B00157199 /* NewRelicVideoCore-tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NewRelicVideoCore-tvOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTimeSinceTableThreadSafetyTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -481,6 +483,7 @@
 		9CE7992725837C9400157199 /* NewRelicVideoCoreTests */ = {
 			isa = PBXGroup;
 			children = (
+				B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */,
 				9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */,
 				9CE7992A25837C9400157199 /* Info.plist */,
 			);
@@ -769,7 +772,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */,
+								72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */,
+9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -813,7 +817,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-			);
+							72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */,
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
