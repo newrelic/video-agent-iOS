@@ -112,18 +112,21 @@
 }
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(NSDictionary *)attributes {
+    // Update totalPlaytime before assembling attributes
+    [self updatePlayTime];
+
     NSMutableDictionary *attr;
-    
+
     if (attributes) {
         attr = attributes.mutableCopy;
     } else {
         attr = @{}.mutableCopy;
     }
-    
+
     if ([action hasSuffix:@"_BUFFER_START"] || [action hasSuffix:@"_BUFFER_END"]) {
         [attr setObject:[self getBufferType] forKey:@"bufferType"];
     }
-    
+
     [attr setObject:[self getTrackerName] forKey:@"trackerName"];
     [attr setObject:[self getTrackerSrc] forKey:@"src"];
     [attr setObject:[self getTrackerVersion] forKey:@"trackerVersion"];
@@ -394,7 +397,7 @@
             @"errorCode": [NSNull null]
         };
     }
-    // [self generateElapsedTime];
+    
     if (self.state.isAd) {
         [self sendVideoErrorEvent:AD_ERROR attributes:errAttr];
     }
@@ -622,7 +625,7 @@
     [self addTimeSinceEntryWithAction:AD_QUARTILE attribute:@"timeSinceLastAdQuartile" applyTo:@"^AD_QUARTILE$"];
 }
 
-- (void) generateElapsedTime {
+- (void) updatePlayTime {
     // Calculate playtimeSinceLastEvent and totalPlaytime
     if (self.playtimeSinceLastEventTimestamp > 0) {
         self.playtimeSinceLastEvent = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
