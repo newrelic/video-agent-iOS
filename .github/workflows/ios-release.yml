@@ -1,0 +1,250 @@
+name: iOS Release to CocoaPods
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  release:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+          pod --version
+
+      # Extract version from git tag or release
+      - name: Extract version from git tag or release
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            echo "Detected version from GitHub Release: $VERSION"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+            echo "Detected version from git tag: $VERSION"
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      # Step 1: Update Version Numbers in all podspec files
+      - name: Update version in all podspec files
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "Updating version to $VERSION in all podspecs..."
+
+          # Update NewRelicVideoAgent.podspec
+          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NewRelicVideoAgent.podspec
+
+          # Update NRAVPlayerTracker.podspec
+          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRAVPlayerTracker.podspec
+
+          # Update NRIMATracker.podspec
+          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRIMATracker.podspec
+
+          echo "Version updated successfully!"
+          echo ""
+          echo "Updated versions:"
+          grep "s.version" NewRelicVideoAgent.podspec
+          grep "s.version" NRAVPlayerTracker.podspec
+          grep "s.version" NRIMATracker.podspec
+
+      - name: Commit version updates
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if there are changes to commit
+          if git diff --quiet *.podspec; then
+            echo "No changes to commit"
+          else
+            echo "Committing version updates..."
+            git add *.podspec
+            git commit -m "Update version to $VERSION"
+
+            # Find the branch that contains this tag
+            BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v HEAD | head -1 | sed 's/.*origin\///' | xargs)
+
+            if [ ! -z "$BRANCH" ]; then
+              echo "Pushing version updates to branch: $BRANCH"
+
+              # Fetch latest changes from remote
+              git fetch origin $BRANCH
+
+              # Rebase our commit on top of the latest remote changes
+              git rebase origin/$BRANCH
+
+              # Push the rebased commit
+              git push origin HEAD:$BRANCH
+            else
+              echo "Warning: Could not determine branch, skipping push"
+            fi
+          fi
+
+      # Check if tag is on master branch
+      - name: Check if tag is on master
+        id: check_master
+        run: |
+          if git branch -r --contains ${{ github.sha }} | grep -q 'origin/master'; then
+            echo "is_master=true" >> $GITHUB_OUTPUT
+            echo "Tag is on master branch"
+          else
+            echo "is_master=false" >> $GITHUB_OUTPUT
+            echo "Tag is NOT on master branch"
+          fi
+
+      # Step 2: Validate Podspecs
+      - name: Validate NewRelicVideoAgent podspec
+        run: |
+          echo "Validating NewRelicVideoAgent.podspec..."
+          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
+
+      - name: Validate NRAVPlayerTracker podspec
+        run: |
+          echo "Validating NRAVPlayerTracker.podspec..."
+          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
+
+      - name: Validate NRIMATracker podspec
+        run: |
+          echo "Validating NRIMATracker.podspec..."
+          pod lib lint NRIMATracker.podspec --allow-warnings
+
+      - name: Validation complete
+        run: echo "All podspecs validated successfully!"
+
+      # Step 3: Publish to CocoaPods (In Order)
+      # Only run publishing steps when tag is on master branch
+      - name: Setup CocoaPods trunk authentication
+        if: steps.check_master.outputs.is_master == 'true'
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
+            echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
+            echo "Please add your CocoaPods trunk token to GitHub repository secrets"
+            exit 1
+          fi
+
+          # Create .netrc file for CocoaPods trunk authentication
+          cat > ~/.netrc <<EOF
+          machine trunk.cocoapods.org
+          login token
+          password ${COCOAPODS_TRUNK_TOKEN}
+          EOF
+          chmod 600 ~/.netrc
+
+          echo "CocoaPods trunk authentication configured"
+
+      - name: Publish NewRelicVideoAgent (core library)
+        if: steps.check_master.outputs.is_master == 'true'
+        run: |
+          echo "Publishing NewRelicVideoAgent (core library)..."
+          pod trunk push NewRelicVideoAgent.podspec --allow-warnings
+          echo "NewRelicVideoAgent published successfully!"
+
+      - name: Wait for NewRelicVideoAgent to be indexed
+        if: steps.check_master.outputs.is_master == 'true'
+        run: |
+          echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
+          echo "This usually takes ~5 minutes..."
+          echo ""
+
+          VERSION="${{ steps.get_version.outputs.version }}"
+          MAX_ATTEMPTS=20
+          ATTEMPT=0
+          WAIT_TIME=30
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking if NewRelicVideoAgent $VERSION is indexed..."
+
+            # Search for the pod and check if our version appears
+            if pod search NewRelicVideoAgent | grep -q "$VERSION"; then
+              echo "NewRelicVideoAgent version $VERSION is now indexed!"
+              exit 0
+            fi
+
+            if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+              echo "Not indexed yet, waiting ${WAIT_TIME} seconds before retry..."
+              sleep $WAIT_TIME
+            fi
+          done
+
+          echo "Warning: Timeout waiting for indexing, but proceeding anyway..."
+          echo "You may need to manually verify or retry dependent pods if they fail"
+
+      - name: Publish NRAVPlayerTracker (dependent pod)
+        if: steps.check_master.outputs.is_master == 'true'
+        run: |
+          echo "Publishing NRAVPlayerTracker (depends on NewRelicVideoAgent)..."
+          pod trunk push NRAVPlayerTracker.podspec --allow-warnings
+          echo "NRAVPlayerTracker published successfully!"
+
+      - name: Publish NRIMATracker (dependent pod)
+        if: steps.check_master.outputs.is_master == 'true'
+        run: |
+          echo "Publishing NRIMATracker (depends on NewRelicVideoAgent)..."
+          pod trunk push NRIMATracker.podspec --allow-warnings
+          echo "NRIMATracker published successfully!"
+
+      # Step 4: Verify Publication
+      - name: Verify publication - Search pods
+        run: |
+          echo "Verifying publication..."
+          echo ""
+          echo "Checking if pods are live..."
+          echo ""
+
+          echo "--- NewRelicVideoAgent ---"
+          pod search NewRelicVideoAgent | head -15
+          echo ""
+
+          echo "--- NRAVPlayerTracker ---"
+          pod search NRAVPlayerTracker | head -15
+          echo ""
+
+          echo "--- NRIMATracker ---"
+          pod search NRIMATracker | head -15
+          echo ""
+
+      - name: Verify publication - Pod info
+        run: |
+          echo "Checking pod trunk info..."
+          echo ""
+          echo "--- NewRelicVideoAgent info ---"
+          pod trunk info NewRelicVideoAgent
+          echo ""
+
+      - name: Release complete
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo ""
+          echo "=================================="
+          echo "Release Complete!"
+          echo "=================================="
+          echo ""
+          echo "NewRelicVideoAgent v$VERSION published"
+          echo "NRAVPlayerTracker v$VERSION published"
+          echo "NRIMATracker v$VERSION published"
+          echo ""
+          echo "Users can now install with:"
+          echo ""
+          echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
+          echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
+          echo "  pod 'NRIMATracker', '~> $VERSION'"
+          echo ""
