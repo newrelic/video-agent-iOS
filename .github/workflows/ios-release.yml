@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - '*'
-  release:
-    types: [published]
 
 jobs:
   release:
@@ -79,20 +77,35 @@ jobs:
             git add *.podspec
             git commit -m "Update version to $VERSION"
 
-            # Determine target branch and push
-            if [ "${{ github.event_name }}" = "release" ]; then
-              BRANCH="${{ github.event.release.target_commitish }}"
-            else
-              # Tag push - find the branch
-              BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v HEAD | head -1 | sed 's/.*origin\///' | xargs)
-            fi
+            # Find the branch that contains this tag
+            BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v HEAD | head -1 | sed 's/.*origin\///' | xargs)
 
             if [ ! -z "$BRANCH" ]; then
               echo "Pushing version updates to branch: $BRANCH"
+
+              # Fetch latest changes from remote
+              git fetch origin $BRANCH
+
+              # Rebase our commit on top of the latest remote changes
+              git rebase origin/$BRANCH
+
+              # Push the rebased commit
               git push origin HEAD:$BRANCH
             else
               echo "Warning: Could not determine branch, skipping push"
             fi
+          fi
+
+      # Check if tag is on master branch
+      - name: Check if tag is on master
+        id: check_master
+        run: |
+          if git branch -r --contains ${{ github.sha }} | grep -q 'origin/master'; then
+            echo "is_master=true" >> $GITHUB_OUTPUT
+            echo "Tag is on master branch"
+          else
+            echo "is_master=false" >> $GITHUB_OUTPUT
+            echo "Tag is NOT on master branch"
           fi
 
       # Step 2: Validate Podspecs
@@ -115,9 +128,9 @@ jobs:
         run: echo "All podspecs validated successfully!"
 
       # Step 3: Publish to CocoaPods (In Order)
-      # Only run publishing steps on master branch or releases targeting master
+      # Only run publishing steps when tag is on master branch
       - name: Setup CocoaPods trunk authentication
-        if: (github.ref == 'refs/heads/master') || (github.event_name == 'release' && github.event.release.target_commitish == 'master')
+        if: steps.check_master.outputs.is_master == 'true'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
@@ -138,14 +151,14 @@ jobs:
           echo "CocoaPods trunk authentication configured"
 
       - name: Publish NewRelicVideoAgent (core library)
-        if: (github.ref == 'refs/heads/master') || (github.event_name == 'release' && github.event.release.target_commitish == 'master')
+        if: steps.check_master.outputs.is_master == 'true'
         run: |
           echo "Publishing NewRelicVideoAgent (core library)..."
           pod trunk push NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent published successfully!"
 
       - name: Wait for NewRelicVideoAgent to be indexed
-        if: (github.ref == 'refs/heads/master') || (github.event_name == 'release' && github.event.release.target_commitish == 'master')
+        if: steps.check_master.outputs.is_master == 'true'
         run: |
           echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
           echo "This usually takes ~5 minutes..."
@@ -176,14 +189,14 @@ jobs:
           echo "You may need to manually verify or retry dependent pods if they fail"
 
       - name: Publish NRAVPlayerTracker (dependent pod)
-        if: (github.ref == 'refs/heads/master') || (github.event_name == 'release' && github.event.release.target_commitish == 'master')
+        if: steps.check_master.outputs.is_master == 'true'
         run: |
           echo "Publishing NRAVPlayerTracker (depends on NewRelicVideoAgent)..."
           pod trunk push NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker published successfully!"
 
       - name: Publish NRIMATracker (dependent pod)
-        if: (github.ref == 'refs/heads/master') || (github.event_name == 'release' && github.event.release.target_commitish == 'master')
+        if: steps.check_master.outputs.is_master == 'true'
         run: |
           echo "Publishing NRIMATracker (depends on NewRelicVideoAgent)..."
           pod trunk push NRIMATracker.podspec --allow-warnings
