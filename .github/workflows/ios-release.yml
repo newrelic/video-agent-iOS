@@ -2,9 +2,6 @@ name: iOS Release to CocoaPods
 
 on:
   push:
-    branches:
-      - master
-      - user/arkazakumari/ios-release-automation
     tags:
       - '*'
   release:
@@ -65,6 +62,38 @@ jobs:
           grep "s.version" NewRelicVideoAgent.podspec
           grep "s.version" NRAVPlayerTracker.podspec
           grep "s.version" NRIMATracker.podspec
+
+      - name: Commit version updates
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Configure git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Check if there are changes to commit
+          if git diff --quiet *.podspec; then
+            echo "No changes to commit"
+          else
+            echo "Committing version updates..."
+            git add *.podspec
+            git commit -m "Update version to $VERSION"
+
+            # Determine target branch and push
+            if [ "${{ github.event_name }}" = "release" ]; then
+              BRANCH="${{ github.event.release.target_commitish }}"
+            else
+              # Tag push - find the branch
+              BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v HEAD | head -1 | sed 's/.*origin\///' | xargs)
+            fi
+
+            if [ ! -z "$BRANCH" ]; then
+              echo "Pushing version updates to branch: $BRANCH"
+              git push origin HEAD:$BRANCH
+            else
+              echo "Warning: Could not determine branch, skipping push"
+            fi
+          fi
 
       # Step 2: Validate Podspecs
       - name: Validate NewRelicVideoAgent podspec
