@@ -1,250 +1,232 @@
-name: iOS Release to CocoaPods
+name: Version Bump PR
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - master
+      - user/arkazakumari/ios-release-automation
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  release:
-    runs-on: macos-latest
-
+  version-bump:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          ruby-version: '3.2'
-          bundler-cache: false
+          node-version: '20'
+          cache: 'npm'
 
-      - name: Install CocoaPods
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
         run: |
-          gem install cocoapods
-          pod --version
-
-      # Extract version from git tag or release
-      - name: Extract version from git tag or release
-        id: get_version
-        run: |
-          if [ "${{ github.event_name }}" = "release" ]; then
-            VERSION="${{ github.event.release.tag_name }}"
-            echo "Detected version from GitHub Release: $VERSION"
-          else
-            VERSION=${GITHUB_REF#refs/tags/}
-            echo "Detected version from git tag: $VERSION"
-          fi
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
-      # Step 1: Update Version Numbers in all podspec files
-      - name: Update version in all podspec files
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          echo "Updating version to $VERSION in all podspecs..."
-
-          # Update NewRelicVideoAgent.podspec
-          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NewRelicVideoAgent.podspec
-
-          # Update NRAVPlayerTracker.podspec
-          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRAVPlayerTracker.podspec
-
-          # Update NRIMATracker.podspec
-          sed -i '' "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRIMATracker.podspec
-
-          echo "Version updated successfully!"
-          echo ""
-          echo "Updated versions:"
-          grep "s.version" NewRelicVideoAgent.podspec
-          grep "s.version" NRAVPlayerTracker.podspec
-          grep "s.version" NRIMATracker.podspec
-
-      - name: Commit version updates
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # Check if there are changes to commit
-          if git diff --quiet *.podspec; then
-            echo "No changes to commit"
-          else
-            echo "Committing version updates..."
-            git add *.podspec
-            git commit -m "Update version to $VERSION"
-
-            # Find the branch that contains this tag
-            BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v HEAD | head -1 | sed 's/.*origin\///' | xargs)
-
-            if [ ! -z "$BRANCH" ]; then
-              echo "Pushing version updates to branch: $BRANCH"
-
-              # Fetch latest changes from remote
-              git fetch origin $BRANCH
-
-              # Rebase our commit on top of the latest remote changes
-              git rebase origin/$BRANCH
-
-              # Push the rebased commit
-              git push origin HEAD:$BRANCH
-            else
-              echo "Warning: Could not determine branch, skipping push"
-            fi
-          fi
-
-      # Check if tag is on master branch
-      - name: Check if tag is on master
-        id: check_master
+      - name: Extract current version from podspec
+        id: current_version
         run: |
-          if git branch -r --contains ${{ github.sha }} | grep -q 'origin/master'; then
-            echo "is_master=true" >> $GITHUB_OUTPUT
-            echo "Tag is on master branch"
-          else
-            echo "is_master=false" >> $GITHUB_OUTPUT
-            echo "Tag is NOT on master branch"
-          fi
+          # Extract current version from NewRelicVideoAgent.podspec
+          CURRENT_VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
 
-      # Step 2: Validate Podspecs
-      - name: Validate NewRelicVideoAgent podspec
-        run: |
-          echo "Validating NewRelicVideoAgent.podspec..."
-          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
-
-      - name: Validate NRAVPlayerTracker podspec
-        run: |
-          echo "Validating NRAVPlayerTracker.podspec..."
-          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
-
-      - name: Validate NRIMATracker podspec
-        run: |
-          echo "Validating NRIMATracker.podspec..."
-          pod lib lint NRIMATracker.podspec --allow-warnings
-
-      - name: Validation complete
-        run: echo "All podspecs validated successfully!"
-
-      # Step 3: Publish to CocoaPods (In Order)
-      # Only run publishing steps when tag is on master branch
-      - name: Setup CocoaPods trunk authentication
-        if: steps.check_master.outputs.is_master == 'true'
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: |
-          if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
-            echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
-            echo "Please add your CocoaPods trunk token to GitHub repository secrets"
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Failed to extract current version from podspec"
             exit 1
           fi
 
-          # Create .netrc file for CocoaPods trunk authentication
-          cat > ~/.netrc <<EOF
-          machine trunk.cocoapods.org
-          login token
-          password ${COCOAPODS_TRUNK_TOKEN}
-          EOF
-          chmod 600 ~/.netrc
+          # Validate semantic version format
+          if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: $CURRENT_VERSION"
+            exit 1
+          fi
 
-          echo "CocoaPods trunk authentication configured"
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version from podspec: $CURRENT_VERSION"
 
-      - name: Publish NewRelicVideoAgent (core library)
-        if: steps.check_master.outputs.is_master == 'true'
+      - name: Ensure version tag exists
+        id: ensure_tag
         run: |
-          echo "Publishing NewRelicVideoAgent (core library)..."
-          pod trunk push NewRelicVideoAgent.podspec --allow-warnings
-          echo "NewRelicVideoAgent published successfully!"
+          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
+          
+          # Check if tag exists
+          if git rev-parse "${CURRENT_VERSION}" >/dev/null 2>&1; then
+            echo "Tag ${CURRENT_VERSION} already exists"
+          else
+            echo "Creating reference tag ${CURRENT_VERSION} for semantic-release"
+            git tag "${CURRENT_VERSION}"
+          fi
 
-      - name: Wait for NewRelicVideoAgent to be indexed
-        if: steps.check_master.outputs.is_master == 'true'
+      - name: Get next version
+        id: get_version
         run: |
-          echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
-          echo "This usually takes ~5 minutes..."
-          echo ""
+          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
+          echo "Base version: $CURRENT_VERSION"
+          
+          # Run semantic-release in dry-run mode
+          npx semantic-release --dry-run --no-ci > semantic-output.txt 2>&1 || true
+          
+          echo "=== Semantic Release Output ==="
+          cat semantic-output.txt
+          echo "==============================="
 
-          VERSION="${{ steps.get_version.outputs.version }}"
-          MAX_ATTEMPTS=20
-          ATTEMPT=0
-          WAIT_TIME=30
+          # Extract next version from output
+          NEXT_VERSION=$(grep "The next release version is" semantic-output.txt | sed -E 's/.*The next release version is ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
 
-          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-            ATTEMPT=$((ATTEMPT + 1))
-            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking if NewRelicVideoAgent $VERSION is indexed..."
+          if [ -z "$NEXT_VERSION" ]; then
+            echo "::notice::No new version to release - no qualifying commits found"
+            echo "should_create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-            # Search for the pod and check if our version appears
-            if pod search NewRelicVideoAgent | grep -q "$VERSION"; then
-              echo "NewRelicVideoAgent version $VERSION is now indexed!"
-              exit 0
-            fi
+          if [ "$NEXT_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "::notice::Calculated version ($NEXT_VERSION) matches current version"
+            echo "should_create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
 
-            if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
-              echo "Not indexed yet, waiting ${WAIT_TIME} seconds before retry..."
-              sleep $WAIT_TIME
-            fi
-          done
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "should_create_pr=true" >> $GITHUB_OUTPUT
+          echo "::notice::Version bump: $CURRENT_VERSION → $NEXT_VERSION"
 
-          echo "Warning: Timeout waiting for indexing, but proceeding anyway..."
-          echo "You may need to manually verify or retry dependent pods if they fail"
-
-      - name: Publish NRAVPlayerTracker (dependent pod)
-        if: steps.check_master.outputs.is_master == 'true'
+      - name: Create version bump branch
+        if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
-          echo "Publishing NRAVPlayerTracker (depends on NewRelicVideoAgent)..."
-          pod trunk push NRAVPlayerTracker.podspec --allow-warnings
-          echo "NRAVPlayerTracker published successfully!"
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          BRANCH_NAME="release/${VERSION}"
+          
+          git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "Created branch: $BRANCH_NAME"
 
-      - name: Publish NRIMATracker (dependent pod)
-        if: steps.check_master.outputs.is_master == 'true'
+      - name: Update podspec versions
+        if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
-          echo "Publishing NRIMATracker (depends on NewRelicVideoAgent)..."
-          pod trunk push NRIMATracker.podspec --allow-warnings
-          echo "NRIMATracker published successfully!"
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          echo "Updating podspecs to version $VERSION..."
+          
+          # Update all podspec files
+          sed -i "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NewRelicVideoAgent.podspec
+          sed -i "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRAVPlayerTracker.podspec
+          sed -i "s/s.version[[:space:]]*=.*/s.version          = '$VERSION'/" NRIMATracker.podspec
+          
+          echo "Updated podspecs to version $VERSION"
+          echo ""
+          echo "Changes:"
+          git diff *.podspec
 
-      # Step 4: Verify Publication
-      - name: Verify publication - Search pods
+      - name: Generate changelog
+        if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
-          echo "Verifying publication..."
-          echo ""
-          echo "Checking if pods are live..."
-          echo ""
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          echo "📋 Generating changelog for ${VERSION}..."
+          npx semantic-release --dry-run --no-ci 2>&1 | tee release-notes.txt || true
+          
+          if [ -f CHANGELOG.md ]; then
+            echo "Changelog generated"
+          else
+            echo "Changelog will be generated during actual release"
+          fi
 
-          echo "--- NewRelicVideoAgent ---"
-          pod search NewRelicVideoAgent | head -15
-          echo ""
-
-          echo "--- NRAVPlayerTracker ---"
-          pod search NRAVPlayerTracker | head -15
-          echo ""
-
-          echo "--- NRIMATracker ---"
-          pod search NRIMATracker | head -15
-          echo ""
-
-      - name: Verify publication - Pod info
+      - name: Commit changes
+        if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
-          echo "Checking pod trunk info..."
-          echo ""
-          echo "--- NewRelicVideoAgent info ---"
-          pod trunk info NewRelicVideoAgent
-          echo ""
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          # Stage all changed files
+          git add *.podspec CHANGELOG.md 2>/dev/null || true
+          
+          # Check if there are changes to commit
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "chore(release): prepare ${VERSION}
 
-      - name: Release complete
+          - Update podspec versions to ${VERSION}
+          - Update changelog
+          
+          [skip ci]"
+            echo "Changes committed"
+          fi
+
+      - name: Push branch
+        if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
+          git push origin "${{ env.branch_name }}"
+          echo "Branch pushed: ${{ env.branch_name }}"
+
+      - name: Create Pull Request
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: ${{ env.branch_name }}
+          base: master
+          title: "chore(release): ${{ steps.get_version.outputs.next_version }}"
+          body: |
+            ## New Release: ${{ steps.get_version.outputs.next_version }}
+            
+            This PR updates the version numbers in all podspec files and prepares for the next release.
+            
+            ### Version Change
+            - **Current**: `${{ steps.current_version.outputs.current_version }}`
+            - **Next**: `${{ steps.get_version.outputs.next_version }}`
+            
+            ### Changes
+            - Updated `NewRelicVideoAgent.podspec` to `${{ steps.get_version.outputs.next_version }}`
+            - Updated `NRAVPlayerTracker.podspec` to `${{ steps.get_version.outputs.next_version }}`
+            - Updated `NRIMATracker.podspec` to `${{ steps.get_version.outputs.next_version }}`
+            - Updated `CHANGELOG.md`
+            
+            ### Next Steps
+            1. Review the changes in this PR
+            2. Merge this PR to master
+            3. The publish workflow will automatically deploy to CocoaPods
+            
+            ### Commit Convention
+            This release was determined by analyzing commits using [Conventional Commits](https://www.conventionalcommits.org/):
+            - `feat:` → Minor version bump (new features)
+            - `fix:` → Patch version bump (bug fixes)
+            - `BREAKING CHANGE:` → Major version bump (breaking changes)
+            
+            ---
+            *Generated by semantic-release*
+          labels: |
+            release
+            automated
+
+      - name: No release needed
+        if: steps.get_version.outputs.should_create_pr == 'false'
+        run: |
           echo ""
-          echo "=================================="
-          echo "Release Complete!"
-          echo "=================================="
+          echo "No new version to release"
           echo ""
-          echo "NewRelicVideoAgent v$VERSION published"
-          echo "NRAVPlayerTracker v$VERSION published"
-          echo "NRIMATracker v$VERSION published"
+          echo "Current version: ${{ steps.current_version.outputs.current_version }}"
           echo ""
-          echo "Users can now install with:"
+          echo "To trigger a release, make commits following Conventional Commits format:"
           echo ""
-          echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
-          echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
-          echo "  pod 'NRIMATracker', '~> $VERSION'"
+          echo "feat: for new features (minor version bump)"
+          echo "     Example: feat: add video quality analytics"
+          echo ""
+          echo "fix: for bug fixes (patch version bump)"
+          echo "     Example: fix: resolve memory leak in tracker"
+          echo ""
+          echo "BREAKING CHANGE: for breaking changes (major version bump)"
+          echo "     Example: feat!: redesign tracking API"
+          echo "              BREAKING CHANGE: tracking initialization changed"
           echo ""
