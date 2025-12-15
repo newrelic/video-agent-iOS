@@ -41,19 +41,20 @@ jobs:
         id: current_version
         run: |
           # Extract current version from NewRelicVideoAgent.podspec
-          CURRENT_VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
-
+          # Match only the line with s.version assignment, not s.source
+          CURRENT_VERSION=$(grep -E "^\s*s\.version\s*=" NewRelicVideoAgent.podspec | sed -E "s/.*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
+          
           if [ -z "$CURRENT_VERSION" ]; then
             echo "Failed to extract current version from podspec"
             exit 1
           fi
-
+          
           # Validate semantic version format
           if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "Invalid version format: $CURRENT_VERSION"
             exit 1
           fi
-
+          
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "Current version from podspec: $CURRENT_VERSION"
 
