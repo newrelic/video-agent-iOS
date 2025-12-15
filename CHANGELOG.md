@@ -1,0 +1,13 @@
+## [4.1.0](https://github.com/newrelic/video-agent-iOS/compare/4.0.1...4.1.0) (2025-12-15)
+
+### Features
+
+* add automated release workflow ([77845b8](https://github.com/newrelic/video-agent-iOS/commit/77845b8626deb13be4c3113c5c79e520fdf44d46))
+* add automated release workflow ([ff3cdd6](https://github.com/newrelic/video-agent-iOS/commit/ff3cdd6f36dedb5bf7e6e37939b2f80b6edbd157))
+* add automated release workflow ([46eacd1](https://github.com/newrelic/video-agent-iOS/commit/46eacd161c1be6ee5f5ca98521f83d0da671010e))
+* add automated release workflow ([9eab955](https://github.com/newrelic/video-agent-iOS/commit/9eab95513d5df71325311c79f8b1b04faef43280))
+
+### Bug Fixes
+
+* add conventional-changelog-conventionalcommits dependency ([3809333](https://github.com/newrelic/video-agent-iOS/commit/380933369f7e45ee5c865bcb2f83e47d7544452c))
+* correct YAML syntax for PR body and commit message ([82cb673](https://github.com/newrelic/video-agent-iOS/commit/82cb673b4c8a5b9a1e6ccba615e675b8a71bda1a))
