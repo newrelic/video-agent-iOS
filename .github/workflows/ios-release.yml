@@ -16,6 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     if: "!contains(github.event.head_commit.message, '[skip ci]')"
     
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -177,7 +181,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           branch: ${{ env.branch_name }}
-          base: master
+          base: ${{ github.ref_name }}
           title: "chore(release): ${{ steps.get_version.outputs.next_version }}"
           body: |
             ## New Release: ${{ steps.get_version.outputs.next_version }}
@@ -196,7 +200,7 @@ jobs:
             
             ### Next Steps
             1. Review the changes in this PR
-            2. Merge this PR to master
+            2. Merge this PR to `${{ github.ref_name }}`
             3. The publish workflow will automatically deploy to CocoaPods
             
             ### Commit Convention
