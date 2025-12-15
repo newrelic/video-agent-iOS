@@ -1,0 +1,83 @@
+[10:42:01 AM] [semantic-release] › ℹ  Running semantic-release version 24.2.9
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "verifyConditions" from "@semantic-release/changelog"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "verifyConditions" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "verifyConditions" from "@semantic-release/git"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "verifyConditions" from "@semantic-release/github"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "analyzeCommits" from "@semantic-release/commit-analyzer"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "analyzeCommits" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "verifyRelease" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "generateNotes" from "@semantic-release/release-notes-generator"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "generateNotes" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "prepare" from "@semantic-release/changelog"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "prepare" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "prepare" from "@semantic-release/git"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "publish" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "publish" from "@semantic-release/github"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "addChannel" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "addChannel" from "@semantic-release/github"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "success" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "success" from "@semantic-release/github"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "fail" from "@semantic-release/exec"
+[10:42:02 AM] [semantic-release] › ✔  Loaded plugin "fail" from "@semantic-release/github"
+[10:42:03 AM] [semantic-release] › ⚠  Run automated release from branch user/arkazakumari/ios-release-automation on repository https://github.com/newrelic/video-agent-iOS.git in dry-run mode
+[10:42:03 AM] [semantic-release] › ✔  Allowed to push to the Git repository
+[10:42:03 AM] [semantic-release] › ℹ  Start step "verifyConditions" of plugin "@semantic-release/changelog"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "verifyConditions" of plugin "@semantic-release/changelog"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "verifyConditions" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "verifyConditions" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "verifyConditions" of plugin "@semantic-release/git"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "verifyConditions" of plugin "@semantic-release/git"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "verifyConditions" of plugin "@semantic-release/github"
+[10:42:03 AM] [semantic-release] [@semantic-release/github] › ℹ  Verify GitHub authentication (https://api.github.com)
+[10:42:03 AM] [semantic-release] › ✔  Completed step "verifyConditions" of plugin "@semantic-release/github"
+[10:42:03 AM] [semantic-release] › ℹ  Found git tag 4.0.1 associated with version 4.0.1 on branch user/arkazakumari/ios-release-automation
+[10:42:03 AM] [semantic-release] › ℹ  Found 7 commits since last release
+[10:42:03 AM] [semantic-release] › ℹ  Start step "analyzeCommits" of plugin "@semantic-release/commit-analyzer"
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: fix: add conventional-changelog-conventionalcommits dependency
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The release type for the commit is patch
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: feat: add automated release workflow
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The release type for the commit is minor
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: feat: add automated release workflow
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The release type for the commit is minor
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: feat: add automated release workflow
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The release type for the commit is minor
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: feat: add automated release workflow
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The release type for the commit is minor
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: chore: semantic-release setup
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The commit should not trigger a release
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analyzing commit: Add iOS release automation workflow
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  The commit should not trigger a release
+[10:42:03 AM] [semantic-release] [@semantic-release/commit-analyzer] › ℹ  Analysis of 7 commits complete: minor release
+[10:42:03 AM] [semantic-release] › ✔  Completed step "analyzeCommits" of plugin "@semantic-release/commit-analyzer"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "analyzeCommits" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "analyzeCommits" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ℹ  The next release version is 4.1.0
+[10:42:03 AM] [semantic-release] › ℹ  Start step "verifyRelease" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "verifyRelease" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "generateNotes" of plugin "@semantic-release/release-notes-generator"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "generateNotes" of plugin "@semantic-release/release-notes-generator"
+[10:42:03 AM] [semantic-release] › ℹ  Start step "generateNotes" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ✔  Completed step "generateNotes" of plugin "@semantic-release/exec"
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "prepare" of plugin "@semantic-release/changelog" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "prepare" of plugin "@semantic-release/exec" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "prepare" of plugin "@semantic-release/git" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip 4.1.0 tag creation in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "publish" of plugin "@semantic-release/exec" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "publish" of plugin "@semantic-release/github" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "success" of plugin "@semantic-release/exec" in dry-run mode
+[10:42:03 AM] [semantic-release] › ⚠  Skip step "success" of plugin "@semantic-release/github" in dry-run mode
+[10:42:03 AM] [semantic-release] › ✔  Published release 4.1.0 on user/arkazakumari/ios-release-automation channel
+[10:42:03 AM] [semantic-release] › ℹ  Release note for version 4.1.0:
+## 4.1.0 (https://github.com/newrelic/video-agent-iOS/compare/4.0.1...4.1.0) (2025-12-15)
+
+### Features
+
+    * add automated release workflow ([77845b8](https://github.com/newrelic/video-agent-iOS/commit/77845b8626deb13be4c3113c5c79e520fdf44d46))
+    * add automated release workflow ([ff3cdd6](https://github.com/newrelic/video-agent-iOS/commit/ff3cdd6f36dedb5bf7e6e37939b2f80b6edbd157))
+    * add automated release workflow ([46eacd1](https://github.com/newrelic/video-agent-iOS/commit/46eacd161c1be6ee5f5ca98521f83d0da671010e))
+    * add automated release workflow ([9eab955](https://github.com/newrelic/video-agent-iOS/commit/9eab95513d5df71325311c79f8b1b04faef43280))
+
+### Bug Fixes
+
+    * add conventional-changelog-conventionalcommits dependency ([3809333](https://github.com/newrelic/video-agent-iOS/commit/380933369f7e45ee5c865bcb2f83e47d7544452c))
+
