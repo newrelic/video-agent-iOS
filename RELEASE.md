@@ -1,431 +1,561 @@
 # Release Process
 
-This document outlines the automated release process for the iOS Video Agent SDK.
+This document describes the automated release process for the NewRelic Video Agent iOS SDK.
 
 ## Overview
 
-The release process is fully automated using GitHub Actions and follows [Conventional Commits](https://www.conventionalcommits.org/) and [Semantic Versioning](https://semver.org/).
+The release process is fully automated through GitHub Actions workflows:
 
-The workflow follows a **"stable releases, one-shot PRs"** approach where each release version has exactly one immutable pull request.
+1. **Version Bump PR** (`ios-release.yml`) - Automatically creates release PRs
+2. **Publish to CocoaPods** (`ios-publish.yml`) - Publishes pods when PR is merged
 
-## Workflows
+## Quick Start
 
-### 1. Version Bump PR Workflow (`ios-release.yml`)
+### Triggering a Release
 
-**Trigger:** Push to `master` branch (or manual trigger via workflow_dispatch)
+1. **Make commits following Conventional Commits format:**
+
+   ```bash
+   # Feature (minor version bump: 4.1.0 → 4.2.0)
+   git commit -m "feat: add new video quality metrics"
+   
+   # Bug fix (patch version bump: 4.1.0 → 4.1.1)
+   git commit -m "fix: resolve memory leak in tracker"
+   
+   # Breaking change (major version bump: 4.1.0 → 5.0.0)
+   git commit -m "feat!: redesign tracking API
+   
+   BREAKING CHANGE: Tracker initialization method has changed"
+   ```
+
+2. **Push to master:**
+
+   ```bash
+   git push origin master
+   ```
+
+3. **Review the auto-generated PR:**
+   - Workflow creates a PR with version bump and changelog
+   - Review the changes, changelog, and version number
+   - Request reviews if needed
+
+4. **Merge the PR:**
+   - Merging triggers automatic publication to CocoaPods
+   - GitHub Release is created automatically
+   - Release branch is cleaned up automatically
+
+## Detailed Workflow
+
+### Phase 1: Version Bump PR (ios-release.yml)
+
+**Trigger:** Push to `master` branch
 
 **What it does:**
-1. Analyzes commit history using semantic-release
-2. Determines the next version based on conventional commits
-3. Checks if release branch already exists (skip if yes)
-4. Updates version in all three podspecs:
-   - `NewRelicVideoAgent.podspec`
-   - `NRAVPlayerTracker.podspec`
-   - `NRIMATracker.podspec`
-5. Generates `CHANGELOG.md` with release notes
-6. Creates a release branch (`release/X.Y.Z`)
-7. Pushes branch to remote (no force push)
-8. Checks if PR already exists (final safety check)
-9. Opens a Pull Request to master with the changes
 
-**Files modified in PR:**
-- `NewRelicVideoAgent.podspec` (version updated)
-- `NRAVPlayerTracker.podspec` (version updated)
-- `NRIMATracker.podspec` (version updated)
-- `CHANGELOG.md` (generated/updated)
+```
+1. Extract current version from podspec (e.g., 4.1.0)
+2. Run semantic-release in dry-run mode to calculate next version
+3. Check if version bump is needed (based on commits since last release)
+4. If version bump needed:
+   a. Create release branch (release/4.2.0)
+   b. Update all podspec versions
+   c. Run semantic-release to generate CHANGELOG.md and create git tag
+   d. Commit changes to release branch
+   e. Push branch and create PR
+5. If no version bump needed: Skip (no qualifying commits)
+```
 
-**Important:** If the release branch already exists, the workflow will skip all creation steps and display information about the existing branch/PR.
+**PR Contents:**
+- Updated podspec versions
+- Updated/generated CHANGELOG.md
+- Git tag (created by semantic-release)
+- Commit message: `chore(release): update podspec versions to X.X.X`
 
-### 2. Publish to CocoaPods Workflow (`ios-publish.yml`)
+**Branch:** `release/X.X.X`
 
-**Trigger:** When a release PR is merged to `master` (or manual trigger via workflow_dispatch)
+**Example PR Title:** `chore(release): 4.2.0`
+
+### Phase 2: Publish to CocoaPods (ios-publish.yml)
+
+**Trigger:** Release PR merged to `master`
 
 **What it does:**
-1. Validates all podspecs
-2. Publishes `NewRelicVideoAgent` to CocoaPods
-3. Waits for CocoaPods indexing (~5-10 minutes)
-4. Publishes `NRAVPlayerTracker` to CocoaPods
-5. Publishes `NRIMATracker` to CocoaPods
-6. Creates a git tag (`vX.Y.Z`)
-7. Creates a GitHub Release with installation instructions
-8. Verifies all pods are published
-9. Deletes the release branch (cleanup)
-
-## Conventional Commits
-
-The version bump is determined by analyzing commits since the last release:
-
-| Commit Type | Version Bump | Example |
-|-------------|--------------|---------|
-| `feat:` | **Minor** (0.X.0) | `feat: add quality analytics tracking` |
-| `fix:` | **Patch** (0.0.X) | `fix: resolve memory leak in tracker` |
-| `perf:` | **Patch** (0.0.X) | `perf: optimize buffer management` |
-| `BREAKING CHANGE:` or `!` | **Major** (X.0.0) | `feat!: redesign tracking API` |
-| `docs:`, `style:`, `chore:`, `refactor:`, `test:`, `build:`, `ci:` | **No release** | `docs: update README` |
-
-### Commit Message Format
 
 ```
-<type>[optional scope]: <description>
-
-[optional body]
-
-[optional footer(s)]
+1. Extract version from podspec
+2. Validate all podspecs
+3. Publish NewRelicVideoAgent to CocoaPods
+4. Wait for CocoaPods indexing (~5 minutes)
+5. Publish NRAVPlayerTracker (depends on NewRelicVideoAgent)
+6. Publish NRIMATracker (depends on NewRelicVideoAgent)
+7. Create GitHub Release (uses existing tag from semantic-release)
+8. Delete release branch
 ```
+
+**Idempotent:** Can be safely re-run if any step fails
+
+**Outputs:**
+- Published pods on CocoaPods
+- GitHub Release with installation instructions
+- Cleaned up release branch
+
+## Commit Message Format
+
+We use [Conventional Commits](https://www.conventionalcommits.org/) with semantic-release:
+
+| Type | Version Bump | Example |
+|------|-------------|---------|
+| `feat:` | Minor (4.1.0 → 4.2.0) | `feat: add picture-in-picture support` |
+| `fix:` | Patch (4.1.0 → 4.1.1) | `fix: correct bitrate calculation` |
+| `feat!:` or `BREAKING CHANGE:` | Major (4.1.0 → 5.0.0) | `feat!: redesign API` |
+| `chore:`, `docs:`, `style:`, `refactor:`, `test:`, `ci:` | None | No release |
 
 **Examples:**
 
 ```bash
-# Minor version bump (feat)
-git commit -m "feat: add support for adaptive bitrate tracking"
+# Feature - Minor bump
+git commit -m "feat: add support for AVQueuePlayer"
 
-# Patch version bump (fix)
-git commit -m "fix: prevent crash when video metadata is missing"
+# Multiple features
+git commit -m "feat: add HLS quality tracking
 
-# Major version bump (breaking change)
-git commit -m "feat!: redesign player tracker initialization
+- Track adaptive bitrate changes
+- Monitor buffer health
+- Report quality metrics"
 
-BREAKING CHANGE: PlayerTracker.init() now requires a configuration object"
+# Bug fix - Patch bump
+git commit -m "fix: prevent crash when player is deallocated"
 
-# No version bump
-git commit -m "docs: update installation guide"
+# Breaking change - Major bump
+git commit -m "feat!: change tracker initialization
+
+BREAKING CHANGE: Tracker now requires configuration object instead of individual parameters.
+
+Migration:
+- Old: Tracker(url: url, key: key)
+- New: Tracker(config: Config(url: url, key: key))"
+
+# No release
+git commit -m "docs: update README with new examples"
 git commit -m "chore: update dependencies"
 ```
 
-## Release Process (Step by Step)
-
-### 1. Make Changes & Commit
-
-```bash
-# Make your changes
-git add .
-
-# Commit using conventional commits format
-git commit -m "feat: add new analytics feature"
-
-# Push to master
-git push origin master
-```
-
-### 2. Automated Version Bump
-
-The `ios-release.yml` workflow automatically:
-- Runs on every push to master
-- Analyzes commits since last release
-- Calculates next version
-- Creates a release PR if needed
-
-**If there are qualifying commits:**
-- A PR will be created automatically
-- PR title: `chore(release): X.Y.Z`
-- PR includes changelog excerpt
-- Branch: `release/X.Y.Z`
-
-**If release branch already exists:**
-- Workflow shows "Release branch already exists"
-- Displays existing PR information (if found)
-- Provides cleanup instructions if needed
-
-**If no qualifying commits:**
-- Workflow completes with "No release needed" message
-- No PR is created
-
-### 3. Review & Merge Release PR
-
-1. Review the release PR:
-   - Check the version number is correct
-   - Review the CHANGELOG.md changes
-   - Verify podspec versions are updated
-   
-2. Merge the PR to master:
-   ```bash
-   # Use GitHub UI to merge (recommended)
-   # Or use GitHub CLI:
-   gh pr merge <PR_NUMBER> --squash
-   ```
-
-### 4. Automated Publishing
-
-When the release PR is merged, `ios-publish.yml` automatically:
-- Validates all podspecs
-- Publishes to CocoaPods (in order: NewRelicVideoAgent → NRAVPlayerTracker → NRIMATracker)
-- Creates git tag `vX.Y.Z`
-- Creates GitHub Release
-- Verifies publication
-- Deletes release branch (cleanup)
-
-### 5. Release Complete! 
-
-Users can now install the new version:
-
-```ruby
-# In Podfile
-pod 'NewRelicVideoAgent', '~> X.Y.Z'
-pod 'NRAVPlayerTracker', '~> X.Y.Z'
-pod 'NRIMATracker', '~> X.Y.Z'
-```
-
-## Manual Release (Emergency)
-
-If you need to manually trigger a release:
-
-### Option 1: Trigger Version Bump Workflow
-
-1. Go to Actions → "Version Bump PR"
-2. Click "Run workflow"
-3. Select branch: `master`
-4. Click "Run workflow"
-
-### Option 2: Manually Create Release PR
-
-```bash
-# 1. Determine next version
-NEXT_VERSION="4.2.0"  # Replace with actual version
-
-# 2. Create release branch
-git checkout master
-git pull origin master
-git checkout -b "release/${NEXT_VERSION}"
-
-# 3. Update podspec versions
-sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${NEXT_VERSION}'/" NewRelicVideoAgent.podspec
-sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${NEXT_VERSION}'/" NRAVPlayerTracker.podspec
-sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${NEXT_VERSION}'/" NRIMATracker.podspec
-
-# 4. Generate changelog
-npx semantic-release --no-ci
-
-# 5. Commit changes
-git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec CHANGELOG.md
-git commit -m "chore(release): ${NEXT_VERSION}" -m "[skip ci]"
-
-# 6. Push and create PR
-git push origin "release/${NEXT_VERSION}"
-gh pr create --base master --head "release/${NEXT_VERSION}" \
-  --title "chore(release): ${NEXT_VERSION}"
-```
-
-### Option 3: Manual Publish (Bypass Automation)
-
-1. Go to Actions → "Publish to CocoaPods"
-2. Click "Run workflow"
-3. Enter version (or leave blank to auto-detect)
-4. Click "Run workflow"
-
-## Retry Failed Release
-
-If a release workflow failed and you need to retry:
-
-### If Release Branch Already Exists:
-
-```bash
-# 1. Delete the release branch
-git push origin --delete release/X.Y.Z
-
-# 2. Close the PR (if it exists)
-gh pr close <PR_NUMBER>
-
-# 3. Re-trigger the workflow
-# Either push a new commit to master, or manually trigger via GitHub Actions UI
-```
-
-The workflow will then create a fresh release branch and PR.
-
-## Prerequisites
-
-### GitHub Secrets
-
-Ensure the following secret is configured in repository settings:
-
-- `COCOAPODS_TRUNK_TOKEN` - Your CocoaPods trunk authentication token
-
-To get your CocoaPods token:
-
-```bash
-pod trunk me
-# Copy the token and add it to GitHub Secrets
-```
-
-### Branch Protection
-
-Recommended branch protection rules for `master`:
-
-- Require pull request reviews
-- Require status checks to pass
-- Require branches to be up to date
-- Do not allow bypassing the above settings
-
 ## Troubleshooting
 
-### "No new version to release"
+### CocoaPods Indexing Timeout
 
-**Cause:** No commits with `feat:`, `fix:`, or `BREAKING CHANGE:` since last release.
+**Symptom:** The publish workflow times out waiting for `NewRelicVideoAgent` to be indexed (~10 minutes).
 
-**Solution:** Make commits using conventional commit format.
+**Why this happens:**
+- CocoaPods indexing typically takes 5-10 minutes
+- Network issues or high traffic can delay indexing
+- The workflow waits up to 10 minutes, then continues anyway
 
-### Release PR not created
+**What to do:**
 
-**Possible causes:**
-1. Last commit message contains `[skip ci]`
-2. No qualifying commits since last release
-3. Calculated version matches current version
-4. Release branch already exists for this version
+1. **Wait 5-10 more minutes** for CocoaPods indexing to complete
 
-**Solution:** 
-- Check workflow logs in GitHub Actions
-- If branch exists, check if PR was already created
-- Delete branch and re-run if needed
-
-### "Release branch already exists"
-
-**Cause:** A release branch for this version was already created.
-
-**Solution:**
-1. Check if a PR exists for this branch (workflow will show PR info)
-2. If PR exists: Review and merge it
-3. If no PR exists: Either create PR manually or delete branch and re-run:
+2. **Re-run the workflow:**
    ```bash
-   git push origin --delete release/X.Y.Z
+   # Via GitHub CLI
+   gh run rerun <RUN_ID>
+   
+   # Or manually in GitHub Actions UI:
+   # Actions → Failed workflow run → Re-run failed jobs
    ```
 
-### CocoaPods publish failed
+3. **The workflow is idempotent**, so it will:
+   - Skip `NewRelicVideoAgent` (already published)
+   - Skip indexing wait (already published)
+   - Publish `NRAVPlayerTracker` and `NRIMATracker` (now that dependency is indexed)
+   - Complete remaining steps
 
-**Possible causes:**
-1. `COCOAPODS_TRUNK_TOKEN` secret not set or invalid
-2. Podspec validation errors
-3. Version already published
-
-**Solution:** 
-1. Verify secret is set correctly
-2. Run `pod lib lint` locally to validate podspecs
-3. Check CocoaPods for existing version
-
-### Tag already exists error
-
-**Cause:** Git tag `vX.Y.Z` already exists from a previous release.
-
-**Solution:**
+**Manual verification:**
 ```bash
-# Delete the tag locally and remotely
-git tag -d vX.Y.Z
-git push origin :refs/tags/vX.Y.Z
-
-# Re-run the workflow
+# Check if the pod is indexed
+pod search NewRelicVideoAgent
+# Look for your version number in the results
 ```
 
-### Dependent pods fail to publish
+### Workflow Idempotency
 
-**Cause:** `NewRelicVideoAgent` not yet indexed by CocoaPods.
+The publish workflow (`ios-publish.yml`) is **fully idempotent** and safe to re-run at any time.
 
-**Solution:** The workflow waits up to 10 minutes for indexing. If it still fails:
-1. Wait 5-10 more minutes
-2. Manually trigger "Publish to CocoaPods" workflow
-3. Or manually publish: `pod trunk push NRAVPlayerTracker.podspec --allow-warnings`
+**What this means:**
 
-## Version History
+| Step | Re-run Behavior |
+|------|----------------|
+| **Publish NewRelicVideoAgent** | Checks if already published → skips if found |
+| **Wait for indexing** | Skips if pod already published |
+| **Publish NRAVPlayerTracker** | Checks if already published → skips if found |
+| **Publish NRIMATracker** | Checks if already published → skips if found |
+| **Create GitHub Release** | Updates existing release (action is idempotent) |
+| **Delete release branch** | Checks if exists → skips if already deleted |
 
-All releases are documented in:
-- `CHANGELOG.md` - Detailed changelog with commit links
-- GitHub Releases - Release notes and installation instructions
-- Git tags - Format: `vX.Y.Z` (e.g., `v4.1.0`)
+**Example scenarios:**
 
-## CI/CD Pipeline Summary
+```bash
+# Scenario 1: Partial failure during pod publication
+First run:  NewRelicVideoAgent published
+            Indexing timeout (10 minutes)
+            NRAVPlayerTracker failed (dependency not indexed)
+            
+Re-run:     NewRelicVideoAgent skipped (already published)
+            Indexing wait skipped (already published)
+            NRAVPlayerTracker published (dependency now indexed)
+            NRIMATracker published
+            GitHub Release created
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  Developer commits to master with conventional commit       │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ios-release.yml (Version Bump PR Workflow)                 │
-│  ├─ Analyze commits with semantic-release                   │
-│  ├─ Calculate next version                                  │
-│  ├─ Check if release branch exists (skip if yes)            │
-│  ├─ Update 3 podspec versions                               │
-│  ├─ Generate CHANGELOG.md                                   │
-│  ├─ Create release branch (release/X.Y.Z)                   │
-│  ├─ Push branch (no force)                                  │
-│  ├─ Check if PR exists (final safety check)                 │
-│  └─ Create PR to master                                     │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Human reviews and merges PR                                │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│  ios-publish.yml (Publish to CocoaPods Workflow)            │
-│  ├─ Validate all podspecs                                   │
-│  ├─ Publish NewRelicVideoAgent                              │
-│  ├─ Wait for CocoaPods indexing (5-10 min)                  │
-│  ├─ Publish NRAVPlayerTracker                               │
-│  ├─ Publish NRIMATracker                                    │
-│  ├─ Create git tag vX.Y.Z                                   │
-│  ├─ Create GitHub Release                                   │
-│  ├─ Verify publication                                      │
-│  └─ Delete release branch (cleanup)                         │
-└────────────────────┬────────────────────────────────────────┘
-                     │
-                     ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Release Complete!                                        │
-│  Users can install: pod 'NewRelicVideoAgent', '~> X.Y.Z'   │
-│  Release branch cleaned up automatically                    │
-└─────────────────────────────────────────────────────────────┘
+# Scenario 2: Network failure during GitHub Release
+First run:  All pods published successfully
+            GitHub Release creation failed (network error)
+            
+Re-run:     All pods skipped (already published)
+            GitHub Release created
+
+# Scenario 3: Accidental re-run of completed workflow
+Re-run:     All steps skipped (already complete)
+            Workflow succeeds with "already done" messages
 ```
 
-## Workflow Philosophy
+### Release Branch Already Exists
 
-This release process follows the **"stable releases, one-shot PRs"** approach:
+**Symptom:** Release workflow shows "Release branch already exists" and stops.
 
-### Key Principles:
+**Why this happens:**
+- A previous release attempt created the branch but didn't complete
+- The PR was closed without merging
 
-1. **One Branch = One PR**
-   - Each release version has exactly one release branch
-   - Each release branch has exactly one pull request
-   - No force pushes or branch overwrites
+**What to do:**
 
-2. **Immutable History**
-   - Once a release branch is created, it's preserved
-   - PR and commit history remain intact
-   - Force pushes are avoided
+1. **Check if there's an open PR:**
+   ```bash
+   gh pr list --head release/<VERSION>
+   ```
 
-3. **Idempotent Operations**
-   - Re-running workflows is safe
-   - Branch existence checks prevent duplicates
-   - PR existence checks prevent errors
+2. **If PR exists:**
+   - Review and merge it to complete the release
+   - Or close it if you want to restart:
+     ```bash
+     gh pr close <PR_NUMBER> --delete-branch
+     ```
 
-4. **Automatic Cleanup**
-   - Release branches are deleted after successful publish
-   - Keeps repository clean
-   - Clear lifecycle from creation to deletion
+3. **If no PR exists, delete the branch:**
+   ```bash
+   git push origin --delete release/<VERSION>
+   ```
 
+4. **Re-run the workflow:**
+   ```bash
+   git commit --allow-empty -m "feat: retry release after branch cleanup"
+   git push origin master
+   ```
+
+### Tag Already Exists Error
+
+**Symptom:** Workflow fails with `fatal: tag 'vX.X.X' already exists`
+
+**Why this happens:**
+- A previous workflow run created the tag but didn't complete
+- Manual tag creation
+
+**What to do:**
+
+**Option 1: Use existing tag (recommended)**
+```bash
+# Check if tag is correct
+git show v4.2.0
+
+# If correct, just re-run the workflow
+# The idempotent checks will handle it
+gh run rerun <RUN_ID>
+```
+
+**Option 2: Delete and recreate tag**
+```bash
+# Only if the tag is incorrect or points to wrong commit
+git tag -d v4.2.0
+git push origin :refs/tags/v4.2.0
+
+# Re-run workflow
+gh run rerun <RUN_ID>
+```
+
+### No Release Triggered
+
+**Symptom:** Push to master but no release PR is created.
+
+**Why this happens:**
+- No commits with release types (`feat:`, `fix:`, `feat!:`)
+- All commits use non-release types (`chore:`, `docs:`, `style:`, etc.)
+- Commits contain `[skip ci]` in message
+
+**What to do:**
+
+1. **Check recent commits:**
+   ```bash
+   git log --oneline -10
+   ```
+
+2. **Verify commit types** - ensure you have `feat:` or `fix:`
+
+3. **Check workflow logs:**
+   ```bash
+   gh run list --workflow=ios-release.yml --limit 5
+   gh run view <RUN_ID> --log
+   ```
+
+4. **Make a release-worthy commit:**
+   ```bash
+   git commit --allow-empty -m "feat: trigger release workflow"
+   git push origin master
+   ```
+
+### Failed Release Retry
+
+To retry a failed release without creating duplicates:
+
+```bash
+# 1. Check what's already published
+pod search NewRelicVideoAgent | grep <VERSION>
+pod search NRAVPlayerTracker | grep <VERSION>
+pod search NRIMATracker | grep <VERSION>
+
+# 2. Check if tag exists
+git ls-remote --tags origin | grep v<VERSION>
+
+# 3. Check if GitHub Release exists
+gh release view v<VERSION>
+
+# 4. Re-run the workflow
+# The workflow will automatically skip completed steps
+gh run rerun <RUN_ID>
+
+# Or trigger manually if needed
+gh workflow run ios-publish.yml
+```
+
+### Manual Cleanup (Emergency Only)
+
+**⚠️ Use only as a last resort** - the idempotent workflow should handle most scenarios.
+
+```bash
+# Delete git tag
+git tag -d v<VERSION>
+git push origin :refs/tags/v<VERSION>
+
+# Delete GitHub release
+gh release delete v<VERSION> --yes
+
+# Delete release branch
+git push origin --delete release/<VERSION>
+
+# Close and delete release PR
+gh pr close <PR_NUMBER> --delete-branch
+```
+
+**Important:** Published CocoaPods versions **cannot be deleted**. If you need to fix issues with a published version, you must:
+1. Fix the issues
+2. Create a new patch version (e.g., 4.1.1)
+3. Publish the new version
+
+## Manual Release (Fallback)
+
+If automated workflows fail, you can publish manually:
+
+### 1. Update Versions
+
+```bash
+# Update version in all podspecs
+VERSION="4.2.0"
+
+# NewRelicVideoAgent.podspec
+sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${VERSION}'/" NewRelicVideoAgent.podspec
+
+# NRAVPlayerTracker.podspec
+sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${VERSION}'/" NRAVPlayerTracker.podspec
+
+# NRIMATracker.podspec
+sed -i '' "s/s.version[[:space:]]*=.*/s.version = '${VERSION}'/" NRIMATracker.podspec
+```
+
+### 2. Generate Changelog
+
+```bash
+# Run semantic-release locally
+npx semantic-release --no-ci
+```
+
+### 3. Commit and Tag
+
+```bash
+git add .
+git commit -m "chore(release): ${VERSION}"
+git tag "v${VERSION}"
+git push origin master
+git push origin "v${VERSION}"
+```
+
+### 4. Publish to CocoaPods
+
+```bash
+# Authenticate (one-time)
+pod trunk register YOUR_EMAIL 'YOUR_NAME'
+
+# Publish each pod
+pod trunk push NewRelicVideoAgent.podspec --allow-warnings
+
+# Wait for indexing (~5 minutes)
+sleep 300
+
+# Publish dependent pods
+pod trunk push NRAVPlayerTracker.podspec --allow-warnings
+pod trunk push NRIMATracker.podspec --allow-warnings
+```
+
+### 5. Create GitHub Release
+
+```bash
+gh release create "v${VERSION}" \
+  --title "Release v${VERSION}" \
+  --notes "See CHANGELOG.md for details"
+```
+
+## Testing Releases
+
+### Test in a Development Project
+
+Create a test project with a Podfile:
+
+```ruby
+source 'https://github.com/CocoaPods/Specs.git'
+
+platform :ios, '12.0'
+
+target 'TestApp' do
+  use_frameworks!
+  
+  # Test the new release
+  pod 'NewRelicVideoAgent', '~> 4.2.0'
+  pod 'NRAVPlayerTracker', '~> 4.2.0'
+  pod 'NRIMATracker', '~> 4.2.0'
+end
+```
+
+```bash
+pod install
+```
+
+### Verify Installation
+
+```bash
+# Check installed version
+pod list | grep NewRelicVideoAgent
+
+# Search CocoaPods
+pod search NewRelicVideoAgent
+
+# View pod info
+pod spec cat NewRelicVideoAgent
+```
 
 ## Best Practices
 
-1. **Always use conventional commits** for commits that should trigger releases
-2. **Review release PRs carefully** before merging
-3. **Test locally** before pushing to master:
-   ```bash
-   pod lib lint NewRelicVideoAgent.podspec --allow-warnings
-   ```
-4. **Use `[skip ci]`** in commit messages for non-release changes (docs, formatting)
-5. **Monitor workflow runs** in GitHub Actions after merging
-6. **Verify publication** on CocoaPods after release
-7. **Don't manually modify release branches** - they're auto-generated
-8. **Delete and retry** if you need to recreate a release (don't force push)
+### Commit Messages
+
+**Good:**
+```bash
+feat: add adaptive bitrate tracking
+fix: correct timestamp calculation in IMA tracker
+feat!: redesign tracker API for better testability
+```
+
+**Bad:**
+```bash
+updated code
+fixed bug
+changes
+WIP
+```
+
+### Pull Request Reviews
+
+- Review generated CHANGELOG.md for accuracy
+- Verify version bump is correct (major/minor/patch)
+- Check that podspec dependencies are correct
+- Ensure all CI checks pass before merging
+
+### Version Strategy
+
+- **Patch (X.X.1):** Bug fixes, minor improvements
+- **Minor (X.1.0):** New features, backward compatible
+- **Major (1.0.0):** Breaking changes, API redesign
+
+### Release Timing
+
+- Avoid releases on Fridays (in case issues arise)
+- Allow time for CocoaPods indexing (5-10 minutes)
+- Monitor the first few hours after release for issues
+
+## Monitoring
+
+### Check Workflow Status
+
+```bash
+# List recent workflow runs
+gh run list --workflow=ios-release.yml --limit 10
+gh run list --workflow=ios-publish.yml --limit 10
+
+# View specific run
+gh run view <RUN_ID>
+
+# Watch live
+gh run watch
+```
+
+### Check Published Versions
+
+```bash
+# Check CocoaPods
+pod search NewRelicVideoAgent
+pod trunk info NewRelicVideoAgent
+
+# Check GitHub Releases
+gh release list
+
+# Check tags
+git tag -l
+```
+
+## FAQs
+
+**Q: Can I skip the automatic release process?**  
+A: Yes, include `[skip ci]` in your commit message to skip workflows.
+
+**Q: Can I trigger a release for a specific version?**  
+A: Use the manual workflow dispatch in GitHub Actions UI and specify the version.
+
+**Q: What if I need to unpublish a version?**  
+A: CocoaPods doesn't support unpublishing. You must publish a new version with fixes.
+
+**Q: How long does the full release take?**  
+A: ~15-20 minutes total:
+- Version bump PR: ~2 minutes
+- CocoaPods indexing: ~5-10 minutes
+- Dependent pod publication: ~3-5 minutes
+
+**Q: Can I release multiple versions in parallel?**  
+A: No, wait for one release to complete before starting another.
+
+**Q: What if semantic-release doesn't create a tag?**  
+A: This shouldn't happen, but check the workflow logs. Ensure you have qualifying commits (feat/fix).
 
 ## Support
 
-For issues with the release process:
-1. Check GitHub Actions workflow logs
-2. Review this documentation
-3. Check [semantic-release documentation](https://semantic-release.gitbook.io/)
-4. Contact the maintainers
+- **Workflow issues:** Check GitHub Actions logs
+- **CocoaPods issues:** Check [CocoaPods Status](https://status.cocoapods.org/)
+- **Semantic-release issues:** Review [semantic-release docs](https://semantic-release.gitbook.io/)
 
 ---
 
-Last updated: December 2025
+**Last Updated:** December 2025
