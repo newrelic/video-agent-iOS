@@ -1,6 +1,5 @@
 module.exports = {
-  branches: ['master', 'user/arkazakumari/ios-release-automation'],
-  tagFormat: '${version}',
+  branches: ['master'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
@@ -28,8 +27,13 @@ module.exports = {
       },
     ],
     '@semantic-release/changelog',
-    '@semantic-release/exec',
-    '@semantic-release/git',
-    '@semantic-release/github',
+    [
+      '@semantic-release/github',
+      {
+        successComment: false,
+        failComment: false,
+        releasedLabels: false,
+      },
+    ],
   ],
 };

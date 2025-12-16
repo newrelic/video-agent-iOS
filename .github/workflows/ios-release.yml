@@ -101,6 +101,15 @@ jobs:
           echo "should_create_pr=true" >> $GITHUB_OUTPUT
           echo "::notice::Version bump: $CURRENT_VERSION → $NEXT_VERSION"
 
+      - name: Delete existing release branch if exists
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          BRANCH_NAME="release/${VERSION}"
+          
+          git push origin --delete "$BRANCH_NAME" 2>/dev/null || echo "Remote branch does not exist"
+          git branch -D "$BRANCH_NAME" 2>/dev/null || echo "Local branch does not exist"
+
       - name: Create release branch
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
@@ -129,57 +138,73 @@ jobs:
           grep -E "^\s*s\.version\s*=" NewRelicVideoAgent.podspec
           grep -E "^\s*s\.version\s*=" NRAVPlayerTracker.podspec
           grep -E "^\s*s\.version\s*=" NRIMATracker.podspec
-          
-          echo ""
-          echo "Git diff for podspecs:"
-          git diff *.podspec
 
-      - name: Generate changelog
+      - name: Commit podspec changes FIRST
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec
+          git commit -m "chore(release): update podspec versions to ${VERSION}" -m "[skip ci]"
+          
+          echo "Podspec changes committed"
+
+      - name: Generate changelog with semantic-release
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
           
           echo "Running semantic-release to generate changelog..."
-          npx semantic-release --no-ci || true
+          npx semantic-release --no-ci 2>&1 | tee release-output.txt || true
           
           echo ""
           if [ -f CHANGELOG.md ]; then
             echo "CHANGELOG.md generated successfully"
             echo ""
-            echo "First 20 lines of CHANGELOG.md:"
-            head -20 CHANGELOG.md
+            echo "First 30 lines of CHANGELOG.md:"
+            head -30 CHANGELOG.md
           else
             echo "Warning: CHANGELOG.md not generated"
           fi
 
-      - name: Commit and push changes
+      - name: Handle semantic-release commits
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          # Check if semantic-release created any commits
+          if git log --oneline -1 | grep -q "chore(release)"; then
+            echo "Semantic-release created commits, need to sync"
+            
+            # Reset to before semantic-release commits but keep CHANGELOG.md
+            git reset --soft HEAD~1
+            
+            # Now add CHANGELOG.md to our original podspec commit
+            if [ -f CHANGELOG.md ]; then
+              git add CHANGELOG.md
+              git commit --amend --no-edit
+              echo "Added CHANGELOG.md to podspec commit"
+            fi
+          else
+            echo "No semantic-release commits found"
+            
+            # Just add CHANGELOG.md if it exists
+            if [ -f CHANGELOG.md ]; then
+              git add CHANGELOG.md
+              git commit --amend --no-edit
+              echo "Added CHANGELOG.md to commit"
+            fi
+          fi
+
+      - name: Push release branch
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        run: |
           BRANCH_NAME="${{ env.branch_name }}"
           
-          git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec CHANGELOG.md
-          
-          echo "Files staged for commit:"
-          git diff --staged --name-only
-          
-          echo ""
-          echo "Changes to be committed:"
-          git diff --staged --stat
-          
-          if git diff --staged --quiet; then
-            echo "::error::No changes were made to podspecs or CHANGELOG"
-            exit 1
-          fi
-          
-          git commit -m "chore(release): ${VERSION}" -m "Update podspec versions to ${VERSION}" -m "Update CHANGELOG.md via semantic-release" -m "[skip ci]"
-          
-          echo "Changes committed"
-          
-          git push origin "$BRANCH_NAME"
+          git push origin "$BRANCH_NAME" --force
           echo "Branch pushed: $BRANCH_NAME"
 
-      - name: Create Pull Request
+      - name: Create or Update Pull Request
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
@@ -187,49 +212,51 @@ jobs:
           BASE_BRANCH="${{ github.ref_name }}"
           RELEASE_BRANCH="${{ env.branch_name }}"
           
-          echo "Creating PR: $RELEASE_BRANCH → $BASE_BRANCH"
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
           
-          PR_BODY=$(cat <<EOF
-          ## New Release: $VERSION
-          
+          PR_BODY="## New Release: $VERSION
+
           This PR updates the version numbers in all podspec files and generates the changelog.
-          
+
           ### Version Change
           - **Current**: $CURRENT_VERSION
           - **Next**: $VERSION
           - **Target Branch**: $BASE_BRANCH
-          
+
           ### Changes
           - Updated NewRelicVideoAgent.podspec to $VERSION
           - Updated NRAVPlayerTracker.podspec to $VERSION
           - Updated NRIMATracker.podspec to $VERSION
           - Generated CHANGELOG.md via semantic-release
-          
+
           ### Next Steps
           1. Review the changes in this PR
           2. Merge this PR to $BASE_BRANCH
           3. The publish workflow will automatically deploy to CocoaPods (on master only)
-          
+
           ### Commit Convention
           This release was determined by analyzing commits using Conventional Commits.
-          - feat: Minor version bump (new features)
-          - fix: Patch version bump (bug fixes)
-          - BREAKING CHANGE: Major version bump (breaking changes)
-          
+          - feat: Minor version bump
+          - fix: Patch version bump
+          - BREAKING CHANGE: Major version bump
+
           ---
-          Generated by semantic-release
-          EOF
-          )
+          Generated by automated workflow"
           
-          gh pr create \
-            --base "$BASE_BRANCH" \
-            --head "$RELEASE_BRANCH" \
-            --title "chore(release): $VERSION" \
-            --body "$PR_BODY" \
-            --label "release" \
-            --label "automated"
-          
-          echo "Pull Request created successfully"
+          if [ -n "$EXISTING_PR" ]; then
+            echo "Updating existing PR #$EXISTING_PR"
+            gh pr edit "$EXISTING_PR" --title "chore(release): $VERSION" --body "$PR_BODY"
+          else
+            echo "Creating new PR"
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$RELEASE_BRANCH" \
+              --title "chore(release): $VERSION" \
+              --body "$PR_BODY" \
+              --label "release" \
+              --label "automated"
+          fi
 
       - name: No release needed
         if: steps.get_version.outputs.should_create_pr == 'false'
