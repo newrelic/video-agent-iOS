@@ -139,12 +139,19 @@ jobs:
           grep -E "^\s*s\.version\s*=" NRAVPlayerTracker.podspec
           grep -E "^\s*s\.version\s*=" NRIMATracker.podspec
 
-      - name: Commit podspec changes FIRST
+      - name: Commit ONLY podspecs
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
           
+          # Stage ONLY the 3 podspec files (ignore any other modified files)
           git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec
+          
+          # Show what's being committed
+          echo "Files to be committed:"
+          git diff --cached --name-only
+          
+          # Commit only podspecs
           git commit -m "chore(release): update podspec versions to ${VERSION}" -m "[skip ci]"
           
           echo "Podspec changes committed"
@@ -167,34 +174,49 @@ jobs:
             echo "Warning: CHANGELOG.md not generated"
           fi
 
-      - name: Handle semantic-release commits
+      - name: Add CHANGELOG to release commit
         if: steps.get_version.outputs.should_create_pr == 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
           
-          # Check if semantic-release created any commits
+          # If semantic-release created commits, reset to before them
           if git log --oneline -1 | grep -q "chore(release)"; then
-            echo "Semantic-release created commits, need to sync"
-            
-            # Reset to before semantic-release commits but keep CHANGELOG.md
+            echo "Semantic-release created commits, resetting..."
             git reset --soft HEAD~1
-            
-            # Now add CHANGELOG.md to our original podspec commit
-            if [ -f CHANGELOG.md ]; then
-              git add CHANGELOG.md
-              git commit --amend --no-edit
-              echo "Added CHANGELOG.md to podspec commit"
-            fi
-          else
-            echo "No semantic-release commits found"
-            
-            # Just add CHANGELOG.md if it exists
-            if [ -f CHANGELOG.md ]; then
-              git add CHANGELOG.md
-              git commit --amend --no-edit
-              echo "Added CHANGELOG.md to commit"
-            fi
           fi
+          
+          # Add ONLY CHANGELOG.md to the commit
+          if [ -f CHANGELOG.md ]; then
+            git add CHANGELOG.md
+            git commit --amend --no-edit
+            echo "Added CHANGELOG.md to release commit"
+          fi
+          
+          # VALIDATE: Ensure exactly 4 files in the release commit
+          echo ""
+          echo "=== FINAL RELEASE COMMIT VALIDATION ==="
+          CHANGED_FILES=$(git show --name-only --format='' HEAD)
+          echo "Files in release commit:"
+          echo "$CHANGED_FILES"
+          
+          FILE_COUNT=$(echo "$CHANGED_FILES" | wc -l | tr -d ' ')
+          
+          if [ "$FILE_COUNT" -ne 4 ]; then
+            echo "::error::Release commit must contain exactly 4 files (3 podspecs + CHANGELOG.md)"
+            echo "::error::Found $FILE_COUNT files instead"
+            exit 1
+          fi
+          
+          # Validate required files
+          for file in "NewRelicVideoAgent.podspec" "NRAVPlayerTracker.podspec" "NRIMATracker.podspec" "CHANGELOG.md"; do
+            if ! echo "$CHANGED_FILES" | grep -q "^$file$"; then
+              echo "::error::Missing required file: $file"
+              exit 1
+            fi
+          done
+          
+          echo "Release commit validated successfully"
+          echo "========================================"
 
       - name: Push release branch
         if: steps.get_version.outputs.should_create_pr == 'true'
@@ -212,7 +234,6 @@ jobs:
           BASE_BRANCH="${{ github.ref_name }}"
           RELEASE_BRANCH="${{ env.branch_name }}"
           
-          # Check if PR already exists
           EXISTING_PR=$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
           
           PR_BODY="## New Release: $VERSION
