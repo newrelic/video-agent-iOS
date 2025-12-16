@@ -59,19 +59,6 @@ jobs:
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "Current version from podspec: $CURRENT_VERSION"
 
-      - name: Ensure version tag exists
-        id: ensure_tag
-        run: |
-          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
-          TAG_NAME="v${CURRENT_VERSION}"
-          
-          if git rev-parse "${TAG_NAME}" >/dev/null 2>&1; then
-            echo "Tag ${TAG_NAME} already exists"
-          else
-            echo "Creating reference tag ${TAG_NAME} for semantic-release"
-            git tag "${TAG_NAME}"
-          fi
-
       - name: Get next version
         id: get_version
         run: |
