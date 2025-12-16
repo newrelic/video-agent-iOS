@@ -227,7 +227,7 @@ jobs:
           ---
           *This PR was automatically created by the release workflow. Merge this PR to publish the release to CocoaPods.*"
                     
-                    echo "✅ PR created successfully"
+                    echo "PR created successfully"
 
       - name: No release needed
         if: steps.get_version.outputs.should_create_pr == 'false'
