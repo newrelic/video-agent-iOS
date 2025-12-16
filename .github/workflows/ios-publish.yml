@@ -142,26 +142,22 @@ jobs:
       - name: Create Git Tag
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="v${VERSION}"
           
-          # Check if tag already exists
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            echo "Tag $VERSION already exists"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "github-actions[bot]@users.noreply.github.com"
-            
-            git tag "$VERSION"
-            git push origin "$VERSION"
-            echo "Created and pushed tag: $VERSION"
-          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo "Created and pushed tag: $TAG_NAME"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          name: Release ${{ steps.get_version.outputs.version }}
+          tag_name: v${{ steps.get_version.outputs.version }}
+          name: Release v${{ steps.get_version.outputs.version }}
           body: |
-            ## Release ${{ steps.get_version.outputs.version }}
+            ## Release v${{ steps.get_version.outputs.version }}
             
             Published to CocoaPods:
             - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
@@ -221,3 +217,18 @@ jobs:
           echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
           echo "  pod 'NRIMATracker', '~> $VERSION'"
           echo ""
+
+      - name: Delete release branch
+        if: github.event_name == 'pull_request'
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          RELEASE_BRANCH="release/${VERSION}"
+          
+          # Check if release branch exists
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+            echo "Deleting release branch: $RELEASE_BRANCH"
+            git push origin --delete "$RELEASE_BRANCH"
+            echo "Release branch deleted successfully"
+          else
+            echo "Release branch $RELEASE_BRANCH does not exist (may have been deleted already)"
+          fi
