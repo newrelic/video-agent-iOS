@@ -5,7 +5,6 @@ on:
     types: [closed]
     branches:
       - master
-      - user/arkazakumari/ios-release-automation
   workflow_dispatch:
     inputs:
       version:
@@ -28,23 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref || 'master' }}
-
-      - name: Determine if this is a test run
-        id: check_test
-        run: |
-          BASE_BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
-          
-          if [[ "$BASE_BRANCH" == *"test"* ]] || [[ "$BASE_BRANCH" == *"arkazakumari"* ]]; then
-            echo "is_test=true" >> $GITHUB_OUTPUT
-            echo "TEST MODE: CocoaPods publishing will be SKIPPED"
-            echo "Base branch: $BASE_BRANCH"
-          else
-            echo "is_test=false" >> $GITHUB_OUTPUT
-            echo "PRODUCTION MODE: Will publish to CocoaPods"
-            echo "Base branch: $BASE_BRANCH"
-          fi
-
+          ref: master
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -93,7 +76,6 @@ jobs:
           echo "All podspecs validated successfully!"
 
       - name: Setup CocoaPods trunk authentication
-        if: steps.check_test.outputs.is_test == 'false'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
@@ -113,14 +95,12 @@ jobs:
           echo "CocoaPods trunk authentication configured"
 
       - name: Publish NewRelicVideoAgent
-        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NewRelicVideoAgent..."
           pod trunk push NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent published!"
 
       - name: Wait for NewRelicVideoAgent indexing
-        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
           echo "This usually takes ~5 minutes..."
@@ -148,14 +128,12 @@ jobs:
           echo "Timeout waiting for indexing, proceeding anyway..."
 
       - name: Publish NRAVPlayerTracker
-        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NRAVPlayerTracker..."
           pod trunk push NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker published!"
 
       - name: Publish NRIMATracker
-        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NRIMATracker..."
           pod trunk push NRIMATracker.podspec --allow-warnings
@@ -193,8 +171,8 @@ jobs:
             ### What's Changed
 
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details.
-          draft: true
-          prerelease: true
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
