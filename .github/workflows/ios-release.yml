@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - 'user/arkazakumari/ios-release-automation'
   workflow_dispatch:
 
 permissions:
@@ -214,8 +215,15 @@ jobs:
 
           ---
           *This PR was automatically created by the release workflow. Merge this PR to publish the release to CocoaPods.*"
-          
+
           echo "PR created successfully"
+
+          # Get the PR number of the newly created PR
+          PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number')
+
+          # Add the release label
+          gh pr edit "$PR_NUMBER" --add-label "release"
+          echo "Added 'release' label to PR #$PR_NUMBER"
 
       - name: Release branch already exists
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'true'

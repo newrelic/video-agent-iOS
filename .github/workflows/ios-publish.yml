@@ -35,7 +35,7 @@ jobs:
         run: |
           BASE_BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
           
-          if [[ "$BASE_BRANCH" == *"test"* ]] || [[ "$BASE_BRANCH" == *"arkazakumari"* ]] || [[ "$SKIP_PUBLISH" == "true" ]]; then
+          if [[ "$BASE_BRANCH" == *"test"* ]] || [[ "$BASE_BRANCH" == *"arkazakumari"* ]]; then
             echo "is_test=true" >> $GITHUB_OUTPUT
             echo "TEST MODE: CocoaPods publishing will be SKIPPED"
             echo "Base branch: $BASE_BRANCH"
