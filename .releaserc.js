@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ['master'],
+  branches: ['master', 'user/arkazakumari/ios-release-automation'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
