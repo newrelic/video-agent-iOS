@@ -5,6 +5,7 @@ on:
     types: [closed]
     branches:
       - master
+      - user/arkazakumari/ios-release-automation
   workflow_dispatch:
     inputs:
       version:
@@ -21,13 +22,29 @@ jobs:
     if: |
       (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')) ||
       github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: master
+          ref: ${{ github.event.pull_request.base.ref || 'master' }}
+
+      - name: Determine if this is a test run
+        id: check_test
+        run: |
+          BASE_BRANCH="${{ github.event.pull_request.base.ref || github.ref_name }}"
+          
+          if [[ "$BASE_BRANCH" == *"test"* ]] || [[ "$BASE_BRANCH" == *"arkazakumari"* ]] || [[ "$SKIP_PUBLISH" == "true" ]]; then
+            echo "is_test=true" >> $GITHUB_OUTPUT
+            echo "TEST MODE: CocoaPods publishing will be SKIPPED"
+            echo "Base branch: $BASE_BRANCH"
+          else
+            echo "is_test=false" >> $GITHUB_OUTPUT
+            echo "PRODUCTION MODE: Will publish to CocoaPods"
+            echo "Base branch: $BASE_BRANCH"
+          fi
+
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
@@ -50,32 +67,33 @@ jobs:
             VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
             echo "Extracted version from podspec: $VERSION"
           fi
-          
+
           if [ -z "$VERSION" ]; then
             echo "Failed to extract version"
             exit 1
           fi
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
       - name: Validate podspecs
         run: |
           echo "Validating podspecs..."
-          
+
           pod lib lint NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent.podspec validated"
-          
+
           pod lib lint NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker.podspec validated"
-          
+
           pod lib lint NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker.podspec validated"
-          
+
           echo ""
           echo "All podspecs validated successfully!"
 
       - name: Setup CocoaPods trunk authentication
+        if: steps.check_test.outputs.is_test == 'false'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
@@ -95,16 +113,18 @@ jobs:
           echo "CocoaPods trunk authentication configured"
 
       - name: Publish NewRelicVideoAgent
+        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NewRelicVideoAgent..."
           pod trunk push NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent published!"
 
       - name: Wait for NewRelicVideoAgent indexing
+        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
           echo "This usually takes ~5 minutes..."
-          
+
           VERSION="${{ steps.get_version.outputs.version }}"
           MAX_ATTEMPTS=20
           ATTEMPT=0
@@ -128,28 +148,18 @@ jobs:
           echo "Timeout waiting for indexing, proceeding anyway..."
 
       - name: Publish NRAVPlayerTracker
+        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NRAVPlayerTracker..."
           pod trunk push NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker published!"
 
       - name: Publish NRIMATracker
+        if: steps.check_test.outputs.is_test == 'false'
         run: |
           echo "Publishing NRIMATracker..."
           pod trunk push NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker published!"
-
-      - name: Create Git Tag
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          TAG_NAME="v${VERSION}"
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-          echo "Created and pushed tag: $TAG_NAME"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -158,33 +168,33 @@ jobs:
           name: Release v${{ steps.get_version.outputs.version }}
           body: |
             ## Release v${{ steps.get_version.outputs.version }}
-            
+
             Published to CocoaPods:
             - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
             - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
-            
+
             ### Installation
-            
+
             Add to your `Podfile`:
-            
+
             ```ruby
             pod 'NewRelicVideoAgent', '~> ${{ steps.get_version.outputs.version }}'
             pod 'NRAVPlayerTracker', '~> ${{ steps.get_version.outputs.version }}'
             pod 'NRIMATracker', '~> ${{ steps.get_version.outputs.version }}'
             ```
-            
+
             Then run:
-            
+
             ```bash
             pod install
             ```
-            
+
             ### What's Changed
-            
+
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details.
-          draft: false
-          prerelease: false
+          draft: true
+          prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -192,19 +202,19 @@ jobs:
         run: |
           echo "Verifying publication..."
           VERSION="${{ steps.get_version.outputs.version }}"
-          
+
           echo ""
           echo "=== NewRelicVideoAgent ==="
           pod search NewRelicVideoAgent | head -15
-          
+
           echo ""
           echo "=== NRAVPlayerTracker ==="
           pod search NRAVPlayerTracker | head -15
-          
+
           echo ""
           echo "=== NRIMATracker ==="
           pod search NRIMATracker | head -15
-          
+
           echo ""
           echo "=================================="
           echo "Release Complete!"
@@ -223,7 +233,7 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           RELEASE_BRANCH="release/${VERSION}"
-          
+
           # Check if release branch exists
           if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
             echo "Deleting release branch: $RELEASE_BRANCH"
