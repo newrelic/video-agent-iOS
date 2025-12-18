@@ -146,7 +146,7 @@ jobs:
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
           echo "Running semantic-release to generate changelog..."
-          npx semantic-release --no-ci 2>&1 | tee release-output.txt || true
+          npx semantic-release --dry-run --no-ci 2>&1 | tee release-output.txt || true
           
           if [ -f CHANGELOG.md ]; then
             echo "CHANGELOG.md generated successfully"
