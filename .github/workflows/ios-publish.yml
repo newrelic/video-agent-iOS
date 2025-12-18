@@ -139,6 +139,18 @@ jobs:
           pod trunk push NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker published!"
 
+      - name: Create Git Tag
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG_NAME="v${VERSION}"
+          
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+          echo "Created and pushed tag: $TAG_NAME"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
