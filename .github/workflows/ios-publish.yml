@@ -205,18 +205,3 @@ jobs:
           echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
           echo "  pod 'NRIMATracker', '~> $VERSION'"
           echo ""
-
-      - name: Delete release branch
-        if: github.event_name == 'pull_request'
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          RELEASE_BRANCH="release/${VERSION}"
-
-          # Check if release branch exists
-          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
-            echo "Deleting release branch: $RELEASE_BRANCH"
-            git push origin --delete "$RELEASE_BRANCH"
-            echo "Release branch deleted successfully"
-          else
-            echo "Release branch $RELEASE_BRANCH does not exist (may have been deleted already)"
-          fi

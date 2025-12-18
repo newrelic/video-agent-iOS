@@ -8,49 +8,6 @@ The release process is fully automated using GitHub Actions and follows [Convent
 
 The workflow follows a **"stable releases, one-shot PRs"** approach where each release version has exactly one immutable pull request.
 
-## Workflows
-
-### 1. Version Bump PR Workflow (`ios-release.yml`)
-
-**Trigger:** Push to `master` branch (or manual trigger via workflow_dispatch)
-
-**What it does:**
-1. Analyzes commit history using semantic-release
-2. Determines the next version based on conventional commits
-3. Checks if release branch already exists (skip if yes)
-4. Updates version in all three podspecs:
-   - `NewRelicVideoAgent.podspec`
-   - `NRAVPlayerTracker.podspec`
-   - `NRIMATracker.podspec`
-5. Generates `CHANGELOG.md` with release notes
-6. Creates a release branch (`release/X.Y.Z`)
-7. Pushes branch to remote (no force push)
-8. Checks if PR already exists (final safety check)
-9. Opens a Pull Request to master with the changes
-
-**Files modified in PR:**
-- `NewRelicVideoAgent.podspec` (version updated)
-- `NRAVPlayerTracker.podspec` (version updated)
-- `NRIMATracker.podspec` (version updated)
-- `CHANGELOG.md` (generated/updated)
-
-**Important:** If the release branch already exists, the workflow will skip all creation steps and display information about the existing branch/PR.
-
-### 2. Publish to CocoaPods Workflow (`ios-publish.yml`)
-
-**Trigger:** When a release PR is merged to `master` (or manual trigger via workflow_dispatch)
-
-**What it does:**
-1. Validates all podspecs
-2. Publishes `NewRelicVideoAgent` to CocoaPods
-3. Waits for CocoaPods indexing (~5-10 minutes)
-4. Publishes `NRAVPlayerTracker` to CocoaPods
-5. Publishes `NRIMATracker` to CocoaPods
-6. Creates a git tag (`vX.Y.Z`)
-7. Creates a GitHub Release with installation instructions
-8. Verifies all pods are published
-9. Deletes the release branch (cleanup)
-
 ## Conventional Commits
 
 The version bump is determined by analyzing commits since the last release:
@@ -149,7 +106,6 @@ The `ios-release.yml` workflow automatically:
 When the release PR is merged, `ios-publish.yml` automatically:
 - Validates all podspecs
 - Publishes to CocoaPods (in order: NewRelicVideoAgent → NRAVPlayerTracker → NRIMATracker)
-- Creates git tag `vX.Y.Z`
 - Creates GitHub Release
 - Verifies publication
 - Deletes release branch (cleanup)
@@ -246,15 +202,6 @@ pod trunk me
 # Copy the token and add it to GitHub Secrets
 ```
 
-### Branch Protection
-
-Recommended branch protection rules for `master`:
-
-- Require pull request reviews
-- Require status checks to pass
-- Require branches to be up to date
-- Do not allow bypassing the above settings
-
 ## Troubleshooting
 
 ### "No new version to release"
@@ -340,6 +287,8 @@ This release process follows the **"stable releases, one-shot PRs"** approach:
    - Each release version has exactly one release branch
    - Each release branch has exactly one pull request
    - No force pushes or branch overwrites
+   - **Note:** For normal development workflow, feature branches should be developed separately and merged to master via individual PRs before release automation triggers
+
 
 2. **Immutable History**
    - Once a release branch is created, it's preserved
@@ -350,12 +299,6 @@ This release process follows the **"stable releases, one-shot PRs"** approach:
    - Re-running workflows is safe
    - Branch existence checks prevent duplicates
    - PR existence checks prevent errors
-
-4. **Automatic Cleanup**
-   - Release branches are deleted after successful publish
-   - Keeps repository clean
-   - Clear lifecycle from creation to deletion
-
 
 ## Best Practices
 
@@ -378,7 +321,3 @@ For issues with the release process:
 2. Review this documentation
 3. Check [semantic-release documentation](https://semantic-release.gitbook.io/)
 4. Contact the maintainers
-
----
-
-Last updated: December 2025
