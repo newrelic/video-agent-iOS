@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ['master', 'user/arkazakumari/ios-release-automation'],
+  branches: ['master'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
@@ -28,10 +28,11 @@ module.exports = {
     ],
     '@semantic-release/changelog',
     [
-      '@semantic-release/git',
+      '@semantic-release/github',
       {
-        assets: ['CHANGELOG.md'],
-        message: 'chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}',
+        successComment: false,
+        failComment: false,
+        releasedLabels: false,
       },
     ],
   ],

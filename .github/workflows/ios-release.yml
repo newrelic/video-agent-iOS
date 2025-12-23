@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - user/arkazakumari/ios-release-automation
+      - 'user/arkazakumari/ios-release-automation'
   workflow_dispatch:
 
 permissions:
