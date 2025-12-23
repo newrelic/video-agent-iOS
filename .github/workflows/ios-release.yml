@@ -142,12 +142,10 @@ jobs:
           
           echo "Podspec changes committed"
 
-      - name: Generate changelog with semantic-release
+      - name: Generate changelog with conventional-changelog
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
-          echo "Running semantic-release to generate changelog..."
-          npx semantic-release --no-ci 2>&1 | tee release-output.txt || true
-          
+          npx conventional-changelog -p angular -i CHANGELOG.md -s
           if [ -f CHANGELOG.md ]; then
             echo "CHANGELOG.md generated successfully"
           else
