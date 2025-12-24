@@ -142,15 +142,20 @@ jobs:
           
           echo "Podspec changes committed"
 
-      - name: Generate changelog with conventional-changelog
+      - name: Generate Changelog
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
-          npx conventional-changelog -p angular -i CHANGELOG.md -s
-          if [ -f CHANGELOG.md ]; then
-            echo "CHANGELOG.md generated successfully"
-          else
-            echo "::warning::CHANGELOG.md not generated"
-          fi
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          echo "Generating changelog for version $VERSION..."
+
+          # Create a temporary context file to force the correct version header
+          echo '{"version":"'${VERSION}'"}' > context.json
+
+          # Generate changelog updates and save to files without tagging
+          npx conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s --context context.json
+
+          rm context.json
+          echo "CHANGELOG.md updated successfully."
 
       - name: Add CHANGELOG to release commit
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
