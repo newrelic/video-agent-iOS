@@ -139,17 +139,26 @@ jobs:
           pod trunk push NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker published!"
 
-      - name: Create Git Tag
+      - name: Extract changelog excerpt
+        id: changelog
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          TAG_NAME="v${VERSION}"
-          
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          
-          git tag "$TAG_NAME"
-          git push origin "$TAG_NAME"
-          echo "Created and pushed tag: $TAG_NAME"
+          VERSION_REGEX=$(echo "$VERSION" | sed 's/\./\\./g')
+          start=$(grep -n "^## \[$VERSION_REGEX\]" CHANGELOG.md | cut -d: -f1)
+          end=$(awk "NR > $start && /^## \\[/" CHANGELOG.md | head -1 | awk '{print NR+$start}')
+          if [ -z "$start" ]; then
+            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details."
+          else
+            if [ -z "$end" ]; then
+              tail -n +"$((start+1))" CHANGELOG.md > excerpt.txt
+            else
+              sed -n "$((start+1)),$((end-1))p" CHANGELOG.md > excerpt.txt
+            fi
+            CHANGELOG=$(cat excerpt.txt)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -182,7 +191,7 @@ jobs:
 
             ### What's Changed
 
-            See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details.
+            ${{ steps.changelog.outputs.changelog }}
           draft: false
           prerelease: false
         env:
