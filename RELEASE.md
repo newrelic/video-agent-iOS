@@ -32,6 +32,10 @@ The version bump is determined by analyzing commits since the last release:
 
 
 
+
+
+
+
 ```
 <type>[optional scope]: <description>
 
