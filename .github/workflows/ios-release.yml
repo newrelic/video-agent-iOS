@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - test-ios-automation
   workflow_dispatch:
 
 permissions:
