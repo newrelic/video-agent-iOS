@@ -197,6 +197,9 @@ Ensure the following secret is configured in repository settings:
 
 To get your CocoaPods token:
 
+
+
+
 ```bash
 pod trunk me
 # Copy the token and add it to GitHub Secrets
