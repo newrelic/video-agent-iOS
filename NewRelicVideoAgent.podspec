@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NewRelicVideoAgent'
-  s.version          = '4.0.1'
+  s.version          = '5.0.0'
   s.summary          = 'New Relic Video Agent for iOS'
 
 # This description is used to generate tags and improve search results.
