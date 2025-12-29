@@ -1,0 +1,38 @@
+## [4.1.0](https://github.com/newrelic/video-agent-iOS/compare/v4.0.1...v4.1.0) (2025-12-29)
+
+### Features
+
+* add automated release workflow ([77845b8](https://github.com/newrelic/video-agent-iOS/commit/77845b8626deb13be4c3113c5c79e520fdf44d46))
+* add automated release workflow ([ff3cdd6](https://github.com/newrelic/video-agent-iOS/commit/ff3cdd6f36dedb5bf7e6e37939b2f80b6edbd157))
+* add automated release workflow ([46eacd1](https://github.com/newrelic/video-agent-iOS/commit/46eacd161c1be6ee5f5ca98521f83d0da671010e))
+* add automated release workflow ([9eab955](https://github.com/newrelic/video-agent-iOS/commit/9eab95513d5df71325311c79f8b1b04faef43280))
+* adding test branch ([adf5117](https://github.com/newrelic/video-agent-iOS/commit/adf51173d73b779b0d4e1b50409d5268800f336b))
+* automate iOS release process with semantic versioning ([2b846de](https://github.com/newrelic/video-agent-iOS/commit/2b846deb52c223fa5972aca0c4b86e6f74087052))
+* implement stable one-shot PR release workflow ([7f711db](https://github.com/newrelic/video-agent-iOS/commit/7f711dbacacfb1dac47ca32b0409bca0db67dce5))
+* test release workflow ([4dc66b7](https://github.com/newrelic/video-agent-iOS/commit/4dc66b713ec356a208f7440901611c3a661bae6b))
+* test release workflow after tag cleanup ([01993c1](https://github.com/newrelic/video-agent-iOS/commit/01993c133810d22d5e1f12a3cd2d4634dd4d8c12))
+* test stable one-shot PR workflow ([903711c](https://github.com/newrelic/video-agent-iOS/commit/903711c28c0a5f3914c154ea99ac76f18fe82f22))
+* tetsing publish workflow ([021c894](https://github.com/newrelic/video-agent-iOS/commit/021c894c1141d33c384afd1f3ff8b7ee720d9463))
+* trigger release workflow ([f89705c](https://github.com/newrelic/video-agent-iOS/commit/f89705c69dbe9de8e3ba66925a40f266b8a5656d))
+
+### Bug Fixes
+
+* add conventional-changelog dependency ([9238f19](https://github.com/newrelic/video-agent-iOS/commit/9238f19f4c740fb26d1f89ecef2be2ad64eb6514))
+* add conventional-changelog-angular dependency ([75bf6bc](https://github.com/newrelic/video-agent-iOS/commit/75bf6bccf3d81ff66c101e4b9fa9822319dfbf1e))
+* add conventional-changelog-conventionalcommits dependency ([3809333](https://github.com/newrelic/video-agent-iOS/commit/380933369f7e45ee5c865bcb2f83e47d7544452c))
+* add label to release PR ([03c6932](https://github.com/newrelic/video-agent-iOS/commit/03c69320d01f6f80dcd1fe7f44f6787e4180b931))
+* add label to release PR ([8cfb755](https://github.com/newrelic/video-agent-iOS/commit/8cfb7556d01912b1492ec45f646a6d05d572a4a5))
+* changelog not generated in dry run mode ([4de8065](https://github.com/newrelic/video-agent-iOS/commit/4de80651d5451be3543190f0a40012c630fe7b3d))
+* correct YAML syntax for PR body and commit message ([fb8fb14](https://github.com/newrelic/video-agent-iOS/commit/fb8fb149e167f8a70997292587fd8307f659604a))
+* correct YAML syntax for PR body and commit message ([82cb673](https://github.com/newrelic/video-agent-iOS/commit/82cb673b4c8a5b9a1e6ccba615e675b8a71bda1a))
+* extract changelog in release notes, remove debugging code ([015c019](https://github.com/newrelic/video-agent-iOS/commit/015c019774f9a351c59388bec3bac76d6f161b39))
+* remove tag craetion through semantic release ([9769857](https://github.com/newrelic/video-agent-iOS/commit/9769857505e08bcf5ce286f2431d346bc72dde90))
+* remove unnecessary manual tag creation step ([56e88c0](https://github.com/newrelic/video-agent-iOS/commit/56e88c0651733f5302e2b98f6a7583e5e45c2cc4))
+* semantic tag creation ([ad9679d](https://github.com/newrelic/video-agent-iOS/commit/ad9679d28cae4d65e36d00bdac97146ec97b4986))
+* tag creation should happen during release creation ([2486db0](https://github.com/newrelic/video-agent-iOS/commit/2486db09d6284f7427742e83cf9a4c07ea854041))
+* tag creation with semantic ([29ee1ae](https://github.com/newrelic/video-agent-iOS/commit/29ee1ae0028d4d08ece97fd6f8e1a75d439aae5f))
+* use conventional-changelog for tag creation ([815f28f](https://github.com/newrelic/video-agent-iOS/commit/815f28fe720b77b5e373525f0a364a6af88ba401))
+* use conventional-changelog for tag creation ([4e8b121](https://github.com/newrelic/video-agent-iOS/commit/4e8b121b8e7b9623f26b89ef3ade5978c8f2f54c))
+* version is incorrect in chnagelog ([7a2b6d0](https://github.com/newrelic/video-agent-iOS/commit/7a2b6d0b64b051538044361bf92f8a4d0df32b6d))
+* version was getting updated in local branch ([9f30241](https://github.com/newrelic/video-agent-iOS/commit/9f302419cf9d926fe68366155d45d2f86b5ab470))
+* version was getting updated in local branch ([6f6de8b](https://github.com/newrelic/video-agent-iOS/commit/6f6de8bff2d1c7b2b4e5e5f4c598cd4d374bad23))
