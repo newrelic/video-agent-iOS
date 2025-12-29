@@ -1,11 +1,12 @@
 module.exports = {
-  branches: ['master', 'test-ios-automation'],
+  branches: ['master', 'test-ios-automation', 'test-feature-branch'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
       {
         preset: 'conventionalcommits',
         releaseRules: [
+          { breaking: true, release: 'major' },
           { type: 'feat', release: 'minor' },
           { type: 'fix', release: 'patch' },
           { type: 'perf', release: 'patch' },

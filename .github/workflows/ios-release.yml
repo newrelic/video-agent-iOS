@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - test-ios-automation
+      - test-feature-branch
   workflow_dispatch:
 
 permissions:
