@@ -160,6 +160,11 @@ jobs:
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
+      - name: Build XCFrameworks
+        run: |
+          chmod +x ./build-xcframeworks.sh
+          ./build-xcframeworks.sh
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
@@ -192,6 +197,11 @@ jobs:
             ### What's Changed
 
             ${{ steps.changelog.outputs.changelog }}
+
+            ### Assets
+
+            [xcframeworks.zip](./xcframeworks.zip)
+          files: xcframeworks.zip
           draft: false
           prerelease: false
         env:
