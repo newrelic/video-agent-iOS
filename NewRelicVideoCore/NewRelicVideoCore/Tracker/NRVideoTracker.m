@@ -366,7 +366,12 @@
     }
     else {
         [self sendVideoEvent:CONTENT_HEARTBEAT attributes:attributes];
+        [self sendQoeAggregate];
     }
+}
+
+- (void)sendQoeAggregate {
+    [self sendVideoEvent:QOE_AGGREGATE];
 }
 
 - (void)sendRenditionChange {
