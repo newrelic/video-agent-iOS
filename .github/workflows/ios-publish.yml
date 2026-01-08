@@ -20,19 +20,33 @@ jobs:
     runs-on: macos-latest
     # Only run if PR was merged and has release label
     if: |
-      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')) ||
-      github.event_name == 'workflow_dispatch'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
 
     steps:
-      - name: Debug workflow trigger
+      - name: Check if release PR
+        id: check_release
         run: |
-          echo "Workflow triggered!"
-          echo "Event name: ${{ github.event_name }}"
-          echo "PR merged: ${{ github.event.pull_request.merged }}"
-          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
-          echo "Labels: ${{ toJSON(github.event.pull_request.labels) }}"
-          echo "Has release label: ${{ contains(github.event.pull_request.labels.*.name, 'release') }}"
-      
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+            echo "Manual trigger"
+          else
+            # Check if PR has release label
+            LABELS='${{ toJSON(github.event.pull_request.labels) }}'
+            echo "PR Labels: $LABELS"
+            
+            if echo "$LABELS" | jq -r '.[].name' | grep -q "^release$"; then
+              echo "is_release=true" >> $GITHUB_OUTPUT
+              echo "Release label found"
+            else
+              echo "is_release=false" >> $GITHUB_OUTPUT
+              echo "Release label NOT found"
+              echo "Available labels:"
+              echo "$LABELS" | jq -r '.[].name'
+              exit 1
+            fi
+          fi
+        
       - name: Checkout code
         uses: actions/checkout@v4
         with:
