@@ -22,37 +22,13 @@ jobs:
     # Only run if PR was merged and has release label
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
 
     steps:
-      - name: Check if release PR
-        id: check_release
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "is_release=true" >> $GITHUB_OUTPUT
-            echo "Manual trigger"
-          else
-            # Check if PR has release label
-            LABELS='${{ toJSON(github.event.pull_request.labels) }}'
-            echo "PR Labels: $LABELS"
-            
-            if echo "$LABELS" | jq -r '.[].name' | grep -q "^release$"; then
-              echo "is_release=true" >> $GITHUB_OUTPUT
-              echo "Release label found"
-            else
-              echo "is_release=false" >> $GITHUB_OUTPUT
-              echo "Release label NOT found"
-              echo "Available labels:"
-              echo "$LABELS" | jq -r '.[].name'
-              exit 1
-            fi
-          fi
-        
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
