@@ -24,11 +24,20 @@ jobs:
       github.event_name == 'workflow_dispatch'
 
     steps:
+      - name: Debug workflow trigger
+        run: |
+          echo "Workflow triggered!"
+          echo "Event name: ${{ github.event_name }}"
+          echo "PR merged: ${{ github.event.pull_request.merged }}"
+          echo "Base ref: ${{ github.event.pull_request.base.ref }}"
+          echo "Labels: ${{ toJSON(github.event.pull_request.labels) }}"
+          echo "Has release label: ${{ contains(github.event.pull_request.labels.*.name, 'release') }}"
+      
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: test-ios-automation-master
+          ref: ${{ github.event.pull_request.base.ref || github.ref_name }}
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
