@@ -5,7 +5,7 @@ on:
     types: [closed]
     branches:
       - master
-      - test-ios-automation
+      - test-ios-automation-master
   workflow_dispatch:
     inputs:
       version:
