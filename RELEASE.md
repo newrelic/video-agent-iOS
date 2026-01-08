@@ -319,6 +319,9 @@ This release process follows the **"stable releases, one-shot PRs"** approach:
 
 ## Support
 
+
+
+
 For issues with the release process:
 1. Check GitHub Actions workflow logs
 2. Review this documentation
