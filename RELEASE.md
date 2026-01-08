@@ -22,20 +22,6 @@ The version bump is determined by analyzing commits since the last release:
 
 ### Commit Message Format
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ```
 <type>[optional scope]: <description>
 
