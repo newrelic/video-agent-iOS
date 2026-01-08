@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - test-feature-branch
+      - test-ios-automation-master
   workflow_dispatch:
 
 permissions:
@@ -184,7 +184,7 @@ jobs:
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
-          BASE_BRANCH="test-ios-automation"
+          BASE_BRANCH="test-ios-automation-master"
           RELEASE_BRANCH="${{ env.branch_name }}"
           
           # Check if PR already exists for this branch (final safety check)
