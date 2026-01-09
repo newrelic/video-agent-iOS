@@ -136,10 +136,10 @@ jobs:
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
-          
+
           git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec
-          git commit -m "chore(release): update podspec versions to ${VERSION}" -m "[skip ci]"
-          
+          git commit -m "chore(release): update podspec versions to ${VERSION}"
+
           echo "Podspec changes committed"
 
       - name: Generate Changelog
