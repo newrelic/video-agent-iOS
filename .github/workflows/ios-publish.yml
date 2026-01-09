@@ -19,10 +19,10 @@ permissions:
 jobs:
   publish:
     runs-on: macos-latest
-    # Only run if PR was merged and title starts with "chore(release):"
+    # Only run if PR was merged and has release label
     if: |
       github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true && startsWith(github.event.pull_request.title, 'chore(release):'))
+      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
 
     steps:
       - name: Checkout code
