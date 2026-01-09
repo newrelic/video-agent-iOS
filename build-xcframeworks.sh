@@ -19,6 +19,47 @@ rm -rf NRAVPlayerTracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NRAVPlayerTracker.framework
 
+# Download Google IMA SDK if not present
+if [ ! -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
+    echo "Downloading Google IMA SDK..."
+
+    # Create temporary directory for download
+    TEMP_DIR=$(mktemp -d)
+    ORIGINAL_DIR=$(pwd)
+    cd "$TEMP_DIR"
+
+    # Download the Google IMA SDK (latest version)
+    # Using CocoaPods to get the framework
+    cat > Podfile <<'EOF'
+platform :ios, '12.0'
+target 'Temp' do
+  use_frameworks!
+  pod 'GoogleAds-IMA-iOS-SDK'
+end
+EOF
+
+    # Set UTF-8 encoding for CocoaPods
+    export LANG=en_US.UTF-8
+    export LC_ALL=en_US.UTF-8
+
+    pod install > /dev/null 2>&1
+
+    # Extract the XCFramework
+    if [ -d "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" ]; then
+        cp -R "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" "$ORIGINAL_DIR/NRIMATracker/"
+        echo "Google IMA SDK installed"
+    else
+        echo "Failed to download Google IMA SDK"
+        cd "$ORIGINAL_DIR"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+
+    # Clean up
+    cd "$ORIGINAL_DIR"
+    rm -rf "$TEMP_DIR"
+fi
+
 # Function to build for a specific platform
 build_framework() {
     local framework=$1
@@ -175,6 +216,12 @@ build_complete_framework "NRAVPlayerTracker" "iOS NRAVPlayerTracker" "tvOS NRAVP
 
 # Build NRIMATracker (depends on NewRelicVideoCore) - iOS only
 build_complete_framework "NRIMATracker" "NRIMATracker" "" "NewRelicVideoCore"
+
+# Clean up Google IMA SDK after building NRIMATracker
+if [ -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
+    echo "🧹 Cleaning up Google IMA SDK..."
+    rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
+fi
 
 echo ""
 echo "🎉 All XCFrameworks built successfully!"
