@@ -96,7 +96,7 @@ build_complete_framework() {
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
-            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\$(inherited) $project_root/$framework\""
+            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
         fi
         build_framework "$framework" "$ios_scheme" "iphoneos" "$framework-ios-device" "$extra_flags"
         rm -rf "$framework/$depends_on.framework" 2>/dev/null
@@ -110,7 +110,7 @@ build_complete_framework() {
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
-            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\$(inherited) $project_root/$framework\""
+            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
         fi
         build_framework "$framework" "$ios_scheme" "iphonesimulator" "$framework-ios-simulator" "$extra_flags"
         rm -rf "$framework/$depends_on.framework" 2>/dev/null
@@ -124,7 +124,7 @@ build_complete_framework() {
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
-            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\$(inherited) $project_root/$framework\""
+            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
         fi
         build_framework "$framework" "$tvos_scheme" "appletvos" "$framework-tvos-device" "$extra_flags"
         rm -rf "$framework/$depends_on.framework" 2>/dev/null
@@ -138,7 +138,7 @@ build_complete_framework() {
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
-            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\$(inherited) $project_root/$framework\""
+            extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
         fi
         build_framework "$framework" "$tvos_scheme" "appletvsimulator" "$framework-tvos-simulator" "$extra_flags"
         rm -rf "$framework/$depends_on.framework" 2>/dev/null
