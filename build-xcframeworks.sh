@@ -42,7 +42,7 @@ EOF
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    pod install > /dev/null 2>&1
+    pod install --no-integrate > /dev/null 2>&1
 
     # Extract the XCFramework
     if [ -d "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" ]; then
