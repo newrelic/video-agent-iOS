@@ -273,7 +273,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     NSString *osVersion = [[UIDevice currentDevice] systemVersion];
     NSString *architecture = [self getArchitecture];
     NSString *agentName = @"NewRelic-VideoAgent-iOS";
-    NSString *agentVersion = @"5.0.0";
+    NSString *agentVersion = @"4.0.1"; // Update as needed
     NSString *deviceId = [NRVAUtils generateSessionId]; // Use session ID as device identifier
     NSString *manufacturer = @"Apple";
     

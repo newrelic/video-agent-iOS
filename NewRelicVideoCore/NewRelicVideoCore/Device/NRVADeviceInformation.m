@@ -65,7 +65,7 @@ static dispatch_once_t onceToken;
         self.osBuild = [self getOSBuildVersion];
         self.model = [[UIDevice currentDevice] model];
         self.agentName = @"NewRelic-VideoAgent-iOS";
-        self.agentVersion = @"5.0.0"; // Should be pulled from build configuration
+        self.agentVersion = @"4.0.1"; // Should be pulled from build configuration
         self.manufacturer = @"Apple";
         self.deviceId = [self generatePersistentDeviceId];
         self.architecture = [self getSystemArchitecture];
@@ -93,7 +93,7 @@ static dispatch_once_t onceToken;
     self.osBuild = @"Unknown";
     self.model = @"Unknown";
     self.agentName = @"NewRelic-VideoAgent-iOS";
-    self.agentVersion = @"5.0.0";
+    self.agentVersion = @"4.0.1";
     self.manufacturer = @"Apple";
     self.deviceId = [[NSUUID UUID] UUIDString];
     self.architecture = @"unknown";
@@ -101,7 +101,7 @@ static dispatch_once_t onceToken;
     self.size = @""; // Empty string for now
     self.applicationFramework = @"Native iOS";
     self.applicationFrameworkVersion = @"Unknown";
-    self.userAgent = @"NewRelic-VideoAgent-iOS/5.0.0";
+    self.userAgent = @"NewRelic-VideoAgent-iOS/4.0.1";
     self.isTV = NO;
     self.isLowMemoryDevice = NO;
 }
