@@ -148,7 +148,7 @@ jobs:
           start=$(grep -n "^## \[$VERSION_REGEX\]" CHANGELOG.md | cut -d: -f1)
           end=$(awk "NR > $start && /^## \\[/" CHANGELOG.md | head -1 | awk '{print NR+$start}')
           if [ -z "$start" ]; then
-            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/test-ios-automation/CHANGELOG.md) for details."
+            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details."
           else
             if [ -z "$end" ]; then
               tail -n +"$((start+1))" CHANGELOG.md > excerpt.txt
