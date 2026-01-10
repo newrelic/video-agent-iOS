@@ -220,10 +220,6 @@ jobs:
             ### What's Changed
 
             ${{ steps.changelog.outputs.changelog }}
-
-            ### Assets
-
-            [xcframeworks.zip](./xcframeworks.zip)
           files: xcframeworks.zip
           draft: false
           prerelease: false
