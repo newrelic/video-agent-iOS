@@ -32,10 +32,9 @@ if [ ! -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
     # Using CocoaPods to get the framework
     cat > Podfile <<'EOF'
 platform :ios, '12.0'
-target 'Temp' do
-  use_frameworks!
-  pod 'GoogleAds-IMA-iOS-SDK'
-end
+install! 'cocoapods', :integrate_targets => false
+use_frameworks!
+pod 'GoogleAds-IMA-iOS-SDK'
 EOF
 
     # Set UTF-8 encoding for CocoaPods
