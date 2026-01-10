@@ -132,15 +132,64 @@ jobs:
           grep -E "^\s*s\.version\s*=" NRAVPlayerTracker.podspec
           grep -E "^\s*s\.version\s*=" NRIMATracker.podspec
 
-      - name: Commit podspec changes
+      - name: Update version in source files
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
         run: |
           VERSION="${{ steps.get_version.outputs.next_version }}"
 
-          git add NewRelicVideoAgent.podspec NRAVPlayerTracker.podspec NRIMATracker.podspec
-          git commit -m "chore(release): update podspec versions to ${VERSION}"
+          echo "Updating version strings in source files to $VERSION..."
 
-          echo "Podspec changes committed"
+          # Update version in header files
+          echo "Updating NRVideoDefs.h..."
+          sed -i.bak -E "s/(#define NRVIDEO_CORE_VERSION[[:space:]]+@\")[^\"]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h
+
+          # Update version in tracker implementation files
+          echo "Updating tracker implementation files..."
+          sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m
+          sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m
+
+          # Update version in core device and network files
+          echo "Updating NewRelicVideoCore version strings..."
+          sed -i.bak -E "s/(agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Auth/NRVATokenManager.m
+          sed -i.bak -E "s/(agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Harvest/NRVAOptimizedHttpClient.m
+          sed -i.bak -E "s/(self\.agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/g" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+          sed -i.bak -E "s/(self\.userAgent = @\"NewRelic-VideoAgent-iOS\/)[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+
+          # Clean up backup files
+          find . -name "*.bak" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -delete
+
+          echo ""
+          echo "Verification - updated version strings:"
+          echo "  NRVideoDefs.h:"
+          grep "NRVIDEO_CORE_VERSION" NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h || echo "    [not found]"
+          echo "  NRTrackerAVPlayer.m:"
+          grep "return @\"" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
+          echo "  NRTrackerIMA.m:"
+          grep "return @\"" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
+          echo "  NRVADeviceInformation.m:"
+          grep "agentVersion = @\"" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m | head -1 || echo "    [not found]"
+          echo ""
+          echo "Version update complete!"
+
+      - name: Commit version changes
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+
+          # Add podspec files
+          git add *.podspec
+
+          # Add source files with version strings
+          git add NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h \
+                  NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m \
+                  NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Auth/NRVATokenManager.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Harvest/NRVAOptimizedHttpClient.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+
+          git commit -m "chore(release): update version to ${VERSION}"
+
+          echo "Version changes committed"
 
       - name: Generate Changelog
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
