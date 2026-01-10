@@ -42,10 +42,10 @@ EOF
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    echo "  📍 Running 'pod install --no-integrate' in $TEMP_DIR"
+    echo "  📍 Running 'pod install' in $TEMP_DIR"
 
     # Run pod install with error logging
-    if ! pod install --no-integrate 2>&1 | tee pod_install.log; then
+    if ! pod install 2>&1 | tee pod_install.log; then
         echo "  ❌ Pod install failed. Log output:"
         cat pod_install.log
         cd "$ORIGINAL_DIR"

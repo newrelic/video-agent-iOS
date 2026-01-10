@@ -60,22 +60,6 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
-      - name: Validate podspecs
-        run: |
-          echo "Validating podspecs..."
-
-          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
-          echo "NewRelicVideoAgent.podspec validated"
-
-          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
-          echo "NRAVPlayerTracker.podspec validated"
-
-          pod lib lint NRIMATracker.podspec --allow-warnings
-          echo "NRIMATracker.podspec validated"
-
-          echo ""
-          echo "All podspecs validated successfully!"
-
       - name: Check if should publish to CocoaPods
         id: should_publish
         run: |
@@ -91,6 +75,23 @@ jobs:
             echo "Skipping CocoaPods publish (not master branch)"
             echo "This is a dry-run for testing purposes"
           fi
+
+      - name: Validate podspecs
+        if: steps.should_publish.outputs.should_publish == 'true'
+        run: |
+          echo "Validating podspecs..."
+
+          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
+          echo "NewRelicVideoAgent.podspec validated"
+
+          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
+          echo "NRAVPlayerTracker.podspec validated"
+
+          pod lib lint NRIMATracker.podspec --allow-warnings
+          echo "NRIMATracker.podspec validated"
+
+          echo ""
+          echo "All podspecs validated successfully!"
 
       - name: Setup CocoaPods trunk authentication
         if: steps.should_publish.outputs.should_publish == 'true'
@@ -160,33 +161,6 @@ jobs:
           echo "Publishing NRIMATracker..."
           pod trunk push NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker published!"
-
-      - name: Dry-run summary (non-master branches)
-        if: steps.should_publish.outputs.should_publish == 'false'
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          BRANCH="${{ github.base_ref || github.ref_name }}"
-          
-          echo ""
-          echo "=================================="
-          echo "DRY-RUN MODE (Branch: $BRANCH)"
-          echo "=================================="
-          echo ""
-          echo "✅ Podspecs validated successfully"
-          echo "✅ XCFrameworks would be built"
-          echo "✅ GitHub Release would be created"
-          echo ""
-          echo "⚠️  SKIPPED: CocoaPods publishing"
-          echo "   Reason: Not on master branch"
-          echo ""
-          echo "Version that would be published: $VERSION"
-          echo "- NewRelicVideoAgent"
-          echo "- NRAVPlayerTracker"
-          echo "- NRIMATracker"
-          echo ""
-          echo "To publish to CocoaPods, merge to master branch"
-          echo "=================================="
-          echo ""
 
       - name: Extract changelog excerpt
         id: changelog
