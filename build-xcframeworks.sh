@@ -42,14 +42,33 @@ EOF
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    pod install --no-integrate > /dev/null 2>&1
+    echo "  📍 Running 'pod install --no-integrate' in $TEMP_DIR"
+
+    # Run pod install with error logging
+    if ! pod install --no-integrate 2>&1 | tee pod_install.log; then
+        echo "  ❌ Pod install failed. Log output:"
+        cat pod_install.log
+        cd "$ORIGINAL_DIR"
+        rm -rf "$TEMP_DIR"
+        exit 1
+    fi
+
+    echo "  📂 Checking for SDK at: Pods/GoogleAds-IMA-iOS-SDK/"
+    ls -la Pods/ 2>&1 || echo "  ⚠️  Pods directory not found"
 
     # Extract the XCFramework
     if [ -d "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" ]; then
+        echo "  📦 Found Google IMA SDK XCFramework"
         cp -R "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" "$ORIGINAL_DIR/NRIMATracker/"
-        echo "Google IMA SDK installed"
+        echo "  ✅ Google IMA SDK installed"
     else
-        echo "Failed to download Google IMA SDK"
+        echo "  ❌ Failed to download Google IMA SDK"
+        echo "  📂 Contents of Pods directory:"
+        ls -la Pods/ 2>&1 || echo "Pods directory not found"
+        if [ -d "Pods/GoogleAds-IMA-iOS-SDK" ]; then
+            echo "  📂 Contents of GoogleAds-IMA-iOS-SDK:"
+            ls -la Pods/GoogleAds-IMA-iOS-SDK/
+        fi
         cd "$ORIGINAL_DIR"
         rm -rf "$TEMP_DIR"
         exit 1
