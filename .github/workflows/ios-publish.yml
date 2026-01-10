@@ -6,7 +6,6 @@ on:
       - closed
     branches:
       - master
-      - test-ios-automation-master
   workflow_dispatch:
     inputs:
       version:
@@ -61,24 +60,7 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
-      - name: Check if should publish to CocoaPods
-        id: should_publish
-        run: |
-          # Only publish to CocoaPods if on master branch
-          BRANCH="${{ github.base_ref || github.ref_name }}"
-          echo "Current branch: $BRANCH"
-          
-          if [ "$BRANCH" = "master" ]; then
-            echo "should_publish=true" >> $GITHUB_OUTPUT
-            echo "Will publish to CocoaPods (master branch)"
-          else
-            echo "should_publish=false" >> $GITHUB_OUTPUT
-            echo "Skipping CocoaPods publish (not master branch)"
-            echo "This is a dry-run for testing purposes"
-          fi
-
       - name: Validate podspecs
-        if: steps.should_publish.outputs.should_publish == 'true'
         run: |
           echo "Validating podspecs..."
 
@@ -95,7 +77,6 @@ jobs:
           echo "All podspecs validated successfully!"
 
       - name: Setup CocoaPods trunk authentication
-        if: steps.should_publish.outputs.should_publish == 'true'
         env:
           COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
         run: |
@@ -115,14 +96,12 @@ jobs:
           echo "CocoaPods trunk authentication configured"
 
       - name: Publish NewRelicVideoAgent
-        if: steps.should_publish.outputs.should_publish == 'true'
         run: |
           echo "Publishing NewRelicVideoAgent..."
           pod trunk push NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent published!"
 
       - name: Wait for NewRelicVideoAgent indexing
-        if: steps.should_publish.outputs.should_publish == 'true'
         run: |
           echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
           echo "This usually takes ~5 minutes..."
@@ -150,14 +129,12 @@ jobs:
           echo "Timeout waiting for indexing, proceeding anyway..."
 
       - name: Publish NRAVPlayerTracker
-        if: steps.should_publish.outputs.should_publish == 'true'
         run: |
           echo "Publishing NRAVPlayerTracker..."
           pod trunk push NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker published!"
 
       - name: Publish NRIMATracker
-        if: steps.should_publish.outputs.should_publish == 'true'
         run: |
           echo "Publishing NRIMATracker..."
           pod trunk push NRIMATracker.podspec --allow-warnings

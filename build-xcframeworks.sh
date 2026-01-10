@@ -5,16 +5,16 @@
 
 set -e
 
-echo "🚀 Starting XCFramework build process (iOS + tvOS)..."
+echo "Starting XCFramework build process (iOS + tvOS)..."
 
 # Clean previous builds
-echo "🧹 Cleaning previous builds..."
+echo "Cleaning previous builds..."
 rm -rf build/
 rm -rf *.xcframework
 mkdir -p build
 
 # Remove old framework dependencies that cause conflicts
-echo "🧹 Removing old framework dependencies..."
+echo "Removing old framework dependencies..."
 rm -rf NRAVPlayerTracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NRAVPlayerTracker.framework
@@ -41,31 +41,31 @@ EOF
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    echo "  📍 Running 'pod install' in $TEMP_DIR"
+    echo "Running 'pod install' in $TEMP_DIR"
 
     # Run pod install with error logging
     if ! pod install 2>&1 | tee pod_install.log; then
-        echo "  ❌ Pod install failed. Log output:"
+        echo "Pod install failed. Log output:"
         cat pod_install.log
         cd "$ORIGINAL_DIR"
         rm -rf "$TEMP_DIR"
         exit 1
     fi
 
-    echo "  📂 Checking for SDK at: Pods/GoogleAds-IMA-iOS-SDK/"
-    ls -la Pods/ 2>&1 || echo "  ⚠️  Pods directory not found"
+    echo "Checking for SDK at: Pods/GoogleAds-IMA-iOS-SDK/"
+    ls -la Pods/ 2>&1 || echo "Pods directory not found"
 
     # Extract the XCFramework
     if [ -d "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" ]; then
-        echo "  📦 Found Google IMA SDK XCFramework"
+        echo "Found Google IMA SDK XCFramework"
         cp -R "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" "$ORIGINAL_DIR/NRIMATracker/"
-        echo "  ✅ Google IMA SDK installed"
+        echo "Google IMA SDK installed"
     else
-        echo "  ❌ Failed to download Google IMA SDK"
-        echo "  📂 Contents of Pods directory:"
+        echo "Failed to download Google IMA SDK"
+        echo "Contents of Pods directory:"
         ls -la Pods/ 2>&1 || echo "Pods directory not found"
         if [ -d "Pods/GoogleAds-IMA-iOS-SDK" ]; then
-            echo "  📂 Contents of GoogleAds-IMA-iOS-SDK:"
+            echo "Contents of GoogleAds-IMA-iOS-SDK:"
             ls -la Pods/GoogleAds-IMA-iOS-SDK/
         fi
         cd "$ORIGINAL_DIR"
@@ -87,7 +87,7 @@ build_framework() {
     shift 4
     local extra_flags="$@"
 
-    echo "  📦 Building $framework for $sdk..."
+    echo "Building $framework for $sdk..."
 
     if [ -z "$extra_flags" ]; then
         xcodebuild archive \
@@ -114,7 +114,7 @@ build_framework() {
             > /dev/null 2>&1"
     fi
 
-    echo "  ✅ Built $framework for $sdk"
+    echo "Built $framework for $sdk"
 }
 
 # Function to setup dependency framework for a target
@@ -142,7 +142,7 @@ build_complete_framework() {
     local depends_on=$4
 
     echo ""
-    echo "🔨 Building $framework..."
+    echo "Building $framework..."
 
     # Get absolute path for framework search
     local project_root="$(pwd)"
@@ -204,7 +204,7 @@ build_complete_framework() {
     fi
 
     # Create XCFramework
-    echo "  🎁 Creating XCFramework..."
+    echo "Creating XCFramework..."
 
     XCFRAMEWORK_ARGS=()
 
@@ -223,7 +223,7 @@ build_complete_framework() {
         -output "$framework.xcframework" \
         > /dev/null 2>&1
 
-    echo "  ✅ $framework.xcframework created successfully!"
+    echo "$framework.xcframework created successfully!"
 }
 
 # Build NewRelicVideoCore first (it's the base dependency)
@@ -237,19 +237,19 @@ build_complete_framework "NRIMATracker" "NRIMATracker" "" "NewRelicVideoCore"
 
 # Clean up Google IMA SDK after building NRIMATracker
 if [ -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
-    echo "🧹 Cleaning up Google IMA SDK..."
+    echo "Cleaning up Google IMA SDK..."
     rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
 fi
 
 echo ""
-echo "🎉 All XCFrameworks built successfully!"
+echo "All XCFrameworks built successfully!"
 echo ""
-echo "📦 Output:"
+echo "Output:"
 ls -lh *.xcframework
 echo ""
-echo "📍 XCFrameworks location: $(pwd)"
+echo "XCFrameworks location: $(pwd)"
 echo ""
-echo "✨ Supported platforms:"
+echo "Supported platforms:"
 echo "   - iOS Device (arm64)"
 echo "   - iOS Simulator (arm64 + x86_64)"
 echo "   - tvOS Device (arm64)"
@@ -257,7 +257,7 @@ echo "   - tvOS Simulator (arm64 + x86_64)"
 echo ""
 echo "Note: NRIMATracker is iOS-only (Google IMA SDK doesn't support tvOS)"
 echo ""
-echo "🔍 To verify architectures:"
+echo "To verify architectures:"
 echo "   find NewRelicVideoCore.xcframework -name 'NewRelicVideoCore' -type f -exec lipo -info {} \\;"
 
 echo ""
