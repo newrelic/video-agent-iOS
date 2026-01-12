@@ -59,7 +59,7 @@ jobs:
           pod lib lint NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent.podspec validated"
 
-          pod lib lint NRAVPlayerTracker.podspec --allow-warnings 
+          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker.podspec validated"
 
           pod lib lint NRIMATracker.podspec --allow-warnings
