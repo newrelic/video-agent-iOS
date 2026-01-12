@@ -1,0 +1,227 @@
+name: Publish to CocoaPods
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: macos-latest
+    # Only run if PR was merged and has release label
+    if: |
+      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: false
+
+      - name: Install CocoaPods
+        run: |
+          gem install cocoapods
+          pod --version
+
+      - name: Extract version from podspec
+        id: get_version
+        run: |
+          if
+            VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
+            echo "Extracted version from podspec: $VERSION"
+          fi
+
+          if [ -z "$VERSION" ]; then
+            echo "Failed to extract version"
+            exit 1
+          fi
+
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Publishing version: $VERSION"
+
+      - name: Validate podspecs
+        run: |
+          echo "Validating podspecs..."
+
+          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
+          echo "NewRelicVideoAgent.podspec validated"
+
+          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
+          echo "NRAVPlayerTracker.podspec validated"
+
+          pod lib lint NRIMATracker.podspec --allow-warnings
+          echo "NRIMATracker.podspec validated"
+
+          echo ""
+          echo "All podspecs validated successfully!"
+
+      - name: Setup CocoaPods trunk authentication
+        env:
+          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        run: |
+          if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
+            echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
+            echo "Please add your CocoaPods trunk token to GitHub repository secrets"
+            exit 1
+          fi
+
+          cat > ~/.netrc <<EOF
+          machine trunk.cocoapods.org
+          login token
+          password ${COCOAPODS_TRUNK_TOKEN}
+          EOF
+          chmod 600 ~/.netrc
+
+          echo "CocoaPods trunk authentication configured"
+
+      - name: Publish NewRelicVideoAgent
+        run: |
+          echo "Publishing NewRelicVideoAgent..."
+          pod trunk push NewRelicVideoAgent.podspec --allow-warnings
+          echo "NewRelicVideoAgent published!"
+
+      - name: Wait for NewRelicVideoAgent indexing
+        run: |
+          echo "Waiting for NewRelicVideoAgent to be indexed by CocoaPods..."
+          echo "This usually takes ~5 minutes..."
+
+          VERSION="${{ steps.get_version.outputs.version }}"
+          MAX_ATTEMPTS=20
+          ATTEMPT=0
+          WAIT_TIME=30
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            ATTEMPT=$((ATTEMPT + 1))
+            echo "Attempt $ATTEMPT/$MAX_ATTEMPTS: Checking if NewRelicVideoAgent $VERSION is indexed..."
+
+            if pod search NewRelicVideoAgent | grep -q "$VERSION"; then
+              echo "NewRelicVideoAgent $VERSION is now indexed!"
+              exit 0
+            fi
+
+            if [ $ATTEMPT -lt $MAX_ATTEMPTS ]; then
+              echo "Not indexed yet, waiting ${WAIT_TIME} seconds..."
+              sleep $WAIT_TIME
+            fi
+          done
+
+          echo "Timeout waiting for indexing, proceeding anyway..."
+
+      - name: Publish NRAVPlayerTracker
+        run: |
+          echo "Publishing NRAVPlayerTracker..."
+          pod trunk push NRAVPlayerTracker.podspec --allow-warnings
+          echo "NRAVPlayerTracker published!"
+
+      - name: Publish NRIMATracker
+        run: |
+          echo "Publishing NRIMATracker..."
+          pod trunk push NRIMATracker.podspec --allow-warnings
+          echo "NRIMATracker published!"
+
+      - name: Extract changelog excerpt
+        id: changelog
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          VERSION_REGEX=$(echo "$VERSION" | sed 's/\./\\./g')
+          start=$(grep -n "^## \[$VERSION_REGEX\]" CHANGELOG.md | cut -d: -f1)
+          end=$(awk "NR > $start && /^## \\[/" CHANGELOG.md | head -1 | awk '{print NR+$start}')
+          if [ -z "$start" ]; then
+            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details."
+          else
+            if [ -z "$end" ]; then
+              tail -n +"$((start+1))" CHANGELOG.md > excerpt.txt
+            else
+              sed -n "$((start+1)),$((end-1))p" CHANGELOG.md > excerpt.txt
+            fi
+            CHANGELOG=$(cat excerpt.txt)
+          fi
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Build XCFrameworks
+        run: |
+          chmod +x ./build-xcframeworks.sh
+          ./build-xcframeworks.sh
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.get_version.outputs.version }}
+          target_commitish: ${{ github.sha }}
+          name: Release v${{ steps.get_version.outputs.version }}
+          body: |
+            ## Release v${{ steps.get_version.outputs.version }}
+
+            Published to CocoaPods:
+            - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
+            - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
+            - NRIMATracker `${{ steps.get_version.outputs.version }}`
+
+            ### Installation
+
+            Add to your `Podfile`:
+
+            ```ruby
+            pod 'NewRelicVideoAgent', '~> ${{ steps.get_version.outputs.version }}'
+            pod 'NRAVPlayerTracker', '~> ${{ steps.get_version.outputs.version }}'
+            pod 'NRIMATracker', '~> ${{ steps.get_version.outputs.version }}'
+            ```
+
+            Then run:
+
+            ```bash
+            pod install
+            ```
+
+            ### What's Changed
+
+            ${{ steps.changelog.outputs.changelog }}
+          files: xcframeworks.zip
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify publication
+        run: |
+          echo "Verifying publication..."
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          echo ""
+          echo "=== NewRelicVideoAgent ==="
+          pod search NewRelicVideoAgent | head -15
+
+          echo ""
+          echo "=== NRAVPlayerTracker ==="
+          pod search NRAVPlayerTracker | head -15
+
+          echo ""
+          echo "=== NRIMATracker ==="
+          pod search NRIMATracker | head -15
+
+          echo ""
+          echo "=================================="
+          echo "Release Complete!"
+          echo "=================================="
+          echo ""
+          echo "All pods published successfully for version $VERSION"
+          echo ""
+          echo "Users can now install with:"
+          echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
+          echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
+          echo "  pod 'NRIMATracker', '~> $VERSION'"
+          echo ""

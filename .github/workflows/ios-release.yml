@@ -1,0 +1,324 @@
+name: Version Bump PR
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  version-bump:
+    runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, 'chore(release):')"    
+    
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Extract current version from podspec
+        id: current_version
+        run: |
+          CURRENT_VERSION=$(grep -E "^\s*s\.version\s*=" NewRelicVideoAgent.podspec | sed -E "s/.*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
+          
+          if [ -z "$CURRENT_VERSION" ]; then
+            echo "Failed to extract current version from podspec"
+            exit 1
+          fi
+          
+          if ! [[ "$CURRENT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version format: $CURRENT_VERSION"
+            exit 1
+          fi
+          
+          echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version from podspec: $CURRENT_VERSION"
+
+      - name: Get next version
+        id: get_version
+        run: |
+          CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
+          echo "Base version: $CURRENT_VERSION"
+          
+          npx semantic-release --dry-run --no-ci > semantic-output.txt 2>&1 || true
+          
+          cat semantic-output.txt
+
+          NEXT_VERSION=$(grep "The next release version is" semantic-output.txt | sed -E 's/.*The next release version is ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+
+          if [ -z "$NEXT_VERSION" ]; then
+            echo "::notice::No new version to release - no qualifying commits found"
+            echo "should_create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "$NEXT_VERSION" = "$CURRENT_VERSION" ]; then
+            echo "::notice::Calculated version ($NEXT_VERSION) matches current version"
+            echo "should_create_pr=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "should_create_pr=true" >> $GITHUB_OUTPUT
+          echo "release_branch=release/${NEXT_VERSION}" >> $GITHUB_OUTPUT
+          echo "::notice::Version bump: $CURRENT_VERSION → $NEXT_VERSION"
+
+      - name: Check if release branch already exists
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        id: check_branch
+        run: |
+          RELEASE_BRANCH="${{ steps.get_version.outputs.release_branch }}"
+          
+          # Check if release branch already exists remotely
+          if git ls-remote --exit-code --heads origin "$RELEASE_BRANCH" >/dev/null 2>&1; then
+            echo "::notice::Release branch $RELEASE_BRANCH already exists"
+            echo "branch_exists=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "branch_exists=false" >> $GITHUB_OUTPUT
+
+      - name: Create release branch
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          BRANCH_NAME="${{ steps.get_version.outputs.release_branch }}"
+          
+          git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> $GITHUB_ENV
+          echo "Created branch: $BRANCH_NAME"
+
+      - name: Update podspec versions
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          
+          echo "Updating podspecs to version $VERSION..."
+          
+          sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NewRelicVideoAgent.podspec
+          sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NRAVPlayerTracker.podspec
+          sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NRIMATracker.podspec
+          
+          rm -f *.podspec.bak
+          
+          echo ""
+          echo "Verification - s.version lines after update:"
+          grep -E "^\s*s\.version\s*=" NewRelicVideoAgent.podspec
+          grep -E "^\s*s\.version\s*=" NRAVPlayerTracker.podspec
+          grep -E "^\s*s\.version\s*=" NRIMATracker.podspec
+
+      - name: Update version in source files
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+
+          echo "Updating version strings in source files to $VERSION..."
+
+          # Update version in header files
+          echo "Updating NRVideoDefs.h..."
+          sed -i.bak -E "s/(#define NRVIDEO_CORE_VERSION[[:space:]]+@\")[^\"]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h
+
+          # Update version in tracker implementation files
+          echo "Updating tracker implementation files..."
+          sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m
+          sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m
+
+          # Update version in core device and network files
+          echo "Updating NewRelicVideoCore version strings..."
+          sed -i.bak -E "s/(agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Auth/NRVATokenManager.m
+          sed -i.bak -E "s/(agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Harvest/NRVAOptimizedHttpClient.m
+          sed -i.bak -E "s/(self\.agentVersion = @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/g" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+          sed -i.bak -E "s/(self\.userAgent = @\"NewRelic-VideoAgent-iOS\/)[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+
+          # Clean up backup files
+          find . -name "*.bak" -type f -not -path "*/node_modules/*" -not -path "*/.git/*" -delete
+
+          echo ""
+          echo "Verification - updated version strings:"
+          echo "  NRVideoDefs.h:"
+          grep "NRVIDEO_CORE_VERSION" NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h || echo "    [not found]"
+          echo "  NRTrackerAVPlayer.m:"
+          grep "return @\"" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
+          echo "  NRTrackerIMA.m:"
+          grep "return @\"" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
+          echo "  NRVADeviceInformation.m:"
+          grep "agentVersion = @\"" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m | head -1 || echo "    [not found]"
+          echo ""
+          echo "Version update complete!"
+
+      - name: Commit version changes
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+
+          # Add podspec files
+          git add *.podspec
+
+          # Add source files with version strings
+          git add NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h \
+                  NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m \
+                  NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Auth/NRVATokenManager.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Harvest/NRVAOptimizedHttpClient.m \
+                  NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
+
+          git commit -m "chore(release): update version to ${VERSION}"
+
+          echo "Version changes committed"
+
+      - name: Generate Changelog
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          echo "Generating changelog for version $VERSION..."
+
+          # Create a temporary context file to force the correct version header
+          echo '{"version":"'${VERSION}'"}' > context.json
+
+          # Generate changelog updates and save to files without tagging
+          npx conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s --context context.json
+
+          rm context.json
+          echo "CHANGELOG.md updated successfully."
+
+      - name: Add CHANGELOG to release commit
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            git add CHANGELOG.md
+            git commit --amend --no-edit
+            echo "CHANGELOG.md added to release commit"
+          fi
+
+      - name: Show release commit summary
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          echo "Files modified:"
+          git show --name-only --format='' HEAD
+
+      - name: Push release branch
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          BRANCH_NAME="${{ env.branch_name }}"
+          
+          git push origin "$BRANCH_NAME"
+          echo "Branch pushed: $BRANCH_NAME"
+
+      - name: Create Pull Request
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
+        run: |
+          VERSION="${{ steps.get_version.outputs.next_version }}"
+          BASE_BRANCH="master"
+          RELEASE_BRANCH="${{ env.branch_name }}"
+          
+          # Check if PR already exists for this branch (final safety check)
+          EXISTING_PR=$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number' || echo "")
+
+          if [ -n "$EXISTING_PR" ]; then
+            echo "PR #$EXISTING_PR already exists for branch $RELEASE_BRANCH"
+            gh pr view "$EXISTING_PR"
+            exit 0
+          fi
+          
+          # Get changelog excerpt for PR body
+          if [ -f CHANGELOG.md ]; then
+            CHANGELOG_EXCERPT=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | sed '$ d' || echo "See CHANGELOG.md for details")
+          else
+            CHANGELOG_EXCERPT="See CHANGELOG.md for details"
+          fi
+          
+          # Create new PR
+          gh pr create \
+            --base "$BASE_BRANCH" \
+            --head "$RELEASE_BRANCH" \
+            --title "chore(release): $VERSION" \
+            --body "Automated release PR
+
+          **Version:** \`$VERSION\`
+
+          ## Changes
+
+          $CHANGELOG_EXCERPT
+
+          ---
+          *This PR was automatically created by the release workflow. Merge this PR to publish the release to CocoaPods.*"
+
+          echo "PR created successfully"
+
+          # Get the PR number of the newly created PR
+          PR_NUMBER=$(gh pr list --head "$RELEASE_BRANCH" --base "$BASE_BRANCH" --json number --jq '.[0].number')
+
+          # Add the release label
+          gh pr edit "$PR_NUMBER" --add-label "release"
+          echo "Added 'release' label to PR #$PR_NUMBER"
+
+      - name: Release branch already exists
+        if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'true'
+        run: |
+          RELEASE_BRANCH="${{ steps.get_version.outputs.release_branch }}"
+          
+          echo ""
+          echo "Release branch already exists: $RELEASE_BRANCH"
+          echo ""
+          
+          # Check if PR exists for this branch
+          EXISTING_PR=$(gh pr list --head "$RELEASE_BRANCH" --base "${{ github.ref_name }}" --json number,url --jq '.[0]' || echo "")
+          
+          if [ -n "$EXISTING_PR" ]; then
+            PR_NUMBER=$(echo "$EXISTING_PR" | jq -r '.number')
+            PR_URL=$(echo "$EXISTING_PR" | jq -r '.url')
+            echo "Existing PR: #$PR_NUMBER"
+            echo "URL: $PR_URL"
+            gh pr view "$PR_NUMBER"
+          else
+            echo "Branch exists but no PR found. You may need to:"
+            echo "   1. Create PR manually, or"
+            echo "   2. Delete the branch and re-run this workflow"
+            echo ""
+            echo "To delete the branch:"
+            echo "   git push origin --delete $RELEASE_BRANCH"
+          fi
+
+      - name: No release needed
+        if: steps.get_version.outputs.should_create_pr == 'false'
+        run: |
+          echo ""
+          echo "No new version to release"
+          echo ""
+          echo "Current version: ${{ steps.current_version.outputs.current_version }}"
+          echo ""
+          echo "To trigger a release, make commits following Conventional Commits format:"
+          echo ""
+          echo "  feat: for new features (minor version bump)"
+          echo "        Example: feat: add video quality analytics"
+          echo ""
+          echo "  fix: for bug fixes (patch version bump)"
+          echo "        Example: fix: resolve memory leak in tracker"
+          echo ""
+          echo "  BREAKING CHANGE: for breaking changes (major version bump)"
+          echo "        Example: feat!: redesign tracking API"
+          echo ""
