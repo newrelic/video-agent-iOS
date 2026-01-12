@@ -59,7 +59,7 @@ jobs:
           pod lib lint NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent.podspec validated"
 
-          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
+          pod lib lint NRAVPlayerTracker.podspec --allow-warnings 
           echo "NRAVPlayerTracker.podspec validated"
 
           pod lib lint NRIMATracker.podspec --allow-warnings
@@ -87,10 +87,21 @@ jobs:
 
           echo "CocoaPods trunk authentication configured"
 
+      - name: Create and push git tag
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          echo "Creating tag v$VERSION..."
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          echo "Tag v$VERSION created and pushed successfully!"
+
       - name: Publish NewRelicVideoAgent
         run: |
           echo "Publishing NewRelicVideoAgent..."
-          pod trunk push NewRelicVideoAgent.podspec --allow-warnings --skip-import-validation
+          pod trunk push NewRelicVideoAgent.podspec --allow-warnings
           echo "NewRelicVideoAgent published!"
 
       - name: Wait for NewRelicVideoAgent indexing
@@ -123,13 +134,13 @@ jobs:
       - name: Publish NRAVPlayerTracker
         run: |
           echo "Publishing NRAVPlayerTracker..."
-          pod trunk push NRAVPlayerTracker.podspec --allow-warnings --skip-import-validation
+          pod trunk push NRAVPlayerTracker.podspec --allow-warnings
           echo "NRAVPlayerTracker published!"
 
       - name: Publish NRIMATracker
         run: |
           echo "Publishing NRIMATracker..."
-          pod trunk push NRIMATracker.podspec --allow-warnings --skip-import-validation
+          pod trunk push NRIMATracker.podspec --allow-warnings
           echo "NRIMATracker published!"
 
       - name: Extract changelog excerpt
