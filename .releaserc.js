@@ -1,5 +1,5 @@
 module.exports = {
-  branches: ['master'],
+  branches: ['master', 'fix/syntaxPublishWorkflow'],
   plugins: [
     [
       '@semantic-release/commit-analyzer',
