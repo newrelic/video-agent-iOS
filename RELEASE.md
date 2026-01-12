@@ -196,7 +196,6 @@ Ensure the following secret is configured in repository settings:
 - `COCOAPODS_TRUNK_TOKEN` - Your CocoaPods trunk authentication token
 
 To get your CocoaPods token:
-
 ```bash
 pod trunk me
 # Copy the token and add it to GitHub Secrets
@@ -315,7 +314,6 @@ This release process follows the **"stable releases, one-shot PRs"** approach:
 8. **Delete and retry** if you need to recreate a release (don't force push)
 
 ## Support
-
 For issues with the release process:
 1. Check GitHub Actions workflow logs
 2. Review this documentation

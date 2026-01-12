@@ -30,4 +30,5 @@ xcuserdata/*
 *.xcframework
 Pods
 docs
-node_modules
+node_modules/
+.gitignore
