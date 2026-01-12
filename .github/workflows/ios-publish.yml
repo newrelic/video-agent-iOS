@@ -6,6 +6,8 @@ on:
       - closed
     branches:
       - master
+    
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,6 +17,7 @@ jobs:
     runs-on: macos-latest
     # Only run if PR was merged and has release label
     if: |
+      github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
 
     steps:
@@ -40,7 +43,7 @@ jobs:
         run: |
           VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
           echo "Extracted version from podspec: $VERSION"
-
+      
           if [ -z "$VERSION" ]; then
             echo "Failed to extract version"
             exit 1
