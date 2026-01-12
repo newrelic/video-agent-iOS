@@ -38,10 +38,8 @@ jobs:
       - name: Extract version from podspec
         id: get_version
         run: |
-          if
-            VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
-            echo "Extracted version from podspec: $VERSION"
-          fi
+          VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
+          echo "Extracted version from podspec: $VERSION"
 
           if [ -z "$VERSION" ]; then
             echo "Failed to extract version"
