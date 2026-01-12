@@ -30,5 +30,4 @@ xcuserdata/*
 *.xcframework
 Pods
 docs
-node_modules/
 
