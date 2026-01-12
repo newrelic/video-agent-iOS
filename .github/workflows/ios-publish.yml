@@ -5,11 +5,6 @@ on:
     types: [closed]
     branches:
       - master
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to publish (optional, will auto-detect from podspec)'
-        required: false
 
 permissions:
   contents: write
@@ -19,8 +14,7 @@ jobs:
     runs-on: macos-latest
     # Only run if PR was merged and has release label
     if: |
-      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')) ||
-      github.event_name == 'workflow_dispatch'
+      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
 
     steps:
       - name: Checkout code
@@ -43,10 +37,7 @@ jobs:
       - name: Extract version from podspec
         id: get_version
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-            echo "Using manual version: $VERSION"
-          else
+          if
             VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
             echo "Extracted version from podspec: $VERSION"
           fi
