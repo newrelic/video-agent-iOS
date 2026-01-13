@@ -100,16 +100,31 @@
                      }];
     
     // ✅ TRACKER-SPECIFIC custom event (enriched with video attributes)
-    [NRVAVideo recordCustomEvent:@"VIDEO_READY" 
-                      trackerId:@(self.trackerId) 
+    [NRVAVideo recordCustomEvent:@"VIDEO_READY"
+                      trackerId:@(self.trackerId)
                      attributes:@{
                          @"videoURL": videoURL,
                          @"hasAds": @YES,
                          @"customAttr1": @"enhanced",
                          @"customAttr2": @"with_video_context"
                      }];
-    
+
     [self setupAds:player];
+
+    // POC: indicatedBitrate is now automatically included in ALL events
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        AVPlayerItemAccessLogEvent *event = [player.currentItem.accessLog.events lastObject];
+        if (event) {
+            double indicatedBitrate = event.indicatedBitrate;
+            double observedBitrate = event.observedBitrate;
+
+            NSLog(@"[BITRATE_POC] === BITRATE COMPARISON ===");
+            NSLog(@"[BITRATE_POC] indicatedBitrate (from manifest):    %.2f bps (%.2f Mbps)", indicatedBitrate, indicatedBitrate / 1000000.0);
+            NSLog(@"[BITRATE_POC] observedBitrate (actual throughput):  %.2f bps (%.2f Mbps)", observedBitrate, observedBitrate / 1000000.0);
+            NSLog(@"[BITRATE_POC] ===================================");
+            NSLog(@"[BITRATE_POC] contentIndicatedBitrate is now included in ALL video events automatically!");
+        }
+    });
     
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];

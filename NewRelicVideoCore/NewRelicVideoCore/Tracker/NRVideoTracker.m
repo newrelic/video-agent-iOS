@@ -143,6 +143,9 @@
     if (self.state.isAd) {
         [attr setObject:[self getTitle] forKey:@"adTitle"];
         [attr setObject:[self getBitrate] forKey:@"adBitrate"];
+        if ([self respondsToSelector:@selector(getIndicatedBitrate)]) {
+            [attr setObject:[self getIndicatedBitrate] forKey:@"adIndicatedBitrate"];
+        }
         [attr setObject:[self getRenditionBitrate] forKey:@"adRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"adRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"adRenditionHeight"];
@@ -179,6 +182,9 @@
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
+        if ([self respondsToSelector:@selector(getIndicatedBitrate)]) {
+            [attr setObject:[self getIndicatedBitrate] forKey:@"contentIndicatedBitrate"];
+        }
         [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"contentRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"contentRenditionHeight"];
@@ -463,6 +469,10 @@
 }
 
 - (NSNumber *)getBitrate {
+    return (NSNumber *)[NSNull null];
+}
+
+- (NSNumber *)getIndicatedBitrate {
     return (NSNumber *)[NSNull null];
 }
 

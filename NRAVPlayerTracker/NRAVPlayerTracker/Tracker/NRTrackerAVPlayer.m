@@ -403,6 +403,11 @@
     return @(event.observedBitrate);
 }
 
+- (NSNumber *)getIndicatedBitrate {
+    AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
+    return @(event.indicatedBitrate);
+}
+
 - (NSNumber *)getRenditionWidth {
     return @(self.playerInstance.currentItem.presentationSize.width);
 }

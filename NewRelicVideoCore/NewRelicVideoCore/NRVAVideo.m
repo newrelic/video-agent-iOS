@@ -525,6 +525,20 @@ static dispatch_once_t onceToken;
     }
 }
 
++ (void)indicateBitrate:(NSNumber *)trackerId bitrate:(NSNumber *)bitrate {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot indicate bitrate");
+        return;
+    }
+
+    NRTracker *tracker = [[NewRelicVideoAgent sharedInstance] contentTracker:trackerId];
+    if (tracker) {
+        [tracker indicateBitrate:bitrate];
+    } else {
+        NRVA_ERROR_LOG(@"Tracker not found for trackerId: %@", trackerId);
+    }
+}
+
 @end
 
 #pragma mark - Builder Implementation
