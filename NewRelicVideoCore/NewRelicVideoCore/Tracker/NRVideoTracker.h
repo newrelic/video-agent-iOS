@@ -104,6 +104,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)sendHeartbeat;
 
 /**
+ Send QoE aggregate event.
+ */
+- (void)sendQoeAggregate;
+
+/**
  Send rendition change event.
  */
 - (void)sendRenditionChange;
