@@ -93,17 +93,26 @@ static dispatch_once_t onceToken;
         videoInstance.trackerIds[config.playerName] = @(trackerId);
     }
     
-    // Create content tracker
+    // Create content tracker (auto-detects MediaTailor vs regular AVPlayer)
     id contentTracker = nil;
+    BOOL isMediaTailor = NO;
     if (config.player) {
-        contentTracker = [self createContentTracker];
+        contentTracker = [self createContentTrackerForPlayer:config.player];
+        // Check if we created a MediaTailor tracker
+        if (contentTracker) {
+            Class mediaTailorClass = NSClassFromString(@"NRTrackerMediaTailor");
+            if (mediaTailorClass && [contentTracker isKindOfClass:mediaTailorClass]) {
+                isMediaTailor = YES;
+                NRVA_DEBUG_LOG(@"MediaTailor tracker created - skipping IMA tracker (SSAI handles ads)");
+            }
+        }
     } else {
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
-    
-    // Create ad tracker
+
+    // Create ad tracker (skip for MediaTailor - SSAI handles ads server-side)
     id adTracker = nil;
-    if (config.isAdEnabled) {
+    if (config.isAdEnabled && !isMediaTailor) {
         adTracker = [self createAdTracker];
     }
 
@@ -355,16 +364,25 @@ static dispatch_once_t onceToken;
 /**
  * Creates a content tracker for AVPlayer
  * Creates tracker without player, then sets player after initialization
+ * Automatically detects MediaTailor streams and uses NRTrackerMediaTailor if appropriate
  */
 + (id)createContentTracker {
+    // Try to create MediaTailor tracker first if available
+    // MediaTailor tracker will decide if it should be used via isUsing: method
+    Class mediaTailorClass = NSClassFromString(@"NRTrackerMediaTailor");
+    if (mediaTailorClass) {
+        NRVA_DEBUG_LOG(@"MediaTailor tracker class available - will check during player setup");
+    }
+
     // Create NRTrackerAVPlayer without player
     // Player will be set after tracker initialization
+    // Note: If MediaTailor is detected, the tracker will be swapped in createContentTrackerForPlayer:
     Class trackerClass = NSClassFromString(@"NRTrackerAVPlayer");
     if (!trackerClass) {
         NRVA_ERROR_LOG(@"NRTrackerAVPlayer class not found - ensure NRAVPlayerTracker pod is installed");
         return nil;
     }
-    
+
     // Create tracker using default constructor (no player parameter)
     id tracker = [[trackerClass alloc] init];
     if (tracker) {
@@ -374,6 +392,48 @@ static dispatch_once_t onceToken;
         NRVA_ERROR_LOG(@"Failed to create NRTrackerAVPlayer instance");
         return nil;
     }
+}
+
+/**
+ * Creates a content tracker specifically for a given player
+ * Detects if the player is using MediaTailor and creates appropriate tracker
+ */
++ (id)createContentTrackerForPlayer:(id)player {
+    if (!player) {
+        return [self createContentTracker];
+    }
+
+    // Check if this is a MediaTailor stream
+    Class mediaTailorClass = NSClassFromString(@"NRTrackerMediaTailor");
+    if (mediaTailorClass) {
+        // Use isUsing: class method to check if MediaTailor should handle this player
+        SEL isUsingSelector = NSSelectorFromString(@"isUsing:");
+        if ([mediaTailorClass respondsToSelector:isUsingSelector]) {
+            NSMethodSignature *signature = [mediaTailorClass methodSignatureForSelector:isUsingSelector];
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:signature];
+            [invocation setTarget:mediaTailorClass];
+            [invocation setSelector:isUsingSelector];
+            [invocation setArgument:&player atIndex:2];
+            [invocation invoke];
+
+            BOOL shouldUseMediaTailor = NO;
+            [invocation getReturnValue:&shouldUseMediaTailor];
+
+            if (shouldUseMediaTailor) {
+                NRVA_DEBUG_LOG(@"MediaTailor stream detected - creating NRTrackerMediaTailor");
+                // Create MediaTailor tracker without player (will be set later)
+                id tracker = [[mediaTailorClass alloc] init];
+                if (tracker) {
+                    return tracker;
+                } else {
+                    NRVA_ERROR_LOG(@"Failed to create NRTrackerMediaTailor instance, falling back to AVPlayer tracker");
+                }
+            }
+        }
+    }
+
+    // Fall back to regular AVPlayer tracker
+    return [self createContentTracker];
 }
 
 /**
