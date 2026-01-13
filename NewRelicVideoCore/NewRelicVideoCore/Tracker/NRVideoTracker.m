@@ -38,6 +38,23 @@
 @property (nonatomic) int acc;
 @property (nonatomic) NRChrono *chrono;
 
+// QoE Aggregate properties
+@property (nonatomic) NSTimeInterval requestTimestamp;
+@property (nonatomic) NSTimeInterval startTimestamp;
+@property (nonatomic) NSTimeInterval errorTimestamp;
+@property (nonatomic) long startupTime;
+@property (nonatomic) long peakBitrate;
+@property (nonatomic) long averageBitrate;
+@property (nonatomic) long totalRebufferingTime;
+@property (nonatomic) NSTimeInterval currentBufferStartTime;
+@property (nonatomic) BOOL hadStartupFailure;
+@property (nonatomic) BOOL hadPlaybackFailure;
+@property (nonatomic) NSMutableArray<NSNumber *> *bitratesSample;
+@property (nonatomic) long currentBitrate;
+@property (nonatomic) NSTimeInterval lastBitrateChangeTime;
+@property (nonatomic) long long totalWeightedBitrate;
+@property (nonatomic) long startupPeriodAdTime;
+
 @end
 
 @implementation NRVideoTracker
@@ -59,6 +76,24 @@
         self.bufferType = nil;
         self.chrono = [[NRChrono alloc] init];
         self.acc = 0;
+
+        // Initialize QoE Aggregate properties
+        self.requestTimestamp = 0;
+        self.startTimestamp = 0;
+        self.errorTimestamp = 0;
+        self.startupTime = 0;
+        self.peakBitrate = 0;
+        self.averageBitrate = 0;
+        self.totalRebufferingTime = 0;
+        self.currentBufferStartTime = 0;
+        self.hadStartupFailure = NO;
+        self.hadPlaybackFailure = NO;
+        self.bitratesSample = [[NSMutableArray alloc] init];
+        self.currentBitrate = 0;
+        self.lastBitrateChangeTime = 0;
+        self.totalWeightedBitrate = 0;
+        self.startupPeriodAdTime = 0;
+
         AV_LOG(@"Init NSVideoTracker");
     }
     return self;
@@ -194,9 +229,14 @@
         [attr setObject:[self getFps] forKey:@"contentFps"];
         [attr setObject:[self getVideoId] forKey:@"contentId"];
     }
-    
+
     attr = [super getAttributes:action attributes:attr];
-    
+
+    // QoE: Track bitrate from processed attributes (for all content events except QOE_AGGREGATE)
+    if (!self.state.isAd && ![action isEqualToString:QOE_AGGREGATE]) {
+        [self trackBitrateFromProcessedAttributes:attr];
+    }
+
     return attr;
 }
 
@@ -205,11 +245,15 @@
 - (void)sendRequest {
     if ([self.state goRequest]) {
         self.playtimeSinceLastEventTimestamp = 0;
-        
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_REQUEST];
         }
         else {
+            // QoE: Capture CONTENT_REQUEST timestamp only once per session
+            if (self.requestTimestamp == 0) {
+                self.requestTimestamp = [[NSDate date] timeIntervalSince1970];
+            }
             [self sendVideoEvent:CONTENT_REQUEST];
         }
     }
@@ -229,8 +273,19 @@
         else {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 self.totalAdPlaytime = [(NRVideoTracker *)self.linkedTracker getTotalAdPlaytime].longValue;
+                // QoE: Store ad time for startup calculation (covers pre-roll scenario)
+                self.startupPeriodAdTime = self.totalAdPlaytime;
             }
             self.numberOfVideos++;
+
+            // QoE: Capture CONTENT_START timestamp only once per session
+            if (self.startTimestamp == 0) {
+                self.startTimestamp = [[NSDate date] timeIntervalSince1970];
+
+                // Initialize bitrate tracking timing
+                self.lastBitrateChangeTime = self.startTimestamp;
+            }
+
             [self sendVideoEvent:CONTENT_START];
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -280,10 +335,27 @@
         }
         else {
             [self sendVideoEvent:CONTENT_END];
+
+            // Reset QoE Aggregate metrics for next video
+            self.requestTimestamp = 0;
+            self.startTimestamp = 0;
+            self.errorTimestamp = 0;
+            self.startupTime = 0;
+            self.peakBitrate = 0;
+            self.averageBitrate = 0;
+            self.totalRebufferingTime = 0;
+            self.currentBufferStartTime = 0;
+            self.hadStartupFailure = NO;
+            self.hadPlaybackFailure = NO;
+            [self.bitratesSample removeAllObjects];
+            self.currentBitrate = 0;
+            self.lastBitrateChangeTime = 0;
+            self.totalWeightedBitrate = 0;
+            self.startupPeriodAdTime = 0;
         }
-        
+
         [self stopHeartbeat];
-        
+
         self.viewIdIndex++;
         self.numberOfErrors = 0;
         self.playtimeSinceLastEventTimestamp = 0;
@@ -324,6 +396,12 @@
             self.acc = (self.acc + [self.chrono getDeltaTime]);
         }
         self.bufferType = [self calculateBufferType];
+
+        // Track rebuffering start time (excluding initial buffering)
+        if (!self.state.isAd && self.bufferType && ![self.bufferType isEqualToString:@"initial"]) {
+            self.currentBufferStartTime = [[NSDate date] timeIntervalSince1970];
+        }
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_START];
         }
@@ -342,6 +420,15 @@
         if (!self.bufferType) {
             self.bufferType = [self calculateBufferType];
         }
+
+        // Calculate rebuffering time (excluding initial buffering)
+        if (!self.state.isAd && self.currentBufferStartTime > 0) {
+            NSTimeInterval bufferEndTime = [[NSDate date] timeIntervalSince1970];
+            long bufferDuration = (long)((bufferEndTime - self.currentBufferStartTime) * 1000.0);
+            self.totalRebufferingTime += bufferDuration;
+            self.currentBufferStartTime = 0;
+        }
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_END];
         }
@@ -369,7 +456,77 @@
     }
     else {
         [self sendVideoEvent:CONTENT_HEARTBEAT attributes:attributes];
+        [self sendQoeAggregate];
     }
+}
+
+- (void)sendQoeAggregate {
+    // Update bitrate tracking before sending QoE aggregate
+    [self updateBitrateTracking];
+
+    // Convert timestamps to milliseconds (CONTENT_REQUEST and CONTENT_START timestamps)
+    long long timeSinceRequested = self.requestTimestamp > 0 ? (long long)(self.requestTimestamp * 1000.0) : 0;
+    long long timeSinceStarted = self.startTimestamp > 0 ? (long long)(self.startTimestamp * 1000.0) : 0;
+
+    // Calculate startupTime once and cache for reuse
+    if (self.startupTime == 0 && self.requestTimestamp > 0) {
+        NSTimeInterval endTimestamp = 0;
+
+        // Determine end timestamp: use startTimestamp (success) or errorTimestamp (failure)
+        if (self.startTimestamp > 0) {
+            endTimestamp = self.startTimestamp; // Normal startup success
+        } else if (self.errorTimestamp > 0) {
+            endTimestamp = self.errorTimestamp; // Startup failure - time to error
+        }
+
+        if (endTimestamp > 0) {
+            long rawStartupTime = (long)((endTimestamp - self.requestTimestamp) * 1000.0);
+
+            // For content trackers - exclude ad time from startup calculation
+            if (!self.state.isAd && self.startupPeriodAdTime > 0) {
+                // Apply pattern: max(rawTime - adTime, 0)
+                self.startupTime = MAX(rawStartupTime - self.startupPeriodAdTime, 0);
+            } else {
+                // No ads or ad tracker itself - use raw calculation
+                self.startupTime = rawStartupTime > 0 ? rawStartupTime : 0;
+            }
+        }
+    }
+
+    // Calculate time-weighted average bitrate
+    long calculatedAverageBitrate = 0;
+    if (self.totalPlaytime > 0) {
+        // Add the current bitrate's contribution up to now
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+        long long totalWeighted = self.totalWeightedBitrate;
+        if (self.currentBitrate > 0 && self.lastBitrateChangeTime > 0) {
+            long long currentDuration = (long long)((currentTime - self.lastBitrateChangeTime) * 1000.0);
+            totalWeighted += (self.currentBitrate * currentDuration);
+        }
+        calculatedAverageBitrate = (long)(totalWeighted / self.totalPlaytime);
+    }
+
+    // Calculate rebuffering ratio
+    double rebufferingRatio = 0.0;
+    if (self.totalPlaytime > 0) {
+        rebufferingRatio = ((double)self.totalRebufferingTime / (double)self.totalPlaytime) * 100.0;
+    }
+
+    NSDictionary *qoeAttributes = @{
+        @"timeSinceRequested": @(timeSinceRequested),
+        @"timeSinceStarted": @(timeSinceStarted),
+        @"startupTime": @(self.startupTime),
+        @"peakBitrate": @(self.peakBitrate),
+        @"averageBitrate": @(calculatedAverageBitrate),
+        @"totalPlaytime": @(self.totalPlaytime),
+        @"totalRebufferingTime": @(self.totalRebufferingTime),
+        @"rebufferingRatio": @(rebufferingRatio),
+        @"hadStartupFailure": @(self.hadStartupFailure),
+        @"hadPlaybackFailure": @(self.hadPlaybackFailure),
+        @"qoeAggregateVersion": @"1.0.0"
+    };
+
+    [self sendVideoEvent:QOE_AGGREGATE attributes:qoeAttributes];
 }
 
 - (void)sendRenditionChange {
@@ -383,9 +540,9 @@
 
 - (void)sendError:(nullable NSError *)error {
     self.numberOfErrors++;
-    
+
     NSDictionary *errAttr = nil;
-    
+
     if (error) {
         errAttr = @{
             @"errorMessage": error.localizedDescription,
@@ -400,11 +557,21 @@
             @"errorCode": [NSNull null]
         };
     }
-    
+
     if (self.state.isAd) {
         [self sendVideoErrorEvent:AD_ERROR attributes:errAttr];
     }
     else {
+        // Track startup or playback failure for QoE Aggregate
+        if (self.startTimestamp == 0) {
+            self.hadStartupFailure = YES;
+            // QoE: Capture first error timestamp for startup time calculation (failure path)
+            if (self.errorTimestamp == 0) {
+                self.errorTimestamp = [[NSDate date] timeIntervalSince1970];
+            }
+        } else {
+            self.hadPlaybackFailure = YES;
+        }
         [self sendVideoErrorEvent:CONTENT_ERROR attributes:errAttr];
     }
 }
@@ -641,6 +808,61 @@
     }
     else {
         self.playtimeSinceLastEvent = 0;
+    }
+}
+
+- (void)trackBitrateFromProcessedAttributes:(NSDictionary *)processedAttributes {
+    // Extract contentBitrate from processed attributes
+    id contentBitrate = [processedAttributes objectForKey:@"contentBitrate"];
+    long bitrateValue = 0;
+
+    // Handle different numeric types
+    if ([contentBitrate isKindOfClass:[NSNumber class]]) {
+        bitrateValue = [(NSNumber *)contentBitrate longValue];
+    }
+
+    if (bitrateValue <= 0) {
+        return;
+    }
+
+    // Update QoE metrics with this bitrate
+    [self updateBitrateMetrics:bitrateValue];
+}
+
+- (void)updateBitrateMetrics:(long)bitrate {
+    if (bitrate <= 0) {
+        return;
+    }
+
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+
+    // If this is a bitrate change (and not the first bitrate)
+    if (self.currentBitrate > 0 && bitrate != self.currentBitrate && self.lastBitrateChangeTime > 0) {
+        // Calculate time duration (in milliseconds) at the previous bitrate
+        long long duration = (long long)((currentTime - self.lastBitrateChangeTime) * 1000.0);
+        // Add weighted bitrate (bitrate * duration)
+        self.totalWeightedBitrate += (self.currentBitrate * duration);
+    }
+
+    // Update current bitrate and timestamp
+    self.currentBitrate = bitrate;
+    self.lastBitrateChangeTime = currentTime;
+
+    // Update peak bitrate
+    if (bitrate > self.peakBitrate) {
+        self.peakBitrate = bitrate;
+    }
+}
+
+- (void)updateBitrateTracking {
+    // This method is called from sendQoeAggregate to ensure latest bitrate is captured
+    NSNumber *renditionBitrate = [self getRenditionBitrate];
+
+    if (renditionBitrate && ![renditionBitrate isEqual:[NSNull null]]) {
+        long bitrateValue = [renditionBitrate longValue];
+        if (bitrateValue > 0) {
+            [self updateBitrateMetrics:bitrateValue];
+        }
     }
 }
 
