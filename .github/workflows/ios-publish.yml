@@ -183,22 +183,6 @@ jobs:
             - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
 
-            ### Installation
-
-            Add to your `Podfile`:
-
-            ```ruby
-            pod 'NewRelicVideoAgent', '~> ${{ steps.get_version.outputs.version }}'
-            pod 'NRAVPlayerTracker', '~> ${{ steps.get_version.outputs.version }}'
-            pod 'NRIMATracker', '~> ${{ steps.get_version.outputs.version }}'
-            ```
-
-            Then run:
-
-            ```bash
-            pod install
-            ```
-
             ### What's Changed
 
             ${{ steps.changelog.outputs.changelog }}
