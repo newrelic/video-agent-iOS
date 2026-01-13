@@ -26,6 +26,7 @@
 @property (nonatomic, readonly) BOOL memoryOptimized;
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
 @property (nonatomic, readonly) BOOL isTV;
+@property (nonatomic, readonly) NSString *collectorAddress;
 
 /**
  * Get dead letter retry interval in milliseconds
@@ -60,6 +61,7 @@
 @property (nonatomic, assign) BOOL memoryOptimized;
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
 @property (nonatomic, assign) BOOL isTV;
+@property (nonatomic, strong) NSString *collectorAddress;
 
 /**
  * Auto-detect platform capabilities and apply optimizations
@@ -117,6 +119,13 @@
  * Set maximum offline storage size in MB (> 0 MB)
  */
 - (instancetype)withMaxOfflineStorageSize:(NSInteger)maxOfflineStorageSizeMB;
+
+/**
+ * Set custom collector domain address for /connect and /data endpoints (optional)
+ * Example: @"staging-mobile-collector.newrelic.com" or @"mobile-collector.newrelic.com"
+ * If not set, will be auto-detected from application token region
+ */
+- (instancetype)withCollectorAddress:(NSString *)collectorAddress;
 
 /**
  * Build the configuration

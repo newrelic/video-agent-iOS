@@ -173,18 +173,22 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
 #pragma mark - Private Methods
 
 - (NSString *)buildTokenEndpoint {
+    // If collectorAddress is explicitly set, use it for /connect endpoint
+    if (self.configuration.collectorAddress && self.configuration.collectorAddress.length > 0) {
+        return [NSString stringWithFormat:@"https://%@/mobile/v5/connect", self.configuration.collectorAddress];
+    }
+
+    // Otherwise, auto-detect from region
     NSString *region = self.configuration.region.uppercaseString;
-    
+
     if ([region isEqualToString:@"EU"]) {
-        return @"https://mobile-collector.eu.newrelic.com/mobile/v5/connect";
+        return @"https://mobile-collector.eu.nr-data.net/mobile/v5/connect";
     } else if ([region isEqualToString:@"AP"]) {
-        return @"https://mobile-collector.ap.newrelic.com/mobile/v5/connect";
+        return @"https://mobile-collector.ap.nr-data.net/mobile/v5/connect";
     } else if ([region isEqualToString:@"GOV"]) {
-        return @"https://mobile-collector.gov.newrelic.com/mobile/v5/connect";
-    } else if ([region isEqualToString:@"STAGING"]) {
-        return @"https://mobile-collector.staging.newrelic.com/mobile/v5/connect";
+        return @"https://gov-mobile-collector.newrelic.com/mobile/v5/connect";
     } else {
-        return @"https://mobile-collector.newrelic.com/mobile/v5/connect";
+        return @"https://mobile-collector.newrelic.com/mobile/v5/connect"; // US/DEFAULT
     }
 }
 
