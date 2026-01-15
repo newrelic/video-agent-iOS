@@ -43,7 +43,8 @@ An Attribute is a piece of data associated with an event. Attributes provide add
 | contentId                | The ID of the video.                                                                                                                               |
 | contentTitle             | The title of the video.                                                                                                                            |
 | contentIsLive            | True if the video is live.                                                                                                                         |
-| contentBitrate           | Bitrate (in bits) of the video.                                                                                                                    |
+| contentBitrate           | Average bitrate (in bits) of the video.                                                                                                            |
+| contentObservedBitrate   | Observed bitrate (in bits) - actual throughput of the video.                                                                                       |
 | contentRenditionName     | Name of the rendition (e.g., 1080p).                                                                                                               |
 | contentRenditionBitrate  | Target Bitrate of the rendition.                                                                                                                   |
 | contentRenditionHeight   | Rendition actual Height (before re-scaling).                                                                                                       |
@@ -107,7 +108,8 @@ An Attribute is a piece of data associated with an event. Attributes provide add
 | viewId                   | Trackers will generate unique IDs for every new video iteration.                                                                                   |
 | adId                     | The ID of the video.                                                                                                                               |
 | adTitle                  | The title of the video.                                                                                                                            |
-| adBitrate                | Bitrate (in bits) of the video.                                                                                                                    |
+| adBitrate                | Average bitrate (in bits) of the ad video.                                                                                                         |
+| adObservedBitrate        | Observed bitrate (in bits) - actual throughput of the ad video.                                                                                    |
 | adRenditionName          | Name of the rendition (e.g., 1080p).                                                                                                               |
 | adRenditionBitrate       | Target Bitrate of the rendition.                                                                                                                   |
 | adRenditionHeight        | Rendition actual Height (before re-scaling).                                                                                                       |

@@ -143,8 +143,8 @@
     if (self.state.isAd) {
         [attr setObject:[self getTitle] forKey:@"adTitle"];
         [attr setObject:[self getBitrate] forKey:@"adBitrate"];
-        if ([self respondsToSelector:@selector(getIndicatedBitrate)]) {
-            [attr setObject:[self getIndicatedBitrate] forKey:@"adIndicatedBitrate"];
+        if ([self respondsToSelector:@selector(getObservedBitrate)]) {
+            [attr setObject:[self getObservedBitrate] forKey:@"adObservedBitrate"];
         }
         [attr setObject:[self getRenditionBitrate] forKey:@"adRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"adRenditionWidth"];
@@ -182,8 +182,8 @@
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
-        if ([self respondsToSelector:@selector(getIndicatedBitrate)]) {
-            [attr setObject:[self getIndicatedBitrate] forKey:@"contentIndicatedBitrate"];
+        if ([self respondsToSelector:@selector(getObservedBitrate)]) {
+            [attr setObject:[self getObservedBitrate] forKey:@"contentObservedBitrate"];
         }
         [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"contentRenditionWidth"];
@@ -472,7 +472,7 @@
     return (NSNumber *)[NSNull null];
 }
 
-- (NSNumber *)getIndicatedBitrate {
+- (NSNumber *)getObservedBitrate {
     return (NSNumber *)[NSNull null];
 }
 
