@@ -147,11 +147,4 @@
     [self addTimeSinceEntryWithAction:TRACKER_READY attribute:@"timeSinceTrackerReady" applyTo:@"[A-Z_]+"];
 }
 
-- (void)indicateBitrate:(NSNumber *)bitrate {
-    NSDictionary *attributes = @{
-        @"bitrate": bitrate
-    };
-    [self sendEvent:@"BITRATE_INDICATION" attributes:attributes];
-}
-
 @end

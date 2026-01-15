@@ -189,13 +189,6 @@
  */
 + (void)performEmergencyBackup;
 
-/**
- * Send a bitrate indication event for a specific tracker
- * @param trackerId The tracker ID
- * @param bitrate The bitrate value in bits per second
- */
-+ (void)indicateBitrate:(NSNumber *)trackerId bitrate:(NSNumber *)bitrate;
-
 @end
 
 /**

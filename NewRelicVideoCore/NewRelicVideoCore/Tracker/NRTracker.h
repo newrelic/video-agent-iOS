@@ -187,13 +187,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)generateTimeSinceTable;
 
-/**
- Send a bitrate indication event.
-
- @param bitrate The bitrate value in bits per second.
- */
-- (void)indicateBitrate:(NSNumber *)bitrate;
-
 @end
 
 NS_ASSUME_NONNULL_END
