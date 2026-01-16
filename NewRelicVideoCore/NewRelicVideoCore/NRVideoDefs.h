@@ -1,3 +1,4 @@
+
 //
 //  NRVideoDefs.h
 //  NextVideoAgent
@@ -28,6 +29,7 @@
 #define CONTENT_BUFFER_START        @"CONTENT_BUFFER_START"
 #define CONTENT_BUFFER_END          @"CONTENT_BUFFER_END"
 #define CONTENT_HEARTBEAT           @"CONTENT_HEARTBEAT"
+#define QOE_AGGREGATE               @"QOE_AGGREGATE"
 #define CONTENT_RENDITION_CHANGE    @"CONTENT_RENDITION_CHANGE"
 #define CONTENT_ERROR               @"CONTENT_ERROR"
 
