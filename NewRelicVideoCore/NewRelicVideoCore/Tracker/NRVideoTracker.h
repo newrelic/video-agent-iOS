@@ -183,15 +183,22 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)getTitle;
 
 /**
- Get video bitrate in bits per second.
- 
+ Get video average bitrate in bits per second.
+
  @return Attribute.
  */
 - (NSNumber *)getBitrate;
 
 /**
+ Get observed video bitrate in bits per second.
+
+ @return Attribute.
+ */
+- (NSNumber *)getObservedBitrate;
+
+/**
  Get video rendition bitrate in bits per second.
- 
+
  @return Attribute.
  */
 - (NSNumber *)getRenditionBitrate;
