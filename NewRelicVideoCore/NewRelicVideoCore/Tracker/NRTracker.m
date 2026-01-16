@@ -44,7 +44,7 @@
 - (void)setAttribute:(NSString *)key value:(id<NSCopying>)value forAction:(nullable NSString *)action {
     [self.eventAttributes setAttribute:key value:value filter:action];
     
-    AV_LOG(@"Event Attribiutes = %@", self.eventAttributes);
+    AV_LOG(@"Event Attributes = %@", self.eventAttributes);
 }
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(nullable NSDictionary *)attributes {

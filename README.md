@@ -22,19 +22,9 @@ The video tracker for Google IMA Ads library. It depends on NewRelicVideoCore.
 
 ## Installation
 
-### Install automatically using Cocoapods
+Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
-Add the following lines to your Podfile:
-
-```
-  pod 'NewRelicVideoAgent'
-  pod 'NRAVPlayerTracker'
-  pod 'NRIMATracker'
-```
-
-### Other Installation Methods
-
-For detailed installation instructions including XCFramework integration and manual setup, see the [INSTALLATION.md](INSTALLATION.md) guide.
+For other installation methods including CocoaPods and manual builds, see [INSTALLATION.md](INSTALLATION.md).
 
 ## Getting Started
 
@@ -139,6 +129,10 @@ We encourage your contributions to improve New Relic Video Agent! Keep in mind w
 As noted in our [security policy](../../security/policy), New Relic is committed to the privacy and security of our customers and their data. We believe that providing coordinated disclosure by security researchers and engaging with the security community are important means to achieve our security goals.
 
 If you believe you have found a security vulnerability in this project or any of New Relic's products or websites, we welcome and greatly appreciate you reporting it to New Relic through [our bug bounty program](https://docs.newrelic.com/docs/security/security-privacy/information-security/report-security-vulnerabilities/).
+
+## Pricing
+
+Important: Ingesting video telemetry data via this video agent requires a subscription to an Advanced Compute. Contact your New Relic account representative for more details on pricing and entitlement.
 
 ## License
 
