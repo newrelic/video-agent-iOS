@@ -143,9 +143,6 @@
     if (self.state.isAd) {
         [attr setObject:[self getTitle] forKey:@"adTitle"];
         [attr setObject:[self getBitrate] forKey:@"adBitrate"];
-        if ([self respondsToSelector:@selector(getObservedBitrate)]) {
-            [attr setObject:[self getObservedBitrate] forKey:@"adObservedBitrate"];
-        }
         [attr setObject:[self getRenditionBitrate] forKey:@"adRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"adRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"adRenditionHeight"];

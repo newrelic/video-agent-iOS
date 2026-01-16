@@ -108,8 +108,8 @@ An Attribute is a piece of data associated with an event. Attributes provide add
 | viewId                   | Trackers will generate unique IDs for every new video iteration.                                                                                   |
 | adId                     | The ID of the video.                                                                                                                               |
 | adTitle                  | The title of the video.                                                                                                                            |
-| adBitrate                | Average bitrate (in bits) of the ad video.                                                                                                         |
-| adObservedBitrate        | Observed bitrate (in bits) - actual throughput of the ad video.                                                                                    |
+| adBitrate                | Bitrate (in bits) of the video.                                                                                                         |
+                                                                                    |
 | adRenditionName          | Name of the rendition (e.g., 1080p).                                                                                                               |
 | adRenditionBitrate       | Target Bitrate of the rendition.                                                                                                                   |
 | adRenditionHeight        | Rendition actual Height (before re-scaling).                                                                                                       |
