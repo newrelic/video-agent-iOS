@@ -108,7 +108,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
     // Remove trailing 'x' characters to get the region code
     for (NSInteger i = (NSInteger)matchString.length - 1; i >= 0; i--) {
-        if ([applicationToken characterAtIndex:i] != 'x') {
+        if ([matchString characterAtIndex:i] != 'x') {
             return [matchString substringWithRange:NSMakeRange(0, (NSUInteger)i + 1)];
         }
     }
