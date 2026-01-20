@@ -8,7 +8,7 @@
 #ifndef NRVideoDefs_h
 #define NRVideoDefs_h
 
-#define NRVIDEO_CORE_VERSION        @"4.0.2"
+#define NRVIDEO_CORE_VERSION        @"4.0.3"
 
 #define NR_VIDEO_EVENT              @"VideoAction"
 #define NR_VIDEO_AD_EVENT           @"VideoAdAction"
