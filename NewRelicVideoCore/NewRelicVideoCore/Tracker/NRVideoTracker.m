@@ -54,6 +54,8 @@
 @property (nonatomic) NSTimeInterval lastBitrateChangeTime;
 @property (nonatomic) long long totalWeightedBitrate;
 @property (nonatomic) long startupPeriodAdTime;
+@property (nonatomic) NSTimeInterval startupPeriodPauseStartTime;
+@property (nonatomic) long startupPeriodPauseTime;
 
 @end
 
@@ -93,6 +95,8 @@
         self.lastBitrateChangeTime = 0;
         self.totalWeightedBitrate = 0;
         self.startupPeriodAdTime = 0;
+        self.startupPeriodPauseStartTime = 0;
+        self.startupPeriodPauseTime = 0;
 
         AV_LOG(@"Init NSVideoTracker");
     }
@@ -301,6 +305,10 @@
             [self sendVideoAdEvent:AD_PAUSE];
         }
         else {
+            // QoE: Track pause start time during startup period (before CONTENT_START)
+            if (self.startTimestamp == 0 && self.startupPeriodPauseStartTime == 0) {
+                self.startupPeriodPauseStartTime = [[NSDate date] timeIntervalSince1970];
+            }
             [self sendVideoEvent:CONTENT_PAUSE];
         }
         self.playtimeSinceLastEventTimestamp = 0;
@@ -316,6 +324,34 @@
             [self sendVideoAdEvent:AD_RESUME];
         }
         else {
+            // QoE: Calculate pause duration during startup period (before CONTENT_START)
+            if (self.startTimestamp == 0 && self.startupPeriodPauseStartTime > 0) {
+                NSTimeInterval pauseEndTime = [[NSDate date] timeIntervalSince1970];
+
+                // Validate pause end time is after pause start time
+                if (pauseEndTime > self.startupPeriodPauseStartTime) {
+                    NSTimeInterval pauseDiff = pauseEndTime - self.startupPeriodPauseStartTime;
+
+                    // Check if multiplication by 1000 would overflow
+                    if (pauseDiff > (LONG_MAX / 1000.0)) {
+                        // Overflow would occur - cap total at LONG_MAX
+                        self.startupPeriodPauseTime = LONG_MAX;
+                    } else {
+                        long pauseDuration = (long)(pauseDiff * 1000.0);
+
+                        // Protect against overflow when adding to total
+                        if (pauseDuration > 0 && self.startupPeriodPauseTime <= LONG_MAX - pauseDuration) {
+                            self.startupPeriodPauseTime += pauseDuration;
+                        } else if (pauseDuration > 0) {
+                            // Overflow would occur - cap at LONG_MAX
+                            self.startupPeriodPauseTime = LONG_MAX;
+                        }
+                    }
+                }
+
+                // Reset pause start time for next pause (if any)
+                self.startupPeriodPauseStartTime = 0;
+            }
             [self sendVideoEvent:CONTENT_RESUME];
         }
         if (!self.state.isBuffering && !self.state.isSeeking) {
@@ -331,7 +367,13 @@
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 [(NRVideoTracker *)self.linkedTracker adHappened];
             }
-            self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
+            // Add totalPlaytime to totalAdPlaytime with overflow protection
+            if (self.totalPlaytime > 0 && self.totalAdPlaytime <= LONG_MAX - self.totalPlaytime) {
+                self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
+            } else if (self.totalPlaytime > 0) {
+                // Overflow would occur - cap at LONG_MAX
+                self.totalAdPlaytime = LONG_MAX;
+            }
         }
         else {
             [self sendVideoEvent:CONTENT_END];
@@ -352,6 +394,8 @@
             self.lastBitrateChangeTime = 0;
             self.totalWeightedBitrate = 0;
             self.startupPeriodAdTime = 0;
+            self.startupPeriodPauseStartTime = 0;
+            self.startupPeriodPauseTime = 0;
         }
 
         [self stopHeartbeat];
@@ -424,8 +468,27 @@
         // Calculate rebuffering time (excluding initial buffering)
         if (!self.state.isAd && self.currentBufferStartTime > 0) {
             NSTimeInterval bufferEndTime = [[NSDate date] timeIntervalSince1970];
-            long bufferDuration = (long)((bufferEndTime - self.currentBufferStartTime) * 1000.0);
-            self.totalRebufferingTime += bufferDuration;
+
+            // Validate buffer end time is after buffer start time
+            if (bufferEndTime > self.currentBufferStartTime) {
+                NSTimeInterval bufferDiff = bufferEndTime - self.currentBufferStartTime;
+
+                // Check if multiplication by 1000 would overflow
+                if (bufferDiff > (LONG_MAX / 1000.0)) {
+                    // Overflow would occur - cap total at LONG_MAX
+                    self.totalRebufferingTime = LONG_MAX;
+                } else {
+                    long bufferDuration = (long)(bufferDiff * 1000.0);
+
+                    // Protect against overflow when adding to total
+                    if (bufferDuration > 0 && self.totalRebufferingTime <= LONG_MAX - bufferDuration) {
+                        self.totalRebufferingTime += bufferDuration;
+                    } else if (bufferDuration > 0) {
+                        // Overflow would occur - cap at LONG_MAX
+                        self.totalRebufferingTime = LONG_MAX;
+                    }
+                }
+            }
             self.currentBufferStartTime = 0;
         }
 
@@ -480,15 +543,64 @@
         }
 
         if (endTimestamp > 0) {
-            long rawStartupTime = (long)((endTimestamp - self.requestTimestamp) * 1000.0);
-
-            // For content trackers - exclude ad time from startup calculation
-            if (!self.state.isAd && self.startupPeriodAdTime > 0) {
-                // Apply pattern: max(rawTime - adTime, 0)
-                self.startupTime = MAX(rawStartupTime - self.startupPeriodAdTime, 0);
+            // Validate timestamps to handle START before REQUEST edge case
+            if (endTimestamp < self.requestTimestamp) {
+                // Invalid: end happened before request - set to 0
+                self.startupTime = 0;
             } else {
-                // No ads or ad tracker itself - use raw calculation
-                self.startupTime = rawStartupTime > 0 ? rawStartupTime : 0;
+                // Calculate raw startup time with overflow protection
+                NSTimeInterval timeDiff = endTimestamp - self.requestTimestamp;
+
+                // Check if multiplication by 1000 would overflow (max safe value ~9e15 seconds)
+                if (timeDiff > (LONG_MAX / 1000.0)) {
+                    // Overflow would occur - cap at LONG_MAX
+                    self.startupTime = LONG_MAX;
+                } else {
+                    long long rawStartupTime = (long long)(timeDiff * 1000.0);
+
+                    // Ensure rawStartupTime is positive (should be guaranteed by earlier check)
+                    if (rawStartupTime < 0) {
+                        self.startupTime = 0;
+                    } else {
+                        // Calculate total exclusion time (ad time + pause time)
+                        long long totalExclusionTime = 0;
+
+                        // Add ad time exclusion with overflow check
+                        if (!self.state.isAd && self.startupPeriodAdTime > 0) {
+                            if (self.startupPeriodAdTime > LLONG_MAX - totalExclusionTime) {
+                                // Overflow would occur
+                                totalExclusionTime = LLONG_MAX;
+                            } else {
+                                totalExclusionTime += self.startupPeriodAdTime;
+                            }
+                        }
+
+                        // Add pause time exclusion with overflow check
+                        if (!self.state.isAd && self.startupPeriodPauseTime > 0 && totalExclusionTime < LLONG_MAX) {
+                            if (self.startupPeriodPauseTime > LLONG_MAX - totalExclusionTime) {
+                                // Overflow would occur - cap at LLONG_MAX
+                                totalExclusionTime = LLONG_MAX;
+                            } else {
+                                totalExclusionTime += self.startupPeriodPauseTime;
+                            }
+                        }
+
+                        // Calculate final startup time with underflow protection
+                        if (totalExclusionTime >= rawStartupTime) {
+                            // Exclusion time exceeds or equals raw time
+                            self.startupTime = 0;
+                        } else {
+                            long long finalStartupTime = rawStartupTime - totalExclusionTime;
+
+                            // Cap at LONG_MAX for the final result
+                            if (finalStartupTime > LONG_MAX) {
+                                self.startupTime = LONG_MAX;
+                            } else {
+                                self.startupTime = (long)finalStartupTime;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -499,10 +611,36 @@
         // Add the current bitrate's contribution up to now
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         long long totalWeighted = self.totalWeightedBitrate;
-        if (self.currentBitrate > 0 && self.lastBitrateChangeTime > 0) {
-            long long currentDuration = (long long)((currentTime - self.lastBitrateChangeTime) * 1000.0);
-            totalWeighted += (self.currentBitrate * currentDuration);
+
+        if (self.currentBitrate > 0 && self.lastBitrateChangeTime > 0 && currentTime > self.lastBitrateChangeTime) {
+            NSTimeInterval timeDiff = currentTime - self.lastBitrateChangeTime;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff <= (LLONG_MAX / 1000.0)) {
+                long long currentDuration = (long long)(timeDiff * 1000.0);
+
+                // Check if bitrate * duration would overflow
+                if (currentDuration > 0 && self.currentBitrate <= LLONG_MAX / currentDuration) {
+                    long long currentWeighted = self.currentBitrate * currentDuration;
+
+                    // Check if adding to total would overflow
+                    if (totalWeighted <= LLONG_MAX - currentWeighted) {
+                        totalWeighted += currentWeighted;
+                    } else {
+                        // Overflow would occur - use LLONG_MAX
+                        totalWeighted = LLONG_MAX;
+                    }
+                } else if (currentDuration > 0) {
+                    // Multiplication would overflow - use LLONG_MAX
+                    totalWeighted = LLONG_MAX;
+                }
+            } else {
+                // Duration calculation would overflow - use LLONG_MAX
+                totalWeighted = LLONG_MAX;
+            }
         }
+
+        // Calculate average with division overflow protection
         calculatedAverageBitrate = (long)(totalWeighted / self.totalPlaytime);
     }
 
@@ -802,9 +940,33 @@
 - (void) updatePlayTime {
     // Calculate playtimeSinceLastEvent and totalPlaytime
     if (self.playtimeSinceLastEventTimestamp > 0) {
-        self.playtimeSinceLastEvent = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
-        self.totalPlaytime += self.playtimeSinceLastEvent;
-        self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+
+        // Validate current time is after last event timestamp
+        if (currentTime > self.playtimeSinceLastEventTimestamp) {
+            NSTimeInterval timeDiff = currentTime - self.playtimeSinceLastEventTimestamp;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff > (LONG_MAX / 1000.0)) {
+                // Overflow would occur - cap playtime at LONG_MAX
+                self.playtimeSinceLastEvent = LONG_MAX;
+                self.totalPlaytime = LONG_MAX;
+            } else {
+                self.playtimeSinceLastEvent = (long)(1000.0f * timeDiff);
+
+                // Protect against overflow when adding to totalPlaytime
+                if (self.playtimeSinceLastEvent > 0 && self.totalPlaytime <= LONG_MAX - self.playtimeSinceLastEvent) {
+                    self.totalPlaytime += self.playtimeSinceLastEvent;
+                } else if (self.playtimeSinceLastEvent > 0) {
+                    // Overflow would occur - cap at LONG_MAX
+                    self.totalPlaytime = LONG_MAX;
+                }
+            }
+            self.playtimeSinceLastEventTimestamp = currentTime;
+        } else {
+            // Time went backwards - don't update
+            self.playtimeSinceLastEvent = 0;
+        }
     }
     else {
         self.playtimeSinceLastEvent = 0;
@@ -838,10 +1000,34 @@
 
     // If this is a bitrate change (and not the first bitrate)
     if (self.currentBitrate > 0 && bitrate != self.currentBitrate && self.lastBitrateChangeTime > 0) {
-        // Calculate time duration (in milliseconds) at the previous bitrate
-        long long duration = (long long)((currentTime - self.lastBitrateChangeTime) * 1000.0);
-        // Add weighted bitrate (bitrate * duration)
-        self.totalWeightedBitrate += (self.currentBitrate * duration);
+        // Validate current time is after last change time
+        if (currentTime > self.lastBitrateChangeTime) {
+            NSTimeInterval timeDiff = currentTime - self.lastBitrateChangeTime;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff > (LLONG_MAX / 1000.0)) {
+                // Duration overflow - cap totalWeightedBitrate at LLONG_MAX
+                self.totalWeightedBitrate = LLONG_MAX;
+            } else {
+                long long duration = (long long)(timeDiff * 1000.0);
+
+                // Check if bitrate * duration would overflow
+                if (duration > 0 && self.currentBitrate > 0 && self.currentBitrate <= LLONG_MAX / duration) {
+                    long long weightedBitrate = self.currentBitrate * duration;
+
+                    // Check if adding to total would overflow
+                    if (self.totalWeightedBitrate <= LLONG_MAX - weightedBitrate) {
+                        self.totalWeightedBitrate += weightedBitrate;
+                    } else {
+                        // Overflow would occur - cap at LLONG_MAX
+                        self.totalWeightedBitrate = LLONG_MAX;
+                    }
+                } else if (duration > 0 && self.currentBitrate > 0) {
+                    // Multiplication would overflow - cap at LLONG_MAX
+                    self.totalWeightedBitrate = LLONG_MAX;
+                }
+            }
+        }
     }
 
     // Update current bitrate and timestamp
