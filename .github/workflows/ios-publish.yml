@@ -6,7 +6,8 @@ on:
       - closed
     branches:
       - master
-    
+      - publish-workflow-improvement
+
   workflow_dispatch:
 
 permissions:
@@ -15,10 +16,8 @@ permissions:
 jobs:
   publish:
     runs-on: macos-latest
-    # Only run if PR was merged and has release label
-    if: |
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
+    # Only run on manual workflow dispatch
+    if: github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Checkout code
@@ -230,7 +229,6 @@ jobs:
           else
             echo "Publishing NRAVPlayerTracker $VERSION..."
 
-            # Try to publish, capturing output and handling errors
             set +e
             pod trunk push NRAVPlayerTracker.podspec --allow-warnings 2>&1 | tee publish_output.log
             EXIT_CODE=$?
@@ -239,7 +237,6 @@ jobs:
             if [ $EXIT_CODE -eq 0 ]; then
               echo "NRAVPlayerTracker published successfully!"
             else
-              # Check if it failed due to duplicate or server error
               if grep -q "Unable to accept duplicate entry" publish_output.log; then
                 echo "Duplicate entry error - pod was already published"
               elif grep -qi "internal server error" publish_output.log; then
@@ -265,13 +262,11 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
 
-          # Check if version is already published
           if pod trunk info NRIMATracker | grep -q "- $VERSION"; then
             echo "NRIMATracker $VERSION is already published, skipping..."
           else
             echo "Publishing NRIMATracker $VERSION..."
 
-            # Try to publish, capturing output and handling errors
             set +e
             pod trunk push NRIMATracker.podspec --allow-warnings 2>&1 | tee publish_output.log
             EXIT_CODE=$?
@@ -280,7 +275,6 @@ jobs:
             if [ $EXIT_CODE -eq 0 ]; then
               echo "NRIMATracker published successfully!"
             else
-              # Check if it failed due to duplicate or server error
               if grep -q "Unable to accept duplicate entry" publish_output.log; then
                 echo "Duplicate entry error - pod was already published"
               elif grep -qi "internal server error" publish_output.log; then
@@ -310,7 +304,7 @@ jobs:
           start=$(grep -n "^## \[$VERSION_REGEX\]" CHANGELOG.md | cut -d: -f1)
           end=$(awk "NR > $start && /^## \\[/" CHANGELOG.md | head -1 | awk '{print NR+$start}')
           if [ -z "$start" ]; then
-            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details."
+            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/publish-workflow-improvement/CHANGELOG.md) for details."
           else
             if [ -z "$end" ]; then
               tail -n +"$((start+1))" CHANGELOG.md > excerpt.txt
