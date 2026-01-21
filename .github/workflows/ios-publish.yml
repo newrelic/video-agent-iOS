@@ -302,10 +302,11 @@ jobs:
           VERSION="${{ steps.get_version.outputs.version }}"
           VERSION_REGEX=$(echo "$VERSION" | sed 's/\./\\./g')
           start=$(grep -n "^## \[$VERSION_REGEX\]" CHANGELOG.md | cut -d: -f1)
-          end=$(awk "NR > $start && /^## \\[/" CHANGELOG.md | head -1 | awk '{print NR+$start}')
+
           if [ -z "$start" ]; then
-            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/publish-workflow-improvement/CHANGELOG.md) for details."
+            CHANGELOG="See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/CHANGELOG.md) for details."
           else
+            end=$(awk -v start="$start" 'NR > start && /^## \[/ {print NR; exit}' CHANGELOG.md)
             if [ -z "$end" ]; then
               tail -n +"$((start+1))" CHANGELOG.md > excerpt.txt
             else
