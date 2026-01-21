@@ -52,21 +52,77 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
+      - name: Cleanup existing tag if present
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Check if tag exists locally
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag v$VERSION exists locally, deleting..."
+            git tag -d "v$VERSION"
+          fi
+
+          # Check if tag exists on remote
+          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION"; then
+            echo "Tag v$VERSION exists on remote, deleting..."
+            git push --delete origin "v$VERSION" || echo "Failed to delete remote tag (may not have permission)"
+          else
+            echo "Tag v$VERSION does not exist on remote"
+          fi
+
       - name: Validate podspecs
         run: |
           echo "Validating podspecs..."
 
-          pod lib lint NewRelicVideoAgent.podspec --allow-warnings
-          echo "NewRelicVideoAgent.podspec validated"
+          validate_with_retry() {
+            local podspec=$1
+            local max_attempts=3
+            local attempt=1
 
-          pod lib lint NRAVPlayerTracker.podspec --allow-warnings
-          echo "NRAVPlayerTracker.podspec validated"
+            while [ $attempt -le $max_attempts ]; do
+              echo "Validating $podspec (attempt $attempt/$max_attempts)..."
 
-          pod lib lint NRIMATracker.podspec --allow-warnings
-          echo "NRIMATracker.podspec validated"
+              set +e
+              pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
+              EXIT_CODE=$?
+              set -e
+
+              if [ $EXIT_CODE -eq 0 ]; then
+                echo "$podspec validated successfully"
+                rm -f validation_output.log
+                return 0
+              else
+                if grep -qi "internal server error" validation_output.log || grep -qi "connection.*timed out" validation_output.log; then
+                  echo "Transient error detected for $podspec"
+                  if [ $attempt -lt $max_attempts ]; then
+                    echo "Retrying in 10 seconds..."
+                    sleep 10
+                    attempt=$((attempt + 1))
+                  else
+                    echo "Failed after $max_attempts attempts"
+                    cat validation_output.log
+                    rm -f validation_output.log
+                    return 1
+                  fi
+                else
+                  echo "Validation failed with non-retryable error"
+                  cat validation_output.log
+                  rm -f validation_output.log
+                  return 1
+                fi
+              fi
+            done
+          }
+
+          # Validate each podspec with retry logic
+          validate_with_retry "NewRelicVideoAgent.podspec"
+          validate_with_retry "NRAVPlayerTracker.podspec"
+          validate_with_retry "NRIMATracker.podspec"
 
           echo ""
           echo "All podspecs validated successfully!"
+
+
 
       - name: Setup CocoaPods trunk authentication
         env:
@@ -100,9 +156,42 @@ jobs:
 
       - name: Publish NewRelicVideoAgent
         run: |
-          echo "Publishing NewRelicVideoAgent..."
-          pod trunk push NewRelicVideoAgent.podspec --allow-warnings
-          echo "NewRelicVideoAgent published!"
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Check if version is already published
+          if pod trunk info NewRelicVideoAgent | grep -q "- $VERSION"; then
+            echo "NewRelicVideoAgent $VERSION is already published, skipping..."
+          else
+            echo "Publishing NewRelicVideoAgent $VERSION..."
+
+            set +e
+            pod trunk push NewRelicVideoAgent.podspec --allow-warnings 2>&1 | tee publish_output.log
+            EXIT_CODE=$?
+            set -e
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "NewRelicVideoAgent published successfully!"
+            else
+              if grep -q "Unable to accept duplicate entry" publish_output.log; then
+                echo "Duplicate entry error - pod was already published"
+              elif grep -qi "internal server error" publish_output.log; then
+                echo "Internal server error occurred. Verifying if pod was actually published..."
+                sleep 5
+                if pod trunk info NewRelicVideoAgent | grep -q "- $VERSION"; then
+                  echo "Pod was published successfully despite server error!"
+                else
+                  echo "Pod was NOT published due to server error. Please retry the workflow."
+                  cat publish_output.log
+                  exit 1
+                fi
+              else
+                echo "Unexpected error during publishing:"
+                cat publish_output.log
+                exit 1
+              fi
+            fi
+            rm -f publish_output.log
+          fi
 
       - name: Wait for NewRelicVideoAgent indexing
         run: |
@@ -133,15 +222,85 @@ jobs:
 
       - name: Publish NRAVPlayerTracker
         run: |
-          echo "Publishing NRAVPlayerTracker..."
-          pod trunk push NRAVPlayerTracker.podspec --allow-warnings
-          echo "NRAVPlayerTracker published!"
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Check if version is already published
+          if pod trunk info NRAVPlayerTracker | grep -q "- $VERSION"; then
+            echo "NRAVPlayerTracker $VERSION is already published, skipping..."
+          else
+            echo "Publishing NRAVPlayerTracker $VERSION..."
+
+            # Try to publish, capturing output and handling errors
+            set +e
+            pod trunk push NRAVPlayerTracker.podspec --allow-warnings 2>&1 | tee publish_output.log
+            EXIT_CODE=$?
+            set -e
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "NRAVPlayerTracker published successfully!"
+            else
+              # Check if it failed due to duplicate or server error
+              if grep -q "Unable to accept duplicate entry" publish_output.log; then
+                echo "Duplicate entry error - pod was already published"
+              elif grep -qi "internal server error" publish_output.log; then
+                echo "Internal server error occurred. Verifying if pod was actually published..."
+                sleep 5
+                if pod trunk info NRAVPlayerTracker | grep -q "- $VERSION"; then
+                  echo "Pod was published successfully despite server error!"
+                else
+                  echo "Pod was NOT published due to server error. Please retry the workflow."
+                  cat publish_output.log
+                  exit 1
+                fi
+              else
+                echo "Unexpected error during publishing:"
+                cat publish_output.log
+                exit 1
+              fi
+            fi
+            rm -f publish_output.log
+          fi
 
       - name: Publish NRIMATracker
         run: |
-          echo "Publishing NRIMATracker..."
-          pod trunk push NRIMATracker.podspec --allow-warnings
-          echo "NRIMATracker published!"
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Check if version is already published
+          if pod trunk info NRIMATracker | grep -q "- $VERSION"; then
+            echo "NRIMATracker $VERSION is already published, skipping..."
+          else
+            echo "Publishing NRIMATracker $VERSION..."
+
+            # Try to publish, capturing output and handling errors
+            set +e
+            pod trunk push NRIMATracker.podspec --allow-warnings 2>&1 | tee publish_output.log
+            EXIT_CODE=$?
+            set -e
+
+            if [ $EXIT_CODE -eq 0 ]; then
+              echo "NRIMATracker published successfully!"
+            else
+              # Check if it failed due to duplicate or server error
+              if grep -q "Unable to accept duplicate entry" publish_output.log; then
+                echo "Duplicate entry error - pod was already published"
+              elif grep -qi "internal server error" publish_output.log; then
+                echo "Internal server error occurred. Verifying if pod was actually published..."
+                sleep 5
+                if pod trunk info NRIMATracker | grep -q "- $VERSION"; then
+                  echo "Pod was published successfully despite server error!"
+                else
+                  echo "Pod was NOT published due to server error. Please retry the workflow."
+                  cat publish_output.log
+                  exit 1
+                fi
+              else
+                echo "Unexpected error during publishing:"
+                cat publish_output.log
+                exit 1
+              fi
+            fi
+            rm -f publish_output.log
+          fi
 
       - name: Extract changelog excerpt
         id: changelog
@@ -199,15 +358,33 @@ jobs:
 
           echo ""
           echo "=== NewRelicVideoAgent ==="
-          pod search NewRelicVideoAgent | head -15
+          if pod trunk info NewRelicVideoAgent | grep -q "- $VERSION"; then
+            echo "NewRelicVideoAgent $VERSION is published"
+            pod trunk info NewRelicVideoAgent | grep -A 2 "Versions:" | head -10
+          else
+            echo "NewRelicVideoAgent $VERSION NOT found"
+            exit 1
+          fi
 
           echo ""
           echo "=== NRAVPlayerTracker ==="
-          pod search NRAVPlayerTracker | head -15
+          if pod trunk info NRAVPlayerTracker | grep -q "- $VERSION"; then
+            echo "NRAVPlayerTracker $VERSION is published"
+            pod trunk info NRAVPlayerTracker | grep -A 2 "Versions:" | head -10
+          else
+            echo "NRAVPlayerTracker $VERSION NOT found"
+            exit 1
+          fi
 
           echo ""
           echo "=== NRIMATracker ==="
-          pod search NRIMATracker | head -15
+          if pod trunk info NRIMATracker | grep -q "- $VERSION"; then
+            echo "NRIMATracker $VERSION is published"
+            pod trunk info NRIMATracker | grep -A 2 "Versions:" | head -10
+          else
+            echo "NRIMATracker $VERSION NOT found"
+            exit 1
+          fi
 
           echo ""
           echo "=================================="
