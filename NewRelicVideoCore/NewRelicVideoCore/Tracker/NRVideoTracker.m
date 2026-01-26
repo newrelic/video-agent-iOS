@@ -9,6 +9,7 @@
 #import "NRVideoDefs.h"
 #import "NRVideoLog.h"
 #import "NRTimeSince.h"
+#import "NRTimeSinceTable.h"
 #import "NRChrono.h"
 #import <CommonCrypto/CommonDigest.h>
 
@@ -38,6 +39,22 @@
 @property (nonatomic) int acc;
 @property (nonatomic) NRChrono *chrono;
 
+// QoE Aggregate properties
+@property (nonatomic) long startupTime;
+@property (nonatomic) long peakBitrate;
+@property (nonatomic) long averageBitrate;
+@property (nonatomic) long totalRebufferingTime;
+@property (nonatomic) NSTimeInterval currentBufferStartTime;
+@property (nonatomic) BOOL hadStartupFailure;
+@property (nonatomic) BOOL hadPlaybackFailure;
+@property (nonatomic) NSMutableArray<NSNumber *> *bitratesSample;
+@property (nonatomic) long currentBitrate;
+@property (nonatomic) NSTimeInterval lastBitrateChangeTime;
+@property (nonatomic) long long totalWeightedBitrate;
+@property (nonatomic) long startupPeriodAdTime;
+@property (nonatomic) NSTimeInterval startupPeriodPauseStartTime;
+@property (nonatomic) long startupPeriodPauseTime;
+
 @end
 
 @implementation NRVideoTracker
@@ -59,6 +76,23 @@
         self.bufferType = nil;
         self.chrono = [[NRChrono alloc] init];
         self.acc = 0;
+
+        // Initialize QoE Aggregate properties
+        self.startupTime = 0;
+        self.peakBitrate = 0;
+        self.averageBitrate = 0;
+        self.totalRebufferingTime = 0;
+        self.currentBufferStartTime = 0;
+        self.hadStartupFailure = NO;
+        self.hadPlaybackFailure = NO;
+        self.bitratesSample = [[NSMutableArray alloc] init];
+        self.currentBitrate = 0;
+        self.lastBitrateChangeTime = 0;
+        self.totalWeightedBitrate = 0;
+        self.startupPeriodAdTime = 0;
+        self.startupPeriodPauseStartTime = 0;
+        self.startupPeriodPauseTime = 0;
+
         AV_LOG(@"Init NSVideoTracker");
     }
     return self;
@@ -194,9 +228,14 @@
         [attr setObject:[self getFps] forKey:@"contentFps"];
         [attr setObject:[self getVideoId] forKey:@"contentId"];
     }
-    
+
     attr = [super getAttributes:action attributes:attr];
-    
+
+    // QoE: Track bitrate from processed attributes (for all content events except QOE_AGGREGATE)
+    if (!self.state.isAd && ![action isEqualToString:QOE_AGGREGATE]) {
+        [self trackBitrateFromProcessedAttributes:attr];
+    }
+
     return attr;
 }
 
@@ -205,7 +244,7 @@
 - (void)sendRequest {
     if ([self.state goRequest]) {
         self.playtimeSinceLastEventTimestamp = 0;
-        
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_REQUEST];
         }
@@ -229,8 +268,16 @@
         else {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 self.totalAdPlaytime = [(NRVideoTracker *)self.linkedTracker getTotalAdPlaytime].longValue;
+                // QoE: Store ad time for startup calculation (covers pre-roll scenario)
+                self.startupPeriodAdTime = self.totalAdPlaytime;
             }
             self.numberOfVideos++;
+
+            // Initialize bitrate tracking timing on first CONTENT_START
+            if (self.lastBitrateChangeTime == 0) {
+                self.lastBitrateChangeTime = [[NSDate date] timeIntervalSince1970];
+            }
+
             [self sendVideoEvent:CONTENT_START];
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -246,6 +293,11 @@
             [self sendVideoAdEvent:AD_PAUSE];
         }
         else {
+            // QoE: Track pause start time during startup period (before CONTENT_START)
+            // If totalPlaytime == 0, content hasn't started playing yet (startup period)
+            if (self.totalPlaytime == 0 && self.startupPeriodPauseStartTime == 0) {
+                self.startupPeriodPauseStartTime = [[NSDate date] timeIntervalSince1970];
+            }
             [self sendVideoEvent:CONTENT_PAUSE];
         }
         self.playtimeSinceLastEventTimestamp = 0;
@@ -261,6 +313,37 @@
             [self sendVideoAdEvent:AD_RESUME];
         }
         else {
+            // QoE: Calculate pause duration during startup period (before CONTENT_START)
+            if (self.startupPeriodPauseStartTime > 0) {
+                // Only count pause if we're still in startup period (totalPlaytime == 0)
+                if (self.totalPlaytime == 0) {
+                    NSTimeInterval pauseEndTime = [[NSDate date] timeIntervalSince1970];
+
+                    // Validate pause end time is after pause start time
+                    if (pauseEndTime > self.startupPeriodPauseStartTime) {
+                        NSTimeInterval pauseDiff = pauseEndTime - self.startupPeriodPauseStartTime;
+
+                        // Check if multiplication by 1000 would overflow
+                        if (pauseDiff > (LONG_MAX / 1000.0)) {
+                            // Overflow would occur - cap total at LONG_MAX
+                            self.startupPeriodPauseTime = LONG_MAX;
+                        } else {
+                            long pauseDuration = (long)(pauseDiff * 1000.0);
+
+                            // Protect against overflow when adding to total
+                            if (pauseDuration > 0 && self.startupPeriodPauseTime <= LONG_MAX - pauseDuration) {
+                                self.startupPeriodPauseTime += pauseDuration;
+                            } else if (pauseDuration > 0) {
+                                // Overflow would occur - cap at LONG_MAX
+                                self.startupPeriodPauseTime = LONG_MAX;
+                            }
+                        }
+                    }
+                }
+
+                // Reset pause start time for next pause (if any)
+                self.startupPeriodPauseStartTime = 0;
+            }
             [self sendVideoEvent:CONTENT_RESUME];
         }
         if (!self.state.isBuffering && !self.state.isSeeking) {
@@ -276,14 +359,36 @@
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 [(NRVideoTracker *)self.linkedTracker adHappened];
             }
-            self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
+            // Add totalPlaytime to totalAdPlaytime with overflow protection
+            if (self.totalPlaytime > 0 && self.totalAdPlaytime <= LONG_MAX - self.totalPlaytime) {
+                self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
+            } else if (self.totalPlaytime > 0) {
+                // Overflow would occur - cap at LONG_MAX
+                self.totalAdPlaytime = LONG_MAX;
+            }
         }
         else {
             [self sendVideoEvent:CONTENT_END];
+
+            // Reset QoE Aggregate metrics for next video
+            self.startupTime = 0;
+            self.peakBitrate = 0;
+            self.averageBitrate = 0;
+            self.totalRebufferingTime = 0;
+            self.currentBufferStartTime = 0;
+            self.hadStartupFailure = NO;
+            self.hadPlaybackFailure = NO;
+            [self.bitratesSample removeAllObjects];
+            self.currentBitrate = 0;
+            self.lastBitrateChangeTime = 0;
+            self.totalWeightedBitrate = 0;
+            self.startupPeriodAdTime = 0;
+            self.startupPeriodPauseStartTime = 0;
+            self.startupPeriodPauseTime = 0;
         }
-        
+
         [self stopHeartbeat];
-        
+
         self.viewIdIndex++;
         self.numberOfErrors = 0;
         self.playtimeSinceLastEventTimestamp = 0;
@@ -324,6 +429,12 @@
             self.acc = (self.acc + [self.chrono getDeltaTime]);
         }
         self.bufferType = [self calculateBufferType];
+
+        // Track rebuffering start time (excluding initial buffering)
+        if (!self.state.isAd && self.bufferType && ![self.bufferType isEqualToString:@"initial"]) {
+            self.currentBufferStartTime = [[NSDate date] timeIntervalSince1970];
+        }
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_START];
         }
@@ -342,6 +453,34 @@
         if (!self.bufferType) {
             self.bufferType = [self calculateBufferType];
         }
+
+        // Calculate rebuffering time (excluding initial buffering)
+        if (!self.state.isAd && self.currentBufferStartTime > 0) {
+            NSTimeInterval bufferEndTime = [[NSDate date] timeIntervalSince1970];
+
+            // Validate buffer end time is after buffer start time
+            if (bufferEndTime > self.currentBufferStartTime) {
+                NSTimeInterval bufferDiff = bufferEndTime - self.currentBufferStartTime;
+
+                // Check if multiplication by 1000 would overflow
+                if (bufferDiff > (LONG_MAX / 1000.0)) {
+                    // Overflow would occur - cap total at LONG_MAX
+                    self.totalRebufferingTime = LONG_MAX;
+                } else {
+                    long bufferDuration = (long)(bufferDiff * 1000.0);
+
+                    // Protect against overflow when adding to total
+                    if (bufferDuration > 0 && self.totalRebufferingTime <= LONG_MAX - bufferDuration) {
+                        self.totalRebufferingTime += bufferDuration;
+                    } else if (bufferDuration > 0) {
+                        // Overflow would occur - cap at LONG_MAX
+                        self.totalRebufferingTime = LONG_MAX;
+                    }
+                }
+            }
+            self.currentBufferStartTime = 0;
+        }
+
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_END];
         }
@@ -369,7 +508,162 @@
     }
     else {
         [self sendVideoEvent:CONTENT_HEARTBEAT attributes:attributes];
+        [self sendQoeAggregate];
     }
+}
+
+- (void)sendQoeAggregate {
+    // Update bitrate tracking before sending QoE aggregate
+    [self updateBitrateTracking];
+
+    // Calculate startupTime once and cache for reuse using timeSince values
+    // Formula: startupTime = timeSinceRequested - (timeSinceStarted OR timeSinceLastError) - exclusions
+    if (self.startupTime == 0) {
+        // Get timeSince values from the automatic timeSince system
+        // Create temporary dictionary and apply timeSince attributes for QOE_AGGREGATE
+        // Use KVC to access parent's private timeSinceTable property
+        NSMutableDictionary *tempTimeSinceAttrs = [[NSMutableDictionary alloc] init];
+        NRTimeSinceTable *timeSinceTable = [self valueForKey:@"timeSinceTable"];
+        [timeSinceTable applyAttributes:QOE_AGGREGATE attributes:tempTimeSinceAttrs];
+
+        NSNumber *timeSinceRequestedNum = [tempTimeSinceAttrs objectForKey:@"timeSinceRequested"];
+        NSNumber *timeSinceStartedNum = [tempTimeSinceAttrs objectForKey:@"timeSinceStarted"];
+        NSNumber *timeSinceLastErrorNum = [tempTimeSinceAttrs objectForKey:@"timeSinceLastError"];
+
+        // Only calculate if we have a request time
+        if (timeSinceRequestedNum && ![timeSinceRequestedNum isEqual:[NSNull null]]) {
+            long long timeSinceRequested = [timeSinceRequestedNum longLongValue];
+            long long rawStartupTime = 0;
+
+            // Determine if this was a success or failure startup
+            if (timeSinceStartedNum && ![timeSinceStartedNum isEqual:[NSNull null]]) {
+                // Success case: CONTENT_START happened
+                long long timeSinceStarted = [timeSinceStartedNum longLongValue];
+
+                // Validate: timeSinceRequested should be >= timeSinceStarted
+                if (timeSinceRequested >= timeSinceStarted) {
+                    rawStartupTime = timeSinceRequested - timeSinceStarted;
+                } else {
+                    // Invalid: start happened before request - set to 0
+                    self.startupTime = 0;
+                    rawStartupTime = -1; // Mark as invalid
+                }
+            } else if (timeSinceLastErrorNum && ![timeSinceLastErrorNum isEqual:[NSNull null]]) {
+                // Failure case: ERROR happened before START
+                long long timeSinceLastError = [timeSinceLastErrorNum longLongValue];
+
+                // Validate: timeSinceRequested should be >= timeSinceLastError
+                if (timeSinceRequested >= timeSinceLastError) {
+                    rawStartupTime = timeSinceRequested - timeSinceLastError;
+                    self.hadStartupFailure = YES;
+                } else {
+                    // Invalid: error happened before request - set to 0
+                    self.startupTime = 0;
+                    rawStartupTime = -1; // Mark as invalid
+                }
+            }
+
+            // Only proceed if we have a valid rawStartupTime
+            if (rawStartupTime >= 0) {
+                // Calculate total exclusion time (ad time + pause time)
+                long long totalExclusionTime = 0;
+
+                // Add ad time exclusion with overflow check
+                if (!self.state.isAd && self.startupPeriodAdTime > 0) {
+                    if (self.startupPeriodAdTime > LLONG_MAX - totalExclusionTime) {
+                        totalExclusionTime = LLONG_MAX;
+                    } else {
+                        totalExclusionTime += self.startupPeriodAdTime;
+                    }
+                }
+
+                // Add pause time exclusion with overflow check
+                if (!self.state.isAd && self.startupPeriodPauseTime > 0 && totalExclusionTime < LLONG_MAX) {
+                    if (self.startupPeriodPauseTime > LLONG_MAX - totalExclusionTime) {
+                        totalExclusionTime = LLONG_MAX;
+                    } else {
+                        totalExclusionTime += self.startupPeriodPauseTime;
+                    }
+                }
+
+                // Calculate final startup time with underflow protection
+                if (totalExclusionTime >= rawStartupTime) {
+                    // Exclusion time exceeds or equals raw time
+                    self.startupTime = 0;
+                } else {
+                    long long finalStartupTime = rawStartupTime - totalExclusionTime;
+
+                    // Cap at LONG_MAX for the final result
+                    if (finalStartupTime > LONG_MAX) {
+                        self.startupTime = LONG_MAX;
+                    } else {
+                        self.startupTime = (long)finalStartupTime;
+                    }
+                }
+            }
+        }
+    }
+
+    // Calculate time-weighted average bitrate
+    long calculatedAverageBitrate = 0;
+    if (self.totalPlaytime > 0) {
+        // Add the current bitrate's contribution up to now
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+        long long totalWeighted = self.totalWeightedBitrate;
+
+        if (self.currentBitrate > 0 && self.lastBitrateChangeTime > 0 && currentTime > self.lastBitrateChangeTime) {
+            NSTimeInterval timeDiff = currentTime - self.lastBitrateChangeTime;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff <= (LLONG_MAX / 1000.0)) {
+                long long currentDuration = (long long)(timeDiff * 1000.0);
+
+                // Check if bitrate * duration would overflow
+                if (currentDuration > 0 && self.currentBitrate <= LLONG_MAX / currentDuration) {
+                    long long currentWeighted = self.currentBitrate * currentDuration;
+
+                    // Check if adding to total would overflow
+                    if (totalWeighted <= LLONG_MAX - currentWeighted) {
+                        totalWeighted += currentWeighted;
+                    } else {
+                        // Overflow would occur - use LLONG_MAX
+                        totalWeighted = LLONG_MAX;
+                    }
+                } else if (currentDuration > 0) {
+                    // Multiplication would overflow - use LLONG_MAX
+                    totalWeighted = LLONG_MAX;
+                }
+            } else {
+                // Duration calculation would overflow - use LLONG_MAX
+                totalWeighted = LLONG_MAX;
+            }
+        }
+
+        // Calculate average with division overflow protection
+        calculatedAverageBitrate = (long)(totalWeighted / self.totalPlaytime);
+    }
+
+    // Calculate rebuffering ratio
+    double rebufferingRatio = 0.0;
+    if (self.totalPlaytime > 0) {
+        rebufferingRatio = ((double)self.totalRebufferingTime / (double)self.totalPlaytime) * 100.0;
+    }
+
+    // Note: timeSinceRequested, timeSinceStarted, and timeSinceLastError
+    // are automatically added by the NRTimeSince system via applyAttributes
+    NSDictionary *qoeAttributes = @{
+        @"startupTime": @(self.startupTime),
+        @"peakBitrate": @(self.peakBitrate),
+        @"averageBitrate": @(calculatedAverageBitrate),
+        @"totalPlaytime": @(self.totalPlaytime),
+        @"totalRebufferingTime": @(self.totalRebufferingTime),
+        @"rebufferingRatio": @(rebufferingRatio),
+        @"hadStartupFailure": @(self.hadStartupFailure),
+        @"hadPlaybackFailure": @(self.hadPlaybackFailure),
+        @"qoeAggregateVersion": @"1.0.0"
+    };
+
+    [self sendVideoEvent:QOE_AGGREGATE attributes:qoeAttributes];
 }
 
 - (void)sendRenditionChange {
@@ -383,9 +677,9 @@
 
 - (void)sendError:(nullable NSError *)error {
     self.numberOfErrors++;
-    
+
     NSDictionary *errAttr = nil;
-    
+
     if (error) {
         errAttr = @{
             @"errorMessage": error.localizedDescription,
@@ -400,11 +694,19 @@
             @"errorCode": [NSNull null]
         };
     }
-    
+
     if (self.state.isAd) {
         [self sendVideoErrorEvent:AD_ERROR attributes:errAttr];
     }
     else {
+        // Track startup or playback failure for QoE Aggregate
+        // If totalPlaytime > 0, content started playing → playback failure
+        // If totalPlaytime == 0, content hasn't started → startup failure
+        if (self.totalPlaytime > 0) {
+            self.hadPlaybackFailure = YES;
+        } else {
+            self.hadStartupFailure = YES;
+        }
         [self sendVideoErrorEvent:CONTENT_ERROR attributes:errAttr];
     }
 }
@@ -600,10 +902,10 @@
     [self addTimeSinceEntryWithAction:CONTENT_HEARTBEAT attribute:@"timeSinceLastHeartbeat" applyTo:@"^CONTENT_[A-Z_]+$"];
     [self addTimeSinceEntryWithAction:AD_HEARTBEAT attribute:@"timeSinceLastAdHeartbeat" applyTo:@"^AD_[A-Z_]+$"];
     
-    [self addTimeSinceEntryWithAction:CONTENT_REQUEST attribute:@"timeSinceRequested" applyTo:@"^CONTENT_[A-Z_]+$"];
+    [self addTimeSinceEntryWithAction:CONTENT_REQUEST attribute:@"timeSinceRequested" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_REQUEST attribute:@"timeSinceAdRequested" applyTo:@"^AD_[A-Z_]+$"];
-    
-    [self addTimeSinceEntryWithAction:CONTENT_START attribute:@"timeSinceStarted" applyTo:@"^CONTENT_[A-Z_]+$"];
+
+    [self addTimeSinceEntryWithAction:CONTENT_START attribute:@"timeSinceStarted" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_START attribute:@"timeSinceAdStarted" applyTo:@"^AD_[A-Z_]+$"];
     
     [self addTimeSinceEntryWithAction:CONTENT_PAUSE attribute:@"timeSincePaused" applyTo:@"^CONTENT_RESUME$"];
@@ -621,7 +923,7 @@
     [self addTimeSinceEntryWithAction:CONTENT_BUFFER_START attribute:@"timeSinceBufferBegin" applyTo:@"^CONTENT_BUFFER_END$"];
     [self addTimeSinceEntryWithAction:AD_BUFFER_START attribute:@"timeSinceAdBufferBegin" applyTo:@"^AD_BUFFER_END$"];
     
-    [self addTimeSinceEntryWithAction:CONTENT_ERROR attribute:@"timeSinceLastError" applyTo:@"^CONTENT_[A-Z_]+$"];
+    [self addTimeSinceEntryWithAction:CONTENT_ERROR attribute:@"timeSinceLastError" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_ERROR attribute:@"timeSinceLastAdError" applyTo:@"^AD_[A-Z_]+$"];
     
     [self addTimeSinceEntryWithAction:CONTENT_RENDITION_CHANGE attribute:@"timeSinceLastRenditionChange" applyTo:@"^CONTENT_RENDITION_CHANGE$"];
@@ -635,12 +937,115 @@
 - (void) updatePlayTime {
     // Calculate playtimeSinceLastEvent and totalPlaytime
     if (self.playtimeSinceLastEventTimestamp > 0) {
-        self.playtimeSinceLastEvent = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
-        self.totalPlaytime += self.playtimeSinceLastEvent;
-        self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
+        NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+
+        // Validate current time is after last event timestamp
+        if (currentTime > self.playtimeSinceLastEventTimestamp) {
+            NSTimeInterval timeDiff = currentTime - self.playtimeSinceLastEventTimestamp;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff > (LONG_MAX / 1000.0)) {
+                // Overflow would occur - cap playtime at LONG_MAX
+                self.playtimeSinceLastEvent = LONG_MAX;
+                self.totalPlaytime = LONG_MAX;
+            } else {
+                self.playtimeSinceLastEvent = (long)(1000.0f * timeDiff);
+
+                // Protect against overflow when adding to totalPlaytime
+                if (self.playtimeSinceLastEvent > 0 && self.totalPlaytime <= LONG_MAX - self.playtimeSinceLastEvent) {
+                    self.totalPlaytime += self.playtimeSinceLastEvent;
+                } else if (self.playtimeSinceLastEvent > 0) {
+                    // Overflow would occur - cap at LONG_MAX
+                    self.totalPlaytime = LONG_MAX;
+                }
+            }
+            self.playtimeSinceLastEventTimestamp = currentTime;
+        } else {
+            // Time went backwards - don't update
+            self.playtimeSinceLastEvent = 0;
+        }
     }
     else {
         self.playtimeSinceLastEvent = 0;
+    }
+}
+
+- (void)trackBitrateFromProcessedAttributes:(NSDictionary *)processedAttributes {
+    // Extract contentBitrate from processed attributes
+    id contentBitrate = [processedAttributes objectForKey:@"contentBitrate"];
+    long bitrateValue = 0;
+
+    // Handle different numeric types
+    if ([contentBitrate isKindOfClass:[NSNumber class]]) {
+        bitrateValue = [(NSNumber *)contentBitrate longValue];
+    }
+
+    if (bitrateValue <= 0) {
+        return;
+    }
+
+    // Update QoE metrics with this bitrate
+    [self updateBitrateMetrics:bitrateValue];
+}
+
+- (void)updateBitrateMetrics:(long)bitrate {
+    if (bitrate <= 0) {
+        return;
+    }
+
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+
+    // If this is a bitrate change (and not the first bitrate)
+    if (self.currentBitrate > 0 && bitrate != self.currentBitrate && self.lastBitrateChangeTime > 0) {
+        // Validate current time is after last change time
+        if (currentTime > self.lastBitrateChangeTime) {
+            NSTimeInterval timeDiff = currentTime - self.lastBitrateChangeTime;
+
+            // Check if multiplication by 1000 would overflow
+            if (timeDiff > (LLONG_MAX / 1000.0)) {
+                // Duration overflow - cap totalWeightedBitrate at LLONG_MAX
+                self.totalWeightedBitrate = LLONG_MAX;
+            } else {
+                long long duration = (long long)(timeDiff * 1000.0);
+
+                // Check if bitrate * duration would overflow
+                if (duration > 0 && self.currentBitrate > 0 && self.currentBitrate <= LLONG_MAX / duration) {
+                    long long weightedBitrate = self.currentBitrate * duration;
+
+                    // Check if adding to total would overflow
+                    if (self.totalWeightedBitrate <= LLONG_MAX - weightedBitrate) {
+                        self.totalWeightedBitrate += weightedBitrate;
+                    } else {
+                        // Overflow would occur - cap at LLONG_MAX
+                        self.totalWeightedBitrate = LLONG_MAX;
+                    }
+                } else if (duration > 0 && self.currentBitrate > 0) {
+                    // Multiplication would overflow - cap at LLONG_MAX
+                    self.totalWeightedBitrate = LLONG_MAX;
+                }
+            }
+        }
+    }
+
+    // Update current bitrate and timestamp
+    self.currentBitrate = bitrate;
+    self.lastBitrateChangeTime = currentTime;
+
+    // Update peak bitrate
+    if (bitrate > self.peakBitrate) {
+        self.peakBitrate = bitrate;
+    }
+}
+
+- (void)updateBitrateTracking {
+    // This method is called from sendQoeAggregate to ensure latest bitrate is captured
+    NSNumber *renditionBitrate = [self getRenditionBitrate];
+
+    if (renditionBitrate && ![renditionBitrate isEqual:[NSNull null]]) {
+        long bitrateValue = [renditionBitrate longValue];
+        if (bitrateValue > 0) {
+            [self updateBitrateMetrics:bitrateValue];
+        }
     }
 }
 
