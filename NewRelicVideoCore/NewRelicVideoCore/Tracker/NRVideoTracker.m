@@ -9,6 +9,7 @@
 #import "NRVideoDefs.h"
 #import "NRVideoLog.h"
 #import "NRTimeSince.h"
+#import "NRTimeSinceTable.h"
 #import "NRChrono.h"
 #import <CommonCrypto/CommonDigest.h>
 
@@ -39,9 +40,6 @@
 @property (nonatomic) NRChrono *chrono;
 
 // QoE Aggregate properties
-@property (nonatomic) NSTimeInterval requestTimestamp;
-@property (nonatomic) NSTimeInterval startTimestamp;
-@property (nonatomic) NSTimeInterval errorTimestamp;
 @property (nonatomic) long startupTime;
 @property (nonatomic) long peakBitrate;
 @property (nonatomic) long averageBitrate;
@@ -80,9 +78,6 @@
         self.acc = 0;
 
         // Initialize QoE Aggregate properties
-        self.requestTimestamp = 0;
-        self.startTimestamp = 0;
-        self.errorTimestamp = 0;
         self.startupTime = 0;
         self.peakBitrate = 0;
         self.averageBitrate = 0;
@@ -254,10 +249,6 @@
             [self sendVideoAdEvent:AD_REQUEST];
         }
         else {
-            // QoE: Capture CONTENT_REQUEST timestamp only once per session
-            if (self.requestTimestamp == 0) {
-                self.requestTimestamp = [[NSDate date] timeIntervalSince1970];
-            }
             [self sendVideoEvent:CONTENT_REQUEST];
         }
     }
@@ -282,12 +273,9 @@
             }
             self.numberOfVideos++;
 
-            // QoE: Capture CONTENT_START timestamp only once per session
-            if (self.startTimestamp == 0) {
-                self.startTimestamp = [[NSDate date] timeIntervalSince1970];
-
-                // Initialize bitrate tracking timing
-                self.lastBitrateChangeTime = self.startTimestamp;
+            // Initialize bitrate tracking timing on first CONTENT_START
+            if (self.lastBitrateChangeTime == 0) {
+                self.lastBitrateChangeTime = [[NSDate date] timeIntervalSince1970];
             }
 
             [self sendVideoEvent:CONTENT_START];
@@ -306,7 +294,8 @@
         }
         else {
             // QoE: Track pause start time during startup period (before CONTENT_START)
-            if (self.startTimestamp == 0 && self.startupPeriodPauseStartTime == 0) {
+            // If totalPlaytime == 0, content hasn't started playing yet (startup period)
+            if (self.totalPlaytime == 0 && self.startupPeriodPauseStartTime == 0) {
                 self.startupPeriodPauseStartTime = [[NSDate date] timeIntervalSince1970];
             }
             [self sendVideoEvent:CONTENT_PAUSE];
@@ -325,26 +314,29 @@
         }
         else {
             // QoE: Calculate pause duration during startup period (before CONTENT_START)
-            if (self.startTimestamp == 0 && self.startupPeriodPauseStartTime > 0) {
-                NSTimeInterval pauseEndTime = [[NSDate date] timeIntervalSince1970];
+            if (self.startupPeriodPauseStartTime > 0) {
+                // Only count pause if we're still in startup period (totalPlaytime == 0)
+                if (self.totalPlaytime == 0) {
+                    NSTimeInterval pauseEndTime = [[NSDate date] timeIntervalSince1970];
 
-                // Validate pause end time is after pause start time
-                if (pauseEndTime > self.startupPeriodPauseStartTime) {
-                    NSTimeInterval pauseDiff = pauseEndTime - self.startupPeriodPauseStartTime;
+                    // Validate pause end time is after pause start time
+                    if (pauseEndTime > self.startupPeriodPauseStartTime) {
+                        NSTimeInterval pauseDiff = pauseEndTime - self.startupPeriodPauseStartTime;
 
-                    // Check if multiplication by 1000 would overflow
-                    if (pauseDiff > (LONG_MAX / 1000.0)) {
-                        // Overflow would occur - cap total at LONG_MAX
-                        self.startupPeriodPauseTime = LONG_MAX;
-                    } else {
-                        long pauseDuration = (long)(pauseDiff * 1000.0);
-
-                        // Protect against overflow when adding to total
-                        if (pauseDuration > 0 && self.startupPeriodPauseTime <= LONG_MAX - pauseDuration) {
-                            self.startupPeriodPauseTime += pauseDuration;
-                        } else if (pauseDuration > 0) {
-                            // Overflow would occur - cap at LONG_MAX
+                        // Check if multiplication by 1000 would overflow
+                        if (pauseDiff > (LONG_MAX / 1000.0)) {
+                            // Overflow would occur - cap total at LONG_MAX
                             self.startupPeriodPauseTime = LONG_MAX;
+                        } else {
+                            long pauseDuration = (long)(pauseDiff * 1000.0);
+
+                            // Protect against overflow when adding to total
+                            if (pauseDuration > 0 && self.startupPeriodPauseTime <= LONG_MAX - pauseDuration) {
+                                self.startupPeriodPauseTime += pauseDuration;
+                            } else if (pauseDuration > 0) {
+                                // Overflow would occur - cap at LONG_MAX
+                                self.startupPeriodPauseTime = LONG_MAX;
+                            }
                         }
                     }
                 }
@@ -379,9 +371,6 @@
             [self sendVideoEvent:CONTENT_END];
 
             // Reset QoE Aggregate metrics for next video
-            self.requestTimestamp = 0;
-            self.startTimestamp = 0;
-            self.errorTimestamp = 0;
             self.startupTime = 0;
             self.peakBitrate = 0;
             self.averageBitrate = 0;
@@ -527,78 +516,88 @@
     // Update bitrate tracking before sending QoE aggregate
     [self updateBitrateTracking];
 
-    // Convert timestamps to milliseconds (CONTENT_REQUEST and CONTENT_START timestamps)
-    long long timeSinceRequested = self.requestTimestamp > 0 ? (long long)(self.requestTimestamp * 1000.0) : 0;
-    long long timeSinceStarted = self.startTimestamp > 0 ? (long long)(self.startTimestamp * 1000.0) : 0;
+    // Calculate startupTime once and cache for reuse using timeSince values
+    // Formula: startupTime = timeSinceRequested - (timeSinceStarted OR timeSinceLastError) - exclusions
+    if (self.startupTime == 0) {
+        // Get timeSince values from the automatic timeSince system
+        // Create temporary dictionary and apply timeSince attributes for QOE_AGGREGATE
+        // Use KVC to access parent's private timeSinceTable property
+        NSMutableDictionary *tempTimeSinceAttrs = [[NSMutableDictionary alloc] init];
+        NRTimeSinceTable *timeSinceTable = [self valueForKey:@"timeSinceTable"];
+        [timeSinceTable applyAttributes:QOE_AGGREGATE attributes:tempTimeSinceAttrs];
 
-    // Calculate startupTime once and cache for reuse
-    if (self.startupTime == 0 && self.requestTimestamp > 0) {
-        NSTimeInterval endTimestamp = 0;
+        NSNumber *timeSinceRequestedNum = [tempTimeSinceAttrs objectForKey:@"timeSinceRequested"];
+        NSNumber *timeSinceStartedNum = [tempTimeSinceAttrs objectForKey:@"timeSinceStarted"];
+        NSNumber *timeSinceLastErrorNum = [tempTimeSinceAttrs objectForKey:@"timeSinceLastError"];
 
-        // Determine end timestamp: use startTimestamp (success) or errorTimestamp (failure)
-        if (self.startTimestamp > 0) {
-            endTimestamp = self.startTimestamp; // Normal startup success
-        } else if (self.errorTimestamp > 0) {
-            endTimestamp = self.errorTimestamp; // Startup failure - time to error
-        }
+        // Only calculate if we have a request time
+        if (timeSinceRequestedNum && ![timeSinceRequestedNum isEqual:[NSNull null]]) {
+            long long timeSinceRequested = [timeSinceRequestedNum longLongValue];
+            long long rawStartupTime = 0;
 
-        if (endTimestamp > 0) {
-            // Validate timestamps to handle START before REQUEST edge case
-            if (endTimestamp < self.requestTimestamp) {
-                // Invalid: end happened before request - set to 0
-                self.startupTime = 0;
-            } else {
-                // Calculate raw startup time with overflow protection
-                NSTimeInterval timeDiff = endTimestamp - self.requestTimestamp;
+            // Determine if this was a success or failure startup
+            if (timeSinceStartedNum && ![timeSinceStartedNum isEqual:[NSNull null]]) {
+                // Success case: CONTENT_START happened
+                long long timeSinceStarted = [timeSinceStartedNum longLongValue];
 
-                // Check if multiplication by 1000 would overflow (max safe value ~9e15 seconds)
-                if (timeDiff > (LONG_MAX / 1000.0)) {
-                    // Overflow would occur - cap at LONG_MAX
-                    self.startupTime = LONG_MAX;
+                // Validate: timeSinceRequested should be >= timeSinceStarted
+                if (timeSinceRequested >= timeSinceStarted) {
+                    rawStartupTime = timeSinceRequested - timeSinceStarted;
                 } else {
-                    long long rawStartupTime = (long long)(timeDiff * 1000.0);
+                    // Invalid: start happened before request - set to 0
+                    self.startupTime = 0;
+                    rawStartupTime = -1; // Mark as invalid
+                }
+            } else if (timeSinceLastErrorNum && ![timeSinceLastErrorNum isEqual:[NSNull null]]) {
+                // Failure case: ERROR happened before START
+                long long timeSinceLastError = [timeSinceLastErrorNum longLongValue];
 
-                    // Ensure rawStartupTime is positive (should be guaranteed by earlier check)
-                    if (rawStartupTime < 0) {
-                        self.startupTime = 0;
+                // Validate: timeSinceRequested should be >= timeSinceLastError
+                if (timeSinceRequested >= timeSinceLastError) {
+                    rawStartupTime = timeSinceRequested - timeSinceLastError;
+                    self.hadStartupFailure = YES;
+                } else {
+                    // Invalid: error happened before request - set to 0
+                    self.startupTime = 0;
+                    rawStartupTime = -1; // Mark as invalid
+                }
+            }
+
+            // Only proceed if we have a valid rawStartupTime
+            if (rawStartupTime >= 0) {
+                // Calculate total exclusion time (ad time + pause time)
+                long long totalExclusionTime = 0;
+
+                // Add ad time exclusion with overflow check
+                if (!self.state.isAd && self.startupPeriodAdTime > 0) {
+                    if (self.startupPeriodAdTime > LLONG_MAX - totalExclusionTime) {
+                        totalExclusionTime = LLONG_MAX;
                     } else {
-                        // Calculate total exclusion time (ad time + pause time)
-                        long long totalExclusionTime = 0;
+                        totalExclusionTime += self.startupPeriodAdTime;
+                    }
+                }
 
-                        // Add ad time exclusion with overflow check
-                        if (!self.state.isAd && self.startupPeriodAdTime > 0) {
-                            if (self.startupPeriodAdTime > LLONG_MAX - totalExclusionTime) {
-                                // Overflow would occur
-                                totalExclusionTime = LLONG_MAX;
-                            } else {
-                                totalExclusionTime += self.startupPeriodAdTime;
-                            }
-                        }
+                // Add pause time exclusion with overflow check
+                if (!self.state.isAd && self.startupPeriodPauseTime > 0 && totalExclusionTime < LLONG_MAX) {
+                    if (self.startupPeriodPauseTime > LLONG_MAX - totalExclusionTime) {
+                        totalExclusionTime = LLONG_MAX;
+                    } else {
+                        totalExclusionTime += self.startupPeriodPauseTime;
+                    }
+                }
 
-                        // Add pause time exclusion with overflow check
-                        if (!self.state.isAd && self.startupPeriodPauseTime > 0 && totalExclusionTime < LLONG_MAX) {
-                            if (self.startupPeriodPauseTime > LLONG_MAX - totalExclusionTime) {
-                                // Overflow would occur - cap at LLONG_MAX
-                                totalExclusionTime = LLONG_MAX;
-                            } else {
-                                totalExclusionTime += self.startupPeriodPauseTime;
-                            }
-                        }
+                // Calculate final startup time with underflow protection
+                if (totalExclusionTime >= rawStartupTime) {
+                    // Exclusion time exceeds or equals raw time
+                    self.startupTime = 0;
+                } else {
+                    long long finalStartupTime = rawStartupTime - totalExclusionTime;
 
-                        // Calculate final startup time with underflow protection
-                        if (totalExclusionTime >= rawStartupTime) {
-                            // Exclusion time exceeds or equals raw time
-                            self.startupTime = 0;
-                        } else {
-                            long long finalStartupTime = rawStartupTime - totalExclusionTime;
-
-                            // Cap at LONG_MAX for the final result
-                            if (finalStartupTime > LONG_MAX) {
-                                self.startupTime = LONG_MAX;
-                            } else {
-                                self.startupTime = (long)finalStartupTime;
-                            }
-                        }
+                    // Cap at LONG_MAX for the final result
+                    if (finalStartupTime > LONG_MAX) {
+                        self.startupTime = LONG_MAX;
+                    } else {
+                        self.startupTime = (long)finalStartupTime;
                     }
                 }
             }
@@ -650,9 +649,9 @@
         rebufferingRatio = ((double)self.totalRebufferingTime / (double)self.totalPlaytime) * 100.0;
     }
 
+    // Note: timeSinceRequested, timeSinceStarted, and timeSinceLastError
+    // are automatically added by the NRTimeSince system via applyAttributes
     NSDictionary *qoeAttributes = @{
-        @"timeSinceRequested": @(timeSinceRequested),
-        @"timeSinceStarted": @(timeSinceStarted),
         @"startupTime": @(self.startupTime),
         @"peakBitrate": @(self.peakBitrate),
         @"averageBitrate": @(calculatedAverageBitrate),
@@ -701,14 +700,12 @@
     }
     else {
         // Track startup or playback failure for QoE Aggregate
-        if (self.startTimestamp == 0) {
-            self.hadStartupFailure = YES;
-            // QoE: Capture first error timestamp for startup time calculation (failure path)
-            if (self.errorTimestamp == 0) {
-                self.errorTimestamp = [[NSDate date] timeIntervalSince1970];
-            }
-        } else {
+        // If totalPlaytime > 0, content started playing → playback failure
+        // If totalPlaytime == 0, content hasn't started → startup failure
+        if (self.totalPlaytime > 0) {
             self.hadPlaybackFailure = YES;
+        } else {
+            self.hadStartupFailure = YES;
         }
         [self sendVideoErrorEvent:CONTENT_ERROR attributes:errAttr];
     }
@@ -905,10 +902,10 @@
     [self addTimeSinceEntryWithAction:CONTENT_HEARTBEAT attribute:@"timeSinceLastHeartbeat" applyTo:@"^CONTENT_[A-Z_]+$"];
     [self addTimeSinceEntryWithAction:AD_HEARTBEAT attribute:@"timeSinceLastAdHeartbeat" applyTo:@"^AD_[A-Z_]+$"];
     
-    [self addTimeSinceEntryWithAction:CONTENT_REQUEST attribute:@"timeSinceRequested" applyTo:@"^CONTENT_[A-Z_]+$"];
+    [self addTimeSinceEntryWithAction:CONTENT_REQUEST attribute:@"timeSinceRequested" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_REQUEST attribute:@"timeSinceAdRequested" applyTo:@"^AD_[A-Z_]+$"];
-    
-    [self addTimeSinceEntryWithAction:CONTENT_START attribute:@"timeSinceStarted" applyTo:@"^CONTENT_[A-Z_]+$"];
+
+    [self addTimeSinceEntryWithAction:CONTENT_START attribute:@"timeSinceStarted" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_START attribute:@"timeSinceAdStarted" applyTo:@"^AD_[A-Z_]+$"];
     
     [self addTimeSinceEntryWithAction:CONTENT_PAUSE attribute:@"timeSincePaused" applyTo:@"^CONTENT_RESUME$"];
@@ -926,7 +923,7 @@
     [self addTimeSinceEntryWithAction:CONTENT_BUFFER_START attribute:@"timeSinceBufferBegin" applyTo:@"^CONTENT_BUFFER_END$"];
     [self addTimeSinceEntryWithAction:AD_BUFFER_START attribute:@"timeSinceAdBufferBegin" applyTo:@"^AD_BUFFER_END$"];
     
-    [self addTimeSinceEntryWithAction:CONTENT_ERROR attribute:@"timeSinceLastError" applyTo:@"^CONTENT_[A-Z_]+$"];
+    [self addTimeSinceEntryWithAction:CONTENT_ERROR attribute:@"timeSinceLastError" applyTo:@"^(CONTENT_[A-Z_]+|QOE_[A-Z_]+)$"];
     [self addTimeSinceEntryWithAction:AD_ERROR attribute:@"timeSinceLastAdError" applyTo:@"^AD_[A-Z_]+$"];
     
     [self addTimeSinceEntryWithAction:CONTENT_RENDITION_CHANGE attribute:@"timeSinceLastRenditionChange" applyTo:@"^CONTENT_RENDITION_CHANGE$"];
