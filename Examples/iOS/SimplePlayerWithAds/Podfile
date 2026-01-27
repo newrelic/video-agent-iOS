@@ -9,4 +9,5 @@ target 'SimplePlayerWithAds' do
   pod 'NewRelicVideoAgent', :path => '../../../'
   pod 'NRAVPlayerTracker', :path => '../../../'
   pod 'NRIMATracker', :path => '../../../'
+  pod 'NRMediaTailorTracker', :path => '../../../'
 end

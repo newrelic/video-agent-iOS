@@ -37,6 +37,13 @@
                                     <action selector="clickAirshowLive:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5ER-pK-uKQ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MT-01-BTN">
+                                <rect key="frame" x="137.5" y="203" width="139" height="30"/>
+                                <state key="normal" title="AWS MediaTailor"/>
+                                <connections>
+                                    <action selector="clickMediaTailorVideo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MT-01-ACT"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -47,6 +54,8 @@
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ixp-1w-3Vs"/>
                             <constraint firstItem="mE9-jZ-GW1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sJY-1J-bdG"/>
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="top" secondItem="mE9-jZ-GW1" secondAttribute="bottom" constant="8" symbolic="YES" id="t0d-wV-mJO"/>
+                            <constraint firstItem="MT-01-BTN" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MT-CTR-X"/>
+                            <constraint firstItem="MT-01-BTN" firstAttribute="top" secondItem="O1G-sW-eRA" secondAttribute="bottom" constant="8" symbolic="YES" id="MT-TOP-8"/>
                         </constraints>
                     </view>
                 </viewController>

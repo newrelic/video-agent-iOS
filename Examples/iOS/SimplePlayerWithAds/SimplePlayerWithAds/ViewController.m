@@ -34,6 +34,73 @@
     [self playVideo:@"http://cdn3.viblast.com/streams/hls/airshow/playlist.m3u8"];
 }
 
+- (IBAction)clickMediaTailorVideo:(id)sender {
+    // Initialize MediaTailor session first (user-side initialization)
+    [self initializeMediaTailorSession];
+}
+
+- (void)initializeMediaTailorSession {
+    // AWS MediaTailor base URL and session endpoint
+    // MASKED: Replace with your actual MediaTailor domain and session path via env or config for real use
+    NSString *baseUrl = @"https://<domain>.mediatailor.<region>.amazonaws.com";
+    // Correct format: /v1/session/{accountId}/{playbackConfigName}/{format}
+    NSString *sessionPath = @"/v1/session/<accountId>/<playbackConfigName>/master.m3u8";
+    NSString *sessionEndpoint = [baseUrl stringByAppendingString:sessionPath];
+
+    NSURL *url = [NSURL URLWithString:sessionEndpoint];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    [request setHTTPMethod:@"POST"];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    [request setHTTPBody:[@"{}" dataUsingEncoding:NSUTF8StringEncoding]];
+
+    NSLog(@"🔄 Initializing MediaTailor session...");
+
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request
+        completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error) {
+                NSLog(@"❌ Session initialization error: %@", error.localizedDescription);
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Error"
+                        message:[NSString stringWithFormat:@"Failed to initialize MediaTailor session: %@", error.localizedDescription]
+                        preferredStyle:UIAlertControllerStyleAlert];
+                    [alert addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault handler:nil]];
+                    [self presentViewController:alert animated:YES completion:nil];
+                });
+                return;
+            }
+
+            NSDictionary *sessionData = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+            if (!sessionData) {
+                NSLog(@"❌ Failed to parse session response");
+                return;
+            }
+
+            NSLog(@"✅ Session initialized successfully");
+
+            // Extract manifestUrl from session response
+            NSString *manifestUrl = sessionData[@"manifestUrl"];
+
+            if (manifestUrl) {
+                // Check if URL is relative and prepend base URL if needed
+                NSString *fullUrl = manifestUrl;
+                if ([manifestUrl hasPrefix:@"/"]) {
+                    fullUrl = [baseUrl stringByAppendingString:manifestUrl];
+                    NSLog(@"📺 Constructed full URL: %@", fullUrl);
+                }
+
+                // Play the MediaTailor video
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self playMediaTailorVideo:fullUrl];
+                });
+            } else {
+                NSLog(@"❌ No manifestUrl in session response");
+            }
+        }];
+
+    [task resume];
+}
+
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
@@ -110,11 +177,74 @@
                      }];
     
     [self setupAds:player];
-    
+
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
         [self requestAds];
     } ];
+}
+
+- (void)playMediaTailorVideo:(NSString *)videoURL {
+    NSLog(@"📺 Playing MediaTailor video with tracking");
+    NSLog(@"📺 URL: %@", videoURL);
+
+    // Create player
+    AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
+    self.playerController = [[AVPlayerViewController alloc] init];
+    self.playerController.player = player;
+    self.playerController.showsPlaybackControls = YES;
+
+    // Setup tracking with custom attributes
+    NSDictionary *customAttributes = @{
+        @"contentType": @"video-on-demand",
+        @"playerVersion": @"1.0.0",
+        @"customTag": @"MediaTailorSSAI",
+        @"adType": @"SSAI"
+    };
+
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"TEST_MEDIATAILOR"
+        player:player
+        adEnabled:YES
+        customAttributes:customAttributes];
+
+    // NRVAVideo.addPlayer will automatically detect MediaTailor stream
+    // and use NRTrackerMediaTailor which will handle pre-fetching internally
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+
+    NSLog(@"✅ MediaTailor player initialized with tracking (tracker ID: %ld)", (long)self.trackerId);
+
+    // No IMA ads setup - MediaTailor handles SSAI
+
+    [self presentViewController:self.playerController animated:YES completion:^{
+        [self.playerController.player play];
+    }];
+}
+
+- (void)playerItemFailedToPlayToEnd:(NSNotification *)notification {
+    NSError *error = notification.userInfo[AVPlayerItemFailedToPlayToEndTimeErrorKey];
+    NSLog(@"❌ Player failed to play to end: %@", error.localizedDescription);
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary<NSKeyValueChangeKey,id> *)change
+                       context:(void *)context {
+    if ([keyPath isEqualToString:@"status"]) {
+        AVPlayer *player = (AVPlayer *)object;
+        NSLog(@"🔍 Player status changed: %ld", (long)player.status);
+        if (player.status == AVPlayerStatusFailed) {
+            NSLog(@"❌ Player failed with error: %@", player.error.localizedDescription);
+        }
+    } else if ([keyPath isEqualToString:@"currentItem.status"]) {
+        AVPlayer *player = (AVPlayer *)object;
+        NSLog(@"🔍 Player item status changed: %ld", (long)player.currentItem.status);
+        if (player.currentItem.status == AVPlayerItemStatusFailed) {
+            NSLog(@"❌ Player item failed with error: %@", player.currentItem.error.localizedDescription);
+        } else if (player.currentItem.status == AVPlayerItemStatusReadyToPlay) {
+            NSLog(@"✅ Player item ready to play!");
+        }
+    }
 }
 
 - (void)setupAds:(AVPlayer *)player {
