@@ -179,6 +179,9 @@
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
+        if ([self respondsToSelector:@selector(getObservedBitrate)]) {
+            [attr setObject:[self getObservedBitrate] forKey:@"contentObservedBitrate"];
+        }
         [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"contentRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"contentRenditionHeight"];
@@ -463,6 +466,10 @@
 }
 
 - (NSNumber *)getBitrate {
+    return (NSNumber *)[NSNull null];
+}
+
+- (NSNumber *)getObservedBitrate {
     return (NSNumber *)[NSNull null];
 }
 

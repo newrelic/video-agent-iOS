@@ -387,7 +387,7 @@
 
 
 - (NSString *)getTrackerVersion {
-    return @"4.0.1";
+    return @"4.0.3";
 }
 
 - (NSString *)getPlayerVersion {
@@ -400,7 +400,12 @@
 
 - (NSNumber *)getBitrate {
     AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
-    return @(event.observedBitrate);
+    return @((NSInteger)event.averageVideoBitrate);
+}
+
+- (NSNumber *)getObservedBitrate {
+    AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
+    return @((NSInteger)event.observedBitrate);
 }
 
 - (NSNumber *)getRenditionWidth {
