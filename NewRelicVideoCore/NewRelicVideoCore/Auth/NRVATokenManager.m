@@ -182,9 +182,9 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     NSString *region = self.configuration.region.uppercaseString;
 
     if ([region isEqualToString:@"EU"]) {
-        return @"https://mobile-collector.eu.nr-data.net/mobile/v5/connect";
+        return @"https://mobile-collector.eu.newrelic.com/mobile/v5/connect";
     } else if ([region isEqualToString:@"AP"]) {
-        return @"https://mobile-collector.ap.nr-data.net/mobile/v5/connect";
+        return @"https://mobile-collector.ap.newrelic.com/mobile/v5/connect";
     } else if ([region isEqualToString:@"GOV"]) {
         return @"https://gov-mobile-collector.newrelic.com/mobile/v5/connect";
     } else {
