@@ -11,6 +11,7 @@
 #import "NRTimeSince.h"
 #import "NRTimeSinceTable.h"
 #import "NRChrono.h"
+#import "NRVAVideo.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @interface NRTracker ()
@@ -44,7 +45,6 @@
 @property (nonatomic) long peakBitrate;
 @property (nonatomic) long averageBitrate;
 @property (nonatomic) long totalRebufferingTime;
-@property (nonatomic) NSTimeInterval currentBufferStartTime;
 @property (nonatomic) BOOL hadStartupFailure;
 @property (nonatomic) BOOL hadPlaybackFailure;
 @property (nonatomic) NSMutableArray<NSNumber *> *bitratesSample;
@@ -54,6 +54,14 @@
 @property (nonatomic) long startupPeriodAdTime;
 @property (nonatomic) NSTimeInterval startupPeriodPauseStartTime;
 @property (nonatomic) long startupPeriodPauseTime;
+
+// Harvest cycle tracking properties
+@property (nonatomic) NSTimeInterval lastHarvestCycleTimestamp;
+@property (nonatomic) BOOL hasVideoActionInCurrentCycle;
+@property (nonatomic) BOOL qoeAggregateAlreadySent;
+
+// Rebuffering tracking property
+@property (nonatomic) BOOL initialBufferingHappened;
 
 @end
 
@@ -82,7 +90,6 @@
         self.peakBitrate = 0;
         self.averageBitrate = 0;
         self.totalRebufferingTime = 0;
-        self.currentBufferStartTime = 0;
         self.hadStartupFailure = NO;
         self.hadPlaybackFailure = NO;
         self.bitratesSample = [[NSMutableArray alloc] init];
@@ -92,6 +99,14 @@
         self.startupPeriodAdTime = 0;
         self.startupPeriodPauseStartTime = 0;
         self.startupPeriodPauseTime = 0;
+
+        // Initialize harvest cycle tracking
+        self.lastHarvestCycleTimestamp = 0;
+        self.hasVideoActionInCurrentCycle = NO;
+        self.qoeAggregateAlreadySent = NO;
+
+        // Initialize rebuffering tracking
+        self.initialBufferingHappened = NO;
 
         AV_LOG(@"Init NSVideoTracker");
     }
@@ -236,6 +251,11 @@
         [self trackBitrateFromProcessedAttributes:attr];
     }
 
+    // QoE: Calculate rebuffering time from timeSinceBufferBegin attribute
+    if (!self.state.isAd && [action isEqualToString:CONTENT_BUFFER_END]) {
+        [self calculateRebufferingTime:attr];
+    }
+
     return attr;
 }
 
@@ -250,6 +270,8 @@
         }
         else {
             [self sendVideoEvent:CONTENT_REQUEST];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
     }
 }
@@ -279,6 +301,8 @@
             }
 
             [self sendVideoEvent:CONTENT_START];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
     }
@@ -299,6 +323,8 @@
                 self.startupPeriodPauseStartTime = [[NSDate date] timeIntervalSince1970];
             }
             [self sendVideoEvent:CONTENT_PAUSE];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         self.playtimeSinceLastEventTimestamp = 0;
     }
@@ -345,6 +371,8 @@
                 self.startupPeriodPauseStartTime = 0;
             }
             [self sendVideoEvent:CONTENT_RESUME];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         if (!self.state.isBuffering && !self.state.isSeeking) {
             self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -375,7 +403,7 @@
             self.peakBitrate = 0;
             self.averageBitrate = 0;
             self.totalRebufferingTime = 0;
-            self.currentBufferStartTime = 0;
+            self.initialBufferingHappened = NO;
             self.hadStartupFailure = NO;
             self.hadPlaybackFailure = NO;
             [self.bitratesSample removeAllObjects];
@@ -404,6 +432,8 @@
         }
         else {
             [self sendVideoEvent:CONTENT_SEEK_START];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         self.playtimeSinceLastEventTimestamp = 0;
     }
@@ -416,6 +446,8 @@
         }
         else {
             [self sendVideoEvent:CONTENT_SEEK_END];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         if (!self.state.isBuffering && !self.state.isPaused) {
             self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -430,16 +462,13 @@
         }
         self.bufferType = [self calculateBufferType];
 
-        // Track rebuffering start time (excluding initial buffering)
-        if (!self.state.isAd && self.bufferType && ![self.bufferType isEqualToString:@"initial"]) {
-            self.currentBufferStartTime = [[NSDate date] timeIntervalSince1970];
-        }
-
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_START];
         }
         else {
             [self sendVideoEvent:CONTENT_BUFFER_START];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         self.playtimeSinceLastEventTimestamp = 0;
     }
@@ -454,38 +483,13 @@
             self.bufferType = [self calculateBufferType];
         }
 
-        // Calculate rebuffering time (excluding initial buffering)
-        if (!self.state.isAd && self.currentBufferStartTime > 0) {
-            NSTimeInterval bufferEndTime = [[NSDate date] timeIntervalSince1970];
-
-            // Validate buffer end time is after buffer start time
-            if (bufferEndTime > self.currentBufferStartTime) {
-                NSTimeInterval bufferDiff = bufferEndTime - self.currentBufferStartTime;
-
-                // Check if multiplication by 1000 would overflow
-                if (bufferDiff > (LONG_MAX / 1000.0)) {
-                    // Overflow would occur - cap total at LONG_MAX
-                    self.totalRebufferingTime = LONG_MAX;
-                } else {
-                    long bufferDuration = (long)(bufferDiff * 1000.0);
-
-                    // Protect against overflow when adding to total
-                    if (bufferDuration > 0 && self.totalRebufferingTime <= LONG_MAX - bufferDuration) {
-                        self.totalRebufferingTime += bufferDuration;
-                    } else if (bufferDuration > 0) {
-                        // Overflow would occur - cap at LONG_MAX
-                        self.totalRebufferingTime = LONG_MAX;
-                    }
-                }
-            }
-            self.currentBufferStartTime = 0;
-        }
-
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_BUFFER_END];
         }
         else {
             [self sendVideoEvent:CONTENT_BUFFER_END];
+            [self markVideoActionInCycle];
+            [self checkAndSendQoeOnNewHarvestCycle];
         }
         if (!self.state.isSeeking && !self.state.isPaused) {
             self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -508,7 +512,8 @@
     }
     else {
         [self sendVideoEvent:CONTENT_HEARTBEAT attributes:attributes];
-        [self sendQoeAggregate];
+        [self markVideoActionInCycle];
+        [self checkAndSendQoeOnNewHarvestCycle];
     }
 }
 
@@ -604,9 +609,12 @@
         }
     }
 
+    // Get elapsedTime from accumulated video watch time
+    long elapsedTime = self.totalPlaytime;
+
     // Calculate time-weighted average bitrate
     long calculatedAverageBitrate = 0;
-    if (self.totalPlaytime > 0) {
+    if (elapsedTime > 0) {
         // Add the current bitrate's contribution up to now
         NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
         long long totalWeighted = self.totalWeightedBitrate;
@@ -640,13 +648,15 @@
         }
 
         // Calculate average with division overflow protection
-        calculatedAverageBitrate = (long)(totalWeighted / self.totalPlaytime);
+        calculatedAverageBitrate = (long)(totalWeighted / elapsedTime);
     }
 
     // Calculate rebuffering ratio
     double rebufferingRatio = 0.0;
-    if (self.totalPlaytime > 0) {
-        rebufferingRatio = ((double)self.totalRebufferingTime / (double)self.totalPlaytime) * 100.0;
+    if (elapsedTime > 0) {
+        rebufferingRatio = ((double)self.totalRebufferingTime / (double)elapsedTime) * 100.0;
+    } else {
+        rebufferingRatio = 0.0;
     }
 
     // Note: timeSinceRequested, timeSinceStarted, and timeSinceLastError
@@ -655,7 +665,7 @@
         @"startupTime": @(self.startupTime),
         @"peakBitrate": @(self.peakBitrate),
         @"averageBitrate": @(calculatedAverageBitrate),
-        @"totalPlaytime": @(self.totalPlaytime),
+        @"totalPlaytime": @(elapsedTime),
         @"totalRebufferingTime": @(self.totalRebufferingTime),
         @"rebufferingRatio": @(rebufferingRatio),
         @"hadStartupFailure": @(self.hadStartupFailure),
@@ -666,12 +676,80 @@
     [self sendVideoEvent:QOE_AGGREGATE attributes:qoeAttributes];
 }
 
+- (void)calculateRebufferingTime:(NSDictionary *)attributes {
+    // Extract timeSinceBufferBegin from processed attributes
+    id timeSinceBufferBegin = [attributes objectForKey:@"timeSinceBufferBegin"];
+
+    if (timeSinceBufferBegin && [timeSinceBufferBegin isKindOfClass:[NSNumber class]] && self.initialBufferingHappened) {
+        long long bufferDuration = [(NSNumber *)timeSinceBufferBegin longLongValue];
+
+        if (bufferDuration > 0) {
+            // Protect against overflow when adding to total
+            if (self.totalRebufferingTime <= LONG_MAX - bufferDuration) {
+                self.totalRebufferingTime += bufferDuration;
+            } else {
+                // Overflow would occur - use the new value
+                self.totalRebufferingTime = bufferDuration;
+            }
+        }
+    }
+
+    // Mark that initial buffering has happened
+    if (!self.initialBufferingHappened) {
+        self.initialBufferingHappened = YES;
+    }
+}
+
+- (void)markVideoActionInCycle {
+    // Mark that a video action occurred in the current cycle
+    self.hasVideoActionInCurrentCycle = YES;
+}
+
+- (void)resetHarvestCycleFlags {
+    // Reset flags for new harvest cycle
+    self.hasVideoActionInCurrentCycle = NO;
+    self.qoeAggregateAlreadySent = NO;
+}
+
+- (void)checkAndSendQoeOnNewHarvestCycle {
+    // Only check for content (not ads)
+    if (self.state.isAd) {
+        return;
+    }
+
+    // Get current time in seconds
+    NSTimeInterval currentTime = [[NSDate date] timeIntervalSince1970];
+
+    // Get harvest cycle duration in seconds
+    NSInteger harvestCycleMs = [NRVAVideo getHarvestCycleSeconds] * 1000;
+    NSTimeInterval harvestCycleSeconds = harvestCycleMs / 1000.0;
+
+    // Check if we're in a new harvest cycle
+    if (self.lastHarvestCycleTimestamp == 0 ||
+        (currentTime - self.lastHarvestCycleTimestamp) >= harvestCycleSeconds) {
+
+        // Send QoE if conditions are met (before resetting flags)
+        if (self.hasVideoActionInCurrentCycle && !self.qoeAggregateAlreadySent) {
+            [self sendQoeAggregate];
+            self.qoeAggregateAlreadySent = YES;
+        }
+
+        // Reset flags for new cycle
+        [self resetHarvestCycleFlags];
+
+        // Update timestamp
+        self.lastHarvestCycleTimestamp = currentTime;
+    }
+}
+
 - (void)sendRenditionChange {
     if (self.state.isAd) {
         [self sendVideoAdEvent:AD_RENDITION_CHANGE];
     }
     else {
         [self sendVideoEvent:CONTENT_RENDITION_CHANGE];
+        // Directly send QoE aggregate on rendition change
+        [self sendQoeAggregate];
     }
 }
 
