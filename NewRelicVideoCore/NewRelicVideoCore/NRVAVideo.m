@@ -27,6 +27,7 @@
 
 @interface NRVAVideo ()
 
+@property (nonatomic, strong) NRVAVideoConfiguration *configuration;
 @property (nonatomic, strong) NRVAHarvestManager *harvestManager;
 @property (nonatomic, strong) NRVAVideoLifecycleObserver *lifecycleObserver;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *trackerIds;
@@ -48,6 +49,13 @@ static dispatch_once_t onceToken;
 
 + (BOOL)isInitialized {
     return instance != nil;
+}
+
++ (NSInteger)getHarvestCycleSeconds {
+    if (instance && instance.configuration) {
+        return instance.configuration.harvestCycleSeconds;
+    }
+    return 300; // Default value if not initialized
 }
 
 + (NRVAVideoBuilder *)newBuilder {
@@ -404,6 +412,7 @@ static dispatch_once_t onceToken;
 - (instancetype)initWithConfiguration:(NRVAVideoConfiguration *)config {
     self = [super init];
     if (self) {
+        _configuration = config;
         _harvestManager = [[NRVAHarvestManager alloc] initWithConfiguration:config];
         _trackerIds = [[NSMutableDictionary alloc] init];
         _nextTrackerId = 1;

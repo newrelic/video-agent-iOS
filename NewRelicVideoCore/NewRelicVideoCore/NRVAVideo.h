@@ -189,6 +189,12 @@
  */
 + (void)performEmergencyBackup;
 
+/**
+ * Get the configured harvest cycle duration in seconds
+ * @return Harvest cycle duration in seconds, or 300 if not initialized
+ */
++ (NSInteger)getHarvestCycleSeconds;
+
 @end
 
 /**
