@@ -9,6 +9,7 @@
 #import "NRVAVideoConfiguration.h"
 #import "NRVAUtils.h"
 #import "NRVADeviceInformation.h"
+#import "NRVALog.h"
 
 // Performance optimization constants
 static const NSInteger kDefaultHarvestCycleSeconds = 5 * 60; // 5 minutes
@@ -59,6 +60,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         _memoryOptimized = builder.memoryOptimized;
         _debugLoggingEnabled = builder.debugLoggingEnabled;
         _isTV = builder.isTV;
+        _collectorAddress = builder.collectorAddress;
     }
     return self;
 }
@@ -74,58 +76,82 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 }
 
 /**
- * Enterprise-grade region identification with multiple fallback strategies
- * Thread-safe and optimized for performance
+ * Parse region code from application token prefix
+ * Matches NewRelic iOS Agent pattern: extracts region prefix before 'x'
+ * Examples: "EUxABCD..." -> "EU", "APxABCD..." -> "AP", "AA..." -> ""
+ */
+- (NSString *)parseRegionFromToken:(NSString *)applicationToken {
+    if (!applicationToken || applicationToken.length < 3) {
+        return @"";
+    }
+
+    // Use regex to match pattern: ^.+?x (everything up to first 'x')
+    NSError *regexError = nil;
+    NSRegularExpression *regex = [[NSRegularExpression alloc] initWithPattern:@"^.+?x"
+                                                                      options:0
+                                                                        error:&regexError];
+
+    if (regexError) {
+        NRVA_ERROR_LOG(@"Failed to initialize region parsing regex: %@", regexError.localizedDescription);
+        return @"";
+    }
+
+    NSTextCheckingResult *match = [regex firstMatchInString:applicationToken
+                                                   options:0
+                                                     range:NSMakeRange(0, applicationToken.length)];
+
+    if (match == nil || match.range.location == NSNotFound) {
+        return @""; // No region prefix found
+    }
+
+    NSString *matchString = [applicationToken substringWithRange:match.range];
+
+    // Remove trailing 'x' characters to get the region code
+    for (NSInteger i = (NSInteger)matchString.length - 1; i >= 0; i--) {
+        if ([matchString characterAtIndex:i] != 'x') {
+            return [matchString substringWithRange:NSMakeRange(0, (NSUInteger)i + 1)];
+        }
+    }
+
+    return @"";
+}
+
+/**
+ * Identify region with proper token parsing and fallback logic
+ * Behavior similar to NewRelic iOS Agent's NRMAAgentConfiguration
  */
 - (NSString *)identifyRegion:(NSString *)applicationToken {
     if (!applicationToken || applicationToken.length < 10) {
         return @"US"; // Safe default
     }
-    
-    NSString *cleanToken = [applicationToken.lowercaseString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-    
-    // Thread-safe region mappings
-    static NSDictionary *regionMappings;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        regionMappings = @{
-            @"us": @"US",
-            @"eu": @"EU",
-            @"ap": @"AP",
-            @"apac": @"AP",
-            @"asia": @"AP",
-            @"gov": @"GOV",
-            @"fed": @"GOV",
-            @"staging": @"STAGING",
-            @"dev": @"STAGING",
-            @"test": @"STAGING"
-        };
-    });
-    
-    // Strategy 1: Direct prefix matching (most reliable)
-    for (NSString *regionKey in regionMappings.allKeys) {
-        if ([cleanToken hasPrefix:regionKey] || [cleanToken containsString:[NSString stringWithFormat:@"-%@-", regionKey]]) {
-            return regionMappings[regionKey];
+
+    // First, try to parse region from token prefix (e.g., "EUx", "APx")
+    NSString *regionCode = [self parseRegionFromToken:applicationToken];
+
+    if (regionCode.length > 0) {
+        // Convert region code to uppercase and validate
+        NSString *upperRegion = [regionCode uppercaseString];
+
+        // Map region codes to standard regions
+        static NSDictionary *regionMappings;
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            regionMappings = @{
+                @"EU": @"EU",
+                @"AP": @"AP",
+                @"APAC": @"AP",
+                @"GOV": @"GOV",
+                @"FED": @"GOV"
+            };
+        });
+
+        NSString *mappedRegion = regionMappings[upperRegion];
+        if (mappedRegion) {
+            return mappedRegion;
         }
     }
-    
-    // Strategy 2: Token structure analysis
-    if (cleanToken.length >= 40) { // Standard NR token length
-        // EU tokens often have specific patterns
-        if ([cleanToken containsString:@"eu"] || [cleanToken containsString:@"europe"]) {
-            return @"EU";
-        }
-        // AP tokens often have specific patterns
-        if ([cleanToken containsString:@"ap"] || [cleanToken containsString:@"asia"] || [cleanToken containsString:@"pacific"]) {
-            return @"AP";
-        }
-        // Gov tokens have specific patterns
-        if ([cleanToken containsString:@"gov"] || [cleanToken containsString:@"fed"]) {
-            return @"GOV";
-        }
-    }
-    
-    // Strategy 3: Default to US for production stability
+
+    // Default to US for standard tokens without region prefix
     return @"US";
 }
 
@@ -171,8 +197,9 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         } else {
             _maxDeadLetterSize = kDefaultMaxDeadLetterSize;
         }
-        
+
         _debugLoggingEnabled = NO;
+        _collectorAddress = nil; // Will use default based on region
     }
     return self;
 }
@@ -272,6 +299,11 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
                                      userInfo:nil];
     }
     self.maxOfflineStorageSizeMB = maxOfflineStorageSizeMB;
+    return self;
+}
+
+- (instancetype)withCollectorAddress:(NSString *)collectorAddress {
+    self.collectorAddress = collectorAddress;
     return self;
 }
 

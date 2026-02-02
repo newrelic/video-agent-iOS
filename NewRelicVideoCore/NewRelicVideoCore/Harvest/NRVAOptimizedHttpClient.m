@@ -259,16 +259,20 @@ static const int kMaxRetryAttempts = 3;
 }
 
 - (NSString *)buildEndpointUrl {
+    // If collectorAddress is explicitly set, use it
+    if (self.configuration.collectorAddress && self.configuration.collectorAddress.length > 0) {
+        return [NSString stringWithFormat:@"https://%@/mobile/v3/data", self.configuration.collectorAddress];
+    }
+
+    // Otherwise, auto-detect from region
     NSString *region = self.configuration.region.uppercaseString;
-    
+
     if ([region isEqualToString:@"EU"]) {
         return @"https://mobile-collector.eu.newrelic.com/mobile/v3/data";
     } else if ([region isEqualToString:@"AP"]) {
         return @"https://mobile-collector.ap.newrelic.com/mobile/v3/data";
     } else if ([region isEqualToString:@"GOV"]) {
-        return @"https://mobile-collector.gov.newrelic.com/mobile/v3/data";
-    } else if ([region isEqualToString:@"STAGING"]) {
-        return @"https://mobile-collector.staging.newrelic.com/mobile/v3/data";
+        return @"https://gov-mobile-collector.newrelic.com/mobile/v3/data";
     } else {
         return @"https://mobile-collector.newrelic.com/mobile/v3/data"; // US/DEFAULT
     }
