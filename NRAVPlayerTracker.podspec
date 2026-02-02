@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NRAVPlayerTracker'
-  s.version          = '4.0.3'
+  s.version          = '4.0.4'
   s.summary          = 'New Relic Video Agent, AVPlayer Tracker.'
 
 # This description is used to generate tags and improve search results.
