@@ -142,8 +142,11 @@
     
     if (self.state.isAd) {
         [attr setObject:[self getTitle] forKey:@"adTitle"];
-        [attr setObject:[self getBitrate] forKey:@"adBitrate"];
-        [attr setObject:[self getRenditionBitrate] forKey:@"adRenditionBitrate"];
+        // Only add bitrate attributes after ad has started (first frame shown)
+        if ([self.state isStarted]) {
+            [attr setObject:[self getBitrate] forKey:@"adBitrate"];
+            [attr setObject:[self getRenditionBitrate] forKey:@"adRenditionBitrate"];
+        }
         [attr setObject:[self getRenditionWidth] forKey:@"adRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"adRenditionHeight"];
         [attr setObject:[self getDuration] forKey:@"adDuration"];
@@ -178,11 +181,14 @@
             [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
-        [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
-        if ([self respondsToSelector:@selector(getObservedBitrate)]) {
-            [attr setObject:[self getObservedBitrate] forKey:@"contentObservedBitrate"];
+        // Only add bitrate attributes after content has started (first frame shown)
+        if ([self.state isStarted]) {
+            [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
+            if ([self respondsToSelector:@selector(getObservedBitrate)]) {
+                [attr setObject:[self getObservedBitrate] forKey:@"contentObservedBitrate"];
+            }
+            [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
         }
-        [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
         [attr setObject:[self getRenditionWidth] forKey:@"contentRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"contentRenditionHeight"];
         [attr setObject:[self getDuration] forKey:@"contentDuration"];
