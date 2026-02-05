@@ -1,3 +1,8 @@
+## [4.0.4](https://github.com/newrelic/video-agent-iOS/compare/v4.0.3...v4.0.4) (2026-02-02)
+
+### Bug Fixes
+
+* staging token issue ([04956d5](https://github.com/newrelic/video-agent-iOS/commit/04956d543e50ca1e170b8454e7cd40f486fd67f9))
 ## [4.0.3](https://github.com/newrelic/video-agent-iOS/compare/v4.0.2...v4.0.3) (2026-01-20)
 
 ### Bug Fixes
