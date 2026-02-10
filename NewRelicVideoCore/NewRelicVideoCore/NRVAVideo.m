@@ -58,6 +58,28 @@ static dispatch_once_t onceToken;
     return 300; // Default value if not initialized
 }
 
++ (BOOL)isQoeAggregateEnabled {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - returning default YES");
+        return YES; // Default value if not initialized
+    }
+
+    NRVAVideo *videoInstance = [self getInstance];
+    return videoInstance.configuration.qoeAggregateEnabled;
+}
+
++ (void)setQoeAggregateEnabled:(BOOL)enabled {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot set QOE aggregate");
+        return;
+    }
+
+    NRVAVideo *videoInstance = [self getInstance];
+    videoInstance.configuration.qoeAggregateEnabled = enabled;
+
+    NRVA_DEBUG_LOG(@"QOE Aggregate %@", enabled ? @"Enabled" : @"Disabled");
+}
+
 + (NRVAVideoBuilder *)newBuilder {
     return [[NRVAVideoBuilder alloc] init];
 }

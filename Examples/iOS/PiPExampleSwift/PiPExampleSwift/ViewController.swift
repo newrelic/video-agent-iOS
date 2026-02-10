@@ -16,6 +16,9 @@ class ViewController: UIViewController, AVPlayerViewControllerDelegate {
     private var trackerId: Int = 0
     private var inPiP: Bool = false
 
+    // QOE Toggle
+    @IBOutlet weak var qoeSwitch: UISwitch!
+
     // IMA Ad Properties
     private var adsLoader: IMAAdsLoader?
     private var adsManager: IMAAdsManager?
@@ -28,7 +31,21 @@ class ViewController: UIViewController, AVPlayerViewControllerDelegate {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        // Initialize QOE switch to match current configuration
+        qoeSwitch.isOn = NRVAVideo.isQoeAggregateEnabled()
+    }
+
+    @IBAction func qoeSwitchChanged(_ sender: UISwitch) {
+        NRVAVideo.setQoeAggregateEnabled(sender.isOn)
+
+        let message = sender.isOn ? "QOE Aggregate Enabled" : "QOE Aggregate Disabled"
+        let alert = UIAlertController(title: nil, message: message, preferredStyle: .alert)
+        present(alert, animated: true)
+
+        // Auto-dismiss after 1 second
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            alert.dismiss(animated: true)
+        }
     }
 
     func playVideo(videoURL: String) {

@@ -518,6 +518,18 @@
 }
 
 - (void)sendQoeAggregate {
+    // Check if QOE aggregate is enabled - if not, skip sending
+    if (![NRVAVideo isQoeAggregateEnabled]) {
+        AV_LOG(@"QOE Aggregate disabled - skipping event");
+        return;
+    }
+
+    // Only send for content, not ads
+    if (self.state.isAd) {
+        AV_LOG(@"Skipping QOE Aggregate for ad content");
+        return;
+    }
+
     // Update bitrate tracking before sending QoE aggregate
     [self updateBitrateTracking];
 

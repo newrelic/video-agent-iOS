@@ -16,8 +16,25 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="qoe-stack-view">
+                                <rect key="frame" x="100" y="54" width="214" height="61.5"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enable QOE Aggregate" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qoe-label">
+                                        <rect key="frame" x="32" y="0.0" width="150" height="20.5"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="qoe-switch">
+                                        <rect key="frame" x="82.5" y="28.5" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="qoeSwitchChanged:" destination="BYZ-38-t0r" eventType="valueChanged" id="qoe-switch-action"/>
+                                        </connections>
+                                    </switch>
+                                </subviews>
+                            </stackView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SYT-KN-Mbj">
-                                <rect key="frame" x="185.5" y="89" width="43" height="30"/>
+                                <rect key="frame" x="185.5" y="135.5" width="43" height="30"/>
                                 <state key="normal" title="Bunny"/>
                                 <connections>
                                     <action selector="clickBunnyVideo:" destination="BYZ-38-t0r" eventType="touchUpInside" id="gBu-eA-egY"/>
@@ -41,14 +58,19 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="qoe-stack-view" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="qoe-stack-top"/>
+                            <constraint firstItem="qoe-stack-view" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="qoe-stack-centerX"/>
                             <constraint firstItem="mE9-jZ-GW1" firstAttribute="top" secondItem="SYT-KN-Mbj" secondAttribute="bottom" constant="8" symbolic="YES" id="Ac8-jI-LFT"/>
-                            <constraint firstItem="SYT-KN-Mbj" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="45" id="Pey-Rt-KAw"/>
+                            <constraint firstItem="SYT-KN-Mbj" firstAttribute="top" secondItem="qoe-stack-view" secondAttribute="bottom" constant="20" id="Pey-Rt-KAw"/>
                             <constraint firstItem="SYT-KN-Mbj" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ewW-Mb-6C4"/>
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ixp-1w-3Vs"/>
                             <constraint firstItem="mE9-jZ-GW1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sJY-1J-bdG"/>
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="top" secondItem="mE9-jZ-GW1" secondAttribute="bottom" constant="8" symbolic="YES" id="t0d-wV-mJO"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="qoeSwitch" destination="qoe-switch" id="qoe-switch-outlet"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
