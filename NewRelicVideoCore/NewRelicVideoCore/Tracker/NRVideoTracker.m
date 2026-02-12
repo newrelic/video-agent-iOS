@@ -50,8 +50,6 @@
 @property (nonatomic) NSTimeInterval lastBitrateChangeTime;
 @property (nonatomic) long long totalWeightedBitrate;
 @property (nonatomic) long startupPeriodAdTime;
-@property (nonatomic) NSTimeInterval startupPeriodPauseStartTime;
-@property (nonatomic) long startupPeriodPauseTime;
 
 // Harvest cycle tracking properties
 @property (nonatomic) NSTimeInterval lastHarvestCycleTimestamp;
@@ -94,8 +92,6 @@
         self.lastBitrateChangeTime = 0;
         self.totalWeightedBitrate = 0;
         self.startupPeriodAdTime = 0;
-        self.startupPeriodPauseStartTime = 0;
-        self.startupPeriodPauseTime = 0;
 
         // Initialize harvest cycle tracking
         self.lastHarvestCycleTimestamp = 0;
@@ -315,11 +311,6 @@
             [self sendVideoAdEvent:AD_PAUSE];
         }
         else {
-            // QoE: Track pause start time during startup period (before CONTENT_START)
-            // If totalPlaytime == 0, content hasn't started playing yet (startup period)
-            if (self.totalPlaytime == 0 && self.startupPeriodPauseStartTime == 0) {
-                self.startupPeriodPauseStartTime = [self currentTimestamp];
-            }
             [self sendVideoEvent:CONTENT_PAUSE];
             [self checkAndSendQoeOnNewHarvestCycle];
             [self markVideoActionInCycle];
@@ -337,19 +328,6 @@
             [self sendVideoAdEvent:AD_RESUME];
         }
         else {
-            // QoE: Calculate pause duration during startup period (before CONTENT_START)
-            if (self.startupPeriodPauseStartTime > 0 && self.totalPlaytime == 0) {
-                NSTimeInterval pauseEndTime = [self currentTimestamp];
-
-                // Validate pause end time is after pause start time
-                if (pauseEndTime > self.startupPeriodPauseStartTime) {
-                    NSTimeInterval pauseDiff = pauseEndTime - self.startupPeriodPauseStartTime;
-                    self.startupPeriodPauseTime += (long)(pauseDiff * 1000.0);
-                }
-
-                // Reset pause start time for next pause (if any)
-                self.startupPeriodPauseStartTime = 0;
-            }
             [self sendVideoEvent:CONTENT_RESUME];
             [self checkAndSendQoeOnNewHarvestCycle];
             [self markVideoActionInCycle];
@@ -389,8 +367,6 @@
             self.lastBitrateChangeTime = 0;
             self.totalWeightedBitrate = 0;
             self.startupPeriodAdTime = 0;
-            self.startupPeriodPauseStartTime = 0;
-            self.startupPeriodPauseTime = 0;
         }
 
         [self stopHeartbeat];
@@ -1049,8 +1025,8 @@
         }
     }
 
-    // Subtract exclusions (ad time + pause time) and ensure non-negative
-    long startupMs = rawStartupTime - self.startupPeriodAdTime - self.startupPeriodPauseTime;
+    // Subtract exclusions (ad time) and ensure non-negative
+    long startupMs = rawStartupTime - self.startupPeriodAdTime;
     self.startupTime = MAX(0, startupMs);
     self.hasStartupTimeBeenCalculated = YES;
 }
