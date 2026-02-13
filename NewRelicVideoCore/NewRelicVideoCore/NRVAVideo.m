@@ -27,6 +27,7 @@
 
 @interface NRVAVideo ()
 
+@property (nonatomic, strong) NRVAVideoConfiguration *configuration;
 @property (nonatomic, strong) NRVAHarvestManager *harvestManager;
 @property (nonatomic, strong) NRVAVideoLifecycleObserver *lifecycleObserver;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *trackerIds;
@@ -48,6 +49,35 @@ static dispatch_once_t onceToken;
 
 + (BOOL)isInitialized {
     return instance != nil;
+}
+
++ (NSInteger)getHarvestCycleSeconds {
+    if (instance && instance.configuration) {
+        return instance.configuration.harvestCycleSeconds;
+    }
+    return 300; // Default value if not initialized
+}
+
++ (BOOL)isQoeAggregateEnabled {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - returning default YES");
+        return YES; // Default value if not initialized
+    }
+
+    NRVAVideo *videoInstance = [self getInstance];
+    return videoInstance.configuration.qoeAggregateEnabled;
+}
+
++ (void)setQoeAggregateEnabled:(BOOL)enabled {
+    if (![self isInitialized]) {
+        NRVA_ERROR_LOG(@"NRVAVideo not initialized - cannot set QOE aggregate");
+        return;
+    }
+
+    NRVAVideo *videoInstance = [self getInstance];
+    videoInstance.configuration.qoeAggregateEnabled = enabled;
+
+    NRVA_DEBUG_LOG(@"QOE Aggregate %@", enabled ? @"Enabled" : @"Disabled");
 }
 
 + (NRVAVideoBuilder *)newBuilder {
@@ -404,6 +434,7 @@ static dispatch_once_t onceToken;
 - (instancetype)initWithConfiguration:(NRVAVideoConfiguration *)config {
     self = [super init];
     if (self) {
+        _configuration = config;
         _harvestManager = [[NRVAHarvestManager alloc] initWithConfiguration:config];
         _trackerIds = [[NSMutableDictionary alloc] init];
         _nextTrackerId = 1;

@@ -189,6 +189,25 @@
  */
 + (void)performEmergencyBackup;
 
+/**
+ * Get the configured harvest cycle duration in seconds
+ * @return Harvest cycle duration in seconds, or 300 if not initialized
+ */
++ (NSInteger)getHarvestCycleSeconds;
+
+/**
+ * Check if QOE (Quality of Experience) aggregate events are enabled
+ * @return YES if enabled, NO if disabled (returns YES if not initialized)
+ */
++ (BOOL)isQoeAggregateEnabled;
+
+/**
+ * Enable or disable QOE (Quality of Experience) aggregate events at runtime
+ * Thread-safe operation that can be called from any thread
+ * @param enabled YES to enable QOE aggregate events, NO to disable
+ */
++ (void)setQoeAggregateEnabled:(BOOL)enabled;
+
 @end
 
 /**

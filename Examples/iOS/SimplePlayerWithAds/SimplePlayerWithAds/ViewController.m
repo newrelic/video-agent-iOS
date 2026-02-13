@@ -9,9 +9,11 @@
 #import <NewRelicVideoCore.h>
 
 @import AVKit;
+@import UIKit;
 
 @interface ViewController ()
 
+@property (weak, nonatomic) IBOutlet UISwitch *qoeSwitch;
 @property (nonatomic) AVPlayerViewController *playerController;
 @property (nonatomic) NSInteger trackerId;
 @property (nonatomic) NSString *multipleAdTagURL;
@@ -36,14 +38,33 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
+    // Initialize QOE switch to match current configuration
+    self.qoeSwitch.on = [NRVAVideo isQoeAggregateEnabled];
+
     self.multipleAdTagURL = @"http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod%26deployment%3Dgmf-js&cmsid=496&vid=short_onecue&correlator=";
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                             selector:@selector(appDidBecomeActive:)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    
+
+}
+
+- (IBAction)qoeSwitchChanged:(UISwitch *)sender {
+    [NRVAVideo setQoeAggregateEnabled:sender.on];
+
+    NSString *message = sender.on ? @"QOE Aggregate Enabled" : @"QOE Aggregate Disabled";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:alert animated:YES completion:nil];
+
+    // Auto-dismiss after 1 second
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        [alert dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notif {
