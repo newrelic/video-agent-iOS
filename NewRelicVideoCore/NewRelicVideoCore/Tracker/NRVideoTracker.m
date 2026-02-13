@@ -49,7 +49,7 @@
 @property (nonatomic) long currentBitrate;
 @property (nonatomic) NSTimeInterval lastBitrateChangeTime;
 @property (nonatomic) long long totalWeightedBitrate;
-@property (nonatomic) long startupPeriodAdTime;
+@property (nonatomic) long preRollAdTime;
 
 // Harvest cycle tracking properties
 @property (nonatomic) NSTimeInterval lastHarvestCycleTimestamp;
@@ -91,7 +91,7 @@
         self.currentBitrate = 0;
         self.lastBitrateChangeTime = 0;
         self.totalWeightedBitrate = 0;
-        self.startupPeriodAdTime = 0;
+        self.preRollAdTime = 0;
 
         // Initialize harvest cycle tracking
         self.lastHarvestCycleTimestamp = 0;
@@ -278,11 +278,6 @@
             [self sendVideoAdEvent:AD_START];
         }
         else {
-            if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
-                self.totalAdPlaytime = [(NRVideoTracker *)self.linkedTracker getTotalAdPlaytime].longValue;
-                // QoE: Store ad time for startup calculation (covers pre-roll scenario)
-                self.startupPeriodAdTime = self.totalAdPlaytime;
-            }
             self.numberOfVideos++;
 
             // Initialize bitrate tracking timing on first CONTENT_START
@@ -343,7 +338,18 @@
         if (self.state.isAd) {
             [self sendVideoAdEvent:AD_END];
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
-                [(NRVideoTracker *)self.linkedTracker adHappened];
+                NRVideoTracker *contentTracker = (NRVideoTracker *)self.linkedTracker;
+                [contentTracker adHappened];
+
+                // QoE: If content hasn't started yet, this is a pre-roll ad
+                if (contentTracker.totalPlaytime == 0 && self.totalPlaytime > 0) {
+                    // Add this ad's playtime to content tracker's pre-roll ad time with overflow protection
+                    if (contentTracker.preRollAdTime <= LONG_MAX - self.totalPlaytime) {
+                        contentTracker.preRollAdTime += self.totalPlaytime;
+                    } else {
+                        contentTracker.preRollAdTime = LONG_MAX;
+                    }
+                }
             }
             // Add totalPlaytime to totalAdPlaytime with overflow protection
             if (self.totalPlaytime > 0 && self.totalAdPlaytime <= LONG_MAX - self.totalPlaytime) {
@@ -366,7 +372,7 @@
             self.currentBitrate = 0;
             self.lastBitrateChangeTime = 0;
             self.totalWeightedBitrate = 0;
-            self.startupPeriodAdTime = 0;
+            self.preRollAdTime = 0;
         }
 
         [self stopHeartbeat];
@@ -1025,8 +1031,8 @@
         }
     }
 
-    // Subtract exclusions (ad time) and ensure non-negative
-    long startupMs = rawStartupTime - self.startupPeriodAdTime;
+    // Subtract exclusions (pre-roll ad time) and ensure non-negative
+    long startupMs = rawStartupTime - self.preRollAdTime;
     self.startupTime = MAX(0, startupMs);
     self.hasStartupTimeBeenCalculated = YES;
 }
