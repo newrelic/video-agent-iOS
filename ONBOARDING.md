@@ -109,7 +109,7 @@ For production and performance optimization, you can configure additional option
 #### Objective-C
 
 ```objectivec
-NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[NRVAVideoConfiguration builder]
+NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[[NRVAVideoConfiguration builder]
     withApplicationToken:@"YOUR_NEWRELIC_APP_TOKEN"]
     withHarvestCycle:30]                    // Regular harvest cycle (5-300 seconds)
     withLiveHarvestCycle:10]                // Live content harvest cycle (1-60 seconds)
@@ -117,6 +117,7 @@ NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[NRVAVideoConfiguration build
     withLiveBatchSize:32 * 1024]            // Live content batch size (32KB default)
     withMaxDeadLetterSize:100]              // Failed request queue size (10-1000)
     withMaxOfflineStorageSize:100]          // Offline storage limit in MB (10-1000MB)
+    withCollectorAddress:@"mobile-collector.newrelic.com"] // Custom collector domain (optional)
     withMemoryOptimization:NO]              // Enable for low-memory devices
     forTVOS:NO]                             // Enable tvOS optimizations
     withDebugLogging:YES]                   // Debug logging
@@ -134,6 +135,7 @@ let advancedConfig = NRVAVideoConfiguration.builder()
     .withLiveBatchSize(32 * 1024)            // Live content batch size (32KB default)
     .withMaxDeadLetterSize(100)              // Failed request queue size (10-1000)
     .withMaxOfflineStorageSize(100)          // Offline storage limit in MB (10-1000MB)
+    .withCollectorAddress("mobile-collector.newrelic.com") // Custom collector domain (optional)
     .withMemoryOptimization(false)           // Enable for low-memory devices
     .forTVOS(false)                          // Enable tvOS optimizations
     .withDebugLogging(true)                  // Debug logging
@@ -151,6 +153,7 @@ let advancedConfig = NRVAVideoConfiguration.builder()
 | `withLiveBatchSize:`         | NSInteger  | 32,768 (32KB) | 512B-512KB    | Batch size for live content uploads    |
 | `withMaxDeadLetterSize:`     | NSInteger  | 100           | 10-1000       | Failed request queue capacity          |
 | `withMaxOfflineStorageSize:` | NSInteger  | 100           | > 0 MB        | Maximum offline storage size limit     |
+| `withCollectorAddress:`      | NSString\* | auto-detected | -             | Custom collector domain for /connect and /data endpoints |
 | `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
 | `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
