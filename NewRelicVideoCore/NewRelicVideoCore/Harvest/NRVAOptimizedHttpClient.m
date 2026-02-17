@@ -218,7 +218,7 @@ static const int kMaxRetryAttempts = 3;
     NSString *osVersion = [[UIDevice currentDevice] systemVersion];
     NSString *architecture = [self getArchitecture];
     NSString *agentName = @"NewRelic-VideoAgent-iOS";
-    NSString *agentVersion = @"4.0.4";
+    NSString *agentVersion = @"4.0.5";
     NSString *deviceId = [NRVAUtils generateSessionId];
     NSString *manufacturer = @"Apple";
     
