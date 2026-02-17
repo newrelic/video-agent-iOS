@@ -1,3 +1,8 @@
+## [4.0.5](https://github.com/newrelic/video-agent-iOS/compare/v4.0.4...v4.0.5) (2026-02-17)
+
+### Bug Fixes
+
+* sync develop branch tracker fixes ([34b8ae7](https://github.com/newrelic/video-agent-iOS/commit/34b8ae7fef35607a6d8501853a6a5a272e29dd19))
 ## [4.0.4](https://github.com/newrelic/video-agent-iOS/compare/v4.0.3...v4.0.4) (2026-02-02)
 
 ### Bug Fixes
