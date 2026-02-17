@@ -8,11 +8,13 @@
 #import "ViewController.h"
 #import <NewRelicVideoCore/NRVAVideo.h>
 #import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
+#import <UIKit/UIKit.h>
 
 @import AVKit;
 
 @interface ViewController ()
 
+@property (weak, nonatomic) IBOutlet UISwitch *qoeSwitch;
 @property (nonatomic) AVPlayerViewController *playerController;
 @property (nonatomic) NSInteger trackerId;
 
@@ -38,7 +40,27 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+
+    // Initialize QOE switch to match current configuration
+    self.qoeSwitch.on = [NRVAVideo isQoeAggregateEnabled];
+
     NSLog(@"🎬 [ViewController] Simple Player - Ready for video tracking");
+}
+
+- (IBAction)qoeSwitchChanged:(UISwitch *)sender {
+    [NRVAVideo setQoeAggregateEnabled:sender.on];
+
+    NSString *message = sender.on ? @"QOE Aggregate Enabled" : @"QOE Aggregate Disabled";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+    [self presentViewController:alert animated:YES completion:nil];
+
+    // Auto-dismiss after 1 second
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        [alert dismissViewControllerAnimated:YES completion:nil];
+    });
 }
 
 - (void)dealloc {

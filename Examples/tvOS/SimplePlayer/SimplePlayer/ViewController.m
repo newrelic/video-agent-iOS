@@ -8,13 +8,16 @@
 #import "ViewController.h"
 #import <NewRelicVideoCore/NewRelicVideoCore.h>
 #import <NRAVPlayerTracker/NRAVPlayerTracker.h>
+#import <UIKit/UIKit.h>
 
 @import AVKit;
 
 @interface ViewController ()
 
+@property (weak, nonatomic) IBOutlet UIButton *qoeToggleButton;
 @property (nonatomic) AVPlayerViewController *playerController;
 @property (nonatomic) NSInteger trackerId;
+@property (nonatomic) BOOL qoeEnabled;
 
 @end
 
@@ -38,7 +41,37 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
+    // Initialize QOE state and button
+    self.qoeEnabled = [NRVAVideo isQoeAggregateEnabled];
+    [self updateQoeButtonTitle];
+}
+
+- (void)updateQoeButtonTitle {
+    NSString *title = self.qoeEnabled ? @"ON" : @"OFF";
+    [self.qoeToggleButton setTitle:title forState:UIControlStateNormal];
+}
+
+- (IBAction)qoeTogglePressed:(UIButton *)sender {
+    // Toggle the state
+    self.qoeEnabled = !self.qoeEnabled;
+    [NRVAVideo setQoeAggregateEnabled:self.qoeEnabled];
+
+    // Update button title
+    [self updateQoeButtonTitle];
+
+    // Show alert (tvOS style)
+    NSString *message = self.qoeEnabled ? @"QOE Aggregate Enabled" : @"QOE Aggregate Disabled";
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"QOE Settings"
+                                                                   message:message
+                                                            preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"OK"
+                                                       style:UIAlertActionStyleDefault
+                                                     handler:nil];
+    [alert addAction:okAction];
+
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)dealloc {

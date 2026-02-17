@@ -61,6 +61,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         _debugLoggingEnabled = builder.debugLoggingEnabled;
         _isTV = builder.isTV;
         _collectorAddress = builder.collectorAddress;
+        _qoeAggregateEnabled = builder.qoeAggregateEnabled;
     }
     return self;
 }
@@ -200,6 +201,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
         _debugLoggingEnabled = NO;
         _collectorAddress = nil; // Will use default based on region
+        _qoeAggregateEnabled = YES; // Default enabled
     }
     return self;
 }
@@ -304,6 +306,11 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
 - (instancetype)withCollectorAddress:(NSString *)collectorAddress {
     self.collectorAddress = collectorAddress;
+    return self;
+}
+
+- (instancetype)withQoeAggregateEnabled:(BOOL)qoeAggregateEnabled {
+    self.qoeAggregateEnabled = qoeAggregateEnabled;
     return self;
 }
 

@@ -29,6 +29,13 @@
 @property (nonatomic, readonly) NSString *collectorAddress;
 
 /**
+ * QOE Aggregate toggle - thread-safe, runtime modifiable
+ * Controls whether QOE (Quality of Experience) aggregate events are collected and sent
+ * Default: YES (enabled)
+ */
+@property (atomic, assign) BOOL qoeAggregateEnabled;
+
+/**
  * Get dead letter retry interval in milliseconds
  * Optimized for different device types and network conditions
  */
@@ -62,6 +69,7 @@
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
 @property (nonatomic, assign) BOOL isTV;
 @property (nonatomic, strong) NSString *collectorAddress;
+@property (nonatomic, assign) BOOL qoeAggregateEnabled;
 
 /**
  * Auto-detect platform capabilities and apply optimizations
@@ -126,6 +134,12 @@
  * If not set, will be auto-detected from application token region
  */
 - (instancetype)withCollectorAddress:(NSString *)collectorAddress;
+
+/**
+ * Enable or disable QOE (Quality of Experience) aggregate events
+ * Default: YES (enabled)
+ */
+- (instancetype)withQoeAggregateEnabled:(BOOL)qoeAggregateEnabled;
 
 /**
  * Build the configuration
