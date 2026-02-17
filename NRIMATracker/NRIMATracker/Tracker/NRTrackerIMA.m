@@ -11,8 +11,8 @@
 
 @interface NRTrackerIMA ()
 
-@property (nonatomic, weak) IMAAdEvent *lastEvent;
-@property (nonatomic, weak) IMAAdsManager *adsManager;
+@property (nonatomic, strong) IMAAdEvent *lastEvent;
+@property (nonatomic, strong) IMAAdsManager *adsManager;
 @property (nonatomic) NSNumber *quartile;
 @property (nonatomic) NSNumber *skipped;
 
@@ -158,7 +158,8 @@
 
 - (NSNumber *)getBitrate {
     if (self.lastEvent) {
-        return @(self.lastEvent.ad.VASTMediaBitrate);
+        // VASTMediaBitrate returns kbps, convert to bps for consistency with AVPlayer's averageVideoBitrate
+        return @(self.lastEvent.ad.VASTMediaBitrate * 1000);
     }
     else {
         return (NSNumber *)[NSNull null];
