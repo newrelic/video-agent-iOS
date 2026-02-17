@@ -172,6 +172,14 @@
 + (id)createContentTracker:(id)player;
 
 /**
+ * Creates a content tracker specifically for a given player (internal method)
+ * Automatically detects MediaTailor streams and creates appropriate tracker
+ * @param player The AVPlayer instance
+ * @return The content tracker instance (NRTrackerMediaTailor or NRTrackerAVPlayer)
+ */
++ (id)createContentTrackerForPlayer:(id)player;
+
+/**
  * Creates an ad tracker for IMA (internal method)
  * @return The ad tracker instance
  */
