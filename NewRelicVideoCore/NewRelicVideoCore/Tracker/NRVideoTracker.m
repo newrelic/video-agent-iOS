@@ -184,10 +184,10 @@
         // Only add bitrate attributes after content has started (first frame shown)
         if ([self.state isStarted]) {
             [attr setObject:[self getBitrate] forKey:@"contentBitrate"];
-            if ([self respondsToSelector:@selector(getObservedBitrate)]) {
-                [attr setObject:[self getObservedBitrate] forKey:@"contentObservedBitrate"];
-            }
             [attr setObject:[self getRenditionBitrate] forKey:@"contentRenditionBitrate"];
+            [attr setObject:[self getManifestBitrate] forKey:@"contentManifestBitrate"];
+            [attr setObject:[self getMeasuredBitrate] forKey:@"contentMeasuredBitrate"];
+            [attr setObject:[self getDownloadBitrate] forKey:@"contentDownloadBitrate"];
         }
         [attr setObject:[self getRenditionWidth] forKey:@"contentRenditionWidth"];
         [attr setObject:[self getRenditionHeight] forKey:@"contentRenditionHeight"];
@@ -475,7 +475,15 @@
     return (NSNumber *)[NSNull null];
 }
 
-- (NSNumber *)getObservedBitrate {
+- (NSNumber *)getManifestBitrate {
+    return (NSNumber *)[NSNull null];
+}
+
+- (NSNumber *)getMeasuredBitrate {
+    return (NSNumber *)[NSNull null];
+}
+
+- (NSNumber *)getDownloadBitrate {
     return (NSNumber *)[NSNull null];
 }
 
