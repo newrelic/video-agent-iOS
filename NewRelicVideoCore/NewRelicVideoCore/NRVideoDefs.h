@@ -48,4 +48,36 @@
 #define AD_QUARTILE                 @"AD_QUARTILE"
 #define AD_CLICK                    @"AD_CLICK"
 
+#define QOE_AGGREGATE               @"QOE_AGGREGATE"
+
+// --- Base attribute names (C strings, no prefix) ---
+// These define WHAT is being measured. Each is a raw name without any category prefix.
+// Never use these directly in event dictionaries — always use the prefixed versions below.
+#define ATTR_STARTUP_TIME           "startupTime"
+#define ATTR_PEAK_BITRATE           "peakBitrate"
+#define ATTR_AVERAGE_BITRATE        "averageBitrate"
+#define ATTR_TOTAL_PLAYTIME         "totalPlaytime"
+#define ATTR_TOTAL_REBUFFERING_TIME "totalRebufferingTime"
+#define ATTR_REBUFFERING_RATIO      "rebufferingRatio"
+#define ATTR_HAD_STARTUP_FAILURE    "hadStartupFailure"
+#define ATTR_HAD_PLAYBACK_FAILURE   "hadPlaybackFailure"
+
+// --- Category prefixes (C strings) ---
+// Each category gets its own NRQL namespace prefix.
+// To add a new category: define a prefix here, then create prefixed macros below.
+// Example: #define ENGAGEMENT_PREFIX "eng."
+#define QOE_PREFIX                  "kpi."
+
+// --- Prefixed QoE attribute keys (NSString, for use in event dictionaries) ---
+// Composed as: @<PREFIX><BASE_NAME>  (compile-time string concatenation)
+// NRQL: SELECT kpi.startupTime, kpi.peakBitrate FROM VideoAction WHERE actionName = 'QOE_AGGREGATE'
+#define KPI_STARTUP_TIME            @QOE_PREFIX ATTR_STARTUP_TIME
+#define KPI_PEAK_BITRATE            @QOE_PREFIX ATTR_PEAK_BITRATE
+#define KPI_AVERAGE_BITRATE         @QOE_PREFIX ATTR_AVERAGE_BITRATE
+#define KPI_TOTAL_PLAYTIME          @QOE_PREFIX ATTR_TOTAL_PLAYTIME
+#define KPI_TOTAL_REBUFFERING_TIME  @QOE_PREFIX ATTR_TOTAL_REBUFFERING_TIME
+#define KPI_REBUFFERING_RATIO       @QOE_PREFIX ATTR_REBUFFERING_RATIO
+#define KPI_HAD_STARTUP_FAILURE     @QOE_PREFIX ATTR_HAD_STARTUP_FAILURE
+#define KPI_HAD_PLAYBACK_FAILURE    @QOE_PREFIX ATTR_HAD_PLAYBACK_FAILURE
+
 #endif /* NRVideoDefs_h */

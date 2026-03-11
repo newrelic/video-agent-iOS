@@ -61,6 +61,8 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         _debugLoggingEnabled = builder.debugLoggingEnabled;
         _isTV = builder.isTV;
         _collectorAddress = builder.collectorAddress;
+        _qoeAggregateEnabled = builder.qoeAggregateEnabled;
+        _qoeAggregateIntervalMultiplier = builder.qoeAggregateIntervalMultiplier;
     }
     return self;
 }
@@ -200,6 +202,8 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
         _debugLoggingEnabled = NO;
         _collectorAddress = nil; // Will use default based on region
+        _qoeAggregateEnabled = NO;
+        _qoeAggregateIntervalMultiplier = 1;
     }
     return self;
 }
@@ -304,6 +308,21 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
 - (instancetype)withCollectorAddress:(NSString *)collectorAddress {
     self.collectorAddress = collectorAddress;
+    return self;
+}
+
+- (instancetype)withQoeAggregateEnabled:(BOOL)enabled {
+    self.qoeAggregateEnabled = enabled;
+    return self;
+}
+
+- (instancetype)withQoeAggregateIntervalMultiplier:(NSInteger)multiplier {
+    if (multiplier < 1) {
+        @throw [NSException exceptionWithName:NSInvalidArgumentException
+                                       reason:@"QoE aggregate interval multiplier must be >= 1"
+                                     userInfo:nil];
+    }
+    self.qoeAggregateIntervalMultiplier = multiplier;
     return self;
 }
 
