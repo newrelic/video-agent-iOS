@@ -31,10 +31,8 @@
 @property (nonatomic) double bitrateTotalDuration;             // Accumulated duration (seconds)
 
 // --- Rebuffering ---
-// Counts all CONTENT_BUFFER_END events except the very first one (initial buffer).
-// Aligned with Android and JS SDKs: skip initial, accumulate everything else.
+// Skips bufferType "initial" (pre-playback load). Counts all other buffer types.
 // Reads timeSinceBufferBegin from CONTENT_BUFFER_END attributes.
-@property (nonatomic) BOOL initialBufferingHappened; // YES after first BUFFER_END
 @property (nonatomic) long totalRebufferingTime;  // ms
 
 // --- Failure flags ---
@@ -68,7 +66,6 @@
         self.lastBitrateChangeTimestamp = 0;
         self.bitrateWeightedSum = 0;
         self.bitrateTotalDuration = 0;
-        self.initialBufferingHappened = NO;
         self.totalRebufferingTime = 0;
         self.hadStartupError = NO;
         self.hadPlaybackError = NO;
@@ -220,10 +217,10 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 }
 
 - (void)handleBufferEndWithAttributes:(NSDictionary *)attributes {
-    // Skip the first buffer event (initial buffering) — aligned with Android and JS SDKs.
-    // All subsequent CONTENT_BUFFER_END events count as rebuffering regardless of bufferType.
-    if (!self.initialBufferingHappened) {
-        self.initialBufferingHappened = YES;
+    // Skip "initial" buffer type — pre-playback load, not a rebuffering event.
+    // All other buffer types (connection, seek, pause) count as rebuffering.
+    NSString *bufferType = attributes[@"bufferType"];
+    if ([bufferType isEqualToString:@"initial"]) {
         return;
     }
 
