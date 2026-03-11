@@ -31,8 +31,8 @@
 //  - kpi.totalPlaytime         Total content playtime (ms)
 //  - kpi.totalRebufferingTime  Total rebuffering time, excludes initial buffer (ms)
 //  - kpi.rebufferingRatio      (rebufferingTime / playtime) * 100 (percentage)
-//  - kpi.hadStartupFailure     Error occurred before content started
-//  - kpi.hadPlaybackFailure    Error occurred after content started
+//  - kpi.hadStartupError       Error occurred before content started
+//  - kpi.hadPlaybackError      Error occurred after content started
 //
 //  NAMING CONVENTION (NRVideoDefs.h):
 //  Base names (ATTR_*) define WHAT is measured: "startupTime", "peakBitrate", etc.

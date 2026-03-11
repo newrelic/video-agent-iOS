@@ -39,8 +39,8 @@
 
 // --- Failure flags ---
 // Error before start = startup failure; error after start = playback failure
-@property (nonatomic) BOOL hadStartupFailure;
-@property (nonatomic) BOOL hadPlaybackFailure;
+@property (nonatomic) BOOL hadStartupError;
+@property (nonatomic) BOOL hadPlaybackError;
 
 // --- Playtime ---
 // Read from the tracker's totalPlaytime attribute on every content event.
@@ -70,8 +70,8 @@
         self.bitrateTotalDuration = 0;
         self.initialBufferingHappened = NO;
         self.totalRebufferingTime = 0;
-        self.hadStartupFailure = NO;
-        self.hadPlaybackFailure = NO;
+        self.hadStartupError = NO;
+        self.hadPlaybackError = NO;
         self.lastTotalPlaytime = 0;
     }
 }
@@ -180,9 +180,9 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
             attrs[KPI_REBUFFERING_RATIO] = @(0.0);
         }
 
-        // --- Failure flags ---
-        attrs[KPI_HAD_STARTUP_FAILURE] = @(self.hadStartupFailure);
-        attrs[KPI_HAD_PLAYBACK_FAILURE] = @(self.hadPlaybackFailure);
+        // --- Error flags ---
+        attrs[KPI_HAD_STARTUP_ERROR] = @(self.hadStartupError);
+        attrs[KPI_HAD_PLAYBACK_ERROR] = @(self.hadPlaybackError);
 
         return [attrs copy];
     }
@@ -239,9 +239,9 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     // Before CONTENT_START → startup failure (e.g., network error loading manifest)
     // After CONTENT_START  → playback failure (e.g., stream decode error mid-play)
     if (self.hasReceivedStart) {
-        self.hadPlaybackFailure = YES;
+        self.hadPlaybackError = YES;
     } else {
-        self.hadStartupFailure = YES;
+        self.hadStartupError = YES;
     }
 }
 

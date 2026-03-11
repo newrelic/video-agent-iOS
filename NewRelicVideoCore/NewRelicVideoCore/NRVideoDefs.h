@@ -59,8 +59,8 @@
 #define ATTR_TOTAL_PLAYTIME         "totalPlaytime"
 #define ATTR_TOTAL_REBUFFERING_TIME "totalRebufferingTime"
 #define ATTR_REBUFFERING_RATIO      "rebufferingRatio"
-#define ATTR_HAD_STARTUP_FAILURE    "hadStartupFailure"
-#define ATTR_HAD_PLAYBACK_FAILURE   "hadPlaybackFailure"
+#define ATTR_HAD_STARTUP_ERROR      "hadStartupError"
+#define ATTR_HAD_PLAYBACK_ERROR     "hadPlaybackError"
 
 // --- Category prefixes (C strings) ---
 // Each category gets its own NRQL namespace prefix.
@@ -77,7 +77,7 @@
 #define KPI_TOTAL_PLAYTIME          @QOE_PREFIX ATTR_TOTAL_PLAYTIME
 #define KPI_TOTAL_REBUFFERING_TIME  @QOE_PREFIX ATTR_TOTAL_REBUFFERING_TIME
 #define KPI_REBUFFERING_RATIO       @QOE_PREFIX ATTR_REBUFFERING_RATIO
-#define KPI_HAD_STARTUP_FAILURE     @QOE_PREFIX ATTR_HAD_STARTUP_FAILURE
-#define KPI_HAD_PLAYBACK_FAILURE    @QOE_PREFIX ATTR_HAD_PLAYBACK_FAILURE
+#define KPI_HAD_STARTUP_ERROR       @QOE_PREFIX ATTR_HAD_STARTUP_ERROR
+#define KPI_HAD_PLAYBACK_ERROR      @QOE_PREFIX ATTR_HAD_PLAYBACK_ERROR
 
 #endif /* NRVideoDefs_h */
