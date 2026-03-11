@@ -16,6 +16,7 @@
 #import "NRVADefaultSizeEstimator.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
+#import "NRVideoDefs.h"
 
 // Define constants for event types to avoid magic strings
 static NSString * const kNRVAEventTypeOnDemand = @"ondemand";
@@ -27,6 +28,8 @@ static NSString * const kNRVAEventTypeLive = @"live";
 @property (nonatomic, strong) id<NRVAHarvestComponentFactory> crashSafeFactory;
 @property (nonatomic, strong) NRVADefaultSizeEstimator *sizeEstimator;
 @property (nonatomic, strong) dispatch_queue_t harvestQueue;
+@property (nonatomic) NSInteger qoeCycleCount;
+@property (nonatomic, strong) NSDictionary *pendingFinalQoe;
 
 @end
 
@@ -125,6 +128,43 @@ static NSString * const kNRVAEventTypeLive = @"live";
     return [self.crashSafeFactory getRecoveryStats];
 }
 
+#pragma mark - QoE Harvest Integration
+
+- (void)setQoeEventProvider:(NSDictionary * (^)(void))qoeEventProvider {
+    _qoeEventProvider = [qoeEventProvider copy];
+    _qoeCycleCount = 0;
+}
+
+- (void)enqueueFinalQoeEvent:(NSDictionary *)event {
+    dispatch_async(self.harvestQueue, ^{
+        self.pendingFinalQoe = event;
+    });
+}
+
+- (NSDictionary *)collectQoeEventIfNeeded {
+    // Pending final QoE (from sendEnd) takes priority and clears the provider.
+    // The event was built eagerly on the tracker thread while state was still valid,
+    // so there is no race with aggregator reset or provider nil.
+    if (self.pendingFinalQoe) {
+        NSDictionary *finalEvent = self.pendingFinalQoe;
+        self.pendingFinalQoe = nil;
+        _qoeEventProvider = nil;
+        _qoeCycleCount = 0;
+        return finalEvent;
+    }
+
+    NSDictionary * (^provider)(void) = self.qoeEventProvider;
+    if (!provider) return nil;
+
+    self.qoeCycleCount++;
+
+    NSInteger multiplier = self.config.qoeAggregateIntervalMultiplier;
+    if (multiplier < 1) multiplier = 1;
+    BOOL qualifies = (self.qoeCycleCount - 1) % multiplier == 0;
+
+    return qualifies ? provider() : nil;
+}
+
 #pragma mark - Private Harvest Methods
 
 - (void)harvestNow:(NSString *)bufferType {
@@ -147,18 +187,36 @@ static NSString * const kNRVAEventTypeLive = @"live";
             NSArray<NSDictionary<NSString *, id> *> *events = [self.crashSafeFactory.getEventBuffer pollBatchByPriority:batchSizeBytes
                                                                                                            sizeEstimator:self.sizeEstimator
                                                                                                                 priority:priorityFilter];
-            
+
             if (events && events.count > 0) {
-                [self.crashSafeFactory.getHttpClient sendEvents:events
+                NSMutableArray *finalEvents = [events mutableCopy];
+
+                // Inject QoE only if batch has at least 1 VideoAction event
+                BOOL hasVideoEvent = NO;
+                for (NSDictionary *event in events) {
+                    if ([NR_VIDEO_EVENT isEqualToString:event[@"eventType"]]) {
+                        hasVideoEvent = YES;
+                        break;
+                    }
+                }
+
+                if (hasVideoEvent) {
+                    NSDictionary *qoeEvent = [self collectQoeEventIfNeeded];
+                    if (qoeEvent) {
+                        [finalEvents addObject:qoeEvent];
+                    }
+                }
+
+                [self.crashSafeFactory.getHttpClient sendEvents:finalEvents
                                                      harvestType:harvestType
                                                       completion:^(BOOL success) {
                     if (success) {
                         // Notify event buffer about successful harvest to trigger any pending recovery
                         [self.crashSafeFactory.getEventBuffer onSuccessfulHarvest];
                     } else {
-                        [self.crashSafeFactory.getDeadLetterHandler handleFailedEvents:events harvestType:harvestType];
+                        [self.crashSafeFactory.getDeadLetterHandler handleFailedEvents:finalEvents harvestType:harvestType];
                     }
-                    NRVA_DEBUG_LOG(@"%@ harvest: %lu events", harvestType, (unsigned long)events.count);
+                    NRVA_DEBUG_LOG(@"%@ harvest: %lu events", harvestType, (unsigned long)finalEvents.count);
                 }];
             }
         } @catch (NSException *exception) {
