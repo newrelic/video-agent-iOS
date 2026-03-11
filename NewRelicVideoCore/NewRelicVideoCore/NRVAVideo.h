@@ -189,6 +189,27 @@
  */
 + (void)performEmergencyBackup;
 
+/**
+ * Check if QoE aggregate reporting is enabled
+ */
++ (BOOL)isQoeAggregateEnabled;
+
+/**
+ * Set the QoE event provider block. Called by the tracker at content start.
+ * The block is invoked by the harvest manager on qualifying harvest cycles.
+ * Pass nil to clear.
+ * @param provider Block that returns a fully-formed QoE event dict, or nil.
+ */
++ (void)setQoeEventProvider:(NSDictionary * _Nullable (^_Nullable)(void))provider;
+
+/**
+ * Enqueue a pre-built final QoE event for delivery on the next harvest.
+ * Built eagerly at sendEnd time to avoid race conditions with aggregator reset.
+ * Takes priority over the regular provider and auto-clears it after delivery.
+ * @param event Fully-formed QoE event dict.
+ */
++ (void)enqueueFinalQoeEvent:(NSDictionary *)event;
+
 @end
 
 /**

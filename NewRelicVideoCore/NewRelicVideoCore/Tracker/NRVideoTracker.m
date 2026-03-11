@@ -10,6 +10,8 @@
 #import "NRVideoLog.h"
 #import "NRTimeSince.h"
 #import "NRChrono.h"
+#import "NRQoEAggregator.h"
+#import "NRVAVideo.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @interface NRTracker ()
@@ -37,6 +39,15 @@
 @property (nonatomic, weak) NRTimeSince *lastAdTimeSince;
 @property (nonatomic) int acc;
 @property (nonatomic) NRChrono *chrono;
+// --- QoE Aggregate ---
+// The aggregator observes CONTENT_* events via preSendAction and accumulates KPIs.
+// QoE aggregate events are generated at harvest time via a callback block set on the harvest manager.
+// See NRQoEAggregator.h for the full design overview.
+@property (nonatomic) NRQoEAggregator *qoeAggregator;
+// Snapshot of the last content event's fully-assembled attributes (post-getAttributes,
+// post-timeSince, post-instrumentation, NSNull-cleaned). Used by buildQoeEvent to
+// carry over content metadata, player info, rendition, etc. to QOE_AGGREGATE events.
+@property (nonatomic, copy) NSDictionary *lastContentEventAttributes;
 
 @end
 
@@ -59,6 +70,10 @@
         self.bufferType = nil;
         self.chrono = [[NRChrono alloc] init];
         self.acc = 0;
+        // QoE aggregator is only created if enabled in NRVAVideoConfiguration.
+        if ([NRVAVideo isQoeAggregateEnabled]) {
+            self.qoeAggregator = [[NRQoEAggregator alloc] init];
+        }
         AV_LOG(@"Init NSVideoTracker");
     }
     return self;
@@ -206,6 +221,21 @@
     return attr;
 }
 
+// Feed every CONTENT_* event to the QoE aggregator AFTER attributes are fully assembled.
+// At this point, getAttributes: has already run, timeSince values are applied, instrumentation
+// attrs are added, and NSNull values are cleaned. The aggregator reads these values —
+// it does NOT maintain parallel state or call player APIs directly.
+//
+// We also save a snapshot of the attributes for buildQoeEvent to carry over content
+// metadata (player info, rendition, content metadata, etc.) to QOE_AGGREGATE events.
+- (BOOL)preSendAction:(NSString *)action attributes:(NSMutableDictionary *)attributes {
+    if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
+        [self.qoeAggregator processAction:action attributes:attributes];
+        self.lastContentEventAttributes = [attributes copy];
+    }
+    return [super preSendAction:action attributes:attributes];
+}
+
 #pragma mark - Senders
 
 - (void)sendRequest {
@@ -238,6 +268,13 @@
             }
             self.numberOfVideos++;
             [self sendVideoEvent:CONTENT_START];
+            // Register QoE event provider — harvest manager calls this on qualifying cycles
+            if (self.qoeAggregator) {
+                __weak typeof(self) weakSelf = self;
+                [NRVAVideo setQoeEventProvider:^NSDictionary * {
+                    return [weakSelf buildQoeEvent];
+                }];
+            }
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
     }
@@ -286,8 +323,18 @@
         }
         else {
             [self sendVideoEvent:CONTENT_END];
+            // Build final QoE eagerly while all state is still valid, then enqueue
+            // for the next harvest. This avoids the race where provider/aggregator/attributes
+            // are cleared on the tracker thread before the harvestQueue can use them.
+            NSDictionary *finalQoe = [self buildQoeEvent];
+            if (finalQoe) {
+                [NRVAVideo enqueueFinalQoeEvent:finalQoe];
+            }
+            [NRVAVideo setQoeEventProvider:nil];
+            [self.qoeAggregator reset];
+            self.lastContentEventAttributes = nil;
         }
-        
+
         [self stopHeartbeat];
         
         self.viewIdIndex++;
@@ -648,6 +695,53 @@
     else {
         self.playtimeSinceLastEvent = 0;
     }
+}
+
+#pragma mark - QoE Aggregate
+
+// Builds a QOE_AGGREGATE event dict for direct injection into the harvest batch.
+// Called by the harvest manager's qoeEventProvider block at harvest time.
+//
+// Attribute composition:
+// 1. Base = lastContentEventAttributes (snapshot from the most recent content event).
+//    Carries over ALL content metadata: player info, rendition, instrumentation,
+//    content metadata, counters, custom attributes, etc. — matching the JS SDK pattern.
+// 2. Filter out timeSince* attributes (except timeSinceRequested and timeSinceStarted
+//    which provide useful session context for NRQL queries).
+// 3. Overlay computed KPI attributes from the aggregator (kpi.startupTime, etc.).
+// 4. Set actionName, eventType, and timestamp for direct batch injection.
+- (NSDictionary *)buildQoeEvent {
+    if (!self.qoeAggregator) return nil;
+
+    NSDictionary *kpiAttributes = [self.qoeAggregator generateAggregateAttributes];
+    if (!kpiAttributes) return nil;
+
+    NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
+
+    // Copy content event attributes, filtering out event-specific fields:
+    // - timeSince* (except timeSinceRequested/timeSinceStarted for session context)
+    // - bufferType (specific to BUFFER_START/END events, not relevant to QoE)
+    for (NSString *key in self.lastContentEventAttributes) {
+        if ([key hasPrefix:@"timeSince"]
+            && ![key isEqualToString:@"timeSinceRequested"]
+            && ![key isEqualToString:@"timeSinceStarted"]) {
+            continue;
+        }
+        if ([key isEqualToString:@"bufferType"]) {
+            continue;
+        }
+        attrs[key] = self.lastContentEventAttributes[key];
+    }
+
+    // Overlay KPI attributes from the aggregator (kpi.startupTime, kpi.peakBitrate, etc.)
+    [attrs addEntriesFromDictionary:kpiAttributes];
+
+    // Set event metadata for direct batch injection (bypasses recordEvent:)
+    attrs[@"actionName"] = QOE_AGGREGATE;
+    attrs[@"eventType"] = NR_VIDEO_EVENT;
+    attrs[@"timestamp"] = @((long long)([[NSDate date] timeIntervalSince1970] * 1000));
+
+    return [attrs copy];
 }
 
 #pragma mark - Private

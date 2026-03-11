@@ -31,6 +31,7 @@
 @property (nonatomic, strong) NRVAVideoLifecycleObserver *lifecycleObserver;
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *trackerIds;
 @property (nonatomic, assign) NSInteger nextTrackerId;
+@property (nonatomic, strong) NRVAVideoConfiguration *configuration;
 
 @end
 
@@ -337,6 +338,25 @@ static dispatch_once_t onceToken;
     [self setGlobalAttribute:key value:value action:nil];
 }
 
+#pragma mark - QoE Configuration Accessors
+
++ (BOOL)isQoeAggregateEnabled {
+    if (![self isInitialized]) return NO;
+    return [self getInstance].configuration.qoeAggregateEnabled;
+}
+
++ (void)setQoeEventProvider:(NSDictionary * _Nullable (^)(void))provider {
+    if ([self isInitialized]) {
+        [self getInstance].harvestManager.qoeEventProvider = provider;
+    }
+}
+
++ (void)enqueueFinalQoeEvent:(NSDictionary *)event {
+    if ([self isInitialized] && event) {
+        [[self getInstance].harvestManager enqueueFinalQoeEvent:event];
+    }
+}
+
 #pragma mark - Internal Methods (Package Private)
 
 + (void)recordEvent:(NSString *)eventType attributes:(NSDictionary<NSString *, id> *)attributes {
@@ -404,6 +424,7 @@ static dispatch_once_t onceToken;
 - (instancetype)initWithConfiguration:(NRVAVideoConfiguration *)config {
     self = [super init];
     if (self) {
+        _configuration = config;
         _harvestManager = [[NRVAHarvestManager alloc] initWithConfiguration:config];
         _trackerIds = [[NSMutableDictionary alloc] init];
         _nextTrackerId = 1;
