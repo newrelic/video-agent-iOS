@@ -31,8 +31,10 @@
 @property (nonatomic) double bitrateTotalDuration;             // Accumulated duration (seconds)
 
 // --- Rebuffering ---
-// Only counts "connection" type buffers (not seek, pause, initial, or ad buffers).
+// Counts all CONTENT_BUFFER_END events except the very first one (initial buffer).
+// Aligned with Android and JS SDKs: skip initial, accumulate everything else.
 // Reads timeSinceBufferBegin from CONTENT_BUFFER_END attributes.
+@property (nonatomic) BOOL initialBufferingHappened; // YES after first BUFFER_END
 @property (nonatomic) long totalRebufferingTime;  // ms
 
 // --- Failure flags ---
@@ -66,6 +68,7 @@
         self.lastBitrateChangeTimestamp = 0;
         self.bitrateWeightedSum = 0;
         self.bitrateTotalDuration = 0;
+        self.initialBufferingHappened = NO;
         self.totalRebufferingTime = 0;
         self.hadStartupFailure = NO;
         self.hadPlaybackFailure = NO;
@@ -217,11 +220,10 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 }
 
 - (void)handleBufferEndWithAttributes:(NSDictionary *)attributes {
-    // Only count "connection" type buffers as rebuffering.
-    // Other buffer types (initial, seek, pause, ad) are not rebuffering events.
-    // bufferType is computed by NRVideoTracker.calculateBufferType based on player state.
-    NSString *bufferType = attributes[@"bufferType"];
-    if (![bufferType isEqualToString:@"connection"]) {
+    // Skip the first buffer event (initial buffering) — aligned with Android and JS SDKs.
+    // All subsequent CONTENT_BUFFER_END events count as rebuffering regardless of bufferType.
+    if (!self.initialBufferingHappened) {
+        self.initialBufferingHappened = YES;
         return;
     }
 

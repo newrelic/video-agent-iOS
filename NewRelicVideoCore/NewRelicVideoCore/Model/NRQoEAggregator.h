@@ -18,7 +18,7 @@
 //  2. The aggregator extracts relevant values from the attributes dictionary:
 //     - timeSinceRequested, totalAdPlaytime → startup time
 //     - contentBitrate → peak + time-weighted average
-//     - timeSinceBufferBegin + bufferType → rebuffering time
+//     - timeSinceBufferBegin → rebuffering time (all post-initial buffers)
 //     - totalPlaytime → latest playtime for ratio calculation
 //  3. On demand (heartbeat cycle or content end), generateAggregateAttributes
 //     returns the computed KPI dictionary, which is sent as a QOE_AGGREGATE event.
@@ -29,7 +29,7 @@
 //  - kpi.peakBitrate           Highest observed bitrate during playback (bps)
 //  - kpi.averageBitrate        Time-weighted average bitrate (bps)
 //  - kpi.totalPlaytime         Total content playtime (ms)
-//  - kpi.totalRebufferingTime  Total connection rebuffering time (ms)
+//  - kpi.totalRebufferingTime  Total rebuffering time, excludes initial buffer (ms)
 //  - kpi.rebufferingRatio      (rebufferingTime / playtime) * 100 (percentage)
 //  - kpi.hadStartupFailure     Error occurred before content started
 //  - kpi.hadPlaybackFailure    Error occurred after content started

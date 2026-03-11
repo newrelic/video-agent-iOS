@@ -101,7 +101,7 @@ QOE_AGGREGATE events carry all standard VideoAction attributes (viewId, viewSess
 | kpi.startupTime           | Time from content request to content start, excluding ad playtime (ms).                                              |
 | kpi.peakBitrate           | Highest observed bitrate during playback (bps).                                                                      |
 | kpi.averageBitrate        | Time-weighted average bitrate across all segments during playback (bps).                                             |
-| kpi.totalRebufferingTime  | Total duration of connection-type rebuffering events (ms). Excludes initial, seek, pause, and ad buffers.            |
+| kpi.totalRebufferingTime  | Total rebuffering time (ms). Counts all CONTENT_BUFFER_END events except the initial buffer. Aligned with Android and JS SDKs. |
 | kpi.rebufferingRatio      | Rebuffering time as a percentage of total playtime: (totalRebufferingTime / totalPlaytime) * 100.                    |
 | kpi.hadStartupFailure     | True if an error occurred before content start.                                                                      |
 | kpi.hadPlaybackFailure    | True if an error occurred after content start.                                                                       |
