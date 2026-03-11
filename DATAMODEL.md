@@ -90,6 +90,21 @@ An Attribute is a piece of data associated with an event. Attributes provide add
 | CONTENT_BUFFER_END       | Content video buffering ended.                                                                   |
 | CONTENT_HEARTBEAT        | Content video heartbeat, an event that happens once every 30 seconds while the video is playing. |
 | CONTENT_RENDITION_CHANGE | Content video stream quality changed.                                                            |
+| QOE_AGGREGATE            | Quality of Experience aggregate event, sent periodically during playback and at content end.      |
+
+#### QOE_AGGREGATE Attributes
+
+QOE_AGGREGATE events carry all standard VideoAction attributes (viewId, viewSession, contentId, etc.) plus the following KPI attributes:
+
+| Attribute Name            | Definition                                                                                                           |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| kpi.startupTime           | Time from content request to content start, excluding ad playtime (ms).                                              |
+| kpi.peakBitrate           | Highest observed bitrate during playback (bps).                                                                      |
+| kpi.averageBitrate        | Time-weighted average bitrate across all segments during playback (bps).                                             |
+| kpi.totalRebufferingTime  | Total duration of connection-type rebuffering events (ms). Excludes initial, seek, pause, and ad buffers.            |
+| kpi.rebufferingRatio      | Rebuffering time as a percentage of total playtime: (totalRebufferingTime / totalPlaytime) * 100.                    |
+| kpi.hadStartupFailure     | True if an error occurred before content start.                                                                      |
+| kpi.hadPlaybackFailure    | True if an error occurred after content start.                                                                       |
 
 ### VideoAdAction
 
