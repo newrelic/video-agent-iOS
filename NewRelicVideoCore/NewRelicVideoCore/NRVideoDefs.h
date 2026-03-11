@@ -66,11 +66,11 @@
 // Each category gets its own NRQL namespace prefix.
 // To add a new category: define a prefix here, then create prefixed macros below.
 // Example: #define ENGAGEMENT_PREFIX "eng."
-#define QOE_PREFIX                  "kpi."
+#define QOE_PREFIX                  ""
 
 // --- Prefixed QoE attribute keys (NSString, for use in event dictionaries) ---
 // Composed as: @<PREFIX><BASE_NAME>  (compile-time string concatenation)
-// NRQL: SELECT kpi.startupTime, kpi.peakBitrate FROM VideoAction WHERE actionName = 'QOE_AGGREGATE'
+// NRQL: SELECT startupTime, peakBitrate FROM VideoAction WHERE actionName = 'QOE_AGGREGATE'
 #define KPI_STARTUP_TIME            @QOE_PREFIX ATTR_STARTUP_TIME
 #define KPI_PEAK_BITRATE            @QOE_PREFIX ATTR_PEAK_BITRATE
 #define KPI_AVERAGE_BITRATE         @QOE_PREFIX ATTR_AVERAGE_BITRATE

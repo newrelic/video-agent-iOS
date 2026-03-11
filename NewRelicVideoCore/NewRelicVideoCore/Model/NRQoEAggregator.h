@@ -24,22 +24,20 @@
 //     returns the computed KPI dictionary, which is sent as a QOE_AGGREGATE event.
 //  4. reset clears all state for the next video session.
 //
-//  KPIs PRODUCED (attribute keys = QOE_PREFIX + ATTR_* base names, see NRVideoDefs.h):
-//  - kpi.startupTime           Time from request to start, minus pre-roll ad time (ms)
-//  - kpi.peakBitrate           Highest observed bitrate during playback (bps)
-//  - kpi.averageBitrate        Time-weighted average bitrate (bps)
-//  - kpi.totalPlaytime         Total content playtime (ms)
-//  - kpi.totalRebufferingTime  Total rebuffering time, excludes initial buffer (ms)
-//  - kpi.rebufferingRatio      (rebufferingTime / playtime) * 100 (percentage)
-//  - kpi.hadStartupError       Error occurred before content started
-//  - kpi.hadPlaybackError      Error occurred after content started
+//  KPIs PRODUCED (attribute keys defined in NRVideoDefs.h):
+//  - startupTime           Time from request to start, minus pre-roll ad time (ms)
+//  - peakBitrate           Highest observed bitrate during playback (bps)
+//  - averageBitrate        Time-weighted average bitrate (bps)
+//  - totalPlaytime         Total content playtime (ms)
+//  - totalRebufferingTime  Total rebuffering time, excludes initial buffer (ms)
+//  - rebufferingRatio      (rebufferingTime / playtime) * 100 (percentage)
+//  - hadStartupError       Error occurred before content started
+//  - hadPlaybackError      Error occurred after content started
 //
 //  NAMING CONVENTION (NRVideoDefs.h):
 //  Base names (ATTR_*) define WHAT is measured: "startupTime", "peakBitrate", etc.
-//  Prefixes define the CATEGORY: QOE_PREFIX = "kpi."
-//  Prefixed keys (KPI_*) = @QOE_PREFIX ATTR_* → @"kpi.startupTime" (compile-time)
-//  To add a new category, define a new prefix and compose new macros.
-//  This keeps base names reusable and prefixes swappable without code changes.
+//  QOE_PREFIX is currently empty (no namespace prefix), aligned with Android and JS SDKs.
+//  KPI_* macros = @QOE_PREFIX ATTR_* → @"startupTime" (compile-time concatenation).
 //
 
 #import <Foundation/Foundation.h>
