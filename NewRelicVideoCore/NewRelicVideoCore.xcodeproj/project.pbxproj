@@ -52,6 +52,10 @@
 		9CCH0002258CD4750044FAB0 /* NRChrono.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CCH0003258CD4750044FAB0 /* NRChrono.h */; };
 		9CCH0004258CD4750044FAB0 /* NRChrono.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CCH0005258CD4750044FAB0 /* NRChrono.m */; };
 		9CCH0006258CD4750044FAB0 /* NRChrono.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CCH0005258CD4750044FAB0 /* NRChrono.m */; };
+		9CQOE0001258CD4750044FAB0 /* NRQoEAggregator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CQOE0003258CD4750044FAB0 /* NRQoEAggregator.h */; };
+		9CQOE0002258CD4750044FAB0 /* NRQoEAggregator.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CQOE0003258CD4750044FAB0 /* NRQoEAggregator.h */; };
+		9CQOE0004258CD4750044FAB0 /* NRQoEAggregator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CQOE0005258CD4750044FAB0 /* NRQoEAggregator.m */; };
+		9CQOE0006258CD4750044FAB0 /* NRQoEAggregator.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CQOE0005258CD4750044FAB0 /* NRQoEAggregator.m */; };
 		9CNEW71CE35C656124EB2B8CA /* NRVAVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW82553CBB1CF24833872D /* NRVAVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CNEW675C6E5EA3634CCC8FC6 /* NRVAVideo.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CNEW82553CBB1CF24833872D /* NRVAVideo.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CNEWE7DE82391DA345968344 /* NRVAVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */; };
@@ -203,6 +207,8 @@
 		9C4F8956258D07A60070CC2D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		9CCH0003258CD4750044FAB0 /* NRChrono.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRChrono.h; sourceTree = "<group>"; };
 		9CCH0005258CD4750044FAB0 /* NRChrono.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRChrono.m; sourceTree = "<group>"; };
+		9CQOE0003258CD4750044FAB0 /* NRQoEAggregator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRQoEAggregator.h; sourceTree = "<group>"; };
+		9CQOE0005258CD4750044FAB0 /* NRQoEAggregator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRQoEAggregator.m; sourceTree = "<group>"; };
 		9CNEW82553CBB1CF24833872D /* NRVAVideo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideo.h; sourceTree = "<group>"; };
 		9CNEWD69ECFB4F99C4850A773 /* NRVAVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NRVAVideo.m; sourceTree = "<group>"; };
 		9CNEW585E2C2BCA524422AABE /* NRVAVideoConfiguration.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NRVAVideoConfiguration.h; sourceTree = "<group>"; };
@@ -415,6 +421,8 @@
 				9C01D736258CD4750044FAB0 /* NRTimeSinceTable.h */,
 				9CCH0003258CD4750044FAB0 /* NRChrono.h */,
 				9CCH0005258CD4750044FAB0 /* NRChrono.m */,
+				9CQOE0003258CD4750044FAB0 /* NRQoEAggregator.h */,
+				9CQOE0005258CD4750044FAB0 /* NRQoEAggregator.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -509,6 +517,7 @@
 				9C01D741258CD4760044FAB0 /* NRVideoLog.h in Headers */,
 				9C01D75B258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */,
 				9CCH0001258CD4750044FAB0 /* NRChrono.h in Headers */,
+				9CQOE0001258CD4750044FAB0 /* NRQoEAggregator.h in Headers */,
 				9CNEW71CE35C656124EB2B8CA /* NRVAVideo.h in Headers */,
 				9CNEW12E01B93C3F0469BA1C2 /* NRVAVideoConfiguration.h in Headers */,
 				9CNEW5DA15487F5374398B9C0 /* NRVAVideoPlayerConfiguration.h in Headers */,
@@ -552,6 +561,7 @@
 				9C01D742258CD4760044FAB0 /* NRVideoLog.h in Headers */,
 				9C01D75C258CD4780044FAB0 /* NewRelicVideoAgent.h in Headers */,
 				9CCH0002258CD4750044FAB0 /* NRChrono.h in Headers */,
+				9CQOE0002258CD4750044FAB0 /* NRQoEAggregator.h in Headers */,
 				9CNEW675C6E5EA3634CCC8FC6 /* NRVAVideo.h in Headers */,
 				9CNEW727ADBB0BAB745EA9FA7 /* NRVAVideoConfiguration.h in Headers */,
 				9CNEW676BA960CA6441BE893A /* NRVAVideoPlayerConfiguration.h in Headers */,
@@ -746,6 +756,7 @@
 				9C01D73B258CD4750044FAB0 /* NRVideoTracker.m in Sources */,
 				9C01D753258CD4770044FAB0 /* NREventAttributes.m in Sources */,
 				9CCH0004258CD4750044FAB0 /* NRChrono.m in Sources */,
+				9CQOE0004258CD4750044FAB0 /* NRQoEAggregator.m in Sources */,
 				9CNEWE7DE82391DA345968344 /* NRVAVideo.m in Sources */,
 				9CNEW8D97F29E74D14E979C78 /* NRVAVideoConfiguration.m in Sources */,
 				9CNEW6165FB0E3C314395A50D /* NRVAVideoPlayerConfiguration.m in Sources */,
@@ -791,6 +802,7 @@
 				9C01D73C258CD4750044FAB0 /* NRVideoTracker.m in Sources */,
 				9C01D754258CD4770044FAB0 /* NREventAttributes.m in Sources */,
 				9CCH0006258CD4750044FAB0 /* NRChrono.m in Sources */,
+				9CQOE0006258CD4750044FAB0 /* NRQoEAggregator.m in Sources */,
 				9CNEWA32CB040EC9043BC8378 /* NRVAVideo.m in Sources */,
 				9CNEW6D58B157475C47B9B313 /* NRVAVideoConfiguration.m in Sources */,
 				9CNEW6DA1F57BE71348A2BF7A /* NRVAVideoPlayerConfiguration.m in Sources */,
