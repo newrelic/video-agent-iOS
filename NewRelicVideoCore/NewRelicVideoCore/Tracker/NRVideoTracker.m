@@ -263,6 +263,11 @@
             [self sendVideoAdEvent:AD_REQUEST];
         }
         else {
+            // Increment viewId for subsequent videos (not the first).
+            // Done here instead of sendEnd so post-roll ads share the same viewId as their content.
+            if (self.numberOfVideos > 0) {
+                self.viewIdIndex++;
+            }
             [self sendVideoEvent:CONTENT_REQUEST];
         }
     }
@@ -354,8 +359,7 @@
         }
 
         [self stopHeartbeat];
-        
-        self.viewIdIndex++;
+
         self.numberOfErrors = 0;
         self.playtimeSinceLastEventTimestamp = 0;
         self.playtimeSinceLastEvent = 0;
