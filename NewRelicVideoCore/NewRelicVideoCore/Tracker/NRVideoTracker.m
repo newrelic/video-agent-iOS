@@ -721,6 +721,17 @@
     }
 }
 
+// Read-only peek at the current totalPlaytime without mutating tracker state.
+// Safe to call from the harvest thread. If the player is currently playing,
+// adds the un-flushed delta since the last content event.
+- (long)currentTotalPlaytime {
+    if (self.playtimeSinceLastEventTimestamp > 0) {
+        long delta = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
+        return self.totalPlaytime + delta;
+    }
+    return self.totalPlaytime;
+}
+
 #pragma mark - QoE Aggregate
 
 // Builds a QOE_AGGREGATE event dict for direct injection into the harvest batch.
@@ -786,6 +797,16 @@
 
     // Overlay computed QoE KPI attributes from the aggregator
     [attrs addEntriesFromDictionary:kpiAttributes];
+
+    // Override totalPlaytime with real-time value (aggregator's is stale between events)
+    long freshPlaytime = [self currentTotalPlaytime];
+    attrs[KPI_TOTAL_PLAYTIME] = @(freshPlaytime);
+
+    // Recompute rebufferingRatio using fresh totalPlaytime
+    if (freshPlaytime > 0) {
+        long rebufTime = [attrs[KPI_TOTAL_REBUFFERING_TIME] longValue];
+        attrs[KPI_REBUFFERING_RATIO] = @(((double)rebufTime / (double)freshPlaytime) * 100.0);
+    }
 
     // Set event metadata for direct batch injection (bypasses recordEvent:)
     attrs[@"actionName"] = QOE_AGGREGATE;

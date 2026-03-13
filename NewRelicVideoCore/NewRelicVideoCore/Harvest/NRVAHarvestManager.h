@@ -65,7 +65,7 @@
 
 /**
  * Block that returns a fully-formed QoE event dict (with eventType, actionName, timestamp).
- * Called by the harvest manager on qualifying harvest cycles when VideoAction events are present.
+ * Called by the harvest manager on qualifying harvest cycles when QoE attributes have changed.
  * Set by the tracker at content start, cleared automatically after the final QoE is collected.
  */
 @property (nonatomic, copy, nullable) NSDictionary * (^qoeEventProvider)(void);

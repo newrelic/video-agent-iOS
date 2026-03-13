@@ -80,4 +80,25 @@
 #define KPI_HAD_STARTUP_ERROR       @QOE_PREFIX ATTR_HAD_STARTUP_ERROR
 #define KPI_HAD_PLAYBACK_ERROR      @QOE_PREFIX ATTR_HAD_PLAYBACK_ERROR
 
+// --- Centralized list of all QoE KPI attribute keys ---
+// When adding a new KPI_* macro above, also add it to this array.
+// Used by the aggregator, harvest manager, and anywhere KPI keys need enumeration.
+static inline NSArray<NSString *> *NRVAAllKPIKeys(void) {
+    static NSArray *keys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keys = @[
+            KPI_STARTUP_TIME,
+            KPI_PEAK_BITRATE,
+            KPI_AVERAGE_BITRATE,
+            KPI_TOTAL_PLAYTIME,
+            KPI_TOTAL_REBUFFERING_TIME,
+            KPI_REBUFFERING_RATIO,
+            KPI_HAD_STARTUP_ERROR,
+            KPI_HAD_PLAYBACK_ERROR
+        ];
+    });
+    return keys;
+}
+
 #endif /* NRVideoDefs_h */

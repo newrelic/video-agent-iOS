@@ -30,6 +30,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
 @property (nonatomic, strong) dispatch_queue_t harvestQueue;
 @property (nonatomic) NSInteger qoeCycleCount;
 @property (nonatomic, strong) NSDictionary *pendingFinalQoe;
+@property (nonatomic, strong) NSDictionary *lastSentQoEAttributes; // Snapshot for dirty check
 
 @end
 
@@ -142,7 +143,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
 }
 
 - (NSDictionary *)collectQoeEventIfNeeded {
-    // Pending final QoE (from sendEnd) takes priority and clears the provider.
+    // Pending final QoE (from sendEnd) takes priority — always sent, bypasses dirty check.
     // The event was built eagerly on the tracker thread while state was still valid,
     // so there is no race with aggregator reset or provider nil.
     if (self.pendingFinalQoe) {
@@ -150,6 +151,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
         self.pendingFinalQoe = nil;
         _qoeEventProvider = nil;
         _qoeCycleCount = 0;
+        self.lastSentQoEAttributes = nil; // Clear snapshot for next session
         return finalEvent;
     }
 
@@ -162,7 +164,34 @@ static NSString * const kNRVAEventTypeLive = @"live";
     if (multiplier < 1) multiplier = 1;
     BOOL qualifies = (self.qoeCycleCount - 1) % multiplier == 0;
 
-    return qualifies ? provider() : nil;
+    if (!qualifies) return nil;
+
+    // Multiplier satisfied — build the QoE event and check if KPIs changed
+    NSDictionary *qoeEvent = provider();
+    if (!qoeEvent) return nil;
+
+    if ([self qoeAttributesChangedFrom:self.lastSentQoEAttributes to:qoeEvent]) {
+        self.lastSentQoEAttributes = qoeEvent;
+        return qoeEvent;
+    }
+
+    // KPIs unchanged — skip sending
+    return nil;
+}
+
+// Compare QoE KPI attributes between two events. Returns YES if any KPI value changed.
+// Only compares KPI keys (not metadata like timestamp, actionName, eventType).
+- (BOOL)qoeAttributesChangedFrom:(NSDictionary *)previous to:(NSDictionary *)current {
+    if (!previous) return YES; // First QoE event — always send
+
+    for (NSString *key in NRVAAllKPIKeys()) {
+        id prevVal = previous[key];
+        id currVal = current[key];
+        if (prevVal == nil && currVal == nil) continue;
+        if (prevVal == nil || currVal == nil) return YES;
+        if (![prevVal isEqual:currVal]) return YES;
+    }
+    return NO;
 }
 
 #pragma mark - Private Harvest Methods
@@ -188,25 +217,15 @@ static NSString * const kNRVAEventTypeLive = @"live";
                                                                                                            sizeEstimator:self.sizeEstimator
                                                                                                                 priority:priorityFilter];
 
-            if (events && events.count > 0) {
-                NSMutableArray *finalEvents = [events mutableCopy];
+            NSMutableArray *finalEvents = events ? [events mutableCopy] : [NSMutableArray array];
 
-                // Inject QoE only if batch has at least 1 VideoAction event
-                BOOL hasVideoEvent = NO;
-                for (NSDictionary *event in events) {
-                    if ([NR_VIDEO_EVENT isEqualToString:event[@"eventType"]]) {
-                        hasVideoEvent = YES;
-                        break;
-                    }
-                }
+            // QoE is independent of the batch — collect if multiplier qualifies and KPIs changed
+            NSDictionary *qoeEvent = [self collectQoeEventIfNeeded];
+            if (qoeEvent) {
+                [finalEvents addObject:qoeEvent];
+            }
 
-                if (hasVideoEvent) {
-                    NSDictionary *qoeEvent = [self collectQoeEventIfNeeded];
-                    if (qoeEvent) {
-                        [finalEvents addObject:qoeEvent];
-                    }
-                }
-
+            if (finalEvents.count > 0) {
                 [self.crashSafeFactory.getHttpClient sendEvents:finalEvents
                                                      harvestType:harvestType
                                                       completion:^(BOOL success) {
