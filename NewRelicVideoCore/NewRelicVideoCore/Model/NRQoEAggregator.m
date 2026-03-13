@@ -35,6 +35,9 @@
 // Reads timeSinceBufferBegin from CONTENT_BUFFER_END attributes.
 @property (nonatomic) long totalRebufferingTime;  // ms
 
+// --- Rebuffering ---
+@property (nonatomic) BOOL hasSkippedFirstBuffer;  // YES after first BUFFER_END is skipped
+
 // --- Failure flags ---
 // Error before start = startup failure; error after start = playback failure
 @property (nonatomic) BOOL hadStartupError;
@@ -67,6 +70,7 @@
         self.bitrateWeightedSum = 0;
         self.bitrateTotalDuration = 0;
         self.totalRebufferingTime = 0;
+        self.hasSkippedFirstBuffer = NO;
         self.hadStartupError = NO;
         self.hadPlaybackError = NO;
         self.lastTotalPlaytime = 0;
@@ -227,13 +231,15 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 }
 
 - (void)handleBufferEndWithAttributes:(NSDictionary *)attributes {
-    // Skip "initial" buffer type — pre-playback load, not a rebuffering event.
-    // All other buffer types (connection, seek, pause) count as rebuffering.
-    NSString *bufferType = attributes[@"bufferType"];
-    if ([bufferType isEqualToString:@"initial"]) {
+    // Skip the first buffer event in the session (initial load), regardless of bufferType.
+    // More reliable than checking bufferType == "initial" since it doesn't depend on
+    // the player reporting the correct type.
+    if (!self.hasSkippedFirstBuffer) {
+        self.hasSkippedFirstBuffer = YES;
         return;
     }
 
+    // All subsequent buffer events count as rebuffering.
     // timeSinceBufferBegin = duration of this buffer event (computed by timeSince table)
     NSNumber *timeSinceBufferBegin = attributes[@"timeSinceBufferBegin"];
     if (timeSinceBufferBegin) {

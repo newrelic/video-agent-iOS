@@ -269,6 +269,15 @@
                 self.viewIdIndex++;
             }
             [self sendVideoEvent:CONTENT_REQUEST];
+            // Register QoE event provider at REQUEST so QoE is sent even if START never happens
+            // (e.g., startup error). By this point preSendAction has already run, so
+            // lastContentEventAttributes is set and aggregator has hasReceivedRequest=YES.
+            if (self.qoeAggregator) {
+                __weak typeof(self) weakSelf = self;
+                [NRVAVideo setQoeEventProvider:^NSDictionary * {
+                    return [weakSelf buildQoeEvent];
+                }];
+            }
         }
     }
 }
@@ -291,13 +300,6 @@
             }
             self.numberOfVideos++;
             [self sendVideoEvent:CONTENT_START];
-            // Register QoE event provider — harvest manager calls this on qualifying cycles
-            if (self.qoeAggregator) {
-                __weak typeof(self) weakSelf = self;
-                [NRVAVideo setQoeEventProvider:^NSDictionary * {
-                    return [weakSelf buildQoeEvent];
-                }];
-            }
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
     }
