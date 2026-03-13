@@ -16,7 +16,7 @@
 @property (nonatomic) BOOL hasReceivedStart;      // YES after CONTENT_START
 
 // --- Startup ---
-@property (nonatomic) long startupTime;           // ms, = timeSinceRequested - totalAdPlaytime
+@property (nonatomic, strong, nullable) NSNumber *startupTime;  // ms, nil until CONTENT_START
 
 // --- Bitrate tracking (time-weighted average) ---
 // Algorithm: Each time the bitrate changes, we "close" the previous segment:
@@ -60,7 +60,7 @@
     @synchronized (self) {
         self.hasReceivedRequest = NO;
         self.hasReceivedStart = NO;
-        self.startupTime = 0;
+        self.startupTime = nil;
         self.peakBitrate = 0;
         self.currentBitrate = 0;
         self.lastBitrateChangeTimestamp = 0;
@@ -135,9 +135,9 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
         NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
 
         // --- Startup time (ms) ---
-        // Only meaningful after content has started playing
-        if (self.hasReceivedStart) {
-            attrs[KPI_STARTUP_TIME] = @(self.startupTime);
+        // Only meaningful after content has started playing; nil before CONTENT_START
+        if (self.startupTime) {
+            attrs[KPI_STARTUP_TIME] = self.startupTime;
         }
 
         // --- Peak bitrate (bps) ---
@@ -194,20 +194,20 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 - (void)handleStartWithAttributes:(NSDictionary *)attributes {
     self.hasReceivedStart = YES;
 
-    // Startup time = timeSinceRequested - totalAdPlaytime
-    // timeSinceRequested: time from CONTENT_REQUEST to CONTENT_START (computed by timeSince table)
-    // totalAdPlaytime: pre-roll ad duration (set by the ad tracker via linkedTracker)
-    // We subtract ad time because the user wasn't waiting for content during ads.
+    // Startup time = timeSinceRequested - totalPreRollAdTime
+    // timeSinceRequested: wall-clock from CONTENT_REQUEST to CONTENT_START (timeSince table)
+    // totalPreRollAdTime: wall-clock sum of each AD_START → AD_END before CONTENT_START
+    //   Includes ad buffer, seek, and pause — not just ad playing time.
     NSNumber *timeSinceRequested = attributes[@"timeSinceRequested"];
     if (timeSinceRequested) {
         long startup = [timeSinceRequested longValue];
 
-        NSNumber *adPlaytime = attributes[@"totalAdPlaytime"];
-        if (adPlaytime) {
-            startup -= [adPlaytime longValue];
+        NSNumber *preRollAdTime = attributes[@"totalPreRollAdTime"];
+        if (preRollAdTime) {
+            startup -= [preRollAdTime longValue];
         }
 
-        self.startupTime = MAX(startup, 0);
+        self.startupTime = @(MAX(startup, 0));
     }
 
     // Set a baseline timestamp for the first bitrate segment (time-weighted tracking starts here)

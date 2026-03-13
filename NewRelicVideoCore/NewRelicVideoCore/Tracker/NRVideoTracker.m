@@ -34,6 +34,7 @@
 @property (nonatomic) NSTimeInterval playtimeSinceLastEventTimestamp;
 @property (nonatomic) long totalPlaytime;
 @property (nonatomic) long totalAdPlaytime;
+@property (nonatomic) long totalPreRollAdTime;  // wall-clock ms, sum of each AD_START → AD_END
 @property (nonatomic) long playtimeSinceLastEvent;
 @property (nonatomic) NSString *bufferType;
 @property (nonatomic, weak) NRTimeSince *lastAdTimeSince;
@@ -66,6 +67,7 @@
         self.playtimeSinceLastEventTimestamp = 0;
         self.totalPlaytime = 0;
         self.totalAdPlaytime = 0;
+        self.totalPreRollAdTime = 0;
         self.playtimeSinceLastEvent = 0;
         self.bufferType = nil;
         self.chrono = [[NRChrono alloc] init];
@@ -194,6 +196,7 @@
     else {
         if ([action isEqual:CONTENT_START]) {
             [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
+            [attr setObject:@(self.totalPreRollAdTime) forKey:@"totalPreRollAdTime"];
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         // Only add bitrate attributes after content has started (first frame shown)
@@ -229,6 +232,20 @@
 // We also save a snapshot of the attributes for buildQoeEvent to carry over content
 // metadata (player info, rendition, content metadata, etc.) to QOE_AGGREGATE events.
 - (BOOL)preSendAction:(NSString *)action attributes:(NSMutableDictionary *)attributes {
+    // Accumulate wall-clock ad duration from timeSinceAdStarted at AD_END (pre-roll only)
+    if ([action isEqualToString:AD_END]) {
+        BOOL contentStarted = NO;
+        if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+            contentStarted = [(NRVideoTracker *)self.linkedTracker state].isStarted;
+        }
+        if (!contentStarted) {
+            NSNumber *timeSinceAdStarted = attributes[@"timeSinceAdStarted"];
+            if (timeSinceAdStarted) {
+                self.totalPreRollAdTime += [timeSinceAdStarted longValue];
+            }
+        }
+    }
+
     if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
         [self.qoeAggregator processAction:action attributes:attributes];
         self.lastContentEventAttributes = [attributes copy];
@@ -265,6 +282,7 @@
         else {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 self.totalAdPlaytime = [(NRVideoTracker *)self.linkedTracker getTotalAdPlaytime].longValue;
+                self.totalPreRollAdTime = [(NRVideoTracker *)self.linkedTracker totalPreRollAdTime];
             }
             self.numberOfVideos++;
             [self sendVideoEvent:CONTENT_START];
@@ -466,6 +484,7 @@
     if (self.state.isAd && [self.state goAdBreakStart]) {
         self.adBreakIdIndex++;
         self.totalAdPlaytime = 0;
+        self.totalPreRollAdTime = 0;
         [self sendVideoAdEvent:AD_BREAK_START];
     }
 }
@@ -593,6 +612,7 @@
 - (NSNumber *)getTotalAdPlaytime {
     return @(self.totalAdPlaytime);
 }
+
 
 - (NSString *)getViewSession {
     // If we are an Ad tracker, we use main tracker's viewSession
