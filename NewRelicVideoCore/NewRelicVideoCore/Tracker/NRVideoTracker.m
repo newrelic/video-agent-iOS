@@ -727,13 +727,10 @@
 // Called by the harvest manager's qoeEventProvider block at harvest time.
 //
 // Attribute composition:
-// 1. Base = lastContentEventAttributes (snapshot from the most recent content event).
-//    Carries over ALL content metadata: player info, rendition, instrumentation,
-//    content metadata, counters, custom attributes, etc. — matching the JS SDK pattern.
-// 2. Filter out timeSince* attributes (except timeSinceRequested and timeSinceStarted
-//    which provide useful session context for NRQL queries).
-// 3. Overlay computed KPI attributes from the aggregator (kpi.startupTime, etc.).
-// 4. Set actionName, eventType, and timestamp for direct batch injection.
+// 1. Whitelist = only specific context attributes from lastContentEventAttributes
+//    (content metadata, device info, session identifiers, rendition, geo/ASN).
+// 2. Overlay computed QoE KPI attributes from the aggregator.
+// 3. Set actionName, eventType, and timestamp for direct batch injection.
 - (NSDictionary *)buildQoeEvent {
     if (!self.qoeAggregator) return nil;
 
@@ -742,22 +739,52 @@
 
     NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
 
-    // Copy content event attributes, filtering out event-specific fields:
-    // - timeSince* (except timeSinceRequested/timeSinceStarted for session context)
-    // - bufferType (specific to BUFFER_START/END events, not relevant to QoE)
+    // Whitelist of content attributes allowed in QOE_AGGREGATE events.
+    // Only these context attributes are carried over from the last content event.
+    //
+    // Not available in iOS video core (present in JS/browser SDK):
+    //   asn, asnLatitude, asnLongitude, asnOrganization,
+    //   contentCdn, contentIsAutoplayed, contentIsFullscreen,
+    //   contentPreload, contentRenditionName,
+    //   deviceGroup, deviceManufacturer, deviceModel, deviceName,
+    //   deviceSize, deviceType, deviceUuid, pageUrl
+    //
+    // TODO: elapsedTime — only set on CONTENT_HEARTBEAT, not on every event.
+    //   Needs dedicated handling to include in QOE_AGGREGATE.
+    static NSSet *allowedKeys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        allowedKeys = [NSSet setWithArray:@[
+            @"contentDuration",
+            @"contentFps",
+            @"contentId",
+            @"contentIsLive",
+            @"contentIsMuted",
+            @"contentPlayhead",
+            @"contentPlayrate",
+            @"contentRenditionHeight",
+            @"contentRenditionWidth",
+            @"contentSrc",
+            @"contentTitle",
+            @"numberOfVideos",
+            @"src",
+            @"timeSinceRequested",
+            @"timeSinceStarted",
+            @"trackerName",
+            @"trackerVersion",
+            @"viewId",
+            @"viewSession"
+        ]];
+    });
+
+    // Copy only whitelisted attributes from the last content event snapshot
     for (NSString *key in self.lastContentEventAttributes) {
-        if ([key hasPrefix:@"timeSince"]
-            && ![key isEqualToString:@"timeSinceRequested"]
-            && ![key isEqualToString:@"timeSinceStarted"]) {
-            continue;
+        if ([allowedKeys containsObject:key]) {
+            attrs[key] = self.lastContentEventAttributes[key];
         }
-        if ([key isEqualToString:@"bufferType"]) {
-            continue;
-        }
-        attrs[key] = self.lastContentEventAttributes[key];
     }
 
-    // Overlay KPI attributes from the aggregator (kpi.startupTime, kpi.peakBitrate, etc.)
+    // Overlay computed QoE KPI attributes from the aggregator
     [attrs addEntriesFromDictionary:kpiAttributes];
 
     // Set event metadata for direct batch injection (bypasses recordEvent:)
