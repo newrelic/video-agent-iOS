@@ -247,7 +247,7 @@
     }
 
     if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
-        [self.qoeAggregator processAction:action attributes:attributes];
+        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
         self.lastContentEventAttributes = [attributes copy];
     }
     return [super preSendAction:action attributes:attributes];

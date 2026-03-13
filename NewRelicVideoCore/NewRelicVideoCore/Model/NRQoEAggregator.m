@@ -104,12 +104,22 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 // Called from NRVideoTracker's preSendAction: for every CONTENT_* event.
 // At this point, the tracker pipeline has already assembled all attributes
 // (timeSince values, bitrate, playtime, bufferType, etc.), so we just read them.
-- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes {
+- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying {
     @synchronized (self) {
         // Always grab the latest totalPlaytime — the tracker updates this before every event
         NSNumber *playtime = attributes[@"totalPlaytime"];
         if (playtime) {
             self.lastTotalPlaytime = [playtime longValue];
+        }
+
+        // Pause/resume bitrate timer based on play state transitions.
+        // state.isPlaying is already updated by the tracker's goXxx state machine
+        // before this method is called, so it correctly reflects the NEW state.
+        BOOL timerRunning = (self.lastBitrateChangeTimestamp > 0);
+        if (timerRunning && !isPlaying) {
+            [self pauseBitrateTimer];
+        } else if (!timerRunning && isPlaying) {
+            [self resumeBitrateTimer];
         }
 
         // Track bitrate from every content event for time-weighted average + peak
@@ -306,6 +316,26 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
         }
         self.lastBitrateChangeTimestamp = now;
     }
+}
+
+// Close the current bitrate segment and stop the timer.
+// Called when transitioning from playing → non-play state.
+- (void)pauseBitrateTimer {
+    if (self.currentBitrate > 0 && self.lastBitrateChangeTimestamp > 0) {
+        NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+        double segmentDuration = now - self.lastBitrateChangeTimestamp;
+        if (segmentDuration > 0) {
+            self.bitrateWeightedSum += self.currentBitrate * segmentDuration;
+            self.bitrateTotalDuration += segmentDuration;
+        }
+    }
+    self.lastBitrateChangeTimestamp = 0;
+}
+
+// Restart the bitrate timer from now.
+// Called when transitioning from non-play → playing state.
+- (void)resumeBitrateTimer {
+    self.lastBitrateChangeTimestamp = [[NSDate date] timeIntervalSince1970];
 }
 
 @end

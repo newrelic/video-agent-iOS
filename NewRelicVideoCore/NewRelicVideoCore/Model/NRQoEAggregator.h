@@ -54,8 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param action The content action name (e.g. CONTENT_START, CONTENT_BUFFER_END).
  @param attributes The fully-processed attributes dictionary for this event.
+ @param isPlaying Whether the player is currently in a playing state (from tracker state machine).
  */
-- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes;
+- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying;
 
 /**
  Generate the QoE aggregate attributes dictionary.
