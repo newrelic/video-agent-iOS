@@ -24,6 +24,7 @@ The most common actions currently supported are:
 | `CONTENT_ERROR`            | An error happened.                                          |
 | `CONTENT_HEARTBEAT`        | Every 30 seconds between `CONTENT_START` and `CONTENT_END`. |
 | `CONTENT_RENDITION_CHANGE` | Stream quality changed.                                     |
+| `QOE_AGGREGATE`            | Quality of Experience KPIs, sent periodically when values change and at content end. |
 
 All the `CONTENT_*` actions have corresponding `AD_*` actions for Ads trackers.
 
