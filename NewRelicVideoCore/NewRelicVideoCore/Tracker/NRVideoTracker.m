@@ -490,7 +490,6 @@
     if (self.state.isAd && [self.state goAdBreakStart]) {
         self.adBreakIdIndex++;
         self.totalAdPlaytime = 0;
-        self.totalPreRollAdTime = 0;
         [self sendVideoAdEvent:AD_BREAK_START];
     }
 }
