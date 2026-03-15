@@ -49,6 +49,7 @@
 #define AD_CLICK                    @"AD_CLICK"
 
 #define QOE_AGGREGATE               @"QOE_AGGREGATE"
+#define QOE_AGGREGATE_VERSION       @"1.0.0"
 
 // --- Base attribute names (C strings, no prefix) ---
 // These define WHAT is being measured. Each is a raw name without any category prefix.

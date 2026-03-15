@@ -814,6 +814,7 @@
     attrs[@"actionName"] = QOE_AGGREGATE;
     attrs[@"eventType"] = NR_VIDEO_EVENT;
     attrs[@"timestamp"] = @((long long)([[NSDate date] timeIntervalSince1970] * 1000));
+    attrs[@"qoeAggregateVersion"] = QOE_AGGREGATE_VERSION;
 
     return [attrs copy];
 }
