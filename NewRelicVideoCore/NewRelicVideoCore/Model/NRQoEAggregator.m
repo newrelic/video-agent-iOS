@@ -178,22 +178,29 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
         }
 
         // --- Rebuffering ---
-        // totalRebufferingTime is accumulated from "connection" type BUFFER_END events (ms)
-        // rebufferingRatio = (rebufferingTime / playtime) * 100, as a percentage
-        // Note: kpi.totalPlaytime is NOT emitted — the tracker's totalPlaytime is already
-        // carried over from content event attributes by buildQoeEvent.
-        attrs[KPI_TOTAL_REBUFFERING_TIME] = @(self.totalRebufferingTime);
+        // Only emit after content has started — before that, rebuffering is not measurable.
+        if (self.hasReceivedStart) {
+            attrs[KPI_TOTAL_REBUFFERING_TIME] = @(self.totalRebufferingTime);
 
-        if (self.lastTotalPlaytime > 0) {
-            double ratio = ((double)self.totalRebufferingTime / (double)self.lastTotalPlaytime) * 100.0;
-            attrs[KPI_REBUFFERING_RATIO] = @(ratio);
-        } else {
-            attrs[KPI_REBUFFERING_RATIO] = @(0.0);
+            if (self.lastTotalPlaytime > 0) {
+                double ratio = ((double)self.totalRebufferingTime / (double)self.lastTotalPlaytime) * 100.0;
+                attrs[KPI_REBUFFERING_RATIO] = @(ratio);
+            } else {
+                attrs[KPI_REBUFFERING_RATIO] = @(0.0);
+            }
         }
 
         // --- Error flags ---
-        attrs[KPI_HAD_STARTUP_ERROR] = @(self.hadStartupError);
-        attrs[KPI_HAD_PLAYBACK_ERROR] = @(self.hadPlaybackError);
+        // Only emit once their state is determined:
+        // hadStartupError: after CONTENT_START (startup phase is over, flag is final)
+        // hadPlaybackError: after CONTENT_START (playback errors can only occur after start)
+        if (self.hasReceivedStart) {
+            attrs[KPI_HAD_STARTUP_ERROR] = @(self.hadStartupError);
+            attrs[KPI_HAD_PLAYBACK_ERROR] = @(self.hadPlaybackError);
+        } else if (self.hadStartupError) {
+            // Error before start — report it immediately
+            attrs[KPI_HAD_STARTUP_ERROR] = @YES;
+        }
 
         return [attrs copy];
     }

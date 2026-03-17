@@ -49,6 +49,8 @@
 // post-timeSince, post-instrumentation, NSNull-cleaned). Used by buildQoeEvent to
 // carry over content metadata, player info, rendition, etc. to QOE_AGGREGATE events.
 @property (nonatomic, copy) NSDictionary *lastContentEventAttributes;
+// Keys of custom attributes set via setAttribute:value: that should be carried to QOE_AGGREGATE events.
+@property (nonatomic, strong) NSMutableSet<NSString *> *customAttributeKeys;
 
 @end
 
@@ -88,6 +90,15 @@
 - (void)dispose {
     [super dispose];
     [self stopHeartbeat];
+}
+
+- (void)setAttribute:(NSString *)key value:(id<NSCopying>)value {
+    [super setAttribute:key value:value];
+    // Track custom attribute keys so buildQoeEvent can carry them to QOE_AGGREGATE events.
+    if (!self.customAttributeKeys) {
+        self.customAttributeKeys = [NSMutableSet set];
+    }
+    [self.customAttributeKeys addObject:key];
 }
 
 - (void)setPlayer:(id)player {
@@ -250,6 +261,11 @@
         [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
         self.lastContentEventAttributes = [attributes copy];
     }
+
+    // Strip internal-only attributes that the aggregator needed but shouldn't appear in NRDB.
+    // totalPreRollAdTime is used by the aggregator to compute startupTime but is not a user-facing attribute.
+    [attributes removeObjectForKey:@"totalPreRollAdTime"];
+
     return [super preSendAction:action attributes:attributes];
 }
 
@@ -799,6 +815,17 @@
     for (NSString *key in self.lastContentEventAttributes) {
         if ([allowedKeys containsObject:key]) {
             attrs[key] = self.lastContentEventAttributes[key];
+        }
+    }
+
+    // Also carry custom attributes (set via setAttribute:value:) to QOE_AGGREGATE events.
+    // These are user-defined attributes that should appear in every event type.
+    if (self.customAttributeKeys) {
+        for (NSString *key in self.customAttributeKeys) {
+            id value = self.lastContentEventAttributes[key];
+            if (value && ![value isKindOfClass:[NSNull class]]) {
+                attrs[key] = value;
+            }
         }
     }
 

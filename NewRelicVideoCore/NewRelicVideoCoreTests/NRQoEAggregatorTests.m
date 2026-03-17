@@ -250,11 +250,24 @@
 
 #pragma mark - Rebuffering Ratio
 
-- (void)testRebufferingRatioZeroWhenNoPlaytime {
+- (void)testRebufferingRatioNilBeforeStart {
+    // Before CONTENT_START, rebuffering attributes are null (not yet measurable)
     [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
 
     NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNil(result[KPI_REBUFFERING_RATIO], @"Should be null before CONTENT_START");
+    XCTAssertNil(result[KPI_TOTAL_REBUFFERING_TIME], @"Should be null before CONTENT_START");
+}
+
+- (void)testRebufferingRatioZeroAfterStartWithNoPlaytime {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
     XCTAssertEqualObjects(result[KPI_REBUFFERING_RATIO], @(0.0));
+    XCTAssertEqualObjects(result[KPI_TOTAL_REBUFFERING_TIME], @(0));
 }
 
 - (void)testRebufferingRatioComputed {
@@ -285,7 +298,8 @@
 
     NSDictionary *result = [self.aggregator generateAggregateAttributes];
     XCTAssertEqualObjects(result[KPI_HAD_STARTUP_ERROR], @YES);
-    XCTAssertEqualObjects(result[KPI_HAD_PLAYBACK_ERROR], @NO);
+    // hadPlaybackError is null before CONTENT_START (not yet measurable)
+    XCTAssertNil(result[KPI_HAD_PLAYBACK_ERROR], @"hadPlaybackError should be null before CONTENT_START");
 }
 
 - (void)testHadPlaybackErrorAfterStart {
@@ -316,9 +330,18 @@
 }
 
 - (void)testNoErrorsByDefault {
+    // Before CONTENT_START, error flags are null (not yet determined)
     [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
 
     NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNil(result[KPI_HAD_STARTUP_ERROR], @"Should be null before CONTENT_START");
+    XCTAssertNil(result[KPI_HAD_PLAYBACK_ERROR], @"Should be null before CONTENT_START");
+
+    // After CONTENT_START, flags become NO (determined — no errors occurred)
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    result = [self.aggregator generateAggregateAttributes];
     XCTAssertEqualObjects(result[KPI_HAD_STARTUP_ERROR], @NO);
     XCTAssertEqualObjects(result[KPI_HAD_PLAYBACK_ERROR], @NO);
 }
@@ -488,9 +511,10 @@
 
     XCTAssertNil(result[KPI_STARTUP_TIME], @"startupTime should be nil in new session");
     XCTAssertNil(result[KPI_PEAK_BITRATE], @"peakBitrate should be absent");
-    XCTAssertEqualObjects(result[KPI_TOTAL_REBUFFERING_TIME], @(0));
-    XCTAssertEqualObjects(result[KPI_HAD_STARTUP_ERROR], @NO);
-    XCTAssertEqualObjects(result[KPI_HAD_PLAYBACK_ERROR], @NO);
+    // Before CONTENT_START in new session, these are null (not yet measurable)
+    XCTAssertNil(result[KPI_TOTAL_REBUFFERING_TIME], @"Should be null before CONTENT_START");
+    XCTAssertNil(result[KPI_HAD_STARTUP_ERROR], @"Should be null before CONTENT_START");
+    XCTAssertNil(result[KPI_HAD_PLAYBACK_ERROR], @"Should be null before CONTENT_START");
 }
 
 #pragma mark - Ignored Bitrate Values
