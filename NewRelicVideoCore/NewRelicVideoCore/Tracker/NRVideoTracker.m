@@ -166,9 +166,10 @@
     [attr setObject:@(self.numberOfVideos) forKey:@"numberOfVideos"];
     [attr setObject:@(self.numberOfErrors) forKey:@"numberOfErrors"];
     // [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
-    [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
     
     if (self.state.isAd) {
+        // Use totalAdPlaytime for ad events
+        [attr setObject:@(self.totalAdPlaytime) forKey:@"totalPlaytime"];
         [attr setObject:[self getTitle] forKey:@"adTitle"];
         // Only add bitrate attributes after ad has started (first frame shown)
         if ([self.state isStarted]) {
@@ -205,9 +206,10 @@
         }
     }
     else {
+        // Use totalPlaytime for content events
+        [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
         if ([action isEqual:CONTENT_START]) {
             [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
-            [attr setObject:@(self.totalPreRollAdTime) forKey:@"totalPreRollAdTime"];
         }
         [attr setObject:[self getTitle] forKey:@"contentTitle"];
         // Only add bitrate attributes after content has started (first frame shown)
@@ -360,7 +362,7 @@
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 [(NRVideoTracker *)self.linkedTracker adHappened];
             }
-            self.totalAdPlaytime = self.totalAdPlaytime + self.totalPlaytime;
+            // Ad playtime is now properly accumulated in totalAdPlaytime during updatePlayTime
         }
         else {
             [self sendVideoEvent:CONTENT_END];
@@ -727,10 +729,15 @@
 }
 
 - (void) updatePlayTime {
-    // Calculate playtimeSinceLastEvent and totalPlaytime
+    // Calculate playtimeSinceLastEvent and totalPlaytime/totalAdPlaytime
     if (self.playtimeSinceLastEventTimestamp > 0) {
         self.playtimeSinceLastEvent = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
-        self.totalPlaytime += self.playtimeSinceLastEvent;
+        // Update the appropriate playtime counter based on current tracker state
+        if (self.state.isAd) {
+            self.totalAdPlaytime += self.playtimeSinceLastEvent;
+        } else {
+            self.totalPlaytime += self.playtimeSinceLastEvent;
+        }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
     }
     else {
