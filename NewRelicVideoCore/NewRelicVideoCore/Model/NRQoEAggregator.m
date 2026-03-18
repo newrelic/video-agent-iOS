@@ -17,6 +17,7 @@
 
 // --- Startup ---
 @property (nonatomic, strong, nullable) NSNumber *startupTime;  // ms, nil until CONTENT_START
+@property (nonatomic) long totalPreRollAdTime;  // ms, internal tracking for startup calculation
 
 // --- Bitrate tracking (time-weighted average) ---
 // Algorithm: Each time the bitrate changes, we "close" the previous segment:
@@ -74,6 +75,7 @@
         self.hadStartupError = NO;
         self.hadPlaybackError = NO;
         self.lastTotalPlaytime = 0;
+        self.totalPreRollAdTime = 0;
     }
 }
 
@@ -212,6 +214,12 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     self.hasReceivedRequest = YES;
 }
 
+- (void)setTotalPreRollAdTime:(long)preRollAdTime {
+    @synchronized (self) {
+        self.totalPreRollAdTime = preRollAdTime;
+    }
+}
+
 - (void)handleStartWithAttributes:(NSDictionary *)attributes {
     self.hasReceivedStart = YES;
 
@@ -221,13 +229,7 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     //   Includes ad buffer, seek, and pause — not just ad playing time.
     NSNumber *timeSinceRequested = attributes[@"timeSinceRequested"];
     if (timeSinceRequested) {
-        long startup = [timeSinceRequested longValue];
-
-        NSNumber *preRollAdTime = attributes[@"totalPreRollAdTime"];
-        if (preRollAdTime) {
-            startup -= [preRollAdTime longValue];
-        }
-
+        long startup = [timeSinceRequested longValue] - self.totalPreRollAdTime;
         self.startupTime = @(MAX(startup, 0));
     }
 

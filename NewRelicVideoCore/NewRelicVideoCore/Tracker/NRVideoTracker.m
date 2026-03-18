@@ -260,13 +260,15 @@
     }
 
     if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
+        // Set totalPreRollAdTime in aggregator for CONTENT_START startup calculation
+        if ([action isEqualToString:CONTENT_START]) {
+            [self.qoeAggregator setTotalPreRollAdTime:self.totalPreRollAdTime];
+        }
         [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
         self.lastContentEventAttributes = [attributes copy];
     }
 
-    // Strip internal-only attributes that the aggregator needed but shouldn't appear in NRDB.
-    // totalPreRollAdTime is used by the aggregator to compute startupTime but is not a user-facing attribute.
-    [attributes removeObjectForKey:@"totalPreRollAdTime"];
+    // No longer needed - totalPreRollAdTime is now handled internally by QoE aggregator
 
     return [super preSendAction:action attributes:attributes];
 }

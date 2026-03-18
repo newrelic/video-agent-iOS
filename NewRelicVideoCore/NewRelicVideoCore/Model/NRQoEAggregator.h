@@ -73,6 +73,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)reset;
 
+/**
+ Set the total pre-roll ad time for startup time calculation.
+ Called before CONTENT_START to provide the aggregator with internal
+ pre-roll ad duration for accurate startup time computation.
+
+ @param preRollAdTime Total wall-clock time spent in pre-roll ads (ms).
+ */
+- (void)setTotalPreRollAdTime:(long)preRollAdTime;
+
 @end
 
 NS_ASSUME_NONNULL_END
