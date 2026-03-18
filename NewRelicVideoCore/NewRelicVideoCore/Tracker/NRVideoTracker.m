@@ -36,6 +36,7 @@
 @property (nonatomic) long totalAdPlaytime;
 @property (nonatomic) long totalPreRollAdTime;  // wall-clock ms, sum of each AD_START → AD_END
 @property (nonatomic) long playtimeSinceLastEvent;
+@property (nonatomic) BOOL hasContentStarted;  // Track content session vs pre-content phase
 @property (nonatomic) NSString *bufferType;
 @property (nonatomic, weak) NRTimeSince *lastAdTimeSince;
 @property (nonatomic) int acc;
@@ -71,6 +72,7 @@
         self.totalAdPlaytime = 0;
         self.totalPreRollAdTime = 0;
         self.playtimeSinceLastEvent = 0;
+        self.hasContentStarted = NO;
         self.bufferType = nil;
         self.chrono = [[NRChrono alloc] init];
         self.acc = 0;
@@ -206,8 +208,14 @@
         }
     }
     else {
-        // Use totalPlaytime for content events
-        [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
+        // Use live calculation only for CONTENT_END to capture final unflushed playtime
+        if ([action isEqual:CONTENT_END]) {
+            long livePlaytime = [self currentTotalPlaytime];
+            [attr setObject:@(livePlaytime) forKey:@"totalPlaytime"];
+        } else {
+            // Use regular stored value for other content events
+            [attr setObject:@(self.totalPlaytime) forKey:@"totalPlaytime"];
+        }
         if ([action isEqual:CONTENT_START]) {
             [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
         }
@@ -261,7 +269,7 @@
 
     if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
         // Set totalPreRollAdTime in aggregator for CONTENT_START startup calculation
-        if ([action isEqualToString:CONTENT_START]) {
+        if ([action isEqualToString:CONTENT_START] && self.qoeAggregator) {
             [self.qoeAggregator setTotalPreRollAdTime:self.totalPreRollAdTime];
         }
         [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
@@ -319,6 +327,7 @@
                 self.totalPreRollAdTime = [(NRVideoTracker *)self.linkedTracker totalPreRollAdTime];
             }
             self.numberOfVideos++;
+            self.hasContentStarted = YES;  // Mark content session as active
             [self sendVideoEvent:CONTENT_START];
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
@@ -378,6 +387,7 @@
             [NRVAVideo setQoeEventProvider:nil];
             [self.qoeAggregator reset];
             self.lastContentEventAttributes = nil;
+            self.hasContentStarted = NO;  // Mark content session as ended
         }
 
         [self stopHeartbeat];
@@ -386,6 +396,7 @@
         self.playtimeSinceLastEventTimestamp = 0;
         self.playtimeSinceLastEvent = 0;
         self.totalPlaytime = 0;
+        self.hasContentStarted = NO;
     }
 }
 
@@ -737,8 +748,9 @@
         // Update the appropriate playtime counter based on current tracker state
         if (self.state.isAd) {
             self.totalAdPlaytime += self.playtimeSinceLastEvent;
-        } else if (self.state.isStarted) {
-            // Only accumulate content playtime after CONTENT_START to prevent pre-roll contamination
+        } else if (self.hasContentStarted) {
+            // Accumulate content playtime during entire content session (CONTENT_START to CONTENT_END)
+            // This includes playing, paused, buffering, and seeking time - total engagement time
             self.totalPlaytime += self.playtimeSinceLastEvent;
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];

@@ -9,7 +9,9 @@
 #import "NRQoEAggregator.h"
 #import "NRVideoDefs.h"
 
-@interface NRQoEAggregator ()
+@interface NRQoEAggregator () {
+    long _totalPreRollAdTime;  // Instance variable for startup calculation
+}
 
 // --- Lifecycle flags ---
 @property (nonatomic) BOOL hasReceivedRequest;   // YES after CONTENT_REQUEST
@@ -17,7 +19,6 @@
 
 // --- Startup ---
 @property (nonatomic, strong, nullable) NSNumber *startupTime;  // ms, nil until CONTENT_START
-@property (nonatomic) long totalPreRollAdTime;  // ms, internal tracking for startup calculation
 
 // --- Bitrate tracking (time-weighted average) ---
 // Algorithm: Each time the bitrate changes, we "close" the previous segment:
@@ -75,7 +76,7 @@
         self.hadStartupError = NO;
         self.hadPlaybackError = NO;
         self.lastTotalPlaytime = 0;
-        self.totalPreRollAdTime = 0;
+        _totalPreRollAdTime = 0;
     }
 }
 
@@ -215,8 +216,12 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 }
 
 - (void)setTotalPreRollAdTime:(long)preRollAdTime {
+    if (!self) {
+        NSLog(@"ERROR: setTotalPreRollAdTime called on nil aggregator");
+        return;
+    }
     @synchronized (self) {
-        self.totalPreRollAdTime = preRollAdTime;
+        _totalPreRollAdTime = preRollAdTime;
     }
 }
 
@@ -229,7 +234,7 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     //   Includes ad buffer, seek, and pause — not just ad playing time.
     NSNumber *timeSinceRequested = attributes[@"timeSinceRequested"];
     if (timeSinceRequested) {
-        long startup = [timeSinceRequested longValue] - self.totalPreRollAdTime;
+        long startup = [timeSinceRequested longValue] - _totalPreRollAdTime;
         self.startupTime = @(MAX(startup, 0));
     }
 
