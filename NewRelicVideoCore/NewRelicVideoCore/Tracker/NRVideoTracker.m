@@ -735,7 +735,8 @@
         // Update the appropriate playtime counter based on current tracker state
         if (self.state.isAd) {
             self.totalAdPlaytime += self.playtimeSinceLastEvent;
-        } else {
+        } else if (self.state.isStarted) {
+            // Only accumulate content playtime after CONTENT_START to prevent pre-roll contamination
             self.totalPlaytime += self.playtimeSinceLastEvent;
         }
         self.playtimeSinceLastEventTimestamp = [[NSDate date] timeIntervalSince1970];
