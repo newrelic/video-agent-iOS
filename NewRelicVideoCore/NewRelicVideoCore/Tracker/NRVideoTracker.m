@@ -168,8 +168,8 @@
     // [attr setObject:@(self.playtimeSinceLastEvent) forKey:@"elapsedTime"];
     
     if (self.state.isAd) {
-        // Use totalAdPlaytime for ad events
-        [attr setObject:@(self.totalAdPlaytime) forKey:@"totalPlaytime"];
+        // Ad events should set totalAdPlaytime, not totalPlaytime
+        [attr setObject:@(self.totalAdPlaytime) forKey:@"totalAdPlaytime"];
         [attr setObject:[self getTitle] forKey:@"adTitle"];
         // Only add bitrate attributes after ad has started (first frame shown)
         if ([self.state isStarted]) {
