@@ -220,8 +220,20 @@ static NSString * const kNRVAEventTypeLive = @"live";
             NSMutableArray *finalEvents = events ? [events mutableCopy] : [NSMutableArray array];
 
             // QoE is independent of the batch — collect if multiplier qualifies and KPIs changed
+            // Handle boundary conditions where multiple QOE events could exist (e.g., at CONTENT_END)
             NSDictionary *qoeEvent = [self collectQoeEventIfNeeded];
             if (qoeEvent) {
+                // Deduplicate: Remove any existing QOE_AGGREGATE events from the batch
+                // to ensure only the latest/most authoritative QOE event is sent
+                for (NSInteger i = finalEvents.count - 1; i >= 0; i--) {
+                    NSDictionary *event = finalEvents[i];
+                    if ([QOE_AGGREGATE isEqualToString:event[@"actionName"]]) {
+                        [finalEvents removeObjectAtIndex:i];
+                        NRVA_DEBUG_LOG(@"Removed duplicate QOE event - using latest instead");
+                    }
+                }
+
+                // Add the latest QOE event
                 [finalEvents addObject:qoeEvent];
             }
 
