@@ -27,11 +27,11 @@
 }
 
 - (IBAction)clickSintelVideo:(id)sender {
-    [self playVideo:@"https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"];
+    [self playVideo:@"https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8"];
 }
 
 - (IBAction)clickAirshowLive:(id)sender {
-    [self playVideo:@"http://cdn3.viblast.com/streams/hls/airshow/playlist.m3u8"];
+    [self playVideo:@"https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8"];
 }
 
 - (void)viewDidLoad {

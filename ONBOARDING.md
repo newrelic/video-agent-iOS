@@ -109,7 +109,7 @@ For production and performance optimization, you can configure additional option
 #### Objective-C
 
 ```objectivec
-NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[NRVAVideoConfiguration builder]
+NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[[[NRVAVideoConfiguration builder]
     withApplicationToken:@"YOUR_NEWRELIC_APP_TOKEN"]
     withHarvestCycle:30]                    // Regular harvest cycle (5-300 seconds)
     withLiveHarvestCycle:10]                // Live content harvest cycle (1-60 seconds)
@@ -119,6 +119,8 @@ NRVAVideoConfiguration *advancedConfig = [[[[[[[[[[[NRVAVideoConfiguration build
     withMaxOfflineStorageSize:100]          // Offline storage limit in MB (10-1000MB)
     withMemoryOptimization:NO]              // Enable for low-memory devices
     forTVOS:NO]                             // Enable tvOS optimizations
+    withQoeAggregateEnabled:YES]            // Enable QoE aggregate events
+    withQoeAggregateIntervalMultiplier:4]   // Send QoE every 4th harvest cycle
     withDebugLogging:YES]                   // Debug logging
     build];
 ```
@@ -136,6 +138,8 @@ let advancedConfig = NRVAVideoConfiguration.builder()
     .withMaxOfflineStorageSize(100)          // Offline storage limit in MB (10-1000MB)
     .withMemoryOptimization(false)           // Enable for low-memory devices
     .forTVOS(false)                          // Enable tvOS optimizations
+    .withQoeAggregateEnabled(true)           // Enable QoE aggregate events
+    .withQoeAggregateIntervalMultiplier(4)   // Send QoE every 4th harvest cycle
     .withDebugLogging(true)                  // Debug logging
     .build()
 ```
@@ -154,6 +158,8 @@ let advancedConfig = NRVAVideoConfiguration.builder()
 | `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
 | `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+| `withQoeAggregateEnabled:`   | BOOL       | NO            | YES/NO        | Enable QoE aggregate event reporting   |
+| `withQoeAggregateIntervalMultiplier:` | NSInteger | 1       | >= 1          | Send QoE every N harvest cycles        |
 
 ## Automatic Detection & Override Examples
 

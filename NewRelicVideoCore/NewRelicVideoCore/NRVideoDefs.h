@@ -48,4 +48,58 @@
 #define AD_QUARTILE                 @"AD_QUARTILE"
 #define AD_CLICK                    @"AD_CLICK"
 
+#define QOE_AGGREGATE               @"QOE_AGGREGATE"
+#define QOE_AGGREGATE_VERSION       @"1.0.0"
+
+// --- Base attribute names (C strings, no prefix) ---
+// These define WHAT is being measured. Each is a raw name without any category prefix.
+// Never use these directly in event dictionaries — always use the prefixed versions below.
+#define ATTR_STARTUP_TIME           "startupTime"
+#define ATTR_PEAK_BITRATE           "peakBitrate"
+#define ATTR_AVERAGE_BITRATE        "averageBitrate"
+#define ATTR_TOTAL_PLAYTIME         "totalPlaytime"
+#define ATTR_TOTAL_REBUFFERING_TIME "totalRebufferingTime"
+#define ATTR_REBUFFERING_RATIO      "rebufferingRatio"
+#define ATTR_HAD_STARTUP_ERROR      "hadStartupError"
+#define ATTR_HAD_PLAYBACK_ERROR     "hadPlaybackError"
+
+// --- Category prefixes (C strings) ---
+// Each category gets its own NRQL namespace prefix.
+// To add a new category: define a prefix here, then create prefixed macros below.
+// Example: #define ENGAGEMENT_PREFIX "eng."
+#define QOE_PREFIX                  ""
+
+// --- Prefixed QoE attribute keys (NSString, for use in event dictionaries) ---
+// Composed as: @<PREFIX><BASE_NAME>  (compile-time string concatenation)
+// NRQL: SELECT startupTime, peakBitrate FROM VideoAction WHERE actionName = 'QOE_AGGREGATE'
+#define KPI_STARTUP_TIME            @QOE_PREFIX ATTR_STARTUP_TIME
+#define KPI_PEAK_BITRATE            @QOE_PREFIX ATTR_PEAK_BITRATE
+#define KPI_AVERAGE_BITRATE         @QOE_PREFIX ATTR_AVERAGE_BITRATE
+#define KPI_TOTAL_PLAYTIME          @QOE_PREFIX ATTR_TOTAL_PLAYTIME
+#define KPI_TOTAL_REBUFFERING_TIME  @QOE_PREFIX ATTR_TOTAL_REBUFFERING_TIME
+#define KPI_REBUFFERING_RATIO       @QOE_PREFIX ATTR_REBUFFERING_RATIO
+#define KPI_HAD_STARTUP_ERROR       @QOE_PREFIX ATTR_HAD_STARTUP_ERROR
+#define KPI_HAD_PLAYBACK_ERROR      @QOE_PREFIX ATTR_HAD_PLAYBACK_ERROR
+
+// --- Centralized list of all QoE KPI attribute keys ---
+// When adding a new KPI_* macro above, also add it to this array.
+// Used by the aggregator, harvest manager, and anywhere KPI keys need enumeration.
+static inline NSArray<NSString *> *NRVAAllKPIKeys(void) {
+    static NSArray *keys = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        keys = @[
+            KPI_STARTUP_TIME,
+            KPI_PEAK_BITRATE,
+            KPI_AVERAGE_BITRATE,
+            KPI_TOTAL_PLAYTIME,
+            KPI_TOTAL_REBUFFERING_TIME,
+            KPI_REBUFFERING_RATIO,
+            KPI_HAD_STARTUP_ERROR,
+            KPI_HAD_PLAYBACK_ERROR
+        ];
+    });
+    return keys;
+}
+
 #endif /* NRVideoDefs_h */

@@ -27,6 +27,8 @@
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
 @property (nonatomic, readonly) BOOL isTV;
 @property (nonatomic, readonly) NSString *collectorAddress;
+@property (nonatomic, readonly) BOOL qoeAggregateEnabled;
+@property (nonatomic, readonly) NSInteger qoeAggregateIntervalMultiplier;
 
 /**
  * Get dead letter retry interval in milliseconds
@@ -62,6 +64,8 @@
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
 @property (nonatomic, assign) BOOL isTV;
 @property (nonatomic, strong) NSString *collectorAddress;
+@property (nonatomic, assign) BOOL qoeAggregateEnabled;
+@property (nonatomic, assign) NSInteger qoeAggregateIntervalMultiplier;
 
 /**
  * Auto-detect platform capabilities and apply optimizations
@@ -119,6 +123,17 @@
  * Set maximum offline storage size in MB (> 0 MB)
  */
 - (instancetype)withMaxOfflineStorageSize:(NSInteger)maxOfflineStorageSizeMB;
+
+/**
+ * Enable QoE aggregate event reporting (default: NO)
+ */
+- (instancetype)withQoeAggregateEnabled:(BOOL)enabled;
+
+/**
+ * Set QoE aggregate interval multiplier (>= 1, default: 1)
+ * QoE aggregate is sent every N harvest cycles, where N is the multiplier.
+ */
+- (instancetype)withQoeAggregateIntervalMultiplier:(NSInteger)multiplier;
 
 /**
  * Set custom collector domain address for /connect and /data endpoints (optional)
