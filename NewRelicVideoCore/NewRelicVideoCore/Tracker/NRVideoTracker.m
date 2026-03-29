@@ -901,7 +901,7 @@
 }
 
 // QoE generation for harvest manager
-- (NSDictionary * _Nullable)generateQoeEventIfNeeded:(NSInteger)globalCycle {
+- (NSDictionary * _Nullable)generateQoeEventIfNeeded {
     // Only generate QoE events for content sessions, not ads
     if (self.state.isAd || !self.isViewSessionActive || !self.qoeAggregator) {
         return nil;

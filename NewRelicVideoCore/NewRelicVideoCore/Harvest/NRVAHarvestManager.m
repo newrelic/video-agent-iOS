@@ -31,7 +31,7 @@
 @interface NRVideoTracker ()
 @property (nonatomic, readonly) BOOL isViewSessionActive;
 @property (nonatomic, readonly) id qoeAggregator;
-- (NSDictionary * _Nullable)generateQoeEventIfNeeded:(NSInteger)globalCycle;
+- (NSDictionary * _Nullable)generateQoeEventIfNeeded;
 @end
 
 // Define constants for event types to avoid magic strings
@@ -44,7 +44,6 @@ static NSString * const kNRVAEventTypeLive = @"live";
 @property (nonatomic, strong) id<NRVAHarvestComponentFactory> crashSafeFactory;
 @property (nonatomic, strong) NRVADefaultSizeEstimator *sizeEstimator;
 @property (nonatomic, strong) dispatch_queue_t harvestQueue;
-@property (nonatomic) NSInteger qoeCycleCount;
 
 @end
 
@@ -56,7 +55,6 @@ static NSString * const kNRVAEventTypeLive = @"live";
         _config = config;
         _harvestQueue = dispatch_queue_create("com.newrelic.videoagent.harvest", DISPATCH_QUEUE_SERIAL);
         _sizeEstimator = [[NRVADefaultSizeEstimator alloc] init];
-        _qoeCycleCount = 0;
         
         // Create harvest task blocks for the factory
         __weak typeof(self) weakSelf = self;
@@ -150,9 +148,6 @@ static NSString * const kNRVAEventTypeLive = @"live";
 - (NSArray<NSDictionary *> *)collectAllActiveQoeEvents {
     NSMutableArray<NSDictionary *> *allQoeEvents = [NSMutableArray array];
 
-    // Increment global cycle count (used for tracking purposes)
-    self.qoeCycleCount++;
-
     // Access video manager singleton to get active trackers
     NRVAVideo *videoInstance = [NRVAVideo getInstance];
     if (!videoInstance) return [allQoeEvents copy];
@@ -173,7 +168,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
 
             // Ask tracker for QoE if it's active and has aggregator
             if (tracker.isViewSessionActive && tracker.qoeAggregator) {
-                NSDictionary *qoeEvent = [tracker generateQoeEventIfNeeded:self.qoeCycleCount];
+                NSDictionary *qoeEvent = [tracker generateQoeEventIfNeeded];
                 if (qoeEvent) {
                     [allQoeEvents addObject:qoeEvent];
                 }
