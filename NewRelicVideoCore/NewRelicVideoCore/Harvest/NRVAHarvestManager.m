@@ -17,6 +17,22 @@
 #import "NRVAUtils.h"
 #import "NRVALog.h"
 #import "NRVideoDefs.h"
+#import "NRVAVideo.h"
+#import "NewRelicVideoAgent.h"
+#import "NRVideoTracker.h"
+
+// Private category to access NRVAVideo's internal properties
+@interface NRVAVideo ()
+@property (nonatomic, strong, readonly) NSMutableDictionary<NSString *, NSNumber *> *trackerIds;
+@property (nonatomic, strong, readonly) NRVAVideoConfiguration *configuration;
+@end
+
+// Private category to access NRVideoTracker's internal properties and methods
+@interface NRVideoTracker ()
+@property (nonatomic, readonly) BOOL isViewSessionActive;
+@property (nonatomic, readonly) id qoeAggregator;
+- (NSDictionary * _Nullable)generateQoeEventIfNeeded:(NSInteger)globalCycle;
+@end
 
 // Define constants for event types to avoid magic strings
 static NSString * const kNRVAEventTypeOnDemand = @"ondemand";
@@ -29,8 +45,6 @@ static NSString * const kNRVAEventTypeLive = @"live";
 @property (nonatomic, strong) NRVADefaultSizeEstimator *sizeEstimator;
 @property (nonatomic, strong) dispatch_queue_t harvestQueue;
 @property (nonatomic) NSInteger qoeCycleCount;
-@property (nonatomic, strong) NSDictionary *pendingFinalQoe;
-@property (nonatomic, strong) NSDictionary *lastSentQoEAttributes; // Snapshot for dirty check
 
 @end
 
@@ -42,6 +56,7 @@ static NSString * const kNRVAEventTypeLive = @"live";
         _config = config;
         _harvestQueue = dispatch_queue_create("com.newrelic.videoagent.harvest", DISPATCH_QUEUE_SERIAL);
         _sizeEstimator = [[NRVADefaultSizeEstimator alloc] init];
+        _qoeCycleCount = 0;
         
         // Create harvest task blocks for the factory
         __weak typeof(self) weakSelf = self;
@@ -131,67 +146,45 @@ static NSString * const kNRVAEventTypeLive = @"live";
 
 #pragma mark - QoE Harvest Integration
 
-- (void)setQoeEventProvider:(NSDictionary * (^)(void))qoeEventProvider {
-    _qoeEventProvider = [qoeEventProvider copy];
-    _qoeCycleCount = 0;
-}
+// Collect QoE events from all active trackers
+- (NSArray<NSDictionary *> *)collectAllActiveQoeEvents {
+    NSMutableArray<NSDictionary *> *allQoeEvents = [NSMutableArray array];
 
-- (void)enqueueFinalQoeEvent:(NSDictionary *)event {
-    dispatch_async(self.harvestQueue, ^{
-        self.pendingFinalQoe = event;
-    });
-}
-
-- (NSDictionary *)collectQoeEventIfNeeded {
-    // Pending final QoE (from sendEnd) takes priority — always sent, bypasses dirty check.
-    // The event was built eagerly on the tracker thread while state was still valid,
-    // so there is no race with aggregator reset or provider nil.
-    if (self.pendingFinalQoe) {
-        NSDictionary *finalEvent = self.pendingFinalQoe;
-        self.pendingFinalQoe = nil;
-        _qoeEventProvider = nil;
-        _qoeCycleCount = 0;
-        self.lastSentQoEAttributes = nil; // Clear snapshot for next session
-        return finalEvent;
-    }
-
-    NSDictionary * (^provider)(void) = self.qoeEventProvider;
-    if (!provider) return nil;
-
+    // Increment global cycle count (used for tracking purposes)
     self.qoeCycleCount++;
 
-    NSInteger multiplier = self.config.qoeAggregateIntervalMultiplier;
-    if (multiplier < 1) multiplier = 1;
-    BOOL qualifies = (self.qoeCycleCount - 1) % multiplier == 0;
+    // Access video manager singleton to get active trackers
+    NRVAVideo *videoInstance = [NRVAVideo getInstance];
+    if (!videoInstance) return [allQoeEvents copy];
 
-    if (!qualifies) return nil;
-
-    // Multiplier satisfied — build the QoE event and check if KPIs changed
-    NSDictionary *qoeEvent = provider();
-    if (!qoeEvent) return nil;
-
-    if ([self qoeAttributesChangedFrom:self.lastSentQoEAttributes to:qoeEvent]) {
-        self.lastSentQoEAttributes = qoeEvent;
-        return qoeEvent;
+    // Get all tracker IDs from video manager
+    NSArray<NSNumber *> *trackerIds = nil;
+    @synchronized (videoInstance.trackerIds) {
+        trackerIds = [videoInstance.trackerIds.allValues copy];
     }
 
-    // KPIs unchanged — skip sending
-    return nil;
-}
+    // Iterate through active trackers
+    NewRelicVideoAgent *agent = [NewRelicVideoAgent sharedInstance];
+    for (NSNumber *trackerId in trackerIds) {
+        @try {
+            // Get content tracker (where QOE lives)
+            NRVideoTracker *tracker = (NRVideoTracker *)[agent contentTracker:trackerId];
+            if (!tracker || ![tracker isKindOfClass:[NRVideoTracker class]]) continue;
 
-// Compare QoE KPI attributes between two events. Returns YES if any KPI value changed.
-// Only compares KPI keys (not metadata like timestamp, actionName, eventType).
-- (BOOL)qoeAttributesChangedFrom:(NSDictionary *)previous to:(NSDictionary *)current {
-    if (!previous) return YES; // First QoE event — always send
-
-    for (NSString *key in NRVAAllKPIKeys()) {
-        id prevVal = previous[key];
-        id currVal = current[key];
-        if (prevVal == nil && currVal == nil) continue;
-        if (prevVal == nil || currVal == nil) return YES;
-        if (![prevVal isEqual:currVal]) return YES;
+            // Ask tracker for QoE if it's active and has aggregator
+            if (tracker.isViewSessionActive && tracker.qoeAggregator) {
+                NSDictionary *qoeEvent = [tracker generateQoeEventIfNeeded:self.qoeCycleCount];
+                if (qoeEvent) {
+                    [allQoeEvents addObject:qoeEvent];
+                }
+            }
+        } @catch (NSException *exception) {
+            NRVA_ERROR_LOG(@"QoE generation failed for tracker %@: %@", trackerId, exception.reason);
+            // Continue with other trackers
+        }
     }
-    return NO;
+
+    return [allQoeEvents copy];
 }
 
 #pragma mark - Private Harvest Methods
@@ -219,22 +212,11 @@ static NSString * const kNRVAEventTypeLive = @"live";
 
             NSMutableArray *finalEvents = events ? [events mutableCopy] : [NSMutableArray array];
 
-            // QoE is independent of the batch — collect if multiplier qualifies and KPIs changed
-            // Handle boundary conditions where multiple QOE events could exist (e.g., at CONTENT_END)
-            NSDictionary *qoeEvent = [self collectQoeEventIfNeeded];
-            if (qoeEvent) {
-                // Deduplicate: Remove any existing QOE_AGGREGATE events from the batch
-                // to ensure only the latest/most authoritative QOE event is sent
-                for (NSInteger i = finalEvents.count - 1; i >= 0; i--) {
-                    NSDictionary *event = finalEvents[i];
-                    if ([QOE_AGGREGATE isEqualToString:event[@"actionName"]]) {
-                        [finalEvents removeObjectAtIndex:i];
-                        NRVA_DEBUG_LOG(@"Removed duplicate QOE event - using latest instead");
-                    }
-                }
-
-                // Add the latest QOE event
-                [finalEvents addObject:qoeEvent];
+            // QoE is independent of the batch — collect from all active trackers
+            NSArray<NSDictionary *> *qoeEvents = [self collectAllActiveQoeEvents];
+            if (qoeEvents.count > 0) {
+                [finalEvents addObjectsFromArray:qoeEvents];
+                NRVA_DEBUG_LOG(@"Added %lu QoE events from active trackers", (unsigned long)qoeEvents.count);
             }
 
             if (finalEvents.count > 0) {

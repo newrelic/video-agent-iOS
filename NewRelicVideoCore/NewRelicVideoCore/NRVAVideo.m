@@ -345,17 +345,7 @@ static dispatch_once_t onceToken;
     return [self getInstance].configuration.qoeAggregateEnabled;
 }
 
-+ (void)setQoeEventProvider:(NSDictionary * _Nullable (^)(void))provider {
-    if ([self isInitialized]) {
-        [self getInstance].harvestManager.qoeEventProvider = provider;
-    }
-}
 
-+ (void)enqueueFinalQoeEvent:(NSDictionary *)event {
-    if ([self isInitialized] && event) {
-        [[self getInstance].harvestManager enqueueFinalQoeEvent:event];
-    }
-}
 
 #pragma mark - Internal Methods (Package Private)
 
