@@ -791,7 +791,7 @@
 // Safe to call from the harvest thread. If the player is currently playing,
 // adds the un-flushed delta since the last content event.
 - (long)currentTotalPlaytime {
-    if (self.playtimeSinceLastEventTimestamp > 0) {
+    if (self.playtimeSinceLastEventTimestamp > 0 && self.hasContentStarted) {
         long delta = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
         return self.totalPlaytime + delta;
     }
