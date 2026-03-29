@@ -415,9 +415,9 @@
 
 - (NSNumber *)getDownloadBitrate {
     AVPlayerItemAccessLogEvent *event = [self.playerInstance.currentItem.accessLog.events lastObject];
-    if (event.observedMaxBitrate > 0) {
-        return @((NSInteger)event.observedMaxBitrate);
-    }
+    // if (event.observedMaxBitrate > 0) {
+    //     return @((NSInteger)event.observedMaxBitrate);
+    // }
     if (event.transferDuration > 0) {
         return @((NSInteger)(event.numberOfBytesTransferred * 8.0 / event.transferDuration));
     }
