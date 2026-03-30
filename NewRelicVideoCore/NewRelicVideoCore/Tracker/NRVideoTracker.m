@@ -316,6 +316,10 @@
             // Done here instead of sendEnd so post-roll ads share the same viewId as their content.
             if (self.numberOfVideos > 0) {
                 self.viewIdIndex++;
+
+                //reset timeSinceStarted and timeSinceRequested values for new viewId
+                [self addTimeSinceEntryWithAction:@"CONTENT_REQUEST" attribute:@"timeSinceRequested" applyTo:@"^CONTENT_[A-Z_]+$"];
+                [self addTimeSinceEntryWithAction:@"CONTENT_START" attribute:@"timeSinceStarted" applyTo:@"^CONTENT_[A-Z_]+$"];
             }
             [self sendVideoEvent:CONTENT_REQUEST];
             // Mark current viewId as active
