@@ -190,11 +190,25 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSNumber *)getBitrate;
 
 /**
- Get observed video bitrate in bits per second.
+ Get manifest (indicated) bitrate in bits per second. The throughput required to play the stream as advertised by the server in the manifest.
 
  @return Attribute.
  */
-- (NSNumber *)getObservedBitrate;
+- (NSNumber *)getManifestBitrate;
+
+/**
+ Get measured bitrate in bits per second. The actual, empirical throughput measured across all downloaded media.
+
+ @return Attribute.
+ */
+- (NSNumber *)getMeasuredBitrate;
+
+/**
+ Get download bitrate in bits per second.
+
+ @return Attribute.
+ */
+- (NSNumber *)getDownloadBitrate;
 
 /**
  Get video rendition bitrate in bits per second.
