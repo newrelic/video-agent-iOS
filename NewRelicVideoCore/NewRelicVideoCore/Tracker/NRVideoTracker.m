@@ -8,11 +8,18 @@
 #import "NRVideoTracker.h"
 #import "NRVideoDefs.h"
 #import "NRVideoLog.h"
+#import "NRVALog.h"
 #import "NRTimeSince.h"
 #import "NRChrono.h"
 #import "NRQoEAggregator.h"
 #import "NRVAVideo.h"
+#import "NRVAVideoConfiguration.h"
 #import <CommonCrypto/CommonDigest.h>
+
+// Private category to access NRVAVideo's internal properties
+@interface NRVAVideo ()
+@property (nonatomic, strong, readonly) NRVAVideoConfiguration *configuration;
+@end
 
 @interface NRTracker ()
 
@@ -53,6 +60,13 @@
 // Keys of custom attributes set via setAttribute:value: that should be carried to QOE_AGGREGATE events.
 @property (nonatomic, strong) NSMutableSet<NSString *> *customAttributeKeys;
 
+// Per-tracker cycle management
+@property (nonatomic) NSInteger qoeCycleCount;
+@property (nonatomic) BOOL isViewSessionActive;
+
+// Dirty check - track last sent QoE to avoid duplicates with unchanged KPIs
+@property (nonatomic, copy) NSDictionary *lastSentQoEAttributes;
+
 @end
 
 @implementation NRVideoTracker
@@ -80,13 +94,19 @@
         if ([NRVAVideo isQoeAggregateEnabled]) {
             self.qoeAggregator = [[NRQoEAggregator alloc] init];
         }
-        AV_LOG(@"Init NSVideoTracker");
+
+        // Initialize per-tracker cycle management
+        self.qoeCycleCount = 0;
+        self.isViewSessionActive = NO;
+        self.lastSentQoEAttributes = nil;  // No previous QoE sent yet
+
+        NRVA_DEBUG_LOG(@"Init NSVideoTracker");
     }
     return self;
 }
 
 - (void)dealloc {
-    AV_LOG(@"Dealloc NSVideoTracker");
+    NRVA_DEBUG_LOG(@"Dealloc NSVideoTracker");
 }
 
 - (void)dispose {
@@ -278,6 +298,7 @@
 
     // No longer needed - totalPreRollAdTime is now handled internally by QoE aggregator
 
+
     return [super preSendAction:action attributes:attributes];
 }
 
@@ -297,15 +318,13 @@
                 self.viewIdIndex++;
             }
             [self sendVideoEvent:CONTENT_REQUEST];
-            // Register QoE event provider at REQUEST so QoE is sent even if START never happens
-            // (e.g., startup error). By this point preSendAction has already run, so
-            // lastContentEventAttributes is set and aggregator has hasReceivedRequest=YES.
-            if (self.qoeAggregator) {
-                __weak typeof(self) weakSelf = self;
-                [NRVAVideo setQoeEventProvider:^NSDictionary * {
-                    return [weakSelf buildQoeEvent];
-                }];
-            }
+            // Mark current viewId as active
+            self.isViewSessionActive = YES;
+
+            // Reset cycle count for new viewId
+            self.qoeCycleCount = 0;
+
+
         }
     }
 }
@@ -377,16 +396,24 @@
         }
         else {
             [self sendVideoEvent:CONTENT_END];
-            // Build final QoE eagerly while all state is still valid, then enqueue
-            // for the next harvest. This avoids the race where provider/aggregator/attributes
-            // are cleared on the tracker thread before the harvestQueue can use them.
-            NSDictionary *finalQoe = [self buildQoeEvent];
-            if (finalQoe) {
-                [NRVAVideo enqueueFinalQoeEvent:finalQoe];
+            // Build final QoE eagerly while all state is still valid
+            // Push directly to buffer like any other video event
+            if (self.isViewSessionActive && self.qoeAggregator) {
+                NSDictionary *finalQoe = [self buildQoeEvent];
+                if (finalQoe) {
+                    // Send final QOE directly to buffer (not via harvest provider)
+                    [NRVAVideo recordEvent:NR_VIDEO_EVENT attributes:finalQoe];
+                    NRVA_DEBUG_LOG(@"Final QOE sent to buffer for viewId %@", [self getViewId]);
+                }
             }
-            [NRVAVideo setQoeEventProvider:nil];
+
+            // Mark current viewId as inactive
+            self.isViewSessionActive = NO;
+
+            // Clean up for next viewId
             [self.qoeAggregator reset];
             self.lastContentEventAttributes = nil;
+            self.lastSentQoEAttributes = nil;  // Clear QoE snapshot for next session
             self.hasContentStarted = NO;  // Mark content session as ended
         }
 
@@ -764,7 +791,7 @@
 // Safe to call from the harvest thread. If the player is currently playing,
 // adds the un-flushed delta since the last content event.
 - (long)currentTotalPlaytime {
-    if (self.playtimeSinceLastEventTimestamp > 0) {
+    if (self.playtimeSinceLastEventTimestamp > 0 && self.hasContentStarted) {
         long delta = (long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.playtimeSinceLastEventTimestamp));
         return self.totalPlaytime + delta;
     }
@@ -873,6 +900,40 @@
     return [attrs copy];
 }
 
+// QoE generation for harvest manager
+- (NSDictionary * _Nullable)generateQoeEventIfNeeded {
+    // Only generate QoE events for content sessions, not ads
+    if (self.state.isAd || !self.isViewSessionActive || !self.qoeAggregator) {
+        return nil;
+    }
+
+    // Use per-tracker cycle management
+    self.qoeCycleCount++;
+
+    // Check if this cycle qualifies for QoE generation based on multiplier
+    NSInteger multiplier = [NRVAVideo getInstance].configuration.qoeAggregateIntervalMultiplier;
+    if (multiplier < 1) multiplier = 1;
+    BOOL shouldSendThisCycle = (self.qoeCycleCount - 1) % multiplier == 0;
+
+    if (!shouldSendThisCycle) {
+        return nil;  // Skip this cycle
+    }
+
+    // Generate QoE event using the aggregator
+    NSDictionary *qoeEvent = [self buildQoeEvent];
+    if (!qoeEvent) return nil;
+
+    // Dirty check: Only send if KPI attributes have changed
+    if ([self qoeAttributesChangedFrom:self.lastSentQoEAttributes to:qoeEvent]) {
+        self.lastSentQoEAttributes = qoeEvent;
+        return qoeEvent;
+    }
+
+    // KPIs unchanged - skip sending
+    return nil;
+}
+
+
 #pragma mark - Private
 
 - (void)heartbeatTimerHandler:(NSTimer *)timer {
@@ -909,6 +970,21 @@
     
     // If none of the above is true, it is a connection buffering
     return @"connection";
+}
+
+// Compare QoE KPI attributes between two events. Returns YES if any KPI value changed.
+// Only compares KPI keys (not metadata like timestamp, actionName, eventType).
+- (BOOL)qoeAttributesChangedFrom:(NSDictionary *)previous to:(NSDictionary *)current {
+    if (!previous) return YES; // First QoE event — always send
+
+    for (NSString *key in NRVAAllKPIKeys()) {
+        id prevVal = previous[key];
+        id currVal = current[key];
+        if (prevVal == nil && currVal == nil) continue;
+        if (prevVal == nil || currVal == nil) return YES;
+        if (![prevVal isEqual:currVal]) return YES;
+    }
+    return NO;
 }
 
 @end

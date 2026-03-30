@@ -63,20 +63,5 @@
 */
 - (NSString *)getRecoveryStatus;
 
-/**
- * Block that returns a fully-formed QoE event dict (with eventType, actionName, timestamp).
- * Called by the harvest manager on qualifying harvest cycles when QoE attributes have changed.
- * Set by the tracker at content start, cleared automatically after the final QoE is collected.
- */
-@property (nonatomic, copy, nullable) NSDictionary * (^qoeEventProvider)(void);
-
-/**
- * Enqueue a pre-built final QoE event for delivery on the next harvest.
- * The event is built eagerly at sendEnd time (while tracker state is still valid)
- * and dispatched to the harvestQueue for safe, race-free pickup.
- * Takes priority over the regular qoeEventProvider and auto-clears the provider.
- * @param event Fully-formed QoE event dict (eventType, actionName, timestamp already set).
- */
-- (void)enqueueFinalQoeEvent:(NSDictionary *)event;
 
 @end
