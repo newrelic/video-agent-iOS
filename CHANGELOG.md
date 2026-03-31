@@ -1,3 +1,13 @@
+## [4.1.0](https://github.com/newrelic/video-agent-iOS/compare/v4.0.5...v4.1.0) (2026-03-31)
+
+### Features
+
+* add QoE aggregation system and fix critical   timing/playtime bugs ([aa761f8](https://github.com/newrelic/video-agent-iOS/commit/aa761f802b0d5b228685c105a7d85cb37fc51df5))
+
+### Bug Fixes
+
+* improve error handling and retry logic in CocoaPods publish workflow ([00e4e46](https://github.com/newrelic/video-agent-iOS/commit/00e4e462fd68e738288d92d20f239ac9b01639b3))
+
 ## [4.0.5](https://github.com/newrelic/video-agent-iOS/compare/v4.0.4...v4.0.5) (2026-02-17)
 
 ### Bug Fixes
