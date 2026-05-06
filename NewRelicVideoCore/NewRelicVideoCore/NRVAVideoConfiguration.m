@@ -144,7 +144,8 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
                 @"AP": @"AP",
                 @"APAC": @"AP",
                 @"GOV": @"GOV",
-                @"FED": @"GOV"
+                @"FED": @"GOV",
+                @"JP": @"JP"
             };
         });
 
