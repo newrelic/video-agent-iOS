@@ -1,31 +1,50 @@
 PODS:
   - GoogleAds-IMA-iOS-SDK (3.27.4)
-  - NewRelicVideoAgent (4.1.2)
-  - NRAVPlayerTracker (4.1.2):
+  - NewRelicVideoAgent (4.1.3)
+  - NRAVPlayerTracker (4.1.3):
     - NewRelicVideoAgent
-  - NRIMATracker (4.1.2):
+  - NRIMATracker (4.1.3):
     - GoogleAds-IMA-iOS-SDK
     - GoogleAds-IMA-tvOS-SDK
     - NewRelicVideoAgent
 
 DEPENDENCIES:
-  - NewRelicVideoAgent (= 4.1.2)
-  - NRAVPlayerTracker (= 4.1.2)
-  - NRIMATracker (= 4.1.2)
+  - NewRelicVideoAgent (from `https://github.com/newrelic/video-agent-iOS.git`, branch `fix/tracker-safety-followups`)
+  - NRAVPlayerTracker (from `https://github.com/newrelic/video-agent-iOS.git`, branch `fix/tracker-safety-followups`)
+  - NRIMATracker (from `https://github.com/newrelic/video-agent-iOS.git`, branch `fix/tracker-safety-followups`)
 
 SPEC REPOS:
   trunk:
     - GoogleAds-IMA-iOS-SDK
-    - NewRelicVideoAgent
-    - NRAVPlayerTracker
-    - NRIMATracker
+
+EXTERNAL SOURCES:
+  NewRelicVideoAgent:
+    :branch: fix/tracker-safety-followups
+    :git: https://github.com/newrelic/video-agent-iOS.git
+  NRAVPlayerTracker:
+    :branch: fix/tracker-safety-followups
+    :git: https://github.com/newrelic/video-agent-iOS.git
+  NRIMATracker:
+    :branch: fix/tracker-safety-followups
+    :git: https://github.com/newrelic/video-agent-iOS.git
+
+CHECKOUT OPTIONS:
+  NewRelicVideoAgent:
+    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :git: https://github.com/newrelic/video-agent-iOS.git
+  NRAVPlayerTracker:
+    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :git: https://github.com/newrelic/video-agent-iOS.git
+  NRIMATracker:
+    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :git: https://github.com/newrelic/video-agent-iOS.git
 
 SPEC CHECKSUMS:
   GoogleAds-IMA-iOS-SDK: 1c696013d47bc3cafa48b7de9c8196941bd3105b
-  NewRelicVideoAgent: a63632259fec5f295e8ef834c57ffc9238ab2e59
-  NRAVPlayerTracker: 245e33e946cffe201f2a83f23b0ad1cc5d84f24e
-  NRIMATracker: 880a36dfeb098fb03fcd5ed2fa109cbb8633384d
+  NewRelicVideoAgent: c68c0f39a2e2aa102ddaf314f22eeca51fc39b7f
+  NRAVPlayerTracker: 225d8ccec749470e690c594b8656fbde248c2fb3
+  NRIMATracker: b6e80d4d3c05e583b7cc682f64c539ef7c16a9e4
 
-PODFILE CHECKSUM: ef5c6d463ee80dbde73a8251c40b4b38b688e1a6
+PODFILE CHECKSUM: 71823ee5ef5f9b8d38632726ca447017a77c9739
 
 COCOAPODS: 1.16.2

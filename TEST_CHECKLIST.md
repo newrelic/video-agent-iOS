@@ -18,9 +18,9 @@
 
 | # | Scenario | Trigger | Status (4.1.2) | Status (fixed) | Notes |
 |---|----------|---------|----------------|----------------|-------|
-| CR-1 | Content-only tracker → `setUserId:` | Tap CR-1 | ❌ Crash | ⬜ | Confirmed crash on 4.1.2 |
-| CR-2 | Content-only tracker → `setGlobalAttribute:value:` | Tap CR-2 | ❌ Crash | ⬜ | Confirmed crash on 4.1.2 |
-| CR-3 | Content-only tracker → `setGlobalAttribute:value:action:` | Tap CR-3 | ❌ Crash | ⬜ | Confirmed crash on 4.1.2 |
+| CR-1 | Content-only tracker → `setUserId:` | Tap CR-1 | ❌ Crash | ✅ Pass | Confirmed crash on 4.1.2, confirmed fix on fix/tracker-safety-followups |
+| CR-2 | Content-only tracker → `setGlobalAttribute:value:` | Tap CR-2 | ❌ Crash | ✅ Pass | Confirmed crash on 4.1.2, confirmed fix on fix/tracker-safety-followups |
+| CR-3 | Content-only tracker → `setGlobalAttribute:value:action:` | Tap CR-3 | ❌ Crash | ✅ Pass | Confirmed crash on 4.1.2, confirmed fix on fix/tracker-safety-followups |
 
 ---
 
