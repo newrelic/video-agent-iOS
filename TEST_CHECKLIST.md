@@ -78,19 +78,6 @@
 
 ---
 
-## Multiple Trackers + Global Attributes
-
-| # | Scenario | Expected | Status | Notes |
-|---|----------|---------|--------|-------|
-| MT-1 | Two content trackers registered simultaneously | Both produce independent events with different `trackerId` | ⬜ | |
-| MT-2 | `setGlobalAttribute` with two active trackers | Attribute appears on events from both trackers | ⬜ | |
-| MT-3 | `setUserId` with content + ad tracker pair | `enduser.id` appears on both `VideoAction` and `VideoAdAction` events | ⬜ | |
-| MT-4 | `setAttribute` on tracker A only | Attribute does **not** appear on tracker B events | ⬜ | |
-| MT-5 | `setGlobalAttribute` with content + ad pair | Attribute appears on both `VideoAction` and `VideoAdAction` events | ⬜ | |
-| MT-6 | Release one tracker, then `setGlobalAttribute` | Only remaining tracker receives attribute; no crash | ⬜ | |
-
----
-
 ## Sanity — Core Event Lifecycle
 
 | # | Scenario | Expected | Status | Notes |
@@ -158,5 +145,5 @@
 5. **QoE-2, QoE-3** — Pre-roll startup time calculation
 6. **TV-SAN-8** — tvOS unit test suite via new shared scheme
 7. **AD-1 → AD-6** — Full ad data propagation
-8. **MT-1 → MT-6** — Multi-tracker + global attributes
+
 9. **SAN-1 → SAN-8, TV-SAN-1 → TV-SAN-7** — Full sanity sweep on both platforms
