@@ -93,57 +93,11 @@
 
 ---
 
-## tvOS — Sanity
-
-*Run on Apple TV simulator. `harvestCycle=180s`, `liveHarvest=10s`, `batchSize=128KB` — verify auto-detected.*
-
-| # | Scenario | Expected | Status | Notes |
-|---|----------|---------|--------|-------|
-| TV-SAN-1 | `isTV` auto-detected | `NRVADeviceInformation.isTV = YES`; TV config applied automatically | ⬜ | |
-| TV-SAN-2 | Basic play on Apple TV simulator | `CONTENT_REQUEST` → `CONTENT_START` fires | ⬜ | |
-| TV-SAN-3 | Pause / resume | `CONTENT_PAUSE` → `CONTENT_RESUME` | ⬜ | |
-| TV-SAN-4 | Buffering mid-play | `CONTENT_BUFFER_START` → `CONTENT_BUFFER_END` | ⬜ | |
-| TV-SAN-5 | Heartbeat on TV harvest cycle | Fires on 180s cycle | ⬜ | |
-| TV-SAN-6 | Live stream on tvOS | Live harvest cycle is 10s | ⬜ | |
-| TV-SAN-7 | `CONTENT_END` | Fires correctly; no residual state | ⬜ | |
-| TV-SAN-8 | Unit test suite on tvOS | `xcodebuild test -scheme "tvOS NewRelicVideoCore"` passes 78/78 | ⬜ | |
-
----
-
-## tvOS — PR-Specific Crash Regressions
-
-*Same NSNull crash path as CR-1/2/3 but must be verified on tvOS simulator explicitly — Bell/DeltaTre hit this on tvOS.*
-
-| # | Scenario | Status (4.1.2) | Status (fixed) | Notes |
-|---|----------|----------------|----------------|-------|
-| TV-CR-1 | tvOS content-only tracker → `setUserId:` | ⬜ | ⬜ | |
-| TV-CR-2 | tvOS content-only tracker → `setGlobalAttribute:value:` | ⬜ | ⬜ | |
-| TV-CR-3 | tvOS content-only tracker → `setGlobalAttribute:value:action:` | ⬜ | ⬜ | |
-| TV-CR-4 | tvOS `setAttribute:` with `NSDate` | ⬜ | ⬜ | Expect data quality fix, not crash |
-| TV-CR-5 | tvOS `setAttribute:` with `NSURL` | ⬜ | ⬜ | Expect data quality fix, not crash |
-| TV-CR-6 | tvOS `setGlobalAttribute` across two trackers | ⬜ | ⬜ | |
-
----
-
-## tvOS — QoE on Apple TV
-
-| # | Scenario | Expected | Status | Notes |
-|---|----------|---------|--------|-------|
-| TV-QoE-1 | Content-only playback | `startupTime` correct; QoE fires after 180s harvest | ⬜ | |
-| TV-QoE-2 | Content + pre-roll ads | `startupTime` = `timeSinceRequested - totalPreRollAdTime` | ⬜ | |
-| TV-QoE-3 | Rebuffering on tvOS | `totalRebufferingTime` and `rebufferingRatio` correct | ⬜ | |
-| TV-QoE-4 | `QOE_AGGREGATE` in NRDB | Appears with correct `trackerName` identifying tvOS | ⬜ | |
-
----
-
 ## Testing Priority
 
-1. **CR-1 → CR-3** — Confirmed crashes on 4.1.2 ❌. Now switch to local pod and confirm PASS ⬜
-2. **TV-CR-1 → TV-CR-3** — Same on tvOS simulator
-3. **DQ-1 → DQ-4** — Confirm data quality improvement after fix (date as epoch, NSURL dropped)
-4. **REC-1 → REC-4** — Confirm correct event dispatch
-5. **QoE-2, QoE-3** — Pre-roll startup time calculation
-6. **TV-SAN-8** — tvOS unit test suite via new shared scheme
-7. **AD-1 → AD-6** — Full ad data propagation
-
-9. **SAN-1 → SAN-8, TV-SAN-1 → TV-SAN-7** — Full sanity sweep on both platforms
+1. **CR-1 → CR-3** — Confirmed crashes on 4.1.2, confirmed PASS on fix branch
+2. **DQ-1 → DQ-4** — Data quality before/after confirmed
+3. **REC-1 → REC-4** — Event dispatch confirmed
+4. **SAN-1 → SAN-8** — Full iOS sanity confirmed
+5. **AD-1 → AD-6** — Ad data propagation confirmed
+6. **QoE-1 → QoE-7** — QoE KPIs confirmed
