@@ -7,6 +7,8 @@
 
 #import "ViewController.h"
 #import <NewRelicVideoCore.h>
+#import <NewRelicVideoCore/NewRelicVideoAgent.h>
+#import <NewRelicVideoCore/NRVideoTracker.h>
 
 @import AVKit;
 
@@ -46,6 +48,17 @@ typedef NS_ENUM(NSInteger, RECTestCase) {
     RECTest2   = 2,   // recordCustomEvent nil trackerId — broadcasts to all active trackers
     RECTest3   = 3,   // recordCustomEvent with NSDate in attrs — same on both builds (bypasses sanitization)
     RECTest4   = 4,   // recordEvent: raw dispatch — verify event fires without tracker enrichment
+};
+
+// ---------------------------------------------------------------------------
+// QoE Test case selector
+// QoE-1/2: play Bunny/Sintel normally — no button needed
+// QoE-3: error before CONTENT_START → hadStartupError = 1
+// QoE-4: error after CONTENT_START  → hadPlaybackError = 1
+// ---------------------------------------------------------------------------
+typedef NS_ENUM(NSInteger, QoETestCase) {
+    QoETest3 = 3,
+    QoETest4 = 4,
 };
 
 @interface ViewController ()
@@ -470,6 +483,69 @@ typedef NS_ENUM(NSInteger, RECTestCase) {
 
     NSLog(@"[RECTest][SUMMARY]  Wait ~60s for harvest — check NRDB for all events above");
     NSLog(@"[RECTest][SUMMARY] ----------------------------------------");
+}
+
+#pragma mark - QoE Error Simulation Tests
+
+// QoE-3 and QoE-4 only — error scenarios that can't be triggered by normal playback.
+// QoE-1 (content-only) and QoE-2 (with ads): just tap Bunny or Sintel normally.
+// Filter log by [QOE_AGGREGATE] after ~10s to see full KPI block.
+- (IBAction)clickQoETest:(id)sender {
+    UIAlertController *sheet = [UIAlertController
+        alertControllerWithTitle:@"QoE Error Tests"
+        message:@"QoE-1: tap Bunny (content-only)\nQoE-2: tap Sintel (has ads)\nQoE-3/4: use buttons below\nFilter log: [QOE_AGGREGATE]"
+        preferredStyle:UIAlertControllerStyleActionSheet];
+
+    [sheet addAction:[UIAlertAction
+        actionWithTitle:@"QoE-3  Error before CONTENT_START"
+        style:UIAlertActionStyleDefault
+        handler:^(UIAlertAction *a) { [self launchQoETest:QoETest3]; }]];
+
+    [sheet addAction:[UIAlertAction
+        actionWithTitle:@"QoE-4  Error after CONTENT_START"
+        style:UIAlertActionStyleDefault
+        handler:^(UIAlertAction *a) { [self launchQoETest:QoETest4]; }]];
+
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    sheet.popoverPresentationController.sourceView = (UIView *)sender;
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
+- (void)launchQoETest:(QoETestCase)testCase {
+    NSString *videoURL = @"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8";
+    AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
+    AVPlayerViewController *playerVC = [[AVPlayerViewController alloc] init];
+    playerVC.player = player;
+    playerVC.showsPlaybackControls = YES;
+
+    NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"QoE_Test" player:player adEnabled:NO
+        customAttributes:@{@"qoeTest": @(testCase)}];
+    NSInteger qoeId = [NRVAVideo addPlayer:config];
+
+    self.playerController = playerVC;
+    self.trackerId = qoeId;
+
+    if (testCase == QoETest3) {
+        // Fire error BEFORE play — guarantees it precedes CONTENT_REQUEST regardless of startup speed
+        NRVideoTracker *t = (NRVideoTracker *)[[NewRelicVideoAgent sharedInstance] contentTracker:@(qoeId)];
+        [t sendError:nil];
+        NSLog(@"[QoETest] QoE-3 — error fired before play → expect hadStartupError = 1");
+    }
+
+    [self presentViewController:playerVC animated:YES completion:^{
+        [player play];
+
+        if (testCase == QoETest4) {
+            // Fire error 6s after play — well after CONTENT_START
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6.0 * NSEC_PER_SEC)),
+                           dispatch_get_main_queue(), ^{
+                NRVideoTracker *t = (NRVideoTracker *)[[NewRelicVideoAgent sharedInstance] contentTracker:@(qoeId)];
+                [t sendError:nil];
+                NSLog(@"[QoETest] QoE-4 — error fired after CONTENT_START → expect hadPlaybackError = 1");
+            });
+        }
+    }];
 }
 
 #pragma mark - Normal Playback

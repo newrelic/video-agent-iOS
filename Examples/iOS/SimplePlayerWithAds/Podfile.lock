@@ -30,13 +30,13 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   NewRelicVideoAgent:
-    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :commit: 11d03c7b5b8f5cd9ede82d928fcb2e1fe937eddb
     :git: https://github.com/newrelic/video-agent-iOS.git
   NRAVPlayerTracker:
-    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :commit: 11d03c7b5b8f5cd9ede82d928fcb2e1fe937eddb
     :git: https://github.com/newrelic/video-agent-iOS.git
   NRIMATracker:
-    :commit: 3f034743b0d5b01223467cf75c44060a326e21aa
+    :commit: 11d03c7b5b8f5cd9ede82d928fcb2e1fe937eddb
     :git: https://github.com/newrelic/video-agent-iOS.git
 
 SPEC CHECKSUMS:

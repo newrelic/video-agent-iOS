@@ -18,10 +18,11 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
     
-    NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
-            withApplicationToken:@"YOUR_NEWRELIC_APP_TOKEN"] 
-            withHarvestCycle:60]  
-            withDebugLogging:YES] build];
+    NRVAVideoConfiguration *videoConfig = [[[[[[NRVAVideoConfiguration builder]
+            withApplicationToken:@"YOUR_NEWRELIC_APP_TOKEN"]
+            withHarvestCycle:10]
+            withDebugLogging:YES]
+            withQoeAggregateEnabled:YES] build];
         
         [[[NRVAVideo newBuilder] withConfiguration:videoConfig] build];
     

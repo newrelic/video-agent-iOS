@@ -64,6 +64,15 @@
                                     <action selector="clickRECTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RE2-t3-st9"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QE1-t3-st8">
+                                <rect key="frame" x="144" y="395" width="126" height="44"/>
+                                <state key="normal" title="▶ QoE Test (PR#208)">
+                                    <color key="titleColor" red="0.9" green="0.5" blue="0.1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="clickQoETest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="QE2-t3-st9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -80,6 +89,8 @@
                             <constraint firstItem="DQ1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="DQ4-t3-st1"/>
                             <constraint firstItem="RE1-t3-st8" firstAttribute="top" secondItem="DQ1-t3-st8" secondAttribute="bottom" constant="12" id="RE3-t3-st0"/>
                             <constraint firstItem="RE1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="RE4-t3-st1"/>
+                            <constraint firstItem="QE1-t3-st8" firstAttribute="top" secondItem="RE1-t3-st8" secondAttribute="bottom" constant="12" id="QE3-t3-st0"/>
+                            <constraint firstItem="QE1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="QE4-t3-st1"/>
                         </constraints>
                     </view>
                 </viewController>

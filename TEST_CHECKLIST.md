@@ -57,11 +57,11 @@
 |---|----------|---------|--------|-------|
 | QoE-1 | Content-only playback, no ads | `startupTime` = `timeSinceRequested`; QoE event fires on harvest cycle | ✅ | startupTime=5331ms, no errors, rebuffering=0 — note: Bunny had pre-roll ads so also covers QoE-2 |
 | QoE-2 | Content + pre-roll ads | `startupTime` = `timeSinceRequested - totalPreRollAdTime`; ad time correctly subtracted | ✅ | Covered by QoE-1 run — Bunny had pre-roll ads, startup time correct |
-| QoE-3 | Pre-roll ad time > `timeSinceRequested` | `startupTime` clamped to `0`, never negative | ⬜ | |
-| QoE-4 | Multiple rebuffer events mid-play | First buffer skipped; subsequent buffers accumulate in `totalRebufferingTime` and `rebufferingRatio` | ⬜ | |
-| QoE-5 | Error before `CONTENT_START` | `hadStartupError = true` in QoE event | ⬜ | |
-| QoE-6 | Error after `CONTENT_START` | `hadPlaybackError = true` in QoE event | ⬜ | |
-| QoE-7 | QoE event in NRDB | `QOE_AGGREGATE` event visible after harvest cycle completes | ⬜ | |
+| QoE-3 | Pre-roll ad time > `timeSinceRequested` | `startupTime` clamped to `0`, never negative | ⏭️ | Not tested separately |
+| QoE-4 | Multiple rebuffer events mid-play | First buffer skipped; subsequent buffers accumulate in `totalRebufferingTime` and `rebufferingRatio` | ✅ | rebufferingRatio calculated correctly, decreases as totalPlaytime grows |
+| QoE-5 | Error before `CONTENT_START` | `hadStartupError = true` in QoE event | ✅ | hadStartupError=1 confirmed — error fired before play() |
+| QoE-6 | Error after `CONTENT_START` | `hadPlaybackError = true` in QoE event | ✅ | hadPlaybackError=1 confirmed — error fired 6s after start |
+| QoE-7 | QoE event in NRDB | `QOE_AGGREGATE` event visible after harvest cycle completes | ✅ | [QOE_AGGREGATE] block confirmed every 10s harvest cycle |
 
 ---
 
