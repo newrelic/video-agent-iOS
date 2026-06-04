@@ -30,10 +30,10 @@
 
 | # | Scenario | Before fix (4.1.2) | After fix | Status | Notes |
 |---|----------|--------------------|-----------|--------|-------|
-| DQ-1 | `setAttribute:` with `NSDate` | Stored as string description `"2026-06-04 06:49:21 +0000"` | Stored as epoch seconds `1748765361` | ⬜ | Confirmed no crash on 4.1.2 |
-| DQ-2 | `setAttribute:` with `NSURL` | Stored as string description `"https://..."` | Dropped with error log | ⬜ | |
-| DQ-3 | `setAttribute:` with `NSDictionary` containing `NSDate` | Inner date stored as string | Inner date as epoch seconds | ⬜ | |
-| DQ-4 | `setAttribute:` with `nil` | No-op (ObjC nil message) | Explicit silent drop | ⬜ | |
+| DQ-1 | `setAttribute:` with `NSDate` | Stored as string description `"2026-06-04 16:35:52 +0000"` | Stored as epoch `1780591129.665822` | ✅ | Confirmed before on 4.1.2, confirmed after on fix/tracker-safety-followups |
+| DQ-2 | `setAttribute:` with `NSURL` | Stored as string `"https://example.com/stream.m3u8"` | Key absent — dropped with error log | ✅ | Confirmed before on 4.1.2, confirmed after on fix/tracker-safety-followups |
+| DQ-3 | `setAttribute:` with `NSDictionary` containing `NSDate` | Inner date as string `"2026-06-04..."` | Inner date as epoch `1780591129.666651` | ✅ | Confirmed before on 4.1.2, confirmed after on fix/tracker-safety-followups |
+| DQ-4 | `setAttribute:` with `nil` | Silent no-op — key absent | Silent no-op — key absent | ✅ | Same behaviour both builds — explicit early return after fix |
 
 ---
 

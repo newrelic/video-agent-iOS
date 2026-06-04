@@ -3,8 +3,9 @@ platform :ios, '14.0'
 target 'SimplePlayerWithAds' do
   use_frameworks!
 
-  # PR #208 fixes — pulls directly from the fix branch on GitHub
-  # To test a published release, replace with: pod 'NewRelicVideoAgent', '4.1.x'
+  # PR #208 fixes — fix/tracker-safety-followups
+  # Switch to published version string to test a release build:
+  # pod 'NewRelicVideoAgent', '4.1.2'
   pod 'NewRelicVideoAgent', :git => 'https://github.com/newrelic/video-agent-iOS.git', :branch => 'fix/tracker-safety-followups'
   pod 'NRAVPlayerTracker',  :git => 'https://github.com/newrelic/video-agent-iOS.git', :branch => 'fix/tracker-safety-followups'
   pod 'NRIMATracker',       :git => 'https://github.com/newrelic/video-agent-iOS.git', :branch => 'fix/tracker-safety-followups'
