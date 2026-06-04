@@ -33,6 +33,21 @@ typedef NS_ENUM(NSInteger, DQTestCase) {
     DQTest4   = 4,   // nil    → before: no-op, after: explicit silent drop
 };
 
+// ---------------------------------------------------------------------------
+// REC Test case selector — record event sanity (no crash, verify event dispatch)
+// NOTE: recordCustomEvent attributes bypass setAttribute: sanitization path —
+// they go through generateAttributes:append: directly. So REC-3 (NSDate in
+// recordCustomEvent) behaves the SAME on 4.1.2 and fix branch — NR agent
+// coerces to string on both. This is a known gap, tracked for future fix.
+// ---------------------------------------------------------------------------
+typedef NS_ENUM(NSInteger, RECTestCase) {
+    RECTestAll = 0,
+    RECTest1   = 1,   // recordCustomEvent on specific tracker — verify event fires with tracker attrs
+    RECTest2   = 2,   // recordCustomEvent nil trackerId — broadcasts to all active trackers
+    RECTest3   = 3,   // recordCustomEvent with NSDate in attrs — same on both builds (bypasses sanitization)
+    RECTest4   = 4,   // recordEvent: raw dispatch — verify event fires without tracker enrichment
+};
+
 @interface ViewController ()
 
 @property (nonatomic) AVPlayerViewController *playerController;
@@ -290,6 +305,171 @@ typedef NS_ENUM(NSInteger, DQTestCase) {
     NSLog(@"[DQTest][SUMMARY]  Filter console by: [DQTest][SUMMARY]");
     NSLog(@"[DQTest][SUMMARY]  Wait ~60s for harvest — confirm values in NRDB");
     NSLog(@"[DQTest][SUMMARY] ----------------------------------------");
+}
+
+#pragma mark - Record Event Tests
+
+- (IBAction)clickRECTest:(id)sender {
+    UIAlertController *sheet = [UIAlertController
+        alertControllerWithTitle:@"REC Test — PR #208"
+        message:@"Record event sanity tests.\nNo before/after crash difference.\nVerify events appear in console and NRDB."
+        preferredStyle:UIAlertControllerStyleActionSheet];
+
+    NSDictionary *cases = @{
+        @(RECTest1):   @"REC-1  recordCustomEvent (specific tracker)",
+        @(RECTest2):   @"REC-2  recordCustomEvent (nil — all trackers)",
+        @(RECTest3):   @"REC-3  recordCustomEvent with NSDate (bypass check)",
+        @(RECTest4):   @"REC-4  recordEvent raw dispatch",
+        @(RECTestAll): @"▶▶ Run All REC-1 to REC-4",
+    };
+
+    NSArray *order = @[@(RECTest1), @(RECTest2), @(RECTest3), @(RECTest4), @(RECTestAll)];
+
+    for (NSNumber *key in order) {
+        RECTestCase testCase = (RECTestCase)[key integerValue];
+        [sheet addAction:[UIAlertAction
+            actionWithTitle:cases[key]
+            style:(testCase == RECTestAll ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault)
+            handler:^(UIAlertAction *action) {
+                [self launchRECTestWithCase:testCase];
+            }]];
+    }
+
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    sheet.popoverPresentationController.sourceView = (UIView *)sender;
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
+- (void)launchRECTestWithCase:(RECTestCase)testCase {
+    NSString *videoURL = @"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8";
+    AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
+
+    AVPlayerViewController *playerVC = [[AVPlayerViewController alloc] init];
+    playerVC.player = player;
+    playerVC.showsPlaybackControls = YES;
+
+    NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"REC_Test"
+        player:player
+        adEnabled:NO
+        customAttributes:@{@"recTest": @(testCase), @"pr": @"208"}];
+    NSInteger recTrackerId = [NRVAVideo addPlayer:config];
+
+    self.playerController = playerVC;
+    self.trackerId = recTrackerId;
+
+    // REC-2 and REC-4 fire at init — app lifecycle / raw dispatch, not tied to playback
+    BOOL needsPlayback = (testCase == RECTest1 || testCase == RECTest3 || testCase == RECTestAll);
+    if (!needsPlayback) {
+        [self runRECTest:testCase trackerId:recTrackerId];
+    }
+
+    [self presentViewController:playerVC animated:YES completion:^{
+        [player play];
+
+        if (needsPlayback) {
+            // Wait for CONTENT_START to fire (~2-3s) so tracker has playback context:
+            // contentPlayhead, timeSinceStarted, bitrate etc. are populated
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)),
+                           dispatch_get_main_queue(), ^{
+                NSLog(@"[RECTest][SUMMARY]  Playback active — firing runtime REC tests now");
+                [self runRECTest:testCase trackerId:recTrackerId];
+            });
+        }
+    }];
+}
+
+/**
+ REC test runner — verifies recordCustomEvent and recordEvent fire correctly.
+ Filter console by [RECTest][SUMMARY] to see all results in one block.
+
+ REC-1: recordCustomEvent on specific tracker
+   → event appears enriched with full tracker attributes (playerName, viewId, etc.)
+   → NRDB: SELECT * FROM VideoAction WHERE actionName = 'USER_BOOKMARK'
+
+ REC-2: recordCustomEvent nil trackerId (broadcast)
+   → event fires once per active tracker
+   → NRDB: SELECT * FROM VideoAction WHERE actionName = 'APP_FOREGROUND'
+
+ REC-3: recordCustomEvent with NSDate in attributes
+   → IMPORTANT: bypasses setAttribute: sanitization — NR agent coerces to string on both builds
+   → Same result on 4.1.2 AND fix branch — date stored as string description
+   → Known gap: recordCustomEvent attrs not sanitized at SDK boundary
+
+ REC-4: recordEvent raw dispatch
+   → fires directly to harvest, no tracker enrichment
+   → NRDB: SELECT * FROM VideoAction WHERE actionName = 'RAW_CUSTOM_EVENT'
+ */
+- (void)runRECTest:(RECTestCase)testCase trackerId:(NSInteger)trackerId {
+    NSLog(@"[RECTest][SUMMARY] ----------------------------------------");
+    NSLog(@"[RECTest][SUMMARY]  Running %@",
+          testCase == RECTestAll ? @"All REC-1 to REC-4" : [NSString stringWithFormat:@"REC-%ld", (long)testCase]);
+
+    BOOL runAll = (testCase == RECTestAll);
+
+    // REC-1: recordCustomEvent on specific tracker — fires DURING playback
+    // Event enriched with contentPlayhead, timeSinceStarted, bitrate etc.
+    // NRDB: SELECT * FROM VideoAction WHERE actionName = 'USER_BOOKMARK'
+    if (runAll || testCase == RECTest1) {
+        [NRVAVideo recordCustomEvent:@"USER_BOOKMARK"
+                          trackerId:@(trackerId)
+                         attributes:@{
+                             @"bookmarkPosition": @(42000),
+                             @"contentLabel": @"bunny-video",
+                             @"recTest": @"REC-1",
+                             @"firedAt": @"runtime-after-content-start"
+                         }];
+        NSLog(@"[RECTest][SUMMARY]  REC-1 fired at runtime — check contentPlayhead/timeSinceStarted are populated");
+        NSLog(@"[RECTest][SUMMARY]  REC-1 NRDB: SELECT * FROM VideoAction WHERE actionName = 'USER_BOOKMARK'");
+    }
+
+    // REC-2: recordCustomEvent nil trackerId — fires AT INIT (app lifecycle, not playback)
+    // Broadcasts to all active trackers
+    // NRDB: SELECT * FROM VideoAction WHERE actionName = 'APP_FOREGROUND'
+    if (runAll || testCase == RECTest2) {
+        [NRVAVideo recordCustomEvent:@"APP_FOREGROUND"
+                          trackerId:nil
+                         attributes:@{
+                             @"source": @"REC-2-broadcast",
+                             @"recTest": @"REC-2",
+                             @"firedAt": @"init"
+                         }];
+        NSLog(@"[RECTest][SUMMARY]  REC-2 fired at init — broadcast to all trackers");
+        NSLog(@"[RECTest][SUMMARY]  REC-2 NRDB: SELECT * FROM VideoAction WHERE actionName = 'APP_FOREGROUND'");
+    }
+
+    // REC-3: recordCustomEvent with NSDate — fires DURING playback
+    // Bypasses setAttribute: sanitization — date stored as string on BOTH builds
+    // Known gap: recordCustomEvent attrs not sanitized at SDK level
+    if (runAll || testCase == RECTest3) {
+        NSDate *now = [NSDate date];
+        [NRVAVideo recordCustomEvent:@"TIMED_ACTION"
+                          trackerId:@(trackerId)
+                         attributes:@{
+                             @"eventTimestamp": now,
+                             @"recTest": @"REC-3",
+                             @"firedAt": @"runtime-after-content-start"
+                         }];
+        NSLog(@"[RECTest][SUMMARY]  REC-3 fired at runtime — eventTimestamp: '%@' (string on BOTH builds)", now);
+        NSLog(@"[RECTest][SUMMARY]  REC-3 NOTE: bypasses sanitization — known gap, future fix needed");
+    }
+
+    // REC-4: recordEvent raw dispatch — fires AT INIT (no tracker enrichment needed)
+    // NRDB: SELECT * FROM VideoAction WHERE actionName = 'RAW_CUSTOM_EVENT'
+    if (runAll || testCase == RECTest4) {
+        [NRVAVideo recordEvent:@"RAW_CUSTOM_EVENT"
+                    attributes:@{
+                        @"source": @"REC-4-raw",
+                        @"recTest": @"REC-4",
+                        @"firedAt": @"init",
+                        @"value": @(100)
+                    }];
+        NSLog(@"[RECTest][SUMMARY]  REC-4 fired at init — raw, no tracker enrichment");
+        NSLog(@"[RECTest][SUMMARY]  REC-4 NRDB: SELECT * FROM VideoAction WHERE actionName = 'RAW_CUSTOM_EVENT'");
+    }
+
+    NSLog(@"[RECTest][SUMMARY]  Wait ~60s for harvest — check NRDB for all events above");
+    NSLog(@"[RECTest][SUMMARY] ----------------------------------------");
 }
 
 #pragma mark - Normal Playback

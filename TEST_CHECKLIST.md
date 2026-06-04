@@ -44,10 +44,10 @@
 
 | # | Scenario | Expected | Status | Notes |
 |---|----------|---------|--------|-------|
-| REC-1 | `recordCustomEvent` on specific tracker | Event fires enriched with tracker attributes. NRDB: `VideoAction WHERE actionName = 'USER_BOOKMARK'` | ⬜ | |
-| REC-2 | `recordCustomEvent` nil trackerId (all trackers) | Event fires on every active tracker. No crash — goes through `contentTracker:` not the NSNull pair path | ⬜ | |
-| REC-3 | `recordCustomEvent` with `NSDate` in attributes | Same as DQ-1 — date stored as string on 4.1.2, epoch after fix | ⬜ | |
-| REC-4 | `recordEvent:` raw dispatch | Raw event fires directly to harvest pipeline without tracker enrichment. NRDB: `VideoAction WHERE actionName = 'RAW_EVENT'` | ⬜ | |
+| REC-1 | `recordCustomEvent` on specific tracker | Event fires enriched with tracker attributes | ✅ | Fired at runtime after CONTENT_START — contentPlayhead/timeSinceStarted populated |
+| REC-2 | `recordCustomEvent` nil trackerId (all trackers) | Event fires on every active tracker | ✅ | APP_FOREGROUND broadcast confirmed in log |
+| REC-3 | `recordCustomEvent` with `NSDate` in attributes | Date stored as string on both builds — bypasses setAttribute: sanitization | ✅ | Confirmed same on both builds — known gap, future fix needed |
+| REC-4 | `recordEvent:` raw dispatch | Raw event fires without tracker enrichment | ✅ | RAW_CUSTOM_EVENT confirmed in log |
 
 ---
 

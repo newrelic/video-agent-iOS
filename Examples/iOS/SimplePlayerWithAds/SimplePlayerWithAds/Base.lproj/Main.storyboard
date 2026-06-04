@@ -55,6 +55,15 @@
                                     <action selector="clickDQTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="DQ2-t3-st9"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="RE1-t3-st8">
+                                <rect key="frame" x="144" y="339" width="126" height="44"/>
+                                <state key="normal" title="▶ REC Test (PR#208)">
+                                    <color key="titleColor" red="0.1" green="0.6" blue="0.3" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="clickRECTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="RE2-t3-st9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -69,6 +78,8 @@
                             <constraint firstItem="CR1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="CR4-t3-st1"/>
                             <constraint firstItem="DQ1-t3-st8" firstAttribute="top" secondItem="CR1-t3-st8" secondAttribute="bottom" constant="12" id="DQ3-t3-st0"/>
                             <constraint firstItem="DQ1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="DQ4-t3-st1"/>
+                            <constraint firstItem="RE1-t3-st8" firstAttribute="top" secondItem="DQ1-t3-st8" secondAttribute="bottom" constant="12" id="RE3-t3-st0"/>
+                            <constraint firstItem="RE1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="RE4-t3-st1"/>
                         </constraints>
                     </view>
                 </viewController>
