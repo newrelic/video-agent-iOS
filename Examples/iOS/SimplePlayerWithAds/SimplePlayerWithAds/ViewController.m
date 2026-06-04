@@ -11,14 +11,26 @@
 @import AVKit;
 
 // ---------------------------------------------------------------------------
-// CR Test case selector — only confirmed crash scenarios (CR-1, CR-2, CR-3)
-// CRTestAll runs all three in sequence (first crash stops the rest on 4.1.2)
+// CR Test case selector — confirmed crash scenarios (CR-1, CR-2, CR-3)
 // ---------------------------------------------------------------------------
 typedef NS_ENUM(NSInteger, CRTestCase) {
     CRTestAll = 0,
     CRTest1   = 1,   // setUserId: on content-only tracker → NSNull crash
     CRTest2   = 2,   // setGlobalAttribute:value: → NSNull crash
     CRTest3   = 3,   // setGlobalAttribute:value:action: → NSNull crash
+};
+
+// ---------------------------------------------------------------------------
+// DQ Test case selector — data quality fixes (no crash, wrong stored value)
+// Before fix: NR iOS Agent coerces types to strings
+// After fix:  SDK sanitizes at storage boundary — correct types in NRDB
+// ---------------------------------------------------------------------------
+typedef NS_ENUM(NSInteger, DQTestCase) {
+    DQTestAll = 0,
+    DQTest1   = 1,   // NSDate → before: string description, after: epoch seconds
+    DQTest2   = 2,   // NSURL  → before: string description, after: dropped with log
+    DQTest3   = 3,   // NSDictionary with NSDate → before: inner date as string, after: epoch
+    DQTest4   = 4,   // nil    → before: no-op, after: explicit silent drop
 };
 
 @interface ViewController ()
@@ -139,6 +151,145 @@ typedef NS_ENUM(NSInteger, CRTestCase) {
     }
 
     NSLog(@"[CrashTest] ---- Done ----");
+}
+
+#pragma mark - Data Quality Tests
+
+// DQ Test button — shows picker, launches a player with ads enabled,
+// sets attributes with various types and logs the stored value.
+// Run once on 4.1.2 (observe before), once on fix branch (observe after).
+- (IBAction)clickDQTest:(id)sender {
+    UIAlertController *sheet = [UIAlertController
+        alertControllerWithTitle:@"DQ Test — PR #208"
+        message:@"Data quality fixes — no crash.\nWatch console for stored value.\nBefore fix: strings. After fix: correct types."
+        preferredStyle:UIAlertControllerStyleActionSheet];
+
+    NSDictionary *cases = @{
+        @(DQTest1):   @"DQ-1  NSDate attribute",
+        @(DQTest2):   @"DQ-2  NSURL attribute",
+        @(DQTest3):   @"DQ-3  NSDictionary with NSDate",
+        @(DQTest4):   @"DQ-4  nil attribute",
+        @(DQTestAll): @"▶▶ Run All DQ-1 to DQ-4",
+    };
+
+    NSArray *order = @[@(DQTest1), @(DQTest2), @(DQTest3), @(DQTest4), @(DQTestAll)];
+
+    for (NSNumber *key in order) {
+        DQTestCase testCase = (DQTestCase)[key integerValue];
+        [sheet addAction:[UIAlertAction
+            actionWithTitle:cases[key]
+            style:(testCase == DQTestAll ? UIAlertActionStyleDestructive : UIAlertActionStyleDefault)
+            handler:^(UIAlertAction *action) {
+                [self launchDQTestWithCase:testCase];
+            }]];
+    }
+
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+    sheet.popoverPresentationController.sourceView = (UIView *)sender;
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
+- (void)launchDQTestWithCase:(DQTestCase)testCase {
+    NSString *videoURL = @"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8";
+    AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
+
+    AVPlayerViewController *playerVC = [[AVPlayerViewController alloc] init];
+    playerVC.player = player;
+    playerVC.showsPlaybackControls = YES;
+
+    NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"DQ_Test"
+        player:player
+        adEnabled:NO
+        customAttributes:@{@"dqTest": @(testCase), @"pr": @"208"}];
+    NSInteger dqTrackerId = [NRVAVideo addPlayer:config];
+
+    [self runDQTest:testCase trackerId:dqTrackerId];
+
+    self.playerController = playerVC;
+    self.trackerId = dqTrackerId;
+    [self presentViewController:playerVC animated:YES completion:^{
+        [player play];
+    }];
+}
+
+/**
+ DQ test runner — sets attribute values of various types and logs what was stored.
+ Console output differs between 4.1.2 and fix branch:
+
+   4.1.2 (before fix):
+     DQ-1: cr4_date = "2026-06-04 06:49:21 +0000"   ← NSDate as string description
+     DQ-2: cr5_url  = "https://example.com"          ← NSURL as string description
+     DQ-3: cr6_dict = { when = "2026-06-04..."; }    ← inner date as string
+     DQ-4: (nothing logged — nil is a no-op)
+
+   fix/tracker-safety-followups (after fix):
+     DQ-1: cr4_date = 1748765361                     ← epoch seconds NSNumber
+     DQ-2: DROPPED with NRVA_ERROR_LOG               ← not stored at all
+     DQ-3: cr6_dict = { when = 1748765361; }         ← inner date as epoch
+     DQ-4: (nothing logged — silent drop, no error)
+ */
+- (void)runDQTest:(DQTestCase)testCase trackerId:(NSInteger)trackerId {
+    NSLog(@"[DQTest] ---- Running %@ ----",
+          testCase == DQTestAll ? @"All DQ-1 to DQ-4" : [NSString stringWithFormat:@"DQ-%ld", (long)testCase]);
+
+    BOOL runAll = (testCase == DQTestAll);
+
+    // Track what we set so we can print a summary at the end
+    NSMutableDictionary *summary = [NSMutableDictionary dictionary];
+
+    // DQ-1: NSDate
+    // Before: stored as string description e.g. "2026-06-04 06:49:21 +0000"
+    // After:  stored as epoch seconds e.g. 1748765361 (NSNumber)
+    if (runAll || testCase == DQTest1) {
+        NSDate *now = [NSDate date];
+        summary[@"DQ-1 input"] = [NSString stringWithFormat:@"NSDate — %@", now];
+        summary[@"DQ-1 epoch"] = [NSString stringWithFormat:@"%.0f", [now timeIntervalSince1970]];
+        [NRVAVideo setAttribute:trackerId key:@"dq1_date" value:now];
+    }
+
+    // DQ-2: NSURL
+    // Before: stored as string description e.g. "https://example.com/stream.m3u8"
+    // After:  dropped — key never written, NRVA_ERROR_LOG fires
+    if (runAll || testCase == DQTest2) {
+        NSURL *url = [NSURL URLWithString:@"https://example.com/stream.m3u8"];
+        summary[@"DQ-2 input"] = [NSString stringWithFormat:@"NSURL — %@", url];
+        summary[@"DQ-2 expect (before)"] = @"stored as string";
+        summary[@"DQ-2 expect (after)"] = @"DROPPED — error log fires";
+        [NRVAVideo setAttribute:trackerId key:@"dq2_url" value:url];
+    }
+
+    // DQ-3: NSDictionary with NSDate inside
+    // Before: inner date stored as string description
+    // After:  inner date recursively converted to epoch seconds
+    if (runAll || testCase == DQTest3) {
+        NSDate *now = [NSDate date];
+        NSDictionary *dict = @{@"label": @"session-meta", @"startedAt": now};
+        summary[@"DQ-3 input"] = [NSString stringWithFormat:@"NSDictionary — startedAt: %@", now];
+        summary[@"DQ-3 epoch"] = [NSString stringWithFormat:@"%.0f", [now timeIntervalSince1970]];
+        [NRVAVideo setAttribute:trackerId key:@"dq3_dict" value:dict];
+    }
+
+    // DQ-4: nil
+    // Before: ObjC nil message — silent no-op
+    // After:  explicit early return — still silent, no error log
+    if (runAll || testCase == DQTest4) {
+        summary[@"DQ-4 input"] = @"nil — silent on both builds, no log expected";
+        [NRVAVideo setAttribute:trackerId key:@"dq4_nil" value:nil];
+    }
+
+    // --- Summary block — search console for [DQTest][SUMMARY] ---
+    NSLog(@"[DQTest][SUMMARY] ----------------------------------------");
+    for (NSString *key in [[summary allKeys] sortedArrayUsingSelector:@selector(compare:)]) {
+        NSLog(@"[DQTest][SUMMARY]  %@ = %@", key, summary[key]);
+    }
+    NSLog(@"[DQTest][SUMMARY]  dq1_date stored value → check [NRVideoAgent][DEBUG] Set attribute for tracker %ld: dq1_date", (long)trackerId);
+    NSLog(@"[DQTest][SUMMARY]  dq2_url  stored value → check [NRVideoAgent][DEBUG] Set attribute (before) or ERROR (after)");
+    NSLog(@"[DQTest][SUMMARY]  dq3_dict stored value → check [NRVideoAgent][DEBUG] Set attribute for tracker %ld: dq3_dict", (long)trackerId);
+    NSLog(@"[DQTest][SUMMARY] ----------------------------------------");
+    NSLog(@"[DQTest][SUMMARY]  Filter console by: [DQTest][SUMMARY]");
+    NSLog(@"[DQTest][SUMMARY]  Wait ~60s for harvest — confirm values in NRDB");
+    NSLog(@"[DQTest][SUMMARY] ----------------------------------------");
 }
 
 #pragma mark - Normal Playback
