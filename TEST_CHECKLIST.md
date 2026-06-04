@@ -70,11 +70,11 @@
 | # | Scenario | Expected | Status | Notes |
 |---|----------|---------|--------|-------|
 | AD-1 | Single pre-roll ad | `AD_REQUEST` → `AD_START` → `AD_END` fire with correct attributes (`adTitle`, `adDuration`, `adPlayhead`) | ✅ | Confirmed — AD_START, AD_END, AD_BREAK_START/END all received |
-| AD-2 | Multiple pre-roll ads back-to-back | Each ad fires its own events; `totalPreRollAdTime` accumulates across all ads | ⬜ | |
-| AD-3 | Post-roll ad | Does **not** affect `startupTime` | ⬜ | |
-| AD-4 | Mid-roll ad | Same as AD-3 | ⬜ | |
+| AD-2 | Multiple pre-roll ads back-to-back | Each ad fires its own events; `totalPreRollAdTime` accumulates across all ads | ✅ | Confirmed |
+| AD-3 | Post-roll ad | Does **not** affect `startupTime` | ✅ | Confirmed |
+| AD-4 | Mid-roll ad | Same as AD-3 | ✅ | Confirmed |
 | AD-5 | Ad quartile events | `AD_QUARTILE` fires at 25 / 50 / 75 / 100% | ✅ | Confirmed |
-| AD-6 | Ad error | `VideoAdErrorAction` fires; content error flags unaffected | ⬜ | |
+| AD-6 | Ad error | `VideoAdErrorAction` fires; content error flags unaffected | ✅ | Confirmed |
 
 ---
 
@@ -96,13 +96,13 @@
 | # | Scenario | Expected | Status | Notes |
 |---|----------|---------|--------|-------|
 | SAN-1 | Basic play | `CONTENT_REQUEST` → `CONTENT_START` in order | ✅ | Confirmed |
-| SAN-2 | Pause / resume | `CONTENT_PAUSE` → `CONTENT_RESUME` | ⬜ | |
+| SAN-2 | Pause / resume | `CONTENT_PAUSE` → `CONTENT_RESUME` | ✅ | Confirmed |
 | SAN-3 | Seek | `CONTENT_SEEK_START` → `CONTENT_SEEK_END` | ✅ | Fixed in fix/tracker-safety-followups: auto-detect via timeControlStatus; NRVAVideo exposes sendSeekStart:/sendSeekEnd: for custom players |
 | SAN-4 | Buffering mid-play | `CONTENT_BUFFER_START` → `CONTENT_BUFFER_END` | ✅ | Confirmed |
-| SAN-5 | Playback error | `CONTENT_ERROR` fires with error details | ⬜ | |
+| SAN-5 | Playback error | `CONTENT_ERROR` fires with error details | ✅ | Confirmed |
 | SAN-6 | End of video | `CONTENT_END` fires; tracker reusable for next video | ✅ | Confirmed |
 | SAN-7 | Heartbeat | `CONTENT_HEARTBEAT` fires on configured interval | ✅ | Confirmed |
-| SAN-8 | Release tracker | No further events after `releaseTracker:`; no crash | ⬜ | |
+| SAN-8 | Release tracker | No further events after `releaseTracker:`; no crash | ✅ | Confirmed |
 
 ---
 
