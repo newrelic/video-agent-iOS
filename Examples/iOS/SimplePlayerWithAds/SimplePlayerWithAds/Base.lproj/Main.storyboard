@@ -37,6 +37,15 @@
                                     <action selector="clickAirshowLive:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5ER-pK-uKQ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CR1-t3-st8">
+                                <rect key="frame" x="144" y="227" width="126" height="44"/>
+                                <state key="normal" title="▶ CR Test (PR#208)">
+                                    <color key="titleColor" red="0.85" green="0.15" blue="0.1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                </state>
+                                <connections>
+                                    <action selector="clickCRTest:" destination="BYZ-38-t0r" eventType="touchUpInside" id="CR2-t3-st9"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -47,6 +56,8 @@
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ixp-1w-3Vs"/>
                             <constraint firstItem="mE9-jZ-GW1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sJY-1J-bdG"/>
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="top" secondItem="mE9-jZ-GW1" secondAttribute="bottom" constant="8" symbolic="YES" id="t0d-wV-mJO"/>
+                            <constraint firstItem="CR1-t3-st8" firstAttribute="top" secondItem="O1G-sW-eRA" secondAttribute="bottom" constant="24" id="CR3-t3-st0"/>
+                            <constraint firstItem="CR1-t3-st8" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="CR4-t3-st1"/>
                         </constraints>
                     </view>
                 </viewController>
