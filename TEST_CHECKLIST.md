@@ -97,7 +97,7 @@
 |---|----------|---------|--------|-------|
 | SAN-1 | Basic play | `CONTENT_REQUEST` → `CONTENT_START` in order | ⬜ | |
 | SAN-2 | Pause / resume | `CONTENT_PAUSE` → `CONTENT_RESUME` | ⬜ | |
-| SAN-3 | Seek | `CONTENT_SEEK_START` → `CONTENT_SEEK_END` | ⬜ | |
+| SAN-3 | Seek | `CONTENT_SEEK_START` → `CONTENT_SEEK_END` | ✅ | Fixed in fix/tracker-safety-followups: NRTrackerAVPlayer now auto-detects seek via timeControlStatus; NRVAVideo exposes sendSeekStart:/sendSeekEnd: for custom players |
 | SAN-4 | Buffering mid-play | `CONTENT_BUFFER_START` → `CONTENT_BUFFER_END` | ⬜ | |
 | SAN-5 | Playback error | `CONTENT_ERROR` fires with error details | ⬜ | |
 | SAN-6 | End of video | `CONTENT_END` fires; tracker reusable for next video | ⬜ | |
