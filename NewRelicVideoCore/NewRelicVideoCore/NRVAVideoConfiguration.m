@@ -203,8 +203,8 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
         _debugLoggingEnabled = NO;
         _collectorAddress = nil; // Will use default based on region
-        _qoeAggregateEnabled = NO;
-        _qoeAggregateIntervalMultiplier = 1;
+        _qoeAggregateEnabled = YES;
+        _qoeAggregateIntervalMultiplier = 2;
         _obfuscationRules = nil;
     }
     return self;

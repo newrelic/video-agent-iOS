@@ -319,7 +319,8 @@ if shouldEnable {
 | `withApplicationToken(_:)` | `String` | — | **Required.** Your New Relic application token. |
 | `withHarvestCycle(_:)` | `Int` | 300 (Mobile) / 180 (TV) | Interval in seconds between data harvests. |
 | `withDebugLogging(_:)` | `Bool` | `false` | Enable debug logging for development. |
-| `withQoeAggregate(_:)` | `Bool` | `false` | Enable Quality of Experience event aggregation. |
+| `withQoeAggregateEnabled(_:)` | `Bool` | `true` | QoE aggregation is enabled out of the box. Disable with `withQoeAggregateEnabled(NO)`. |
+| `withQoeAggregateIntervalMultiplier(_:)` | `Int` | `2` | Multiplier applied to the harvest interval for QoE aggregation. Configure with `withQoeAggregateIntervalMultiplier:`. |
 
 ### NRVAVideoPlayerConfiguration
 
