@@ -544,4 +544,510 @@
     XCTAssertNil(result[KPI_PEAK_BITRATE], @"Negative bitrate should not be tracked");
 }
 
+#pragma mark - Download Rate
+
+- (void)testAvgDownloadRateIsArithmeticMean {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000), @"contentNetworkDownloadBitrate": @(2000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(4000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(6000000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    // (2M + 4M + 6M) / 3 = 4M — arithmetic mean of samples, NOT time-weighted
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(4000000));
+}
+
+- (void)testMinMaxDownloadRate {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000), @"contentNetworkDownloadBitrate": @(3000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(6000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(2000000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_MIN_DOWNLOAD_RATE], @(2000000));
+    XCTAssertEqualObjects(result[KPI_MAX_DOWNLOAD_RATE], @(6000000));
+}
+
+- (void)testDownloadRateAbsentWhenNoSamples {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNil(result[KPI_AVG_DOWNLOAD_RATE], @"Absent when no download rate sampled");
+    XCTAssertNil(result[KPI_MIN_DOWNLOAD_RATE]);
+    XCTAssertNil(result[KPI_MAX_DOWNLOAD_RATE]);
+}
+
+- (void)testDownloadRateIgnoresZeroNegativeAndNull {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000), @"contentNetworkDownloadBitrate": @(0)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(-500)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": [NSNull null]}
+                         isPlaying:YES];
+    // Only this one is a valid sample
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(5000000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(5000000));
+    XCTAssertEqualObjects(result[KPI_MIN_DOWNLOAD_RATE], @(5000000));
+    XCTAssertEqualObjects(result[KPI_MAX_DOWNLOAD_RATE], @(5000000));
+}
+
+- (void)testAvgDownloadRateRoundsToNearestInteger {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000), @"contentNetworkDownloadBitrate": @(1000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(1000001)}
+                         isPlaying:YES];
+    // (1000000 + 1000001) / 2 = 1000000.5 → rounds to 1000001
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(1000001));
+}
+
+- (void)testDownloadRateResetsBetweenSessions {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000), @"contentNetworkDownloadBitrate": @(9000000)}
+                         isPlaying:YES];
+    [self.aggregator reset];
+
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNil(result[KPI_AVG_DOWNLOAD_RATE], @"Should clear after reset");
+    XCTAssertNil(result[KPI_MIN_DOWNLOAD_RATE], @"min must not leak across sessions");
+    XCTAssertNil(result[KPI_MAX_DOWNLOAD_RATE], @"max must not leak across sessions");
+}
+
+#pragma mark - Rendition Switches
+
+- (void)testSwitchUpsCounted {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"up"}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"up"}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(2));
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(0));
+}
+
+- (void)testSwitchDownsCounted {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"down"}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(1));
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(0));
+}
+
+- (void)testMixedSwitchSequence {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    // up, down, down, up, up  → 3 ups, 2 downs
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"up"} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"down"} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"down"} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"up"} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"up"} isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(3));
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(2));
+}
+
+- (void)testSwitchIgnoresMissingNullAndUnknownShift {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    // No shift key at all
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{} isPlaying:YES];
+    // shift is NSNull
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": [NSNull null]} isPlaying:YES];
+    // shift is an unrecognized value
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"sideways"} isPlaying:YES];
+    // One valid "up" to prove the handler still works after the bad ones
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"up"} isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(1));
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(0));
+}
+
+- (void)testSwitchCountsEmittedAsZeroWhenNoChanges {
+    // Counts are always emitted (mirrors Android), reading 0 before any rendition change.
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(0));
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(0));
+}
+
+- (void)testSwitchCountsResetBetweenSessions {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START attributes:@{@"timeSinceRequested": @(1000)} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"up"} isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{@"shift": @"down"} isPlaying:YES];
+    [self.aggregator reset];
+
+    // New session: counts must start fresh at 0
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_UPS], @(0), @"ups must not leak across sessions");
+    XCTAssertEqualObjects(result[KPI_TOTAL_SWITCH_DOWNS], @(0), @"downs must not leak across sessions");
+}
+
+#pragma mark - Total Pause Time
+
+// Helper: drive the aggregator into a "post-CONTENT_START" steady state so each
+// pause-time test starts from the same baseline.
+- (void)beginPauseTestSession {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+}
+
+// Briefing case 1 — closed-only.
+// pause → resume → assert KPI equals timeSincePaused exactly.
+- (void)testTotalPauseTimeFromClosedSegmentOnly {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(2500)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(2500),
+                          @"Closed segment must equal timeSincePaused exactly — "
+                          @"no clock observation should leak in.");
+}
+
+// Briefing case 2 — mid-pause snapshot.
+// pause → wait → snapshot → assert open-segment delta is included AND that
+// the underlying accumulator was not mutated (catches the "local var, not self"
+// gotcha from the briefing).
+- (void)testTotalPauseTimeIncludesOpenSegmentMidPause {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [NSThread sleepForTimeInterval:0.05];
+
+    NSDictionary *snap = [self.aggregator generateAggregateAttributes];
+    long emitted = [snap[KPI_TOTAL_PAUSE_TIME] longValue];
+    XCTAssertGreaterThanOrEqual(emitted, 30,
+                                @"Open segment (~50ms) must be visible in mid-pause emit");
+    XCTAssertLessThan(emitted, 500, @"sanity bound — emit should be ~50ms, well under 500ms");
+
+    // KVC into the private accumulator: snapshot must NOT have written to self.
+    long banked = [[self.aggregator valueForKey:@"totalPauseTime"] longValue];
+    XCTAssertEqual(banked, 0L,
+                   @"Open-segment branch must use a local var. If self.totalPauseTime "
+                   @"got mutated here, the next RESUME will double-count.");
+}
+
+// Briefing case 3 — no double count.
+// pause → snapshot mid-pause → resume → snapshot → assert resume value is
+// exactly timeSincePaused. If the open-segment branch had leaked into self,
+// the post-resume value would be ~2500 + ~50ms = ~2550. The point of this
+// test is to fail fast if that regression is ever introduced.
+- (void)testTotalPauseTimeNoDoubleCountAfterResume {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [NSThread sleepForTimeInterval:0.05];
+
+    // Mid-pause snapshot — the trap. Discarded; we only care about the side effect.
+    (void)[self.aggregator generateAggregateAttributes];
+
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(2500)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(2500),
+                          @"Post-resume value must equal timeSincePaused exactly. "
+                          @"Any leftover from the mid-pause snapshot would double-count.");
+}
+
+// Multiple pause-resume cycles must accumulate, not overwrite.
+- (void)testTotalPauseTimeAccumulatesAcrossMultipleCycles {
+    [self beginPauseTestSession];
+
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(1000)}
+                         isPlaying:YES];
+
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(500)}
+                         isPlaying:YES];
+
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(750)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(2250),
+                          @"Three cycles of 1000+500+750 must sum to 2250");
+}
+
+// Pre-CONTENT_START "pauses" (e.g. weird player flow) must not appear in the
+// emitted dict — same gate as totalRebufferingTime.
+- (void)testTotalPauseTimeAbsentBeforeContentStart {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(1000)}
+                         isPlaying:NO];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNil(result[KPI_TOTAL_PAUSE_TIME],
+                 @"Pre-start pauses must be absent from the emit (hasReceivedStart gate)");
+}
+
+// reset() must clear both the closed accumulator AND the open-segment timer,
+// otherwise pause state from the previous session leaks into the new one.
+- (void)testResetClearsBothPauseFields {
+    [self beginPauseTestSession];
+
+    // Build up some closed-segment state and leave an open segment armed.
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(1234)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+
+    [self.aggregator reset];
+
+    XCTAssertEqual(0L, [[self.aggregator valueForKey:@"totalPauseTime"] longValue],
+                   @"reset must clear the closed-segment accumulator");
+    XCTAssertEqualWithAccuracy(0.0,
+                               [[self.aggregator valueForKey:@"pauseStartTimestamp"] doubleValue],
+                               0.0001,
+                               @"reset must disarm the open-segment timer — "
+                               @"otherwise the next emit would add a huge bogus delta.");
+}
+
+// CONTENT_RESUME without timeSincePaused in the dict must not crash and must
+// not poison the accumulator. The pauseStartTimestamp must still be disarmed
+// so the next snapshot doesn't keep adding a stale open segment.
+- (void)testTotalPauseTimeHandlesMissingTimeSincePausedAttribute {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME attributes:@{} isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(0),
+                          @"Missing timeSincePaused must be a graceful no-op (not a crash)");
+    XCTAssertEqualWithAccuracy(0.0,
+                               [[self.aggregator valueForKey:@"pauseStartTimestamp"] doubleValue],
+                               0.0001,
+                               @"Even without timeSincePaused, RESUME must disarm the timer.");
+}
+
+// Successive mid-pause snapshots during a long pause must report monotonically
+// increasing values. This is the live-harvest case the briefing's "verify
+// before declaring done" step calls out.
+- (void)testTotalPauseTimeGrowsMonotonicallyAcrossMidPauseHarvests {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+
+    [NSThread sleepForTimeInterval:0.03];
+    long snap1 = [[self.aggregator generateAggregateAttributes][KPI_TOTAL_PAUSE_TIME] longValue];
+
+    [NSThread sleepForTimeInterval:0.05];
+    long snap2 = [[self.aggregator generateAggregateAttributes][KPI_TOTAL_PAUSE_TIME] longValue];
+
+    [NSThread sleepForTimeInterval:0.05];
+    long snap3 = [[self.aggregator generateAggregateAttributes][KPI_TOTAL_PAUSE_TIME] longValue];
+
+    XCTAssertGreaterThan(snap2, snap1, @"second mid-pause snapshot must be > first");
+    XCTAssertGreaterThan(snap3, snap2, @"third mid-pause snapshot must be > second");
+}
+
+#pragma mark - Total Renditions
+
+// Helper: send a CONTENT_RENDITION_CHANGE with the given W/H. This is the
+// real path the set is fed from (CONTENT_HEARTBEAT does NOT touch the
+// set — rendition tracking is event-driven, not sample-driven).
+- (void)observeRenditionWidth:(long)width height:(long)height {
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"contentRenditionWidth":  @(width),
+                                     @"contentRenditionHeight": @(height)}
+                         isPlaying:YES];
+}
+
+// 3 distinct W×H pairs → count of 3.
+- (void)testTotalRenditionsCountsDistinctValues {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000),
+                                     @"contentRenditionWidth":  @(640),
+                                     @"contentRenditionHeight": @(360)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"up",
+                                     @"contentRenditionWidth":  @(1280),
+                                     @"contentRenditionHeight": @(720)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"up",
+                                     @"contentRenditionWidth":  @(1920),
+                                     @"contentRenditionHeight": @(1080)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(3),
+                          @"Three distinct W×H pairs should count as 3");
+}
+
+// Same W×H repeated → count of 1 (set dedup).
+- (void)testTotalRenditionsDedupsRepeatedValues {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000),
+                                     @"contentRenditionWidth":  @(1280),
+                                     @"contentRenditionHeight": @(720)}
+                         isPlaying:YES];
+    for (int i = 0; i < 10; i++) {
+        [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                            attributes:@{@"contentRenditionWidth":  @(1280),
+                                         @"contentRenditionHeight": @(720)}
+                             isPlaying:YES];
+    }
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(1),
+                          @"10 observations of the same W×H must count as 1");
+}
+
+// Initial rendition seeded at CONTENT_START — no RENDITION_CHANGE needed.
+// This is the iOS-specific fix: NRTrackerAVPlayer doesn't fire the change
+// event for the initial variant (NRTrackerAVPlayer.m:351-354).
+- (void)testTotalRenditionsSeedsFromContentStart {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000),
+                                     @"contentRenditionWidth":  @(1920),
+                                     @"contentRenditionHeight": @(1080)}
+                         isPlaying:YES];
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(1),
+                          @"CONTENT_START's W×H must seed the set without "
+                          @"requiring a CONTENT_RENDITION_CHANGE event.");
+}
+
+// Invalid values must never enter the set.
+- (void)testTotalRenditionsIgnoresInvalidValues {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+
+    // 0/negative
+    [self observeRenditionWidth:0 height:0];
+    [self observeRenditionWidth:-1 height:1080];
+    [self observeRenditionWidth:1920 height:-1];
+
+    // NSNull
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"contentRenditionWidth":  [NSNull null],
+                                     @"contentRenditionHeight": @(1080)}
+                         isPlaying:YES];
+
+    // Missing
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE attributes:@{} isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(0),
+                          @"None of the invalid inputs should enter the set");
+}
+
+// Always emitted, even at 0 (per spec §4 "Always (0 valid)").
+- (void)testTotalRenditionsEmittedWhenZero {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertNotNil(result[KPI_TOTAL_RENDITIONS],
+                    @"totalRenditions must be present even pre-CONTENT_START");
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(0),
+                          @"Pre-start value must be 0, not absent");
+}
+
+// reset() clears the set so a new session doesn't inherit prior renditions.
+- (void)testResetClearsPlayedRenditions {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000),
+                                     @"contentRenditionWidth":  @(640),
+                                     @"contentRenditionHeight": @(360)}
+                         isPlaying:YES];
+    [self observeRenditionWidth:1280 height:720];
+    [self observeRenditionWidth:1920 height:1080];
+    XCTAssertEqual(3u,
+                   [(NSSet *)[self.aggregator valueForKey:@"playedRenditions"] count]);
+
+    [self.aggregator reset];
+    XCTAssertEqual(0u,
+                   [(NSSet *)[self.aggregator valueForKey:@"playedRenditions"] count],
+                   @"reset must empty the set");
+}
+
+// Same W×H delivered via different event types must collide in the set —
+// 1280×720 from CONTENT_START and from CONTENT_RENDITION_CHANGE share a hash.
+- (void)testTotalRenditionsDedupsAcrossEventTypes {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000),
+                                     @"contentRenditionWidth":  @(1280),
+                                     @"contentRenditionHeight": @(720)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_RENDITION_CHANGE
+                        attributes:@{@"shift": @"none",
+                                     @"contentRenditionWidth":  @(1280),
+                                     @"contentRenditionHeight": @(720)}
+                         isPlaying:YES];
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_RENDITIONS], @(1),
+                          @"Same W×H seen via two different event types must dedupe");
+}
+
 @end
