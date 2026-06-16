@@ -54,6 +54,8 @@
 @property (nonatomic) long downloadRateSampleCount;                // how many readings we've seen
 @property (nonatomic, strong, nullable) NSNumber *minDownloadRate; // smallest reading so far
 @property (nonatomic, strong, nullable) NSNumber *maxDownloadRate; // largest reading so far
+// Last accepted sample. nil until the first observation.
+@property (nonatomic, strong, nullable) NSNumber *lastDownloadRateSample;
 
 // --- Rendition switch counts ---
 @property (nonatomic) long totalSwitchUps;    // count of quality upgrades   (shift == "up")
@@ -93,6 +95,7 @@
         self.downloadRateSampleCount = 0;
         self.minDownloadRate = nil;
         self.maxDownloadRate = nil;
+        self.lastDownloadRateSample = nil;
         self.totalSwitchUps = 0;
         self.totalSwitchDowns = 0;
         self.hadStartupError = NO;
@@ -445,7 +448,12 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
         return;
     }
 
-    // --- This is a valid reading. Update our 4 tallies. ---
+    if (self.lastDownloadRateSample != nil
+        && [self.lastDownloadRateSample longValue] == sample) {
+        return;
+    }
+    self.lastDownloadRateSample = @(sample);
+
     self.downloadRateSum += sample;
     self.downloadRateSampleCount += 1;
 

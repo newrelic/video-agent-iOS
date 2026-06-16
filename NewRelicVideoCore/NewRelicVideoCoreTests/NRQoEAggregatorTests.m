@@ -905,6 +905,94 @@
     XCTAssertGreaterThan(snap3, snap2, @"third mid-pause snapshot must be > second");
 }
 
+#pragma mark - Download Rate Dedup
+
+// Stale-sample dedup. AVPlayer's accessLog.events.lastObject keeps returning
+// the same entry between real network events, so every-event observation
+// would otherwise count the same throughput value over and over and bias the
+// average toward whichever rate was sticky during the longest idle window.
+- (void)testDownloadRateSkipsConsecutiveDuplicates {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    // 5 Mbps reported across 10 events — only the first is a real new download.
+    for (int i = 0; i < 10; i++) {
+        [self.aggregator processAction:CONTENT_HEARTBEAT
+                            attributes:@{@"contentNetworkDownloadBitrate": @(5000000)}
+                             isPlaying:YES];
+    }
+    // 7 Mbps reported across 5 events — only the first is a real new download.
+    for (int i = 0; i < 5; i++) {
+        [self.aggregator processAction:CONTENT_HEARTBEAT
+                            attributes:@{@"contentNetworkDownloadBitrate": @(7000000)}
+                             isPlaying:YES];
+    }
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    // True mean over the two distinct events: (5M + 7M) / 2 = 6M.
+    // Without dedup this would skew toward 5M because of the 10:5 weighting.
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(6000000),
+                          @"Stale repeats must be skipped — average reflects "
+                          @"distinct samples, not event count.");
+    XCTAssertEqualObjects(result[KPI_MIN_DOWNLOAD_RATE], @(5000000));
+    XCTAssertEqualObjects(result[KPI_MAX_DOWNLOAD_RATE], @(7000000));
+}
+
+// A → B → A pattern: dedup is consecutive only. If the rate genuinely returns
+// to a previous value (real new download that happens to clock the same), it
+// must count again — the access log entry is fresh, the value is just equal.
+- (void)testDownloadRateAcceptsNonConsecutiveDuplicates {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(3000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(7000000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(3000000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    // 3 distinct events: (3M + 7M + 3M) / 3 ≈ 4_333_333
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(4333333),
+                          @"A→B→A pattern: the second 3M is a fresh event, must count");
+}
+
+// Reset clears lastDownloadRateSample — a fresh session must accept the same
+// value the previous session ended on as a brand-new sample.
+- (void)testResetClearsLastDownloadRateSample {
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(5000000)}
+                         isPlaying:YES];
+
+    [self.aggregator reset];
+    XCTAssertNil([self.aggregator valueForKey:@"lastDownloadRateSample"],
+                 @"reset must clear lastDownloadRateSample");
+
+    // New session ending in the SAME 5M value — must count, not be deduped
+    // against the stale lastDownloadRateSample from before the reset.
+    [self.aggregator processAction:CONTENT_REQUEST attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_START
+                        attributes:@{@"timeSinceRequested": @(1000)}
+                         isPlaying:YES];
+    [self.aggregator processAction:CONTENT_HEARTBEAT
+                        attributes:@{@"contentNetworkDownloadBitrate": @(5000000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_AVG_DOWNLOAD_RATE], @(5000000),
+                          @"Post-reset session must accept the value as a new sample");
+}
+
 #pragma mark - Total Renditions
 
 // Helper: send a CONTENT_RENDITION_CHANGE with the given W/H. This is the
