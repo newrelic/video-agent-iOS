@@ -172,6 +172,10 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
         // Track bitrate from every content event for time-weighted average + peak
         [self updateBitrateFromAttributes:attributes];
 
+        // CONTENT_RENDITION_CHANGE. Recording here lets the first event carrying a valid
+        // W×H (e.g. CONTENT_BUFFER_END / heartbeat) seed the set. The Set dedups, so repeats don't over-count.
+        [self recordCurrentRenditionFromAttributes:attributes];
+
         // Action-specific KPI extraction via dispatch table
         QoEActionHandler handler = sActionHandlers[action];
         if (handler) {
