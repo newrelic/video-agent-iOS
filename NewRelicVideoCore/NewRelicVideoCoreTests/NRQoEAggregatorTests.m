@@ -905,6 +905,70 @@
     XCTAssertGreaterThan(snap3, snap2, @"third mid-pause snapshot must be > second");
 }
 
+#pragma mark - Ad-Break Pause Exclusion
+
+// A content pause that brackets an ad break (player paused for the ad) must NOT
+// be counted in totalPauseTime. isAdBreak is true at CONTENT_PAUSE (adBreakActive:YES)
+// but already cleared by CONTENT_RESUME (adBreakActive:NO) — the fix keys off the
+// armed timer, so the closed segment is skipped.
+- (void)testAdBreakPauseExcludedFromTotalPauseTime {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO adBreakActive:YES];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(30000)}
+                         isPlaying:YES adBreakActive:NO];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(0),
+                          @"Ad-break pause must be excluded from totalPauseTime");
+}
+
+// A real user pause still counts; an ad-break pause in the same view is excluded.
+// Proves the gate is selective, not a blanket suppression.
+- (void)testUserPauseCountsButAdBreakPauseDoesNot {
+    [self beginPauseTestSession];
+    // Real user pause — counts.
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO adBreakActive:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(5000)}
+                         isPlaying:YES adBreakActive:NO];
+    // Ad-break pause — excluded.
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO adBreakActive:YES];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(30000)}
+                         isPlaying:YES adBreakActive:NO];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(5000),
+                          @"Only the user pause counts; ad-break pause excluded");
+}
+
+// The 3-arg processAction: (no adBreakActive) must still count a normal pause —
+// backward-compatible default of adBreakActive:NO.
+- (void)testThreeArgProcessActionStillCountsPause {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO];
+    [self.aggregator processAction:CONTENT_RESUME
+                        attributes:@{@"timeSincePaused": @(4000)}
+                         isPlaying:YES];
+
+    NSDictionary *result = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(result[KPI_TOTAL_PAUSE_TIME], @(4000),
+                          @"3-arg API must behave as a non-ad-break (user) pause");
+}
+
+// A mid-ad-break harvest snapshot must not add an open segment for an ad-break pause
+// (the open-segment branch keys off pauseStartTimestamp, which was never armed).
+- (void)testAdBreakPauseNotInMidBreakSnapshot {
+    [self beginPauseTestSession];
+    [self.aggregator processAction:CONTENT_PAUSE attributes:@{} isPlaying:NO adBreakActive:YES];
+    [NSThread sleepForTimeInterval:0.05];
+
+    NSDictionary *snap = [self.aggregator generateAggregateAttributes];
+    XCTAssertEqualObjects(snap[KPI_TOTAL_PAUSE_TIME], @(0),
+                          @"Open ad-break pause must not appear in a mid-break snapshot");
+}
+
 #pragma mark - Download Rate Dedup
 
 // Stale-sample dedup. AVPlayer's accessLog.events.lastObject keeps returning

@@ -11,6 +11,7 @@
 
 @interface NRQoEAggregator () {
     long _totalPreRollAdTime;  // Instance variable for startup calculation
+    BOOL _adBreakActive;       // YES while the current content event occurs during an ad break
 }
 
 // --- Lifecycle flags ---
@@ -105,6 +106,7 @@
         self.pauseStartTimestamp = 0;
         self.playedRenditions = [NSMutableSet set];
         _totalPreRollAdTime = 0;
+        _adBreakActive = NO;
     }
 }
 
@@ -150,7 +152,14 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 // At this point, the tracker pipeline has already assembled all attributes
 // (timeSince values, bitrate, playtime, bufferType, etc.), so we just read them.
 - (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying {
+    [self processAction:action attributes:attributes isPlaying:isPlaying adBreakActive:NO];
+}
+
+- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying adBreakActive:(BOOL)adBreakActive {
     @synchronized (self) {
+        // Stash ad-break state before the action handler runs (handlePause reads it).
+        _adBreakActive = adBreakActive;
+
         // Always grab the latest totalPlaytime — the tracker updates this before every event
         NSNumber *playtime = attributes[@"totalPlaytime"];
         if (playtime) {
@@ -375,6 +384,11 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 // CONTENT_PAUSE: arm the open-segment timer. The closed-segment accumulator
 // is NOT touched here — it gets fed by timeSincePaused on the matching RESUME.
 - (void)handlePause {
+    // A content pause during an ad break is the player paused for the ad, not a
+    // user pause — don't arm the timer, so it isn't counted in totalPauseTime.
+    if (_adBreakActive) {
+        return;
+    }
     self.pauseStartTimestamp = [[NSDate date] timeIntervalSince1970];
 }
 
@@ -383,8 +397,9 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 //
 // IMPORTANT: pauseStartTimestamp = 0 MUST happen here.
 - (void)handleResumeWithAttributes:(NSDictionary *)attributes {
+    // Only bank the closed segment if the matching pause armed the timer.
     NSNumber *timeSincePaused = attributes[@"timeSincePaused"];
-    if (timeSincePaused) {
+    if (timeSincePaused && self.pauseStartTimestamp > 0) {
         self.totalPauseTime += [timeSincePaused longValue];
     }
     self.pauseStartTimestamp = 0;

@@ -292,7 +292,10 @@
         if ([action isEqualToString:CONTENT_START] && self.qoeAggregator) {
             [self.qoeAggregator setTotalPreRollAdTime:self.totalPreRollAdTime];
         }
-        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
+        // A CONTENT_PAUSE during a break is the player paused for the ad, not a user pause.
+        BOOL adBreakActive = [self.linkedTracker isKindOfClass:[NRVideoTracker class]]
+                             && ((NRVideoTracker *)self.linkedTracker).state.isAdBreak;
+        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying adBreakActive:adBreakActive];
         self.lastContentEventAttributes = [attributes copy];
     }
 
