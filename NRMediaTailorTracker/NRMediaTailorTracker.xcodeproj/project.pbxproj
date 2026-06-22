@@ -16,7 +16,40 @@
 		9CA0010725A4965F00000001 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CA0010825A4965F00000001 /* PrivacyInfo.xcprivacy */; };
 		9CA0010925A4965F00000001 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CA0010825A4965F00000001 /* PrivacyInfo.xcprivacy */; };
 		9CA0011A25A4965F00000001 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA0011925A4965F00000001 /* NewRelicVideoCore.framework */; };
+		AB100001000000000000A000 /* MTDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = AB100000000000000000A000 /* MTDetector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AB100002000000000000A000 /* MTDetector.h in Headers */ = {isa = PBXBuildFile; fileRef = AB100000000000000000A000 /* MTDetector.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		AB100003000000000000A000 /* MTDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = AB100000000000000000A001 /* MTDetector.m */; };
+		AB100004000000000000A000 /* MTDetector.m in Sources */ = {isa = PBXBuildFile; fileRef = AB100000000000000000A001 /* MTDetector.m */; };
+		AB100005000000000000A000 /* MTDetectorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = AB100000000000000000A002 /* MTDetectorTests.m */; };
+		AB100006000000000000A000 /* NRMediaTailorTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */; };
+		AB100010000000000000A000 /* NRMediaTailorTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		AB100011000000000000A000 /* NewRelicVideoCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA0011925A4965F00000001 /* NewRelicVideoCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AB100020000000000000A000 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9CA000F525A4965F00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CA000FD25A4965F00000001;
+			remoteInfo = "NRMediaTailorTracker-iOS";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AB100033000000000000A000 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				AB100010000000000000A000 /* NRMediaTailorTracker.framework in Embed Frameworks */,
+				AB100011000000000000A000 /* NewRelicVideoCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRMediaTailorTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -27,6 +60,11 @@
 		9CA0010C25A4965F00000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CA0011625A4965F00000001 /* NRMediaTailorTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRMediaTailorTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CA0011925A4965F00000001 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NewRelicVideoCore.framework; path = "../NewRelicVideoCore/build/Debug-iphonesimulator/NewRelicVideoCore.framework"; sourceTree = "<group>"; };
+		AB100000000000000000A000 /* MTDetector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDetector.h; sourceTree = "<group>"; };
+		AB100000000000000000A001 /* MTDetector.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDetector.m; sourceTree = "<group>"; };
+		AB100000000000000000A002 /* MTDetectorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDetectorTests.m; sourceTree = "<group>"; };
+		AB100000000000000000A003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AB100000000000000000A004 /* NRMediaTailorTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NRMediaTailorTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -45,6 +83,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AB100030000000000000A000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB100006000000000000A000 /* NRMediaTailorTracker.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -54,6 +100,7 @@
 				9CA0010825A4965F00000001 /* PrivacyInfo.xcprivacy */,
 				9CA0011925A4965F00000001 /* NewRelicVideoCore.framework */,
 				9CA0010F25A4965F00000001 /* NRMediaTailorTracker */,
+				AB100040000000000000A000 /* NRMediaTailorTrackerTests */,
 				9CA000FF25A4965F00000001 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -63,6 +110,7 @@
 			children = (
 				9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */,
 				9CA0011625A4965F00000001 /* NRMediaTailorTracker.framework */,
+				AB100000000000000000A004 /* NRMediaTailorTrackerTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -71,6 +119,7 @@
 			isa = PBXGroup;
 			children = (
 				9CA0011025A4965F00000001 /* Tracker */,
+				AB100041000000000000A000 /* Detection */,
 				9CA0010025A4965F00000001 /* NRMediaTailorTracker.h */,
 				9CA0010C25A4965F00000001 /* Info.plist */,
 			);
@@ -86,6 +135,24 @@
 			path = Tracker;
 			sourceTree = "<group>";
 		};
+		AB100040000000000000A000 /* NRMediaTailorTrackerTests */ = {
+			isa = PBXGroup;
+			children = (
+				AB100000000000000000A002 /* MTDetectorTests.m */,
+				AB100000000000000000A003 /* Info.plist */,
+			);
+			path = NRMediaTailorTrackerTests;
+			sourceTree = "<group>";
+		};
+		AB100041000000000000A000 /* Detection */ = {
+			isa = PBXGroup;
+			children = (
+				AB100000000000000000A000 /* MTDetector.h */,
+				AB100000000000000000A001 /* MTDetector.m */,
+			);
+			path = Detection;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -95,6 +162,7 @@
 			files = (
 				9CA0010125A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
 				9CA0010325A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
+				AB100001000000000000A000 /* MTDetector.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +172,7 @@
 			files = (
 				9CA0010225A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
 				9CA0010425A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
+				AB100002000000000000A000 /* MTDetector.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -146,6 +215,25 @@
 			productReference = 9CA0011625A4965F00000001 /* NRMediaTailorTracker.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		AB100050000000000000A000 /* NRMediaTailorTrackerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB100070000000000000A000 /* Build configuration list for PBXNativeTarget "NRMediaTailorTrackerTests" */;
+			buildPhases = (
+				AB100031000000000000A000 /* Sources */,
+				AB100030000000000000A000 /* Frameworks */,
+				AB100032000000000000A000 /* Resources */,
+				AB100033000000000000A000 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AB100051000000000000A000 /* PBXTargetDependency */,
+			);
+			name = NRMediaTailorTrackerTests;
+			productName = NRMediaTailorTrackerTests;
+			productReference = AB100000000000000000A004 /* NRMediaTailorTrackerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -159,6 +247,10 @@
 					};
 					9CA0011525A4965F00000001 = {
 						CreatedOnToolsVersion = 12.1;
+					};
+					AB100050000000000000A000 = {
+						CreatedOnToolsVersion = 12.1;
+						TestTargetID = 9CA000FD25A4965F00000001;
 					};
 				};
 			};
@@ -177,6 +269,7 @@
 			targets = (
 				9CA000FD25A4965F00000001 /* NRMediaTailorTracker-iOS */,
 				9CA0011525A4965F00000001 /* NRMediaTailorTracker-tvOS */,
+				AB100050000000000000A000 /* NRMediaTailorTrackerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -198,6 +291,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AB100032000000000000A000 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -206,6 +306,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010525A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
+				AB100003000000000000A000 /* MTDetector.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -214,10 +315,27 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010625A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
+				AB100004000000000000A000 /* MTDetector.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB100031000000000000A000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB100005000000000000A000 /* MTDetectorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AB100051000000000000A000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 9CA000FD25A4965F00000001 /* NRMediaTailorTracker-iOS */;
+			targetProxy = AB100020000000000000A000 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		9CA0011B25A4965F00000001 /* Debug */ = {
@@ -474,6 +592,72 @@
 			};
 			name = Release;
 		};
+		AB100060000000000000A000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphonesimulator",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = NRMediaTailorTrackerTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphonesimulator",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphoneos",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRMediaTailorTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AB100061000000000000A000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphonesimulator",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphoneos",
+				);
+				INFOPLIST_FILE = NRMediaTailorTrackerTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphonesimulator",
+					"$(PROJECT_DIR)/../NewRelicVideoCore/build/Debug-iphoneos",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRMediaTailorTrackerTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -500,6 +684,15 @@
 			buildConfigurations = (
 				9CA0012125A4965F00000001 /* Debug */,
 				9CA0012225A4965F00000001 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AB100070000000000000A000 /* Build configuration list for PBXNativeTarget "NRMediaTailorTrackerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB100060000000000000A000 /* Debug */,
+				AB100061000000000000A000 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
