@@ -1,11 +1,12 @@
 //
-//  NRTrackerMediaTailor.swift
+//  NRTrackerMediaTailor.m
 //  NRMediaTailorTracker
 //
 //  New Relic Video Agent — AWS MediaTailor ad tracker for AVPlayer.
-//  Subclasses NRVideoTracker (NewRelicVideoCore). Mirrors NRTrackerIMA's role:
-//  passive observer that detects MediaTailor ads inside an AVPlayer stream and
-//  emits AD_BREAK_START / AD_START / AD_QUARTILE / AD_END / AD_BREAK_END / AD_ERROR.
+//  Subclasses NRVideoTracker (NewRelicVideoCore). Mirrors NRTrackerIMA's
+//  role: a passive observer that detects MediaTailor ads inside an
+//  AVPlayer stream and emits AD_BREAK_START / AD_START / AD_QUARTILE /
+//  AD_END / AD_BREAK_END / AD_ERROR.
 //
 //  ---------------------------------------------------------------------------
 //  SDK-Boundary Anti-Pattern Guardrails (do NOT do these)
@@ -27,21 +28,8 @@
 //  ---------------------------------------------------------------------------
 //
 
-import Foundation
-import AVFoundation
-import NewRelicVideoCore
+#import "NRTrackerMediaTailor.h"
 
-/// `NRTrackerMediaTailor` detects AWS MediaTailor server-side-stitched ads inside an
-/// `AVPlayer` stream and emits New Relic ad telemetry events, in parity with
-/// `NRTrackerIMA`.
-///
-/// This is the public entry point of the `NRMediaTailorTracker` module. The full
-/// tracker logic lands in tasks T02–T09; this scaffold compiles as a stub.
-@objc(NRTrackerMediaTailor)
-@objcMembers
-public class NRTrackerMediaTailor: NRVideoTracker {
+@implementation NRTrackerMediaTailor
 
-    public override init() {
-        super.init()
-    }
-}
+@end
