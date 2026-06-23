@@ -29,7 +29,16 @@
 //
 
 #import "NRTrackerMediaTailor.h"
+#import "MTManifestParser.h"
+
+@interface NRTrackerMediaTailor ()
+@property (nonatomic, strong, nullable) id<MTManifestParser> manifestParser;
+@end
 
 @implementation NRTrackerMediaTailor
+
+- (void)setManifestParser:(id<MTManifestParser>)parser {
+    _manifestParser = parser;
+}
 
 @end

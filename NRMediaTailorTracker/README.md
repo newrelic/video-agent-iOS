@@ -58,6 +58,10 @@ The tracker emits the standard New Relic ad event vocabulary, plus `AD_ERROR`. S
 
 Both platforms ship in v1. AVPlayer API is shared, so the bulk of the module is platform-agnostic; any UIKit-only call is `#if TARGET_OS_IOS` guarded.
 
+## DASH adapter seam
+
+V1 ships an HLS parser only. DASH is not first-class in `AVPlayer`, so customers using a third-party DASH player (THEOplayer, Bitmovin, Shaka) can plug their own manifest parser into the tracker by conforming to the `MTManifestParser` Obj-C protocol and injecting the parser with `-[NRTrackerMediaTailor setManifestParser:]`. The protocol exposes one method, `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. The built-in `MTHlsParser` conforms to it directly. A stub `MTDashParser` ships alongside as a placeholder; it returns an empty `MTManifestParseResult` and logs a warning so a misconfigured customer notices immediately. A real DASH parser is a fast-follow module — the seam means a customer can ship one without forking the SDK.
+
 ## References
 
 - [`NRMediaTailorTracker_FEATURE_SPEC.md`](../NRMediaTailorTracker_FEATURE_SPEC.md) — full spec, parity surface, locked decisions
