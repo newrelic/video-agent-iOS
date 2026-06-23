@@ -93,6 +93,15 @@
 		FA100003000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
 		FA100004000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
 		FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA200000000000000000A000 /* MTManifestParserSeamTests.m */; };
+		DB100001000000000000A000 /* MergedSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB100000000000000000A000 /* MergedSchedule.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB100002000000000000A000 /* MergedSchedule.h in Headers */ = {isa = PBXBuildFile; fileRef = DB100000000000000000A000 /* MergedSchedule.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB100003000000000000A000 /* MergedSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A000 /* MergedSchedule.m */; };
+		DB100004000000000000A000 /* MergedSchedule.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A000 /* MergedSchedule.m */; };
+		DB100001000000000000A001 /* MTAdScheduleMerger.h in Headers */ = {isa = PBXBuildFile; fileRef = DB100000000000000000A001 /* MTAdScheduleMerger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB100002000000000000A001 /* MTAdScheduleMerger.h in Headers */ = {isa = PBXBuildFile; fileRef = DB100000000000000000A001 /* MTAdScheduleMerger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		DB100003000000000000A001 /* MTAdScheduleMerger.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A001 /* MTAdScheduleMerger.m */; };
+		DB100004000000000000A001 /* MTAdScheduleMerger.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A001 /* MTAdScheduleMerger.m */; };
+		DB200001000000000000A000 /* MTAdScheduleMergerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB200000000000000000A000 /* MTAdScheduleMergerTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -176,6 +185,11 @@
 		FA100000000000000000A001 /* MTDashParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDashParser.h; sourceTree = "<group>"; };
 		FA100010000000000000A001 /* MTDashParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParser.m; sourceTree = "<group>"; };
 		FA200000000000000000A000 /* MTManifestParserSeamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParserSeamTests.m; sourceTree = "<group>"; };
+		DB100000000000000000A000 /* MergedSchedule.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MergedSchedule.h; sourceTree = "<group>"; };
+		DB100010000000000000A000 /* MergedSchedule.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MergedSchedule.m; sourceTree = "<group>"; };
+		DB100000000000000000A001 /* MTAdScheduleMerger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdScheduleMerger.h; sourceTree = "<group>"; };
+		DB100010000000000000A001 /* MTAdScheduleMerger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdScheduleMerger.m; sourceTree = "<group>"; };
+		DB200000000000000000A000 /* MTAdScheduleMergerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdScheduleMergerTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -236,6 +250,7 @@
 				CE300040000000000000A000 /* Net */,
 				9CA0010025A4965F00000001 /* NRMediaTailorTracker.h */,
 				9CA0010C25A4965F00000001 /* Info.plist */,
+							DB100040000000000000A000 /* Scheduler */,
 			);
 			path = NRMediaTailorTracker;
 			sourceTree = "<group>";
@@ -258,6 +273,7 @@
 				CD200041000000000000A000 /* Fixtures */,
 				AB100000000000000000A002 /* MTDetectorTests.m */,
 				AB100000000000000000A003 /* Info.plist */,
+							DB200040000000000000A000 /* Scheduler */,
 			);
 			path = NRMediaTailorTrackerTests;
 			sourceTree = "<group>";
@@ -370,6 +386,25 @@
 			path = Net;
 			sourceTree = "<group>";
 		};
+		DB100040000000000000A000 /* Scheduler */ = {
+			isa = PBXGroup;
+			children = (
+				DB100000000000000000A000 /* MergedSchedule.h */,
+				DB100010000000000000A000 /* MergedSchedule.m */,
+				DB100000000000000000A001 /* MTAdScheduleMerger.h */,
+				DB100010000000000000A001 /* MTAdScheduleMerger.m */,
+			);
+			path = Scheduler;
+			sourceTree = "<group>";
+		};
+		DB200040000000000000A000 /* Scheduler */ = {
+			isa = PBXGroup;
+			children = (
+				DB200000000000000000A000 /* MTAdScheduleMergerTests.m */,
+			);
+			path = Scheduler;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -378,6 +413,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010125A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
+				DB100001000000000000A000 /* MergedSchedule.h in Headers */,
+				DB100001000000000000A001 /* MTAdScheduleMerger.h in Headers */,
 				9CA0010325A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
 				AB100001000000000000A000 /* MTDetector.h in Headers */,
 				CD100001000000000000A000 /* MTAdErrorCode.h in Headers */,
@@ -402,6 +439,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010225A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
+				DB100002000000000000A000 /* MergedSchedule.h in Headers */,
+				DB100002000000000000A001 /* MTAdScheduleMerger.h in Headers */,
 				9CA0010425A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
 				AB100002000000000000A000 /* MTDetector.h in Headers */,
 				CD100002000000000000A000 /* MTAdErrorCode.h in Headers */,
@@ -561,6 +600,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010525A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
+				DB100003000000000000A000 /* MergedSchedule.m in Sources */,
+				DB100003000000000000A001 /* MTAdScheduleMerger.m in Sources */,
 				AB100003000000000000A000 /* MTDetector.m in Sources */,
 				CD100003000000000000A000 /* MTAdErrorCode.m in Sources */,
 				CD100003000000000000A001 /* MTTrackingEvent.m in Sources */,
@@ -583,6 +624,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CA0010625A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
+				DB100004000000000000A000 /* MergedSchedule.m in Sources */,
+				DB100004000000000000A001 /* MTAdScheduleMerger.m in Sources */,
 				AB100004000000000000A000 /* MTDetector.m in Sources */,
 				CD100004000000000000A000 /* MTAdErrorCode.m in Sources */,
 				CD100004000000000000A001 /* MTTrackingEvent.m in Sources */,
@@ -605,6 +648,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB100005000000000000A000 /* MTDetectorTests.m in Sources */,
+				DB200001000000000000A000 /* MTAdScheduleMergerTests.m in Sources */,
 				CD200001000000000000A000 /* MTTrackingResponseDecodeTests.m in Sources */,
 				CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */,
 				EE200001000000000000A000 /* MTHlsParserTests.m in Sources */,
