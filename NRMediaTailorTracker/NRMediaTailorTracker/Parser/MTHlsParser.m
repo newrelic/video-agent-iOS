@@ -53,7 +53,18 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     NSArray<NSString *> *markers = [self resolveMarkers:customSegmentMarkers];
 
     NSURL *trackingURL = [self findTrackingURLInLines:lines manifestURL:manifestURL];
-    NSArray<MTAdBreak *> *breaks = [self buildBreaksFromLines:lines markers:markers];
+    NSMutableArray<NSDictionary<NSString *, NSString *> *> *dateRangeBreakCandidates = [NSMutableArray array];
+    NSArray<MTAdBreak *> *breaks = [self buildBreaksFromLines:lines
+                                                       markers:markers
+                                       dateRangeBreakCandidates:dateRangeBreakCandidates];
+
+    // Bug A2 / atomic facts §6 — surface DATERANGE-only avails as no-fill
+    // breaks so the merger (T06) emits AD_BREAK_START → AD_BREAK_END for
+    // ad-server-failure / unstitched avails even when the tracking-API path
+    // is unavailable or silent.
+    if (breaks.count == 0 && dateRangeBreakCandidates.count > 0) {
+        breaks = [self synthesizeNoFillBreaksFromCandidates:dateRangeBreakCandidates];
+    }
 
     return [[MTManifestParseResult alloc] initWithTrackingURL:trackingURL breaks:breaks];
 }
@@ -89,7 +100,8 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
 #pragma mark - Break / pod construction
 
 + (NSArray<MTAdBreak *> *)buildBreaksFromLines:(NSArray<NSString *> *)lines
-                                       markers:(NSArray<NSString *> *)markers {
+                                       markers:(NSArray<NSString *> *)markers
+                      dateRangeBreakCandidates:(NSMutableArray<NSDictionary<NSString *, NSString *> *> *)dateRangeBreakCandidates {
     NSMutableArray<MTAdBreak *> *out = [NSMutableArray array];
 
     MTAdBreak *currentBreak = nil;
@@ -104,6 +116,15 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
         NSString *line = [raw stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (line.length == 0) continue;
 
+        if ([line hasPrefix:kMTDateRangeTag]) {
+            NSDictionary<NSString *, NSString *> *attrs = [self parseAttributes:line afterTag:kMTDateRangeTag];
+            NSString *classAttr = attrs[@"CLASS"];
+            if ([classAttr isEqualToString:kMTTrackingClassInterstitial] ||
+                [classAttr isEqualToString:kMTTrackingClassTracking]) {
+                [dateRangeBreakCandidates addObject:attrs];
+            }
+            continue;
+        }
         if ([line hasPrefix:kMTDiscontinuityTag] &&
             ![line hasPrefix:@"#EXT-X-DISCONTINUITY-SEQUENCE"]) {
             pendingDiscontinuity = YES;
@@ -197,6 +218,38 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     if (br == nil) return;
     if (br.durationMs < kMTMinAdDurationMs) return;
     [out addObject:br];
+}
+
+#pragma mark - No-fill synthesis (Bug A2 / atomic facts §6)
+
+// Given DATERANGE entries with an ad-break CLASS and no matching ad-segment
+// breaks in the manifest, synthesise placeholder MTAdBreaks marked `isNoFill`
+// so the merger (T06) and state machine (T07) can emit AD_BREAK_START /
+// AD_BREAK_END + AD_ERROR(NO_FILL) without depending on the tracking-API.
++ (NSArray<MTAdBreak *> *)synthesizeNoFillBreaksFromCandidates:
+    (NSArray<NSDictionary<NSString *, NSString *> *> *)candidates {
+    NSMutableArray<MTAdBreak *> *out = [NSMutableArray array];
+    for (NSDictionary<NSString *, NSString *> *attrs in candidates) {
+        NSString *availId  = attrs[@"ID"];
+        NSString *duration = attrs[@"DURATION"];
+        NSString *startDate = attrs[@"START-DATE"];
+
+        NSTimeInterval durationMs = duration.length > 0 ? duration.doubleValue * 1000.0 : 0.0;
+        if (durationMs < 0.0) durationMs = 0.0;
+
+        // startTimeMs is unknown without a PROGRAM-DATE-TIME anchor → 0.
+        // The merger will reconcile with the tracking-API timeline when
+        // present, or fall back to the player's current playhead.
+        MTAdBreak *br = [[MTAdBreak alloc] initWithAvailId:(availId.length > 0 ? availId : @"hls-nofill")
+                                              startTimeMs:0.0
+                                               durationMs:durationMs];
+        br.isNoFill = YES;
+        if (startDate.length > 0) {
+            br.availProgramDateTime = startDate;
+        }
+        [out addObject:br];
+    }
+    return [out copy];
 }
 
 #pragma mark - Helpers — segment marker matching

@@ -162,7 +162,7 @@
 
 #pragma mark - Empty avail manifest
 
-- (void)testParse_EmptyAvailManifest_recoversTrackingURLButNoBreaks {
+- (void)testParse_EmptyAvailManifest_emitsNoFillBreakFromDateRange {
     NSString *manifest = [self loadFixture:@"mediatailor_empty_avail"];
     MTManifestParseResult *result = [MTHlsParser parseManifestText:manifest];
 
@@ -170,8 +170,29 @@
                     @"DATERANGE is still present — tracking URL must be recovered even when stitched content has no ad segments");
     XCTAssertEqualObjects(result.trackingURL.absoluteString,
                           @"https://abc.mediatailor.us-east-1.amazonaws.com/v1/tracking/abcd/sess-empty");
-    XCTAssertEqual(result.breaks.count, (NSUInteger)0,
-                   @"No ad segments stitched in the manifest → no breaks detected");
+
+    // Atomic facts §6 — ad-server failure: tracker must emit AD_BREAK_START
+    // / AD_BREAK_END for the slot even though no ad segments were stitched.
+    // Parser surfaces a no-fill placeholder break so the merger / state
+    // machine doesn't need the tracking-API path to recognise this case.
+    XCTAssertEqual(result.breaks.count, (NSUInteger)1,
+                   @"DATERANGE-only avail must surface as a no-fill placeholder break");
+    MTAdBreak *br = result.breaks.firstObject;
+    XCTAssertTrue(br.isNoFill, @"DATERANGE-only break must be flagged isNoFill");
+    XCTAssertEqual(br.pods.count, (NSUInteger)0, @"No-fill break has zero pods");
+    XCTAssertEqualObjects(br.availId, @"avail-empty");
+    XCTAssertEqualObjects(br.availProgramDateTime, @"2026-06-22T20:00:00.000Z");
+}
+
+- (void)testParse_RealBreakPresent_DateRangeIsAbsorbedNotDuplicated {
+    // Fixture 1 has both a DATERANGE entry AND real ad segments — the
+    // DATERANGE must NOT produce a second (no-fill) break. The real break
+    // takes precedence.
+    NSString *manifest = [self loadFixture:@"mediatailor_vod_with_daterange"];
+    MTManifestParseResult *result = [MTHlsParser parseManifestText:manifest];
+
+    XCTAssertEqual(result.breaks.count, (NSUInteger)1);
+    XCTAssertFalse(result.breaks.firstObject.isNoFill);
 }
 
 #pragma mark - Min ad duration filter

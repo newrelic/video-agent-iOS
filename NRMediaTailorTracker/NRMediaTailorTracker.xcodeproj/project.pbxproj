@@ -93,7 +93,6 @@
 		FA100003000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
 		FA100004000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
 		FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA200000000000000000A000 /* MTManifestParserSeamTests.m */; };
-		FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA200000000000000000A000 /* MTManifestParserSeamTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -176,7 +175,6 @@
 		FA100000000000000000A000 /* MTManifestParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTManifestParser.h; sourceTree = "<group>"; };
 		FA100000000000000000A001 /* MTDashParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDashParser.h; sourceTree = "<group>"; };
 		FA100010000000000000A001 /* MTDashParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParser.m; sourceTree = "<group>"; };
-		FA200000000000000000A000 /* MTManifestParserSeamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParserSeamTests.m; sourceTree = "<group>"; };
 		FA200000000000000000A000 /* MTManifestParserSeamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParserSeamTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -325,7 +323,7 @@
 				EE100010000000000000A001 /* MTManifestParseResult.m */,
 				EE100000000000000000A000 /* MTHlsParser.h */,
 				EE100010000000000000A000 /* MTHlsParser.m */,
-							FA100000000000000000A000 /* MTManifestParser.h */,
+				FA100000000000000000A000 /* MTManifestParser.h */,
 				FA100000000000000000A001 /* MTDashParser.h */,
 				FA100010000000000000A001 /* MTDashParser.m */,
 			);
@@ -337,7 +335,6 @@
 			children = (
 				EE200000000000000000A000 /* MTHlsParserTests.m */,
 				FA200000000000000000A000 /* MTManifestParserSeamTests.m */,
-							FA200000000000000000A000 /* MTManifestParserSeamTests.m */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
