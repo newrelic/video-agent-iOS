@@ -24,6 +24,45 @@
 		AB100006000000000000A000 /* NRMediaTailorTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */; };
 		AB100010000000000000A000 /* NRMediaTailorTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA000FE25A4965F00000001 /* NRMediaTailorTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB100011000000000000A000 /* NewRelicVideoCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 9CA0011925A4965F00000001 /* NewRelicVideoCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		CD100001000000000000A000 /* MTAdErrorCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A000 /* MTAdErrorCode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A000 /* MTAdErrorCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A000 /* MTAdErrorCode.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A000 /* MTAdErrorCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A000 /* MTAdErrorCode.m */; };
+		CD100004000000000000A000 /* MTAdErrorCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A000 /* MTAdErrorCode.m */; };
+		CD100001000000000000A001 /* MTTrackingEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A001 /* MTTrackingEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A001 /* MTTrackingEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A001 /* MTTrackingEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A001 /* MTTrackingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A001 /* MTTrackingEvent.m */; };
+		CD100004000000000000A001 /* MTTrackingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A001 /* MTTrackingEvent.m */; };
+		CD100001000000000000A002 /* MTAd.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A002 /* MTAd.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A002 /* MTAd.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A002 /* MTAd.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A002 /* MTAd.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A002 /* MTAd.m */; };
+		CD100004000000000000A002 /* MTAd.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A002 /* MTAd.m */; };
+		CD100001000000000000A003 /* MTAvail.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A003 /* MTAvail.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A003 /* MTAvail.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A003 /* MTAvail.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A003 /* MTAvail.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A003 /* MTAvail.m */; };
+		CD100004000000000000A003 /* MTAvail.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A003 /* MTAvail.m */; };
+		CD100001000000000000A004 /* MTNonLinearAvail.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A004 /* MTNonLinearAvail.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A004 /* MTNonLinearAvail.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A004 /* MTNonLinearAvail.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A004 /* MTNonLinearAvail.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A004 /* MTNonLinearAvail.m */; };
+		CD100004000000000000A004 /* MTNonLinearAvail.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A004 /* MTNonLinearAvail.m */; };
+		CD100001000000000000A005 /* MTTrackingResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A005 /* MTTrackingResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A005 /* MTTrackingResponse.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A005 /* MTTrackingResponse.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A005 /* MTTrackingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A005 /* MTTrackingResponse.m */; };
+		CD100004000000000000A005 /* MTTrackingResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A005 /* MTTrackingResponse.m */; };
+		CD100001000000000000A006 /* MTAdPod.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A006 /* MTAdPod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A006 /* MTAdPod.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A006 /* MTAdPod.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A006 /* MTAdPod.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A006 /* MTAdPod.m */; };
+		CD100004000000000000A006 /* MTAdPod.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A006 /* MTAdPod.m */; };
+		CD100001000000000000A007 /* MTAdBreak.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A007 /* MTAdBreak.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100002000000000000A007 /* MTAdBreak.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A007 /* MTAdBreak.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CD100003000000000000A007 /* MTAdBreak.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A007 /* MTAdBreak.m */; };
+		CD100004000000000000A007 /* MTAdBreak.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A007 /* MTAdBreak.m */; };
+		CD200001000000000000A000 /* MTTrackingResponseDecodeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CD200000000000000000A000 /* MTTrackingResponseDecodeTests.m */; };
+		CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CD200000000000000000A001 /* MTAdDecodeTests.m */; };
+		CD200002000000000000A000 /* tracking_full.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A000 /* tracking_full.json */; };
+		CD200002000000000000A001 /* tracking_empty_ads.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A001 /* tracking_empty_ads.json */; };
+		CD200002000000000000A002 /* tracking_with_nexttoken.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A002 /* tracking_with_nexttoken.json */; };
+		CD200002000000000000A003 /* tracking_missing_creativeId.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A003 /* tracking_missing_creativeId.json */; };
+		CD200002000000000000A004 /* tracking_live.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A004 /* tracking_live.json */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -65,6 +104,29 @@
 		AB100000000000000000A002 /* MTDetectorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDetectorTests.m; sourceTree = "<group>"; };
 		AB100000000000000000A003 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AB100000000000000000A004 /* NRMediaTailorTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NRMediaTailorTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD100000000000000000A000 /* MTAdErrorCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdErrorCode.h; sourceTree = "<group>"; };
+		CD100010000000000000A000 /* MTAdErrorCode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdErrorCode.m; sourceTree = "<group>"; };
+		CD100000000000000000A001 /* MTTrackingEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTTrackingEvent.h; sourceTree = "<group>"; };
+		CD100010000000000000A001 /* MTTrackingEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingEvent.m; sourceTree = "<group>"; };
+		CD100000000000000000A002 /* MTAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAd.h; sourceTree = "<group>"; };
+		CD100010000000000000A002 /* MTAd.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAd.m; sourceTree = "<group>"; };
+		CD100000000000000000A003 /* MTAvail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAvail.h; sourceTree = "<group>"; };
+		CD100010000000000000A003 /* MTAvail.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAvail.m; sourceTree = "<group>"; };
+		CD100000000000000000A004 /* MTNonLinearAvail.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTNonLinearAvail.h; sourceTree = "<group>"; };
+		CD100010000000000000A004 /* MTNonLinearAvail.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTNonLinearAvail.m; sourceTree = "<group>"; };
+		CD100000000000000000A005 /* MTTrackingResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTTrackingResponse.h; sourceTree = "<group>"; };
+		CD100010000000000000A005 /* MTTrackingResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingResponse.m; sourceTree = "<group>"; };
+		CD100000000000000000A006 /* MTAdPod.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdPod.h; sourceTree = "<group>"; };
+		CD100010000000000000A006 /* MTAdPod.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdPod.m; sourceTree = "<group>"; };
+		CD100000000000000000A007 /* MTAdBreak.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdBreak.h; sourceTree = "<group>"; };
+		CD100010000000000000A007 /* MTAdBreak.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdBreak.m; sourceTree = "<group>"; };
+		CD200000000000000000A000 /* MTTrackingResponseDecodeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingResponseDecodeTests.m; sourceTree = "<group>"; };
+		CD200000000000000000A001 /* MTAdDecodeTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdDecodeTests.m; sourceTree = "<group>"; };
+		CD200010000000000000A000 /* tracking_full.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_full.json; sourceTree = "<group>"; };
+		CD200010000000000000A001 /* tracking_empty_ads.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_empty_ads.json; sourceTree = "<group>"; };
+		CD200010000000000000A002 /* tracking_with_nexttoken.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_with_nexttoken.json; sourceTree = "<group>"; };
+		CD200010000000000000A003 /* tracking_missing_creativeId.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_missing_creativeId.json; sourceTree = "<group>"; };
+		CD200010000000000000A004 /* tracking_live.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_live.json; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +182,7 @@
 			children = (
 				9CA0011025A4965F00000001 /* Tracker */,
 				AB100041000000000000A000 /* Detection */,
+				CD100040000000000000A000 /* Model */,
 				9CA0010025A4965F00000001 /* NRMediaTailorTracker.h */,
 				9CA0010C25A4965F00000001 /* Info.plist */,
 			);
@@ -138,6 +201,8 @@
 		AB100040000000000000A000 /* NRMediaTailorTrackerTests */ = {
 			isa = PBXGroup;
 			children = (
+				CD200040000000000000A000 /* Model */,
+				CD200041000000000000A000 /* Fixtures */,
 				AB100000000000000000A002 /* MTDetectorTests.m */,
 				AB100000000000000000A003 /* Info.plist */,
 			);
@@ -153,6 +218,50 @@
 			path = Detection;
 			sourceTree = "<group>";
 		};
+		CD100040000000000000A000 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				CD100000000000000000A000 /* MTAdErrorCode.h */,
+				CD100010000000000000A000 /* MTAdErrorCode.m */,
+				CD100000000000000000A001 /* MTTrackingEvent.h */,
+				CD100010000000000000A001 /* MTTrackingEvent.m */,
+				CD100000000000000000A002 /* MTAd.h */,
+				CD100010000000000000A002 /* MTAd.m */,
+				CD100000000000000000A003 /* MTAvail.h */,
+				CD100010000000000000A003 /* MTAvail.m */,
+				CD100000000000000000A004 /* MTNonLinearAvail.h */,
+				CD100010000000000000A004 /* MTNonLinearAvail.m */,
+				CD100000000000000000A005 /* MTTrackingResponse.h */,
+				CD100010000000000000A005 /* MTTrackingResponse.m */,
+				CD100000000000000000A006 /* MTAdPod.h */,
+				CD100010000000000000A006 /* MTAdPod.m */,
+				CD100000000000000000A007 /* MTAdBreak.h */,
+				CD100010000000000000A007 /* MTAdBreak.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		CD200040000000000000A000 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				CD200000000000000000A000 /* MTTrackingResponseDecodeTests.m */,
+				CD200000000000000000A001 /* MTAdDecodeTests.m */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		CD200041000000000000A000 /* Fixtures */ = {
+			isa = PBXGroup;
+			children = (
+				CD200010000000000000A000 /* tracking_full.json */,
+				CD200010000000000000A001 /* tracking_empty_ads.json */,
+				CD200010000000000000A002 /* tracking_with_nexttoken.json */,
+				CD200010000000000000A003 /* tracking_missing_creativeId.json */,
+				CD200010000000000000A004 /* tracking_live.json */,
+			);
+			path = Fixtures;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -163,6 +272,14 @@
 				9CA0010125A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
 				9CA0010325A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
 				AB100001000000000000A000 /* MTDetector.h in Headers */,
+				CD100001000000000000A000 /* MTAdErrorCode.h in Headers */,
+				CD100001000000000000A001 /* MTTrackingEvent.h in Headers */,
+				CD100001000000000000A002 /* MTAd.h in Headers */,
+				CD100001000000000000A003 /* MTAvail.h in Headers */,
+				CD100001000000000000A004 /* MTNonLinearAvail.h in Headers */,
+				CD100001000000000000A005 /* MTTrackingResponse.h in Headers */,
+				CD100001000000000000A006 /* MTAdPod.h in Headers */,
+				CD100001000000000000A007 /* MTAdBreak.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -173,6 +290,14 @@
 				9CA0010225A4965F00000001 /* NRMediaTailorTracker.h in Headers */,
 				9CA0010425A4965F00000001 /* NRTrackerMediaTailor.h in Headers */,
 				AB100002000000000000A000 /* MTDetector.h in Headers */,
+				CD100002000000000000A000 /* MTAdErrorCode.h in Headers */,
+				CD100002000000000000A001 /* MTTrackingEvent.h in Headers */,
+				CD100002000000000000A002 /* MTAd.h in Headers */,
+				CD100002000000000000A003 /* MTAvail.h in Headers */,
+				CD100002000000000000A004 /* MTNonLinearAvail.h in Headers */,
+				CD100002000000000000A005 /* MTTrackingResponse.h in Headers */,
+				CD100002000000000000A006 /* MTAdPod.h in Headers */,
+				CD100002000000000000A007 /* MTAdBreak.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -295,6 +420,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CD200002000000000000A000 /* tracking_full.json in Resources */,
+				CD200002000000000000A001 /* tracking_empty_ads.json in Resources */,
+				CD200002000000000000A002 /* tracking_with_nexttoken.json in Resources */,
+				CD200002000000000000A003 /* tracking_missing_creativeId.json in Resources */,
+				CD200002000000000000A004 /* tracking_live.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -307,6 +437,14 @@
 			files = (
 				9CA0010525A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
 				AB100003000000000000A000 /* MTDetector.m in Sources */,
+				CD100003000000000000A000 /* MTAdErrorCode.m in Sources */,
+				CD100003000000000000A001 /* MTTrackingEvent.m in Sources */,
+				CD100003000000000000A002 /* MTAd.m in Sources */,
+				CD100003000000000000A003 /* MTAvail.m in Sources */,
+				CD100003000000000000A004 /* MTNonLinearAvail.m in Sources */,
+				CD100003000000000000A005 /* MTTrackingResponse.m in Sources */,
+				CD100003000000000000A006 /* MTAdPod.m in Sources */,
+				CD100003000000000000A007 /* MTAdBreak.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -316,6 +454,14 @@
 			files = (
 				9CA0010625A4965F00000001 /* NRTrackerMediaTailor.m in Sources */,
 				AB100004000000000000A000 /* MTDetector.m in Sources */,
+				CD100004000000000000A000 /* MTAdErrorCode.m in Sources */,
+				CD100004000000000000A001 /* MTTrackingEvent.m in Sources */,
+				CD100004000000000000A002 /* MTAd.m in Sources */,
+				CD100004000000000000A003 /* MTAvail.m in Sources */,
+				CD100004000000000000A004 /* MTNonLinearAvail.m in Sources */,
+				CD100004000000000000A005 /* MTTrackingResponse.m in Sources */,
+				CD100004000000000000A006 /* MTAdPod.m in Sources */,
+				CD100004000000000000A007 /* MTAdBreak.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -324,6 +470,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB100005000000000000A000 /* MTDetectorTests.m in Sources */,
+				CD200001000000000000A000 /* MTTrackingResponseDecodeTests.m in Sources */,
+				CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
