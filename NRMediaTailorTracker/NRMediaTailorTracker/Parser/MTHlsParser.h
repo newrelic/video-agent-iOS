@@ -17,14 +17,25 @@
 //    Caller derives the tracking URL by URL-rewrite via
 //    `+[MTDetector deriveTrackingURL:]`. See `MTDetector.h`.
 //
-//  Break / pod detection (always run — DATERANGE only carries tracking URL,
-//  not break geometry):
+//  Break / pod detection (always run — DATERANGE carries the tracking URL
+//  and may anchor a no-fill placeholder, but not break geometry):
 //    - Per-segment URL marker match against
 //      `segments.mediatailor`, `/v1/hlssegment/`, `/v1/dashsegment/`, `/tm/`,
 //      plus the caller's `customSegmentMarkers` extras.
 //    - Pod boundaries inside a break via `#EXT-X-DISCONTINUITY` changes.
 //    - `#EXT-X-PROGRAM-DATE-TIME` immediately before the first ad segment in
 //      a break populates `availProgramDateTime` (Bug A4 / A8 — live identity).
+//
+//  No-fill surfacing (Bug A2 / atomic facts §6 — ad-server failure)
+//  ────────────────────────────────────────────────────────────────
+//  When a DATERANGE entry indicates an ad break (CLASS="com.apple.hls.
+//  interstitial" or "tracking") but no matching ad-segment markers are
+//  stitched into the manifest, the parser emits a placeholder `MTAdBreak`
+//  with `isNoFill=YES` and `pods.count==0`. This lets the merger (T06) and
+//  state machine (T07) emit `AD_BREAK_START` → `AD_BREAK_END` (+ optional
+//  `AD_ERROR(NO_FILL)`) for ad-server-failure avails even when the
+//  tracking-API path is unavailable or silent. When real ad segments are
+//  present, the DATERANGE entries are absorbed (no duplicate breaks).
 //
 //  Filters & guards
 //  ────────────────
