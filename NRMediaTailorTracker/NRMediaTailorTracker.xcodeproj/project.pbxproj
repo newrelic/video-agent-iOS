@@ -63,6 +63,20 @@
 		CD200002000000000000A002 /* tracking_with_nexttoken.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A002 /* tracking_with_nexttoken.json */; };
 		CD200002000000000000A003 /* tracking_missing_creativeId.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A003 /* tracking_missing_creativeId.json */; };
 		CD200002000000000000A004 /* tracking_live.json in Resources */ = {isa = PBXBuildFile; fileRef = CD200010000000000000A004 /* tracking_live.json */; };
+		EE100001000000000000A000 /* MTHlsParser.h in Headers */ = {isa = PBXBuildFile; fileRef = EE100000000000000000A000 /* MTHlsParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE100002000000000000A000 /* MTHlsParser.h in Headers */ = {isa = PBXBuildFile; fileRef = EE100000000000000000A000 /* MTHlsParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE100003000000000000A000 /* MTHlsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = EE100010000000000000A000 /* MTHlsParser.m */; };
+		EE100004000000000000A000 /* MTHlsParser.m in Sources */ = {isa = PBXBuildFile; fileRef = EE100010000000000000A000 /* MTHlsParser.m */; };
+		EE100001000000000000A001 /* MTManifestParseResult.h in Headers */ = {isa = PBXBuildFile; fileRef = EE100000000000000000A001 /* MTManifestParseResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE100002000000000000A001 /* MTManifestParseResult.h in Headers */ = {isa = PBXBuildFile; fileRef = EE100000000000000000A001 /* MTManifestParseResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		EE100003000000000000A001 /* MTManifestParseResult.m in Sources */ = {isa = PBXBuildFile; fileRef = EE100010000000000000A001 /* MTManifestParseResult.m */; };
+		EE100004000000000000A001 /* MTManifestParseResult.m in Sources */ = {isa = PBXBuildFile; fileRef = EE100010000000000000A001 /* MTManifestParseResult.m */; };
+		EE200001000000000000A000 /* MTHlsParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EE200000000000000000A000 /* MTHlsParserTests.m */; };
+		EE200002000000000000A000 /* mediatailor_vod_with_daterange.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = EE200010000000000000A000 /* mediatailor_vod_with_daterange.m3u8 */; };
+		EE200002000000000000A001 /* mediatailor_vod_segment_markers_only.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = EE200010000000000000A001 /* mediatailor_vod_segment_markers_only.m3u8 */; };
+		EE200002000000000000A002 /* mediatailor_live_sliding_window.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = EE200010000000000000A002 /* mediatailor_live_sliding_window.m3u8 */; };
+		EE200002000000000000A003 /* mediatailor_empty_avail.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = EE200010000000000000A003 /* mediatailor_empty_avail.m3u8 */; };
+		EE200002000000000000A004 /* mediatailor_oversize_pod.m3u8 in Resources */ = {isa = PBXBuildFile; fileRef = EE200010000000000000A004 /* mediatailor_oversize_pod.m3u8 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +141,16 @@
 		CD200010000000000000A002 /* tracking_with_nexttoken.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_with_nexttoken.json; sourceTree = "<group>"; };
 		CD200010000000000000A003 /* tracking_missing_creativeId.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_missing_creativeId.json; sourceTree = "<group>"; };
 		CD200010000000000000A004 /* tracking_live.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = tracking_live.json; sourceTree = "<group>"; };
+		EE100000000000000000A000 /* MTHlsParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTHlsParser.h; sourceTree = "<group>"; };
+		EE100010000000000000A000 /* MTHlsParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTHlsParser.m; sourceTree = "<group>"; };
+		EE100000000000000000A001 /* MTManifestParseResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTManifestParseResult.h; sourceTree = "<group>"; };
+		EE100010000000000000A001 /* MTManifestParseResult.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParseResult.m; sourceTree = "<group>"; };
+		EE200000000000000000A000 /* MTHlsParserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTHlsParserTests.m; sourceTree = "<group>"; };
+		EE200010000000000000A000 /* mediatailor_vod_with_daterange.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = mediatailor_vod_with_daterange.m3u8; sourceTree = "<group>"; };
+		EE200010000000000000A001 /* mediatailor_vod_segment_markers_only.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = mediatailor_vod_segment_markers_only.m3u8; sourceTree = "<group>"; };
+		EE200010000000000000A002 /* mediatailor_live_sliding_window.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = mediatailor_live_sliding_window.m3u8; sourceTree = "<group>"; };
+		EE200010000000000000A003 /* mediatailor_empty_avail.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = mediatailor_empty_avail.m3u8; sourceTree = "<group>"; };
+		EE200010000000000000A004 /* mediatailor_oversize_pod.m3u8 */ = {isa = PBXFileReference; lastKnownFileType = text; path = mediatailor_oversize_pod.m3u8; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -183,6 +207,7 @@
 				9CA0011025A4965F00000001 /* Tracker */,
 				AB100041000000000000A000 /* Detection */,
 				CD100040000000000000A000 /* Model */,
+				EE100040000000000000A000 /* Parser */,
 				9CA0010025A4965F00000001 /* NRMediaTailorTracker.h */,
 				9CA0010C25A4965F00000001 /* Info.plist */,
 			);
@@ -202,6 +227,7 @@
 			isa = PBXGroup;
 			children = (
 				CD200040000000000000A000 /* Model */,
+				EE200040000000000000A000 /* Parser */,
 				CD200041000000000000A000 /* Fixtures */,
 				AB100000000000000000A002 /* MTDetectorTests.m */,
 				AB100000000000000000A003 /* Info.plist */,
@@ -253,6 +279,7 @@
 		CD200041000000000000A000 /* Fixtures */ = {
 			isa = PBXGroup;
 			children = (
+				EE200041000000000000A000 /* HLS */,
 				CD200010000000000000A000 /* tracking_full.json */,
 				CD200010000000000000A001 /* tracking_empty_ads.json */,
 				CD200010000000000000A002 /* tracking_with_nexttoken.json */,
@@ -260,6 +287,37 @@
 				CD200010000000000000A004 /* tracking_live.json */,
 			);
 			path = Fixtures;
+			sourceTree = "<group>";
+		};
+		EE100040000000000000A000 /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				EE100000000000000000A001 /* MTManifestParseResult.h */,
+				EE100010000000000000A001 /* MTManifestParseResult.m */,
+				EE100000000000000000A000 /* MTHlsParser.h */,
+				EE100010000000000000A000 /* MTHlsParser.m */,
+			);
+			path = Parser;
+			sourceTree = "<group>";
+		};
+		EE200040000000000000A000 /* Parser */ = {
+			isa = PBXGroup;
+			children = (
+				EE200000000000000000A000 /* MTHlsParserTests.m */,
+			);
+			path = Parser;
+			sourceTree = "<group>";
+		};
+		EE200041000000000000A000 /* HLS */ = {
+			isa = PBXGroup;
+			children = (
+				EE200010000000000000A000 /* mediatailor_vod_with_daterange.m3u8 */,
+				EE200010000000000000A001 /* mediatailor_vod_segment_markers_only.m3u8 */,
+				EE200010000000000000A002 /* mediatailor_live_sliding_window.m3u8 */,
+				EE200010000000000000A003 /* mediatailor_empty_avail.m3u8 */,
+				EE200010000000000000A004 /* mediatailor_oversize_pod.m3u8 */,
+			);
+			path = HLS;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -280,6 +338,8 @@
 				CD100001000000000000A005 /* MTTrackingResponse.h in Headers */,
 				CD100001000000000000A006 /* MTAdPod.h in Headers */,
 				CD100001000000000000A007 /* MTAdBreak.h in Headers */,
+				EE100001000000000000A000 /* MTHlsParser.h in Headers */,
+				EE100001000000000000A001 /* MTManifestParseResult.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -298,6 +358,8 @@
 				CD100002000000000000A005 /* MTTrackingResponse.h in Headers */,
 				CD100002000000000000A006 /* MTAdPod.h in Headers */,
 				CD100002000000000000A007 /* MTAdBreak.h in Headers */,
+				EE100002000000000000A000 /* MTHlsParser.h in Headers */,
+				EE100002000000000000A001 /* MTManifestParseResult.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -425,6 +487,11 @@
 				CD200002000000000000A002 /* tracking_with_nexttoken.json in Resources */,
 				CD200002000000000000A003 /* tracking_missing_creativeId.json in Resources */,
 				CD200002000000000000A004 /* tracking_live.json in Resources */,
+				EE200002000000000000A000 /* mediatailor_vod_with_daterange.m3u8 in Resources */,
+				EE200002000000000000A001 /* mediatailor_vod_segment_markers_only.m3u8 in Resources */,
+				EE200002000000000000A002 /* mediatailor_live_sliding_window.m3u8 in Resources */,
+				EE200002000000000000A003 /* mediatailor_empty_avail.m3u8 in Resources */,
+				EE200002000000000000A004 /* mediatailor_oversize_pod.m3u8 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -445,6 +512,8 @@
 				CD100003000000000000A005 /* MTTrackingResponse.m in Sources */,
 				CD100003000000000000A006 /* MTAdPod.m in Sources */,
 				CD100003000000000000A007 /* MTAdBreak.m in Sources */,
+				EE100003000000000000A000 /* MTHlsParser.m in Sources */,
+				EE100003000000000000A001 /* MTManifestParseResult.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -462,6 +531,8 @@
 				CD100004000000000000A005 /* MTTrackingResponse.m in Sources */,
 				CD100004000000000000A006 /* MTAdPod.m in Sources */,
 				CD100004000000000000A007 /* MTAdBreak.m in Sources */,
+				EE100004000000000000A000 /* MTHlsParser.m in Sources */,
+				EE100004000000000000A001 /* MTManifestParseResult.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -472,6 +543,7 @@
 				AB100005000000000000A000 /* MTDetectorTests.m in Sources */,
 				CD200001000000000000A000 /* MTTrackingResponseDecodeTests.m in Sources */,
 				CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */,
+				EE200001000000000000A000 /* MTHlsParserTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
