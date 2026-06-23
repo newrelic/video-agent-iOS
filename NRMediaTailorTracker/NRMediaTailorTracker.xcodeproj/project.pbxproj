@@ -86,6 +86,14 @@
 		CE300003000000000000A001 /* MTTrackingError.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300010000000000000A001 /* MTTrackingError.m */; };
 		CE300004000000000000A001 /* MTTrackingError.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300010000000000000A001 /* MTTrackingError.m */; };
 		CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300000000000000000A100 /* MTTrackingClientTests.m */; };
+		FA100001000000000000A000 /* MTManifestParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A000 /* MTManifestParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA100002000000000000A000 /* MTManifestParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A000 /* MTManifestParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA100001000000000000A001 /* MTDashParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A001 /* MTDashParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA100002000000000000A001 /* MTDashParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A001 /* MTDashParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		FA100003000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
+		FA100004000000000000A001 /* MTDashParser.m in Sources */ = {isa = PBXBuildFile; fileRef = FA100010000000000000A001 /* MTDashParser.m */; };
+		FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA200000000000000000A000 /* MTManifestParserSeamTests.m */; };
+		FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FA200000000000000000A000 /* MTManifestParserSeamTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -165,6 +173,11 @@
 		CE300000000000000000A001 /* MTTrackingError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTTrackingError.h; sourceTree = "<group>"; };
 		CE300010000000000000A001 /* MTTrackingError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingError.m; sourceTree = "<group>"; };
 		CE300000000000000000A100 /* MTTrackingClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingClientTests.m; sourceTree = "<group>"; };
+		FA100000000000000000A000 /* MTManifestParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTManifestParser.h; sourceTree = "<group>"; };
+		FA100000000000000000A001 /* MTDashParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDashParser.h; sourceTree = "<group>"; };
+		FA100010000000000000A001 /* MTDashParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParser.m; sourceTree = "<group>"; };
+		FA200000000000000000A000 /* MTManifestParserSeamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParserSeamTests.m; sourceTree = "<group>"; };
+		FA200000000000000000A000 /* MTManifestParserSeamTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestParserSeamTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -312,6 +325,9 @@
 				EE100010000000000000A001 /* MTManifestParseResult.m */,
 				EE100000000000000000A000 /* MTHlsParser.h */,
 				EE100010000000000000A000 /* MTHlsParser.m */,
+							FA100000000000000000A000 /* MTManifestParser.h */,
+				FA100000000000000000A001 /* MTDashParser.h */,
+				FA100010000000000000A001 /* MTDashParser.m */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -320,6 +336,8 @@
 			isa = PBXGroup;
 			children = (
 				EE200000000000000000A000 /* MTHlsParserTests.m */,
+				FA200000000000000000A000 /* MTManifestParserSeamTests.m */,
+							FA200000000000000000A000 /* MTManifestParserSeamTests.m */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -377,6 +395,8 @@
 				EE100001000000000000A001 /* MTManifestParseResult.h in Headers */,
 				CE300001000000000000A000 /* MTTrackingClient.h in Headers */,
 				CE300001000000000000A001 /* MTTrackingError.h in Headers */,
+				FA100001000000000000A000 /* MTManifestParser.h in Headers */,
+				FA100001000000000000A001 /* MTDashParser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -399,6 +419,8 @@
 				EE100002000000000000A001 /* MTManifestParseResult.h in Headers */,
 				CE300002000000000000A000 /* MTTrackingClient.h in Headers */,
 				CE300002000000000000A001 /* MTTrackingError.h in Headers */,
+				FA100002000000000000A000 /* MTManifestParser.h in Headers */,
+				FA100002000000000000A001 /* MTDashParser.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -555,6 +577,7 @@
 				EE100003000000000000A001 /* MTManifestParseResult.m in Sources */,
 				CE300003000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300003000000000000A001 /* MTTrackingError.m in Sources */,
+				FA100003000000000000A001 /* MTDashParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -576,6 +599,7 @@
 				EE100004000000000000A001 /* MTManifestParseResult.m in Sources */,
 				CE300004000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300004000000000000A001 /* MTTrackingError.m in Sources */,
+				FA100004000000000000A001 /* MTDashParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -587,6 +611,7 @@
 				CD200001000000000000A000 /* MTTrackingResponseDecodeTests.m in Sources */,
 				CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */,
 				EE200001000000000000A000 /* MTHlsParserTests.m in Sources */,
+				FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */,
 				CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

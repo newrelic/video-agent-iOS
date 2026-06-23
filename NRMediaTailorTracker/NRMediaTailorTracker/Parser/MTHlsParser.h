@@ -45,12 +45,23 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "MTManifestParser.h"
 
 @class MTManifestParseResult;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MTHlsParser : NSObject
+@interface MTHlsParser : NSObject <MTManifestParser>
+
+/// `MTManifestParser` conformance (T11 seam). Decodes `manifest` as UTF-8 and
+/// delegates to `+parseManifestText:manifestURL:customSegmentMarkers:` with
+/// `customSegmentMarkers = nil`. Empty `manifest` returns an empty result.
+///
+/// Customers needing custom segment markers should keep using the class
+/// method directly; the protocol carries no slot for them on purpose so the
+/// seam stays manifest-format agnostic.
+- (MTManifestParseResult *)parseManifest:(nullable NSData *)manifest
+                                 baseURL:(nullable NSURL *)baseURL;
 
 /// Parse an HLS manifest (`.m3u8`) into ad breaks + optional tracking URL.
 ///

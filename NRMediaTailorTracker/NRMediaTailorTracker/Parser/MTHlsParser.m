@@ -23,6 +23,20 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
 
 @implementation MTHlsParser
 
+#pragma mark - MTManifestParser conformance (T11 seam)
+
+- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL {
+    if (manifest.length == 0) {
+        return [MTManifestParseResult empty];
+    }
+    NSString *text = [[NSString alloc] initWithData:manifest encoding:NSUTF8StringEncoding];
+    if (text.length == 0) {
+        return [MTManifestParseResult empty];
+    }
+    return [MTHlsParser parseManifestText:text manifestURL:baseURL customSegmentMarkers:nil];
+}
+
+
 #pragma mark - Public
 
 + (MTManifestParseResult *)parseManifestText:(NSString *)manifestText {
