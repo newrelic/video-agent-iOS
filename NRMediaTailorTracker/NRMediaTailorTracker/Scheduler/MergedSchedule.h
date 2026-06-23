@@ -39,6 +39,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSArray<MTAdBreak *> *breaks;
 @property (nonatomic, copy, readonly) NSArray<MTMergedScheduleError *> *pendingErrors;
 
+/// Convenience counter: number of breaks in `breaks` that have
+/// `podCountMismatch == YES` (Bug A3 trigger). Derived from `breaks`; exposed
+/// for telemetry and tests so callers don't have to re-walk the array.
+@property (nonatomic, assign, readonly) NSUInteger podCountMismatchCount;
+
+/// Convenience counter: number of `pendingErrors` whose `errorCode` is
+/// `MTAdErrorCodeMissingAvailStart` (Bug A8 trigger). Same rationale.
+@property (nonatomic, assign, readonly) NSUInteger dataIntegrityWarningCount;
+
 - (instancetype)initWithBreaks:(NSArray<MTAdBreak *> *)breaks
                  pendingErrors:(NSArray<MTMergedScheduleError *> *)pendingErrors NS_DESIGNATED_INITIALIZER;
 
