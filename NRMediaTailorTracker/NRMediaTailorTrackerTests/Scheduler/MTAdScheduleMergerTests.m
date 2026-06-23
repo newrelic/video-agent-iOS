@@ -285,6 +285,70 @@
     XCTAssertNotNil(result);
     XCTAssertEqual(result.breaks.count, 0u);
     XCTAssertEqual(result.pendingErrors.count, 0u);
+    XCTAssertEqual(result.podCountMismatchCount, 0u);
+    XCTAssertEqual(result.dataIntegrityWarningCount, 0u);
+}
+
+#pragma mark - Manifest-only flow
+
+- (void)testManifestOnly_nilTracking_breaksPassThroughUnchanged {
+    MTAdBreak *br1 = [self breakAtMs:1000 durationMs:5000
+                                pods:@[[NSValue valueWithRange:NSMakeRange(1000, 5000)]]];
+    MTAdBreak *br2 = [self breakAtMs:20000 durationMs:8000
+                                pods:@[[NSValue valueWithRange:NSMakeRange(20000, 8000)]]];
+
+    MergedSchedule *result = [MTAdScheduleMerger mergeManifestBreaks:@[br1, br2]
+                                                    trackingResponse:nil];
+
+    XCTAssertEqual(result.breaks.count, 2u);
+    XCTAssertEqual(result.pendingErrors.count, 0u);
+    XCTAssertEqual(result.podCountMismatchCount, 0u);
+    XCTAssertEqual(result.dataIntegrityWarningCount, 0u);
+    XCTAssertEqual(result.breaks[0].pods.count, 1u);
+    XCTAssertEqual(result.breaks[1].pods.count, 1u);
+}
+
+#pragma mark - Counters
+
+- (void)testCounters_podCountMismatchCount_aggregatesAcrossBreaks {
+    MTAdBreak *br1 = [self breakAtMs:0 durationMs:10000
+                                pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)],
+                                       [NSValue valueWithRange:NSMakeRange(5000, 5000)]]];
+    MTAdBreak *br2 = [self breakAtMs:30000 durationMs:10000
+                                pods:@[[NSValue valueWithRange:NSMakeRange(30000, 5000)],
+                                       [NSValue valueWithRange:NSMakeRange(35000, 5000)]]];
+
+    NSDictionary *json = @{
+        @"avails": @[
+            @{@"availId": @"a1", @"startTimeInSeconds": @0.0, @"durationInSeconds": @10.0,
+              @"ads": @[@{@"adId": @"x1", @"startTimeInSeconds": @0.0, @"durationInSeconds": @5.0},
+                        @{@"adId": @"x2", @"startTimeInSeconds": @5.0, @"durationInSeconds": @5.0},
+                        @{@"adId": @"x3", @"startTimeInSeconds": @8.0, @"durationInSeconds": @2.0}]},
+            @{@"availId": @"a2", @"startTimeInSeconds": @30.0, @"durationInSeconds": @10.0,
+              @"ads": @[@{@"adId": @"y1", @"startTimeInSeconds": @30.0, @"durationInSeconds": @5.0},
+                        @{@"adId": @"y2", @"startTimeInSeconds": @33.0, @"durationInSeconds": @4.0},
+                        @{@"adId": @"y3", @"startTimeInSeconds": @37.0, @"durationInSeconds": @3.0}]},
+        ],
+    };
+    MergedSchedule *result = [MTAdScheduleMerger mergeManifestBreaks:@[br1, br2]
+                                                    trackingResponse:[self trackingWithDict:json]];
+    XCTAssertEqual(result.podCountMismatchCount, 2u, @"both breaks have manifest=2 vs tracking=3");
+}
+
+- (void)testCounters_dataIntegrityWarningCount_countsMissingAvailStart {
+    MTAdBreak *br = [self breakAtMs:0 durationMs:5000
+                               pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)]]];
+    NSDictionary *json = @{
+        @"avails": @[@{
+            @"availId": @"broken",
+            @"durationInSeconds": @5.0,
+            @"ads": @[@{@"adId": @"a", @"creativeId": @"c",
+                        @"startTimeInSeconds": @0.0, @"durationInSeconds": @5.0}],
+        }],
+    };
+    MergedSchedule *result = [MTAdScheduleMerger mergeManifestBreaks:@[br]
+                                                    trackingResponse:[self trackingWithDict:json]];
+    XCTAssertEqual(result.dataIntegrityWarningCount, 1u);
 }
 
 @end
