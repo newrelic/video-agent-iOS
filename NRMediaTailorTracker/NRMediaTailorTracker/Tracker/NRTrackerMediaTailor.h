@@ -23,16 +23,16 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @interface NRTrackerMediaTailor : NRVideoTracker
 
-/// Inject a custom manifest parser. Defaults to `MTHlsParser` when unset
-/// (set lazily by the tracker before its first parse). Use this seam to plug
-/// in a DASH adapter for streams played by a third-party DASH player such as
-/// THEOplayer, Bitmovin, or Shaka — see `MTManifestParser.h` and
+/// The active manifest parser. Defaults lazily to a shared `MTHlsParser`
+/// instance when `-setManifestParser:` has never been called. Set this to
+/// plug in a DASH adapter for streams played by a third-party DASH player
+/// such as THEOplayer, Bitmovin, or Shaka — see `MTManifestParser.h` and
 /// `MTDashParser.h`.
 ///
 /// Threading: setter is main-queue only. Implementations of
 /// `-parseManifest:baseURL:` may be invoked on a background queue, so the
 /// parser must be safe to call from non-main queues.
-- (void)setManifestParser:(id<MTManifestParser>)parser;
+@property (nonatomic, strong) id<MTManifestParser> manifestParser;
 
 @end
 

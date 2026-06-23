@@ -30,15 +30,17 @@
 
 #import "NRTrackerMediaTailor.h"
 #import "MTManifestParser.h"
-
-@interface NRTrackerMediaTailor ()
-@property (nonatomic, strong, nullable) id<MTManifestParser> manifestParser;
-@end
+#import "MTHlsParser.h"
 
 @implementation NRTrackerMediaTailor
 
-- (void)setManifestParser:(id<MTManifestParser>)parser {
-    _manifestParser = parser;
+- (id<MTManifestParser>)manifestParser {
+    // Lazy default: HLS parser. Customers wanting DASH (or another adapter)
+    // call -setManifestParser: before the first parse.
+    if (_manifestParser == nil) {
+        _manifestParser = [[MTHlsParser alloc] init];
+    }
+    return _manifestParser;
 }
 
 @end

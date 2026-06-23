@@ -118,4 +118,19 @@
     XCTAssertNoThrow([tracker setManifestParser:[[MTDashParser alloc] init]]);
 }
 
+- (void)testTracker_manifestParser_defaultsLazilyToMTHlsParser {
+    NRTrackerMediaTailor *tracker = [[NRTrackerMediaTailor alloc] init];
+    id<MTManifestParser> parser = tracker.manifestParser;
+    XCTAssertNotNil(parser);
+    XCTAssertTrue([(NSObject *)parser isKindOfClass:[MTHlsParser class]],
+                  @"untouched tracker must default to MTHlsParser");
+}
+
+- (void)testTracker_manifestParser_setterOverridesDefault {
+    NRTrackerMediaTailor *tracker = [[NRTrackerMediaTailor alloc] init];
+    MTDashParser *dash = [[MTDashParser alloc] init];
+    tracker.manifestParser = dash;
+    XCTAssertEqual(tracker.manifestParser, dash);
+}
+
 @end
