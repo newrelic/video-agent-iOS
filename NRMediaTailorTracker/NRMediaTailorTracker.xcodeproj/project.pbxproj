@@ -102,6 +102,13 @@
 		DB100003000000000000A001 /* MTAdScheduleMerger.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A001 /* MTAdScheduleMerger.m */; };
 		DB100004000000000000A001 /* MTAdScheduleMerger.m in Sources */ = {isa = PBXBuildFile; fileRef = DB100010000000000000A001 /* MTAdScheduleMerger.m */; };
 		DB200001000000000000A000 /* MTAdScheduleMergerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DB200000000000000000A000 /* MTAdScheduleMergerTests.m */; };
+		C70001000000000000A000 /* MTAdState.h in Headers */ = {isa = PBXBuildFile; fileRef = C70000000000000000A000 /* MTAdState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C70002000000000000A000 /* MTAdState.h in Headers */ = {isa = PBXBuildFile; fileRef = C70000000000000000A000 /* MTAdState.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C70001000000000000A001 /* MTPlayheadStateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = C70000000000000000A001 /* MTPlayheadStateMachine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C70002000000000000A001 /* MTPlayheadStateMachine.h in Headers */ = {isa = PBXBuildFile; fileRef = C70000000000000000A001 /* MTPlayheadStateMachine.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		C70003000000000000A001 /* MTPlayheadStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = C70010000000000000A001 /* MTPlayheadStateMachine.m */; };
+		C70004000000000000A001 /* MTPlayheadStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = C70010000000000000A001 /* MTPlayheadStateMachine.m */; };
+		C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C71000000000000000A000 /* MTPlayheadStateMachineTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -190,6 +197,10 @@
 		DB100000000000000000A001 /* MTAdScheduleMerger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdScheduleMerger.h; sourceTree = "<group>"; };
 		DB100010000000000000A001 /* MTAdScheduleMerger.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdScheduleMerger.m; sourceTree = "<group>"; };
 		DB200000000000000000A000 /* MTAdScheduleMergerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdScheduleMergerTests.m; sourceTree = "<group>"; };
+		C70000000000000000A000 /* MTAdState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdState.h; sourceTree = "<group>"; };
+		C70000000000000000A001 /* MTPlayheadStateMachine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTPlayheadStateMachine.h; sourceTree = "<group>"; };
+		C70010000000000000A001 /* MTPlayheadStateMachine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachine.m; sourceTree = "<group>"; };
+		C71000000000000000A000 /* MTPlayheadStateMachineTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachineTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -251,6 +262,7 @@
 				9CA0010025A4965F00000001 /* NRMediaTailorTracker.h */,
 				9CA0010C25A4965F00000001 /* Info.plist */,
 							DB100040000000000000A000 /* Scheduler */,
+				C70040000000000000A000 /* StateMachine */,
 			);
 			path = NRMediaTailorTracker;
 			sourceTree = "<group>";
@@ -274,6 +286,7 @@
 				AB100000000000000000A002 /* MTDetectorTests.m */,
 				AB100000000000000000A003 /* Info.plist */,
 							DB200040000000000000A000 /* Scheduler */,
+				C71040000000000000A000 /* StateMachine */,
 			);
 			path = NRMediaTailorTrackerTests;
 			sourceTree = "<group>";
@@ -405,6 +418,24 @@
 			path = Scheduler;
 			sourceTree = "<group>";
 		};
+		C70040000000000000A000 /* StateMachine */ = {
+			isa = PBXGroup;
+			children = (
+				C70000000000000000A000 /* MTAdState.h */,
+				C70000000000000000A001 /* MTPlayheadStateMachine.h */,
+				C70010000000000000A001 /* MTPlayheadStateMachine.m */,
+			);
+			path = StateMachine;
+			sourceTree = "<group>";
+		};
+		C71040000000000000A000 /* StateMachine */ = {
+			isa = PBXGroup;
+			children = (
+				C71000000000000000A000 /* MTPlayheadStateMachineTests.m */,
+			);
+			path = StateMachine;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -431,6 +462,8 @@
 				CE300001000000000000A001 /* MTTrackingError.h in Headers */,
 				FA100001000000000000A000 /* MTManifestParser.h in Headers */,
 				FA100001000000000000A001 /* MTDashParser.h in Headers */,
+				C70001000000000000A000 /* MTAdState.h in Headers */,
+				C70001000000000000A001 /* MTPlayheadStateMachine.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -457,6 +490,8 @@
 				CE300002000000000000A001 /* MTTrackingError.h in Headers */,
 				FA100002000000000000A000 /* MTManifestParser.h in Headers */,
 				FA100002000000000000A001 /* MTDashParser.h in Headers */,
+				C70002000000000000A000 /* MTAdState.h in Headers */,
+				C70002000000000000A001 /* MTPlayheadStateMachine.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -616,6 +651,7 @@
 				CE300003000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300003000000000000A001 /* MTTrackingError.m in Sources */,
 				FA100003000000000000A001 /* MTDashParser.m in Sources */,
+				C70003000000000000A001 /* MTPlayheadStateMachine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -640,6 +676,7 @@
 				CE300004000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300004000000000000A001 /* MTTrackingError.m in Sources */,
 				FA100004000000000000A001 /* MTDashParser.m in Sources */,
+				C70004000000000000A001 /* MTPlayheadStateMachine.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -654,6 +691,7 @@
 				EE200001000000000000A000 /* MTHlsParserTests.m in Sources */,
 				FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */,
 				CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */,
+				C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
