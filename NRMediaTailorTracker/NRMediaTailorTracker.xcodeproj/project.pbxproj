@@ -110,6 +110,7 @@
 		C70004000000000000A001 /* MTPlayheadStateMachine.m in Sources */ = {isa = PBXBuildFile; fileRef = C70010000000000000A001 /* MTPlayheadStateMachine.m */; };
 		C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C71000000000000000A000 /* MTPlayheadStateMachineTests.m */; };
 		D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */; };
+		D80001000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -203,6 +204,7 @@
 		C70010000000000000A001 /* MTPlayheadStateMachine.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachine.m; sourceTree = "<group>"; };
 		C71000000000000000A000 /* MTPlayheadStateMachineTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachineTests.m; sourceTree = "<group>"; };
 		D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorEventTests.m; sourceTree = "<group>"; };
+		D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorLifecycleTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -290,6 +292,7 @@
 							DB200040000000000000A000 /* Scheduler */,
 				C71040000000000000A000 /* StateMachine */,
 				D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */,
+				D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */,
 			);
 			path = NRMediaTailorTrackerTests;
 			sourceTree = "<group>";
@@ -696,6 +699,7 @@
 				CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */,
 				C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */,
 				D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */,
+				D80001000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
