@@ -78,13 +78,14 @@ Before using the Video Agent, ensure you have:
 
 ## Modules
 
-The Video Agent is composed of three modules:
+The Video Agent is composed of four modules:
 
 | Module | Description | Required |
 |--------|-------------|----------|
 | **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Depends on the New Relic iOS Agent. | Yes |
 | **NRAVPlayerTracker** | Video tracker for AVPlayer. Automatically hooks into player lifecycle events via KVO and notifications. | Yes (for AVPlayer) |
 | **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors. | Optional |
+| **NRMediaTailorTracker** | Ad tracker for AWS MediaTailor server-side ad insertion (SSAI). Detects ads inside an `AVPlayer` HLS stream and emits the standard ad event vocabulary plus `AD_ERROR`. HLS-only in v1; DASH support is via a customer-supplied adapter. iOS 12 + tvOS 12. See [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md). | Optional |
 
 ## Usage
 

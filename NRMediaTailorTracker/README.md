@@ -24,11 +24,30 @@ These ten anti-patterns are non-goals. They are guardrails to keep future contri
 ```objc
 #import <NRMediaTailorTracker/NRMediaTailorTracker.h>
 
+// 1. Create the tracker, attach your AVPlayer, and register it with the
+//    NewRelicVideoAgent the same way you register an IMA tracker.
 AVPlayer *player = [[AVPlayer alloc] initWithURL:streamURL];
-NRTrackerMediaTailor *tracker = [[NRTrackerMediaTailor alloc] initWithPlayer:player];
+NRTrackerMediaTailor *tracker = [[NRTrackerMediaTailor alloc] init];
+[tracker setPlayer:player];
 [NewRelicVideoAgent.sharedInstance startWithContentTracker:contentTracker adTracker:tracker];
+
+// 2. After your app obtains the MediaTailor manifest + tracking JSON
+//    (via your existing player or networking layer), feed the merged
+//    schedule into the tracker. The tracker installs a playhead state
+//    machine on the player and starts emitting AD_* events.
+MTManifestParseResult *parsed = [tracker.manifestParser parseManifest:manifestData
+                                                              baseURL:manifestURL];
+MTTrackingResponse *tracking = ...; // from MTTrackingClient
+MergedSchedule *schedule = [MTAdScheduleMerger mergeManifestBreaks:parsed.breaks
+                                                  trackingResponse:tracking];
+[tracker startTrackingWithSchedule:schedule];
 [player play];
+
+// 3. When tearing down the playback session:
+[tracker dispose];
 ```
+
+`MTTrackingClient` (in the same module) handles the `/v1/tracking/<sessionId>` HTTP polling with proper `NextToken` round-trip; see its header for the convenience initializer and `-fetchWithTrackingURL:completion:`.
 
 ## Events emitted
 
@@ -61,6 +80,50 @@ Both platforms ship in v1. AVPlayer API is shared, so the bulk of the module is 
 ## DASH adapter seam
 
 V1 ships an HLS parser only. DASH is not first-class in `AVPlayer`, so customers using a third-party DASH player (THEOplayer, Bitmovin, Shaka) can plug their own manifest parser into the tracker by conforming to the `MTManifestParser` Obj-C protocol and injecting the parser with `-[NRTrackerMediaTailor setManifestParser:]`. The protocol exposes one method, `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. The built-in `MTHlsParser` conforms to it directly. A stub `MTDashParser` ships alongside as a placeholder; it returns an empty `MTManifestParseResult` and logs a warning so a misconfigured customer notices immediately. A real DASH parser is a fast-follow module — the seam means a customer can ship one without forking the SDK.
+
+## Verification
+
+### Unit tests
+
+```bash
+xcodebuild test \
+    -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
+    -scheme NRMediaTailorTrackerTests \
+    -destination 'platform=iOS Simulator,name=iPhone 16' \
+    CODE_SIGNING_ALLOWED=NO
+```
+
+Latest local run: **119 tests passing, 0 failures.**
+
+### Coverage
+
+Add `-enableCodeCoverage YES` to the test command above, then:
+
+```bash
+xcrun xccov view --report --only-targets <path-to-xcresult-bundle>
+```
+
+The bundle path is printed at the end of the test output (look for `.xcresult` under `~/Library/Developer/Xcode/DerivedData/.../Logs/Test/`). Latest measurement: **89.92% line coverage** on `NRMediaTailorTracker.framework` (above the 70% gate).
+
+### Both platforms build
+
+```bash
+xcodebuild -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
+           -scheme NRMediaTailorTracker-iOS -sdk iphonesimulator \
+           -configuration Debug build CODE_SIGNING_ALLOWED=NO
+
+xcodebuild -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
+           -scheme NRMediaTailorTracker-tvOS -sdk appletvsimulator \
+           -configuration Debug build CODE_SIGNING_ALLOWED=NO
+```
+
+### End-to-end smoke test
+
+See `Examples/iOS/SimplePlayerUsingPods/`. Replace `MediaTailorSamples.defaultSampleURLString` with your AWS account's MediaTailor session URL, wire the IBAction `clickMediaTailorSample:` to a button, run the app, and:
+
+1. Capture a proxy log (Charles / mitmproxy) — confirm `/v1/tracking/<sessionId>` requests round-trip `nextToken` between consecutive calls.
+2. Confirm in NRDB that `AD_BREAK_START` → `AD_START` → 3× `AD_QUARTILE` → `AD_END` → `AD_BREAK_END` fires for at least one ad break.
+3. Optional: run the Android module side-by-side on the same stream — event sequences should match (minus the bugs we fixed; see [`NRMediaTailorTracker_BUGS_TO_FIX.md`](../NRMediaTailorTracker_BUGS_TO_FIX.md)).
 
 ## References
 
