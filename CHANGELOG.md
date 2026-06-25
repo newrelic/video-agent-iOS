@@ -1,3 +1,11 @@
+## Unreleased
+
+### Features
+
+* **NRMediaTailorTracker** — new module. AWS MediaTailor server-side ad-insertion tracker for AVPlayer, in parity with `NRIMATracker`. Detects ads inside an HLS stream, polls the MediaTailor `/v1/tracking/<sessionId>` endpoint with proper `NextToken` round-trip (fixing the Android module's biggest deviation from the AWS contract), and emits `AD_BREAK_START` / `AD_REQUEST` / `AD_START` / `AD_QUARTILE` / `AD_END` / `AD_BREAK_END` / `AD_SKIP` / `AD_PAUSE` / `AD_RESUME` / `AD_ERROR`. iOS 12 + tvOS 12. HLS-only in v1; ships with an `MTManifestParser` protocol seam so customers using third-party DASH players (THEOplayer, Bitmovin, Shaka) can plug in their own parser.
+
+  Fixes 14 of 15 documented bugs from the Android reference module: NextToken round-trip (B1), wall-clock cache-bust dropped (A1), `creativeId` used as primary identity (B2), GET-not-POST for Android parity (B3), manifest-marker primary tracking-URL discovery (B4), no-fill empty avails handled correctly (A2), pod-mismatch keeps manifest pod geometry (A3), live de-dupe via compound `(availId, adProgramDateTime)` key (A4), configurable playhead poll interval (A5), oversize-pod clamp-not-reject (A6), silent avail-start fallback with warning (A8), `relativeToAdStartMs` tracking-event semantics (B5), new `AD_ERROR` event vocabulary (B6), live `adProgramDateTime` / `availProgramDateTime` always emitted (B7). DASH multi-period detection (A7) deferred behind the adapter seam.
+
 ## [4.2.0](https://github.com/newrelic/video-agent-iOS/compare/v4.1.4...v4.2.0) (2026-06-10)
 
 ### Features
