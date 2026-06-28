@@ -6,10 +6,8 @@
 //
 
 #import "ViewController.h"
-#import "MediaTailorSamples.h"
 #import <NewRelicVideoCore/NRVAVideo.h>
 #import <NewRelicVideoCore/NRVAVideoPlayerConfiguration.h>
-#import <NRMediaTailorTracker/NRMediaTailorTracker.h>
 
 @import AVKit;
 
@@ -17,7 +15,6 @@
 
 @property (nonatomic) AVPlayerViewController *playerController;
 @property (nonatomic) NSInteger trackerId;
-@property (nonatomic, strong, nullable) NRTrackerMediaTailor *mediaTailorTracker;
 
 @end
 
@@ -39,20 +36,14 @@
     [self playVideo:@"https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_16x9/bipbop_16x9_variant.m3u8"];
 }
 
-/// MediaTailor integration smoke path (T13). Replace
-/// `MediaTailorSamples.defaultSampleURLString` with your real session URL.
-- (IBAction)clickMediaTailorSample:(id)sender {
-    [self playMediaTailorVideo:[MediaTailorSamples defaultSampleURLString]];
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     NSLog(@"🎬 [ViewController] Simple Player - Ready for video tracking");
 }
 
 - (void)dealloc {
+    // Clean up tracker when view controller is deallocated
     [NRVAVideo releaseTracker:self.trackerId];
-    [self.mediaTailorTracker dispose];
     NSLog(@"🧹 [ViewController] Cleanup completed");
 }
 
@@ -65,7 +56,8 @@
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
-
+    
+    // Use configuration-based approach
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"SimplePlayer"
         player:player
@@ -74,71 +66,14 @@
             @"videoURL": videoURL,
             @"setupMethod": @"configuration-based"
         }];
-
+    
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
-
+    
     NSLog(@"🎥 [Video] Started simple video tracking with ID: %ld", (long)self.trackerId);
-
+    
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
         NSLog(@"▶️ [Video] Playback started");
-    }];
-}
-
-/// Spin up an AVPlayer at a MediaTailor session URL, attach the
-/// NRMediaTailorTracker, and feed it a parsed schedule. In production this
-/// path runs concurrently with the content tracker (NRAVPlayerTracker).
-///
-/// Per FEATURE_SPEC §9 "Definition of Done": the verification flow is to
-/// run this with a real MediaTailor URL, capture a proxy log proving that
-/// `/v1/tracking/<sessionId>` round-trips `nextToken`, and confirm in NRDB
-/// that the full AD_BREAK_START → AD_START → 3×AD_QUARTILE → AD_END →
-/// AD_BREAK_END sequence fires for at least one ad break.
-- (void)playMediaTailorVideo:(NSString *)videoURLString {
-    NSURL *videoURL = [NSURL URLWithString:videoURLString];
-    if (videoURL == nil) {
-        NSLog(@"❌ [MediaTailor] Invalid URL: %@", videoURLString);
-        return;
-    }
-    if (![MTDetector isMediaTailorURL:videoURL]) {
-        NSLog(@"⚠️ [MediaTailor] URL does not look like a MediaTailor session — "
-              @"the tracker will not activate. Replace MediaTailorSamples."
-              @"defaultSampleURLString with your real session URL.");
-    }
-
-    AVPlayer *player = [AVPlayer playerWithURL:videoURL];
-    self.playerController = [[AVPlayerViewController alloc] init];
-    self.playerController.player = player;
-    self.playerController.showsPlaybackControls = YES;
-
-    // Set up the MediaTailor tracker. Content events still flow through the
-    // NRAVPlayerTracker via NRVAVideo.addPlayer below.
-    self.mediaTailorTracker = [[NRTrackerMediaTailor alloc] init];
-    [self.mediaTailorTracker setPlayer:player];
-
-    // For the smoke test we ship an empty schedule. In production the host
-    // app or networking layer fetches the personalized manifest, parses it
-    // via `MTHlsParser`, polls `/v1/tracking/<sessionId>` via
-    // `MTTrackingClient`, merges via `MTAdScheduleMerger`, and hands the
-    // result to `-startTrackingWithSchedule:`. See README.md "Integration"
-    // for the full snippet.
-    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
-        initWithPlayerName:@"MediaTailorPlayer"
-        player:player
-        adEnabled:YES
-        customAttributes:@{
-            @"videoURL": videoURLString,
-            @"setupMethod": @"mediatailor-integration",
-        }];
-    self.trackerId = [NRVAVideo addPlayer:playerConfig];
-
-    NSLog(@"🎥 [MediaTailor] Started MediaTailor video tracking with ID: %ld", (long)self.trackerId);
-
-    [self presentViewController:self.playerController animated:YES completion:^{
-        [self.playerController.player play];
-        NSLog(@"▶️ [MediaTailor] Playback started — feed a parsed schedule via "
-              @"-[mediaTailorTracker startTrackingWithSchedule:] once your "
-              @"app has both the manifest and tracking JSON.");
     }];
 }
 

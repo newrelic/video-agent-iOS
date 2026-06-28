@@ -37,6 +37,13 @@
                                     <action selector="clickAirshowLive:" destination="BYZ-38-t0r" eventType="touchUpInside" id="5ER-pK-uKQ"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MT0-bn-001">
+                                <rect key="frame" x="148" y="203" width="118" height="30"/>
+                                <state key="normal" title="MediaTailor Sample"/>
+                                <connections>
+                                    <action selector="clickMediaTailorSample:" destination="BYZ-38-t0r" eventType="touchUpInside" id="MT0-ax-002"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -47,6 +54,8 @@
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="ixp-1w-3Vs"/>
                             <constraint firstItem="mE9-jZ-GW1" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="sJY-1J-bdG"/>
                             <constraint firstItem="O1G-sW-eRA" firstAttribute="top" secondItem="mE9-jZ-GW1" secondAttribute="bottom" constant="8" symbolic="YES" id="t0d-wV-mJO"/>
+                            <constraint firstItem="MT0-bn-001" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="MT0-cx-003"/>
+                            <constraint firstItem="MT0-bn-001" firstAttribute="top" secondItem="O1G-sW-eRA" secondAttribute="bottom" constant="8" symbolic="YES" id="MT0-tp-004"/>
                         </constraints>
                     </view>
                 </viewController>
