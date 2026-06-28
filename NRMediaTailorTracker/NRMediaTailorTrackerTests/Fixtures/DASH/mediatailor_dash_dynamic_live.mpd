@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="dynamic"
+     availabilityStartTime="2026-06-29T12:00:00Z"
+     minimumUpdatePeriod="PT2S"
+     timeShiftBufferDepth="PT60S"
+     minBufferTime="PT2S"
+     profiles="urn:mpeg:dash:profile:isoff-live:2011">
+
+  <Period id="live-0" start="PT0S">
+    <EventStream schemeIdUri="urn:scte:scte35:2014:xml" timescale="1000">
+      <Event id="scte-1" presentationTime="30000" duration="15000" messageData="avail-live-1"/>
+    </EventStream>
+
+    <AdaptationSet mimeType="video/mp4" contentType="video">
+      <Representation id="v0" bandwidth="600000" codecs="avc1.42c01e">
+        <BaseURL>https://cdn.example.com/live/content/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+
+</MPD>

@@ -111,6 +111,11 @@
 		C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C71000000000000000A000 /* MTPlayheadStateMachineTests.m */; };
 		D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */; };
 		D80001000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */; };
+		DH200001000000000000A000 /* MTDashParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DH200000000000000000A000 /* MTDashParserTests.m */; };
+		DH200002000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd */; };
+		DH200002000000000000A001 /* mediatailor_dash_dynamic_live.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A001 /* mediatailor_dash_dynamic_live.mpd */; };
+		DH200002000000000000A002 /* mediatailor_dash_mixed_representations.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A002 /* mediatailor_dash_mixed_representations.mpd */; };
+		DH200002000000000000A003 /* mediatailor_dash_no_periods.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A003 /* mediatailor_dash_no_periods.mpd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -205,6 +210,11 @@
 		C71000000000000000A000 /* MTPlayheadStateMachineTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachineTests.m; sourceTree = "<group>"; };
 		D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorEventTests.m; sourceTree = "<group>"; };
 		D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorLifecycleTests.m; sourceTree = "<group>"; };
+		DH200000000000000000A000 /* MTDashParserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParserTests.m; sourceTree = "<group>"; };
+		DH200010000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_vod_multiperiod.mpd; sourceTree = "<group>"; };
+		DH200010000000000000A001 /* mediatailor_dash_dynamic_live.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_dynamic_live.mpd; sourceTree = "<group>"; };
+		DH200010000000000000A002 /* mediatailor_dash_mixed_representations.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_mixed_representations.mpd; sourceTree = "<group>"; };
+		DH200010000000000000A003 /* mediatailor_dash_no_periods.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_no_periods.mpd; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -342,6 +352,7 @@
 			isa = PBXGroup;
 			children = (
 				EE200041000000000000A000 /* HLS */,
+				DH200041000000000000A000 /* DASH */,
 				CD200010000000000000A000 /* tracking_full.json */,
 				CD200010000000000000A001 /* tracking_empty_ads.json */,
 				CD200010000000000000A002 /* tracking_with_nexttoken.json */,
@@ -370,6 +381,7 @@
 			children = (
 				EE200000000000000000A000 /* MTHlsParserTests.m */,
 				FA200000000000000000A000 /* MTManifestParserSeamTests.m */,
+				DH200000000000000000A000 /* MTDashParserTests.m */,
 			);
 			path = Parser;
 			sourceTree = "<group>";
@@ -384,6 +396,17 @@
 				EE200010000000000000A004 /* mediatailor_oversize_pod.m3u8 */,
 			);
 			path = HLS;
+			sourceTree = "<group>";
+		};
+		DH200041000000000000A000 /* DASH */ = {
+			isa = PBXGroup;
+			children = (
+				DH200010000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd */,
+				DH200010000000000000A001 /* mediatailor_dash_dynamic_live.mpd */,
+				DH200010000000000000A002 /* mediatailor_dash_mixed_representations.mpd */,
+				DH200010000000000000A003 /* mediatailor_dash_no_periods.mpd */,
+			);
+			path = DASH;
 			sourceTree = "<group>";
 		};
 		CE300040000000000000A000 /* Net */ = {
@@ -630,6 +653,10 @@
 				EE200002000000000000A002 /* mediatailor_live_sliding_window.m3u8 in Resources */,
 				EE200002000000000000A003 /* mediatailor_empty_avail.m3u8 in Resources */,
 				EE200002000000000000A004 /* mediatailor_oversize_pod.m3u8 in Resources */,
+				DH200002000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd in Resources */,
+				DH200002000000000000A001 /* mediatailor_dash_dynamic_live.mpd in Resources */,
+				DH200002000000000000A002 /* mediatailor_dash_mixed_representations.mpd in Resources */,
+				DH200002000000000000A003 /* mediatailor_dash_no_periods.mpd in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -696,6 +723,7 @@
 				CD200001000000000000A001 /* MTAdDecodeTests.m in Sources */,
 				EE200001000000000000A000 /* MTHlsParserTests.m in Sources */,
 				FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */,
+				DH200001000000000000A000 /* MTDashParserTests.m in Sources */,
 				CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */,
 				C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */,
 				D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */,
