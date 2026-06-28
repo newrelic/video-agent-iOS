@@ -9,6 +9,4 @@ target 'SimplePlayerUsingPods' do
   # Core video tracking functionality
   pod 'NewRelicVideoAgent', :path => '../../../'
   pod 'NRAVPlayerTracker', :path => '../../../'
-  # MediaTailor ad tracking (server-side stitched ads via AVPlayer)
-  pod 'NRMediaTailorTracker', :path => '../../../'
 end
