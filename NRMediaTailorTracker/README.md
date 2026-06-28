@@ -65,7 +65,6 @@ The tracker emits the standard New Relic ad event vocabulary, plus `AD_ERROR`. S
 
 ## Known limitations
 
-- **HLS only** in the first release. A DASH adapter protocol ships as a seam; the DASH parser is a follow-up module.
 - **HTTP GET** is used for `/v1/tracking` for Android parity, even though the documented MediaTailor contract is POST. This deviation is intentional and called out in the tracking client source.
 - **No VAST beacon firing.** Beacon URLs from the tracking JSON are surfaced as event attributes only.
 - **No OMID / viewability.** `adVerifications` metadata is surfaced as event attributes only; the tracker does not initialize OMID sessions or manage ad views.
@@ -79,7 +78,7 @@ Both platforms ship in v1. AVPlayer API is shared, so the bulk of the module is 
 
 ## DASH adapter seam
 
-V1 ships an HLS parser only. DASH is not first-class in `AVPlayer`, so customers using a third-party DASH player (THEOplayer, Bitmovin, Shaka) can plug their own manifest parser into the tracker by conforming to the `MTManifestParser` Obj-C protocol and injecting the parser with `-[NRTrackerMediaTailor setManifestParser:]`. The protocol exposes one method, `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. The built-in `MTHlsParser` conforms to it directly. A stub `MTDashParser` ships alongside as a placeholder; it returns an empty `MTManifestParseResult` and logs a warning so a misconfigured customer notices immediately. A real DASH parser is a fast-follow module — the seam means a customer can ship one without forking the SDK.
+V1 ships both an HLS parser (`MTHlsParser`) and a DASH parser (`MTDashParser`) out of the box. Both conform to the `MTManifestParser` Obj-C protocol, which exposes one method: `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. `MTDashParser` handles the canonical AWS MediaTailor DASH cases — multi-period VOD, dynamic live with SCTE-35 `EventStream` markers, `<Location>`-anchored tracking-URL recovery — and applies the Bug A7 fix that the Android module never shipped: a `<Period>` is classified as ad only when **every** `<Representation>` (across every `<AdaptationSet>`) resolves to an ad-segment-marker URL. Mixed-classification periods are dropped (classified as content) and counted on `-[MTDashParser mixedPeriodCount]` for runtime telemetry. Customers using third-party DASH players (THEOplayer, Bitmovin, Shaka) with non-standard CDN layouts can still inject their own parser via `-[NRTrackerMediaTailor setManifestParser:]`.
 
 ## First-clone bootstrap
 
