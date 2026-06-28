@@ -81,6 +81,16 @@ Both platforms ship in v1. AVPlayer API is shared, so the bulk of the module is 
 
 V1 ships an HLS parser only. DASH is not first-class in `AVPlayer`, so customers using a third-party DASH player (THEOplayer, Bitmovin, Shaka) can plug their own manifest parser into the tracker by conforming to the `MTManifestParser` Obj-C protocol and injecting the parser with `-[NRTrackerMediaTailor setManifestParser:]`. The protocol exposes one method, `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. The built-in `MTHlsParser` conforms to it directly. A stub `MTDashParser` ships alongside as a placeholder; it returns an empty `MTManifestParseResult` and logs a warning so a misconfigured customer notices immediately. A real DASH parser is a fast-follow module — the seam means a customer can ship one without forking the SDK.
 
+## First-clone bootstrap
+
+The tracker's xcodeproj links against a pre-built `NewRelicVideoCore.framework` in `../NewRelicVideoCore/build/`. Run this once after cloning the repo:
+
+```bash
+./scripts/bootstrap-newrelic-video-core.sh
+```
+
+The script builds NewRelicVideoCore for all four SDK/simulator combinations (`iphonesimulator`, `iphoneos`, `appletvsimulator`, `appletvos`) so both the iOS and tvOS schemes link cleanly. Re-run if you bump the NewRelicVideoCore source.
+
 ## Verification
 
 ### Unit tests
