@@ -108,6 +108,14 @@ QOE_AGGREGATE events carry all standard VideoAction attributes (viewId, viewSess
 | rebufferingRatio          | Rebuffering time as a percentage of total playtime: (totalRebufferingTime / totalPlaytime) * 100.                    |
 | hadStartupError           | True if an error occurred before content start.                                                                      |
 | hadPlaybackError          | True if an error occurred after content start.                                                                       |
+| avgDownloadRate           | Mean of every observed network download throughput sample during content (bps). Consecutive duplicate samples are de-duped to avoid bias from idle windows where the player reports the same stale value. Omitted when no sample was observed. |
+| minDownloadRate           | Minimum observed network download throughput sample during content (bps). Omitted when no sample was observed.       |
+| maxDownloadRate           | Maximum observed network download throughput sample during content (bps). Omitted when no sample was observed.       |
+| totalSwitchUps            | Count of content rendition changes whose new bitrate was higher than the previous rendition.                         |
+| totalSwitchDowns          | Count of content rendition changes whose new bitrate was lower than the previous rendition.                          |
+| totalPauseTime            | Total content pause duration (ms). Includes any currently-open pause at emit time, so mid-pause harvests report a growing value rather than a stale one. |
+| totalRenditions           | Count of distinct content renditions observed during the session, keyed by `contentRenditionWidth × contentRenditionHeight`. Pixel-area keying is robust to streams that label distinct resolution variants with the same bitrate. |
+| qoeAggregateVersion       | Schema version of the QOE_AGGREGATE event (currently `1.1.0`). Bump when the KPI set or semantics change.            |
 
 ### VideoAdAction
 

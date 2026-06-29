@@ -9,7 +9,7 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 ## Features
 
 - **Automatic Event Detection** — Captures AVPlayer lifecycle events automatically without manual instrumentation
-- **QoE Metrics** — Quality of Experience aggregation for startup time, buffering ratio, bitrate, and playback errors
+- **QoE Metrics** — Per-session aggregate covering startup time, rebuffering, bitrate (peak / average / per-sample download rate min / max / mean), adaptive-bitrate behavior (rendition switch counts, distinct renditions seen), pause time, and playback errors. See [DATAMODEL.md](./DATAMODEL.md#qoe_aggregate-attributes) for the full attribute reference.
 - **Event Segregation** — Organized event types: `VideoAction`, `VideoAdAction`, `VideoErrorAction`, `VideoCustomAction`
 - **IMA Ads Support** — Built-in Google IMA SDK ad tracking via dedicated ad tracker
 - **tvOS Support** — Auto-detection of Apple TV with optimized harvest cycles
