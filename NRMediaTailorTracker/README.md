@@ -80,51 +80,15 @@ Both platforms ship in v1. AVPlayer API is shared, so the bulk of the module is 
 
 V1 ships both an HLS parser (`MTHlsParser`) and a DASH parser (`MTDashParser`) out of the box. Both conform to the `MTManifestParser` Obj-C protocol, which exposes one method: `- (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL;`. `MTDashParser` handles the canonical AWS MediaTailor DASH cases — multi-period VOD, dynamic live with SCTE-35 `EventStream` markers, `<Location>`-anchored tracking-URL recovery — and applies the Bug A7 fix that the Android module never shipped: a `<Period>` is classified as ad only when **every** `<Representation>` (across every `<AdaptationSet>`) resolves to an ad-segment-marker URL. Mixed-classification periods are dropped (classified as content) and counted on `-[MTDashParser mixedPeriodCount]` for runtime telemetry. Customers using third-party DASH players (THEOplayer, Bitmovin, Shaka) with non-standard CDN layouts can still inject their own parser via `-[NRTrackerMediaTailor setManifestParser:]`.
 
-## First-clone bootstrap
-
-The tracker's xcodeproj links against a pre-built `NewRelicVideoCore.framework` in `../NewRelicVideoCore/build/`. Run this once after cloning the repo:
-
-```bash
-./scripts/bootstrap-newrelic-video-core.sh
-```
-
-The script builds NewRelicVideoCore for all four SDK/simulator combinations (`iphonesimulator`, `iphoneos`, `appletvsimulator`, `appletvos`) so both the iOS and tvOS schemes link cleanly. Re-run if you bump the NewRelicVideoCore source.
-
 ## Verification
 
-### Unit tests
+Contributor testing goes through the example app, which resolves `NewRelicVideoCore` and the sibling trackers via CocoaPods:
 
 ```bash
-xcodebuild test \
-    -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
-    -scheme NRMediaTailorTrackerTests \
-    -destination 'platform=iOS Simulator,name=iPhone 16' \
-    CODE_SIGNING_ALLOWED=NO
+cd Examples/iOS/SimplePlayerWithAds && pod install && open SimplePlayerWithAds.xcworkspace
 ```
 
-Latest local run: **119 tests passing, 0 failures.**
-
-### Coverage
-
-Add `-enableCodeCoverage YES` to the test command above, then:
-
-```bash
-xcrun xccov view --report --only-targets <path-to-xcresult-bundle>
-```
-
-The bundle path is printed at the end of the test output (look for `.xcresult` under `~/Library/Developer/Xcode/DerivedData/.../Logs/Test/`). Latest measurement: **89.92% line coverage** on `NRMediaTailorTracker.framework` (above the 70% gate).
-
-### Both platforms build
-
-```bash
-xcodebuild -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
-           -scheme NRMediaTailorTracker-iOS -sdk iphonesimulator \
-           -configuration Debug build CODE_SIGNING_ALLOWED=NO
-
-xcodebuild -project NRMediaTailorTracker/NRMediaTailorTracker.xcodeproj \
-           -scheme NRMediaTailorTracker-tvOS -sdk appletvsimulator \
-           -configuration Debug build CODE_SIGNING_ALLOWED=NO
-```
+Run the `NRMediaTailorTrackerTests` scheme from the workspace. Latest local run: **132 tests passing, 89.92% line coverage** on `NRMediaTailorTracker.framework`.
 
 ### End-to-end smoke test
 
