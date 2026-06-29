@@ -288,6 +288,10 @@ static void * const kTrackerTimeControlStatusContext = (void *)&kTrackerTimeCont
     return @"NRMediaTailorTracker";
 }
 
+- (NSString *)getTrackerVersion {
+    return @"4.2.0";
+}
+
 - (NSMutableDictionary *)getAttributes:(NSString *)action
                             attributes:(NSDictionary *)attributes {
     NSMutableDictionary *attrs = [super getAttributes:action attributes:attributes];
