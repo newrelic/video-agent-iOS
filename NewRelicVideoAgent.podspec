@@ -34,6 +34,11 @@ Pod::Spec.new do |s|
 
   s.source_files = 'NewRelicVideoCore/NewRelicVideoCore/**/*.m', 'NewRelicVideoCore/NewRelicVideoCore/**/*.h'
 
+  # PoC: KMP shared-core (exports Kotlin NRQoEAggregator as ObjC class NRSCNRQoEAggregator).
+  # Vendored so the framework embeds; the shadow exercise lives in the example app target
+  # (the vendoring pod cannot import its own vendored framework header at compile time).
+  s.ios.vendored_frameworks = 'NRSharedCore.xcframework'
+
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'NewRelicAgent'
