@@ -21,6 +21,29 @@ These ten anti-patterns are non-goals. They are guardrails to keep future contri
 
 ## Integration
 
+**Recommended — config-based (parity with IMA, mirrors Android `NRAdConfig`):**
+
+```objc
+#import <NewRelicVideoCore/NewRelicVideoCore.h>
+
+// The agent creates + attaches an NRTrackerMediaTailor for you. Use
+// NRAdConfig.mediaTailor() (or +mediaTailorWithSegmentPrefix:trackingUrl:
+// for custom CDNs). Pass nil adConfig to disable ads; NRAdConfig.csai() = IMA.
+AVPlayer *player = [[AVPlayer alloc] initWithURL:streamURL];
+NRVAVideoPlayerConfiguration *cfg = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MyPlayer"
+                player:player
+              adConfig:[NRAdConfig mediaTailor]
+      customAttributes:nil];
+NSInteger trackerId = [NRVAVideo addPlayer:cfg];
+
+// Grab the auto-created tracker to feed the merged schedule (below).
+NRTrackerMediaTailor *tracker =
+    (NRTrackerMediaTailor *)[[NewRelicVideoAgent sharedInstance] adTracker:@(trackerId)];
+```
+
+**Alternative — explicit wiring:**
+
 ```objc
 #import <NRMediaTailorTracker/NRMediaTailorTracker.h>
 
@@ -28,6 +51,12 @@ These ten anti-patterns are non-goals. They are guardrails to keep future contri
 //    NewRelicVideoAgent the same way you register an IMA tracker.
 AVPlayer *player = [[AVPlayer alloc] initWithURL:streamURL];
 NRTrackerMediaTailor *tracker = [[NRTrackerMediaTailor alloc] init];
+
+// Optional config (all have sensible defaults — set only if you need them):
+tracker.adSegmentPrefix = @"/mycdn/ads/"; // custom-CDN ad-segment marker; default AWS paths (/tm/, /v1/hlssegment/, …) work out of the box
+tracker.trackingUrl     = @"https://host/v1/tracking/<sessionId>"; // override when the /v1/master → /v1/tracking derivation can't be inferred from the manifest URL
+tracker.pollIntervalMs  = 250; // playhead poll cadence; default 250 ms, clamped to 100…5000
+
 [tracker setPlayer:player];
 [NewRelicVideoAgent.sharedInstance startWithContentTracker:contentTracker adTracker:tracker];
 

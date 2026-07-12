@@ -33,7 +33,7 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     if (text.length == 0) {
         return [MTManifestParseResult empty];
     }
-    return [MTHlsParser parseManifestText:text manifestURL:baseURL customSegmentMarkers:nil];
+    return [MTHlsParser parseManifestText:text manifestURL:baseURL customSegmentMarkers:self.customSegmentMarkers];
 }
 
 
