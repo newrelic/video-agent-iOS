@@ -37,6 +37,7 @@
 #import "MTAdPod.h"
 #import "MTAdErrorCode.h"
 #import "MTTrackingClient.h"
+#import "MTDetector.h"
 
 NSString * const NRMediaTailorTrackerErrorDomain = @"NRMediaTailorTracker";
 
@@ -79,9 +80,49 @@ static void * const kTrackerTimeControlStatusContext = (void *)&kTrackerTimeCont
 
 - (id<MTManifestParser>)manifestParser {
     if (_manifestParser == nil) {
-        _manifestParser = [[MTHlsParser alloc] init];
+        MTHlsParser *hls = [[MTHlsParser alloc] init];
+        hls.customSegmentMarkers = [self customSegmentMarkers];
+        _manifestParser = hls;
     }
     return _manifestParser;
+}
+
+#pragma mark - Config plumbing (P0-110 / P0-111 / P0-112)
+
+- (void)setAdSegmentPrefix:(NSString *)adSegmentPrefix {
+    _adSegmentPrefix = [adSegmentPrefix copy];
+    // Push into an already-created HLS parser; the lazy getter covers the
+    // not-yet-created case.
+    if ([_manifestParser isKindOfClass:[MTHlsParser class]]) {
+        ((MTHlsParser *)_manifestParser).customSegmentMarkers = [self customSegmentMarkers];
+    }
+}
+
+/// The configured prefix as the parser's extra-markers array (nil when unset).
+- (nullable NSArray<NSString *> *)customSegmentMarkers {
+    return _adSegmentPrefix.length > 0 ? @[_adSegmentPrefix] : nil;
+}
+
+- (nullable NSURL *)resolvedTrackingURLForManifestURL:(nullable NSURL *)manifestURL {
+    if (self.trackingUrl.length > 0) {
+        return [NSURL URLWithString:self.trackingUrl];
+    }
+    return [MTDetector deriveTrackingURL:manifestURL];
+}
+
+/// `pollIntervalMs` as seconds for the state machine: 0 → 250 ms default;
+/// otherwise clamped to [100, 5000] ms with a warning on out-of-range.
+- (NSTimeInterval)resolvedPlayheadPollInterval {
+    NSUInteger ms = self.pollIntervalMs;
+    if (ms == 0) { return 0.250; }
+    if (ms < 100) {
+        NSLog(@"[NRMediaTailorTracker] pollIntervalMs %lu below 100ms floor; clamping to 100.", (unsigned long)ms);
+        ms = 100;
+    } else if (ms > 5000) {
+        NSLog(@"[NRMediaTailorTracker] pollIntervalMs %lu above 5000ms ceiling; clamping to 5000.", (unsigned long)ms);
+        ms = 5000;
+    }
+    return (NSTimeInterval)ms / 1000.0;
 }
 
 #pragma mark - Player attachment / KVO
@@ -174,7 +215,7 @@ static void * const kTrackerTimeControlStatusContext = (void *)&kTrackerTimeCont
     NSParameterAssert(schedule != nil);
     [self stopTracking];
     self.stateMachine = [[MTPlayheadStateMachine alloc] initWithSchedule:schedule
-                                                    playheadPollInterval:0.250];
+                                                    playheadPollInterval:[self resolvedPlayheadPollInterval]];
     self.stateMachine.delegate = self;
     if (self.avPlayer != nil) {
         [self.stateMachine attachToPlayer:self.avPlayer];

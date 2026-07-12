@@ -64,13 +64,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MTHlsParser : NSObject <MTManifestParser>
 
+/// Optional custom segment-marker substrings applied on the instance
+/// `MTManifestParser` protocol path (`-parseManifest:baseURL:`). Nil/empty →
+/// defaults only. This is how `NRTrackerMediaTailor.adSegmentPrefix` (P0-110)
+/// reaches the parse without widening the format-agnostic protocol method.
+@property (nonatomic, copy, nullable) NSArray<NSString *> *customSegmentMarkers;
+
 /// `MTManifestParser` conformance (T11 seam). Decodes `manifest` as UTF-8 and
 /// delegates to `+parseManifestText:manifestURL:customSegmentMarkers:` with
-/// `customSegmentMarkers = nil`. Empty `manifest` returns an empty result.
-///
-/// Customers needing custom segment markers should keep using the class
-/// method directly; the protocol carries no slot for them on purpose so the
-/// seam stays manifest-format agnostic.
+/// the instance `customSegmentMarkers` (nil unless set). Empty `manifest`
+/// returns an empty result.
 - (MTManifestParseResult *)parseManifest:(nullable NSData *)manifest
                                  baseURL:(nullable NSURL *)baseURL;
 

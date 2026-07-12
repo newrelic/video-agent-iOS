@@ -20,6 +20,13 @@
 @property (nonatomic, readonly, nullable) MTPlayheadStateMachine *stateMachine;
 @end
 
+static MergedSchedule *MTMakeTrivialSchedule(void) {
+    MTAdPod *pod = [[MTAdPod alloc] initWithStartTimeMs:1000 durationMs:2000];
+    MTAdBreak *brk = [[MTAdBreak alloc] initWithAvailId:@"a" startTimeMs:1000 durationMs:2000];
+    [brk.pods addObject:pod];
+    return [[MergedSchedule alloc] initWithBreaks:@[brk] pendingErrors:@[]];
+}
+
 
 @interface NRTrackerMediaTailorLifecycleTests : XCTestCase
 @end
@@ -135,6 +142,59 @@
     XCTAssertNotNil(t.stateMachine);
 
     [t dispose];
+}
+
+#pragma mark - P0-112: pollIntervalMs config
+
+- (void)testPollIntervalMs_defaultIs250ms {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    [t startTrackingWithSchedule:MTMakeTrivialSchedule()];
+    XCTAssertEqualWithAccuracy(t.stateMachine.playheadPollInterval, 0.250, 0.0001);
+}
+
+- (void)testPollIntervalMs_customValuePlumbsThrough {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    t.pollIntervalMs = 1000;
+    [t startTrackingWithSchedule:MTMakeTrivialSchedule()];
+    XCTAssertEqualWithAccuracy(t.stateMachine.playheadPollInterval, 1.0, 0.0001);
+}
+
+- (void)testPollIntervalMs_clampsBelowFloor {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    t.pollIntervalMs = 50;   // below 100ms floor
+    [t startTrackingWithSchedule:MTMakeTrivialSchedule()];
+    XCTAssertEqualWithAccuracy(t.stateMachine.playheadPollInterval, 0.100, 0.0001);
+}
+
+- (void)testPollIntervalMs_clampsAboveCeiling {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    t.pollIntervalMs = 9000;  // above 5000ms ceiling
+    [t startTrackingWithSchedule:MTMakeTrivialSchedule()];
+    XCTAssertEqualWithAccuracy(t.stateMachine.playheadPollInterval, 5.0, 0.0001);
+}
+
+#pragma mark - P0-111: trackingUrl override
+
+- (void)testResolvedTrackingURL_overrideUsedVerbatim {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    t.trackingUrl = @"https://custom.cdn.example/track/session-1";
+    NSURL *manifest = [NSURL URLWithString:@"https://x.mediatailor.us-east-1.amazonaws.com/v1/master/a/b.m3u8?aws.sessionId=SID"];
+    XCTAssertEqualObjects([t resolvedTrackingURLForManifestURL:manifest].absoluteString,
+                          @"https://custom.cdn.example/track/session-1");
+}
+
+- (void)testResolvedTrackingURL_fallsBackToDerivation {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];  // no override
+    NSURL *manifest = [NSURL URLWithString:@"https://x.mediatailor.us-east-1.amazonaws.com/v1/master/a/b.m3u8?aws.sessionId=SID"];
+    NSURL *resolved = [t resolvedTrackingURLForManifestURL:manifest];
+    XCTAssertNotNil(resolved);
+    XCTAssertTrue([resolved.absoluteString containsString:@"/v1/tracking/"],
+                  @"fallback should derive a /v1/tracking/ URL");
+}
+
+- (void)testResolvedTrackingURL_nilWhenNoOverrideAndNotDerivable {
+    NRTrackerMediaTailor *t = [[NRTrackerMediaTailor alloc] init];
+    XCTAssertNil([t resolvedTrackingURLForManifestURL:nil]);
 }
 
 @end

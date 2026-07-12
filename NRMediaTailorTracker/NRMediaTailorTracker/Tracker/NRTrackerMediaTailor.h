@@ -49,6 +49,36 @@ NS_ASSUME_NONNULL_BEGIN
 /// parser must be safe to call from non-main queues.
 @property (nonatomic, strong) id<MTManifestParser> manifestParser;
 
+/// Custom ad-segment URL marker for CDNs that don't use the default AWS
+/// MediaTailor paths (`segments.mediatailor`, `/v1/hlssegment/`,
+/// `/v1/dashsegment/`, `/tm/`). When non-nil/non-empty, it is appended to the
+/// default marker list used during HLS manifest parsing so matching segments
+/// are classified as ads. Nil/empty → default behavior. Parity with VideoJS
+/// `mtOptions.adSegmentPrefix` and Android `segmentPrefix`. (P0-110)
+///
+/// Threading: main-queue only. Set before `-startTrackingWithSchedule:`.
+@property (nonatomic, copy, nullable) NSString *adSegmentPrefix;
+
+/// Explicit tracking-API URL override. When non-nil/non-empty it is used
+/// verbatim (see `-resolvedTrackingURLForManifestURL:`); otherwise the URL is
+/// derived from the manifest URL via `+[MTDetector deriveTrackingURL:]`. Use
+/// this for split-hostname / custom-CDN deployments where the derivation
+/// heuristic breaks. Parity with VideoJS `mtOptions.trackingUrl` and Android
+/// `NRAdConfig.trackingUrl`. (P0-111)
+@property (nonatomic, copy, nullable) NSString *trackingUrl;
+
+/// Playhead poll cadence in milliseconds, driving quartile precision and
+/// event latency vs. CPU/battery cost. `0` (default) uses 250 ms. Non-zero
+/// values are clamped to `100...5000` ms (a warning is logged on clamp).
+/// Plumbed to `MTPlayheadStateMachine` at `-startTrackingWithSchedule:`.
+/// Parity with Android `pollIntervalMs`. (P0-112)
+@property (nonatomic, assign) NSUInteger pollIntervalMs;
+
+/// Resolve the tracking-API URL for a given manifest URL: returns
+/// `trackingUrl` verbatim when set (non-empty), else
+/// `+[MTDetector deriveTrackingURL:manifestURL]` (may be nil). (P0-111)
+- (nullable NSURL *)resolvedTrackingURLForManifestURL:(nullable NSURL *)manifestURL;
+
 /// YES once `-dispose` has been called. After this, `-setPlayer:`,
 /// `-startTrackingWithSchedule:`, and the state-machine delegate callbacks
 /// all short-circuit. The tracker is single-use; create a new instance for

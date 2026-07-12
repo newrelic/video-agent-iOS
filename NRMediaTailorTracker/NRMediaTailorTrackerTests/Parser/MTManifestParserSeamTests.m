@@ -62,6 +62,40 @@
     XCTAssertEqualWithAccuracy(brk.durationMs, 10000.0, 1.0);
 }
 
+/// P0-110: an ad segment on a non-default (custom-CDN) path is only detected
+/// as an ad break when `customSegmentMarkers` is set on the parser instance —
+/// this is what `NRTrackerMediaTailor.adSegmentPrefix` plumbs into.
+- (void)testHlsParser_customSegmentMarkers_detectsCustomCDNAdSegments {
+    NSString *manifest =
+        @"#EXTM3U\n"
+        @"#EXT-X-VERSION:6\n"
+        @"#EXT-X-TARGETDURATION:6\n"
+        @"#EXTINF:6.0,\n"
+        @"https://cdn.acme.example/content/seg1.ts\n"
+        @"#EXT-X-DISCONTINUITY\n"
+        @"#EXTINF:5.0,\n"
+        @"https://cdn.acme.example/ads/seg-ad1.ts\n"
+        @"#EXTINF:5.0,\n"
+        @"https://cdn.acme.example/ads/seg-ad2.ts\n"
+        @"#EXT-X-DISCONTINUITY\n"
+        @"#EXTINF:6.0,\n"
+        @"https://cdn.acme.example/content/seg2.ts\n"
+        @"#EXT-X-ENDLIST\n";
+    NSData *data = [manifest dataUsingEncoding:NSUTF8StringEncoding];
+
+    // Without the custom marker, the /ads/ path is invisible → no ad break.
+    MTHlsParser *plain = [[MTHlsParser alloc] init];
+    XCTAssertEqual([plain parseManifest:data baseURL:nil].breaks.count, 0u,
+                   @"custom-CDN ad path must not match default markers");
+
+    // With the custom marker set, the same segments are classified as an ad.
+    MTHlsParser *custom = [[MTHlsParser alloc] init];
+    custom.customSegmentMarkers = @[@"/ads/"];
+    MTManifestParseResult *result = [custom parseManifest:data baseURL:nil];
+    XCTAssertEqual(result.breaks.count, 1u, @"custom marker should surface the ad break");
+    XCTAssertEqualWithAccuracy(result.breaks.firstObject.durationMs, 10000.0, 1.0);
+}
+
 - (void)testHlsParser_parseManifestBaseURL_emptyDataReturnsEmptyResult {
     id<MTManifestParser> parser = [[MTHlsParser alloc] init];
     MTManifestParseResult *result = [parser parseManifest:[NSData data] baseURL:nil];

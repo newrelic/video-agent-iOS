@@ -163,22 +163,25 @@
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
 
-    // Set up the MediaTailor tracker. Unlike the IMA path, MediaTailor
-    // ads are server-side-stitched, so we do NOT instantiate
-    // IMAAdsLoader / IMAAdsManager.
-    self.mediaTailorTracker = [[NRTrackerMediaTailor alloc] init];
-    [self.mediaTailorTracker setPlayer:player];
-
+    // Config-based wiring — parity with the IMA path. `NRAdConfig.mediaTailor()`
+    // tells the agent to create and attach an `NRTrackerMediaTailor` as the ad
+    // tracker (custom-CDN: use `+mediaTailorWithSegmentPrefix:trackingUrl:`).
+    // No IMAAdsLoader / IMAAdsManager — MediaTailor ads are server-side-stitched.
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"MediaTailorPlayer"
         player:player
-        adEnabled:YES
+        adConfig:[NRAdConfig mediaTailor]
         customAttributes:@{
             @"videoURL": videoURLString,
             @"adStitching": @"server-side",
             @"customTag": @"SimplePlayerWithAds-MediaTailor",
         }];
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
+
+    // The agent already created the tracker and attached it to the player; grab
+    // it so we can feed the merged schedule once the manifest + tracking JSON
+    // are available (MediaTailor is a passive schedule observer).
+    self.mediaTailorTracker = (NRTrackerMediaTailor *)[[NewRelicVideoAgent sharedInstance] adTracker:@(self.trackerId)];
 
     NSLog(@"🎥 [MediaTailor] Started MediaTailor video tracking with ID: %ld", (long)self.trackerId);
 
