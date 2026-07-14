@@ -16,6 +16,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 jobs:
   publish:
@@ -339,6 +340,14 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Release Notes Docs PR
+        if: env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh workflow run release-notes-docs-pr.yml --ref master --field tag="v${{ steps.get_version.outputs.version }}" --field dry_run=false
+          echo "Triggered release-notes-docs-pr.yml for v${{ steps.get_version.outputs.version }}"
 
       - name: Verify publication
         run: |
