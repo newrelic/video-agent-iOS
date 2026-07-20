@@ -1,0 +1,11 @@
+{
+  "avails": [
+    {
+      "availId": "avail-no-fill",
+      "startTimeInSeconds": 60.0,
+      "durationInSeconds": 30.0,
+      "ads": []
+    }
+  ],
+  "nonLinearAvails": []
+}
