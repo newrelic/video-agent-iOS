@@ -292,7 +292,10 @@
         if ([action isEqualToString:CONTENT_START] && self.qoeAggregator) {
             [self.qoeAggregator setTotalPreRollAdTime:self.totalPreRollAdTime];
         }
-        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying];
+        // A CONTENT_PAUSE during a break is the player paused for the ad, not a user pause.
+        BOOL adBreakActive = [self.linkedTracker isKindOfClass:[NRVideoTracker class]]
+                             && ((NRVideoTracker *)self.linkedTracker).state.isAdBreak;
+        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying adBreakActive:adBreakActive];
         self.lastContentEventAttributes = [attributes copy];
     }
 
@@ -935,24 +938,38 @@
     // Dirty check: Only send if KPI attributes have changed
     if ([self qoeAttributesChangedFrom:self.lastSentQoEAttributes to:qoeEvent]) {
         self.lastSentQoEAttributes = qoeEvent;
-        NRVA_DEBUG_LOG(@"[QOE_AGGREGATE] => {\n"
-                       "  startupTime          = %@\n"
-                       "  peakBitrate          = %@\n"
-                       "  averageBitrate       = %@\n"
-                       "  totalPlaytime        = %@\n"
-                       "  totalRebufferingTime = %@\n"
-                       "  rebufferingRatio     = %@\n"
-                       "  hadStartupError      = %@\n"
-                       "  hadPlaybackError     = %@\n"
+                NRVA_DEBUG_LOG(@"[QOE_AGGREGATE] => {\n"
+                       "  startupTime           = %@\n"
+                       "  peakBitrate           = %@\n"
+                       "  averageBitrate        = %@\n"
+                       "  totalPlaytime         = %@\n"
+                       "  totalRebufferingTime  = %@\n"
+                       "  rebufferingRatio      = %@\n"
+                       "  hadStartupError       = %@\n"
+                       "  hadPlaybackError      = %@\n"
+                       "  avgDownloadRate       = %@\n"
+                       "  minDownloadRate       = %@\n"
+                       "  maxDownloadRate       = %@\n"
+                       "  totalSwitchUps        = %@\n"
+                       "  totalSwitchDowns      = %@\n"
+                       "  totalPauseTime        = %@\n"
+                       "  totalRenditions       = %@\n"
                        "}",
-                       qoeEvent[@"startupTime"]          ?: @"(nil)",
-                       qoeEvent[@"peakBitrate"]          ?: @"(nil)",
-                       qoeEvent[@"averageBitrate"]        ?: @"(nil)",
-                       qoeEvent[@"totalPlaytime"]         ?: @"(nil)",
-                       qoeEvent[@"totalRebufferingTime"]  ?: @"(nil)",
-                       qoeEvent[@"rebufferingRatio"]      ?: @"(nil)",
-                       qoeEvent[@"hadStartupError"]       ?: @"(nil)",
-                       qoeEvent[@"hadPlaybackError"]      ?: @"(nil)");
+                       qoeEvent[@"startupTime"]            ?: @"(nil)",
+                       qoeEvent[@"peakBitrate"]            ?: @"(nil)",
+                       qoeEvent[@"averageBitrate"]         ?: @"(nil)",
+                       qoeEvent[@"totalPlaytime"]          ?: @"(nil)",
+                       qoeEvent[@"totalRebufferingTime"]   ?: @"(nil)",
+                       qoeEvent[@"rebufferingRatio"]       ?: @"(nil)",
+                       qoeEvent[@"hadStartupError"]        ?: @"(nil)",
+                       qoeEvent[@"hadPlaybackError"]       ?: @"(nil)",
+                       qoeEvent[@"avgDownloadRate"]        ?: @"(nil)",
+                       qoeEvent[@"minDownloadRate"]        ?: @"(nil)",
+                       qoeEvent[@"maxDownloadRate"]        ?: @"(nil)",
+                       qoeEvent[@"totalSwitchUps"]         ?: @"(nil)",
+                       qoeEvent[@"totalSwitchDowns"]       ?: @"(nil)",
+                       qoeEvent[@"totalPauseTime"]         ?: @"(nil)",
+                       qoeEvent[@"totalRenditions"]        ?: @"(nil)");
         return qoeEvent;
     }
 

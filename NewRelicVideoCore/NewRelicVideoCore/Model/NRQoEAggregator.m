@@ -11,6 +11,7 @@
 
 @interface NRQoEAggregator () {
     long _totalPreRollAdTime;  // Instance variable for startup calculation
+    BOOL _adBreakActive;       // YES while the current content event occurs during an ad break
 }
 
 // --- Lifecycle flags ---
@@ -50,6 +51,24 @@
 // Used to compute rebufferingRatio = (totalRebufferingTime / lastTotalPlaytime) * 100
 @property (nonatomic) long lastTotalPlaytime;     // ms, latest value from event attributes
 
+@property (nonatomic) double downloadRateSum;                      // running total of all readings
+@property (nonatomic) long downloadRateSampleCount;                // how many readings we've seen
+@property (nonatomic, strong, nullable) NSNumber *minDownloadRate; // smallest reading so far
+@property (nonatomic, strong, nullable) NSNumber *maxDownloadRate; // largest reading so far
+// Last accepted sample. nil until the first observation.
+@property (nonatomic, strong, nullable) NSNumber *lastDownloadRateSample;
+
+// --- Rendition switch counts ---
+@property (nonatomic) long totalSwitchUps;    // count of quality upgrades   (shift == "up")
+@property (nonatomic) long totalSwitchDowns;  // count of quality downgrades (shift == "down")
+
+// --- Pause accumulator ---
+@property (nonatomic) long totalPauseTime;              // ms; closed-segment total
+@property (nonatomic) NSTimeInterval pauseStartTimestamp; // wall-clock secs; 0 = not paused
+
+// --- Distinct content renditions seen this session ---
+@property (nonatomic, strong) NSMutableSet<NSNumber *> *playedRenditions;
+
 @end
 
 @implementation NRQoEAggregator
@@ -73,10 +92,21 @@
         self.bitrateTotalDuration = 0;
         self.totalRebufferingTime = 0;
         self.hasSkippedFirstBuffer = NO;
+        self.downloadRateSum = 0;
+        self.downloadRateSampleCount = 0;
+        self.minDownloadRate = nil;
+        self.maxDownloadRate = nil;
+        self.lastDownloadRateSample = nil;
+        self.totalSwitchUps = 0;
+        self.totalSwitchDowns = 0;
         self.hadStartupError = NO;
         self.hadPlaybackError = NO;
         self.lastTotalPlaytime = 0;
+        self.totalPauseTime = 0;
+        self.pauseStartTimestamp = 0;
+        self.playedRenditions = [NSMutableSet set];
         _totalPreRollAdTime = 0;
+        _adBreakActive = NO;
     }
 }
 
@@ -104,7 +134,17 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
             CONTENT_END:        ^(NRQoEAggregator *agg, NSDictionary *attrs) {
                 [agg flushBitrateSegment];
             },
+            CONTENT_RENDITION_CHANGE: ^(NRQoEAggregator *agg, NSDictionary *attrs) {
+                [agg handleRenditionChangeWithAttributes:attrs];
+            },
+            CONTENT_PAUSE: ^(NRQoEAggregator *agg, NSDictionary *attrs) {
+                [agg handlePause];
+            },
+            CONTENT_RESUME: ^(NRQoEAggregator *agg, NSDictionary *attrs) {
+                [agg handleResumeWithAttributes:attrs];
+            },
         };
+
     }
 }
 
@@ -112,7 +152,14 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
 // At this point, the tracker pipeline has already assembled all attributes
 // (timeSince values, bitrate, playtime, bufferType, etc.), so we just read them.
 - (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying {
+    [self processAction:action attributes:attributes isPlaying:isPlaying adBreakActive:NO];
+}
+
+- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying adBreakActive:(BOOL)adBreakActive {
     @synchronized (self) {
+        // Stash ad-break state before the action handler runs (handlePause reads it).
+        _adBreakActive = adBreakActive;
+
         // Always grab the latest totalPlaytime — the tracker updates this before every event
         NSNumber *playtime = attributes[@"totalPlaytime"];
         if (playtime) {
@@ -129,8 +176,14 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
             [self resumeBitrateTimer];
         }
 
+        [self updateDownloadRateFromAttributes:attributes];
+
         // Track bitrate from every content event for time-weighted average + peak
         [self updateBitrateFromAttributes:attributes];
+
+        // CONTENT_RENDITION_CHANGE. Recording here lets the first event carrying a valid
+        // W×H (e.g. CONTENT_BUFFER_END / heartbeat) seed the set. The Set dedups, so repeats don't over-count.
+        [self recordCurrentRenditionFromAttributes:attributes];
 
         // Action-specific KPI extraction via dispatch table
         QoEActionHandler handler = sActionHandlers[action];
@@ -191,6 +244,18 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
             } else {
                 attrs[KPI_REBUFFERING_RATIO] = @(0.0);
             }
+
+            // --- Total pause time (ms) ---
+            // For mid-pause harvests.
+            long pauseTime = self.totalPauseTime;
+            if (self.pauseStartTimestamp > 0) {
+                NSTimeInterval now = [[NSDate date] timeIntervalSince1970];
+                long openSegment = (long)((now - self.pauseStartTimestamp) * 1000.0);
+                if (openSegment > 0) {
+                    pauseTime += openSegment;
+                }
+            }
+            attrs[KPI_TOTAL_PAUSE_TIME] = @(pauseTime);
         }
 
         // --- Error flags ---
@@ -204,6 +269,24 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
             // Error before start — report it immediately
             attrs[KPI_HAD_STARTUP_ERROR] = @YES;
         }
+
+        // network download bitrate.
+        if (self.downloadRateSampleCount > 0) {
+            attrs[KPI_AVG_DOWNLOAD_RATE] = @((long)round(self.downloadRateSum / self.downloadRateSampleCount));
+        }
+        if (self.minDownloadRate != nil) {
+            attrs[KPI_MIN_DOWNLOAD_RATE] = self.minDownloadRate;
+        }
+        if (self.maxDownloadRate != nil) {
+            attrs[KPI_MAX_DOWNLOAD_RATE] = self.maxDownloadRate;
+        }
+
+        // --- Rendition switch counts (mirrors Android; always emitted) ---
+        attrs[KPI_TOTAL_SWITCH_UPS] = @(self.totalSwitchUps);
+        attrs[KPI_TOTAL_SWITCH_DOWNS] = @(self.totalSwitchDowns);
+
+        // --- Distinct rendition count ---
+        attrs[KPI_TOTAL_RENDITIONS] = @((long)self.playedRenditions.count);
 
         return [attrs copy];
     }
@@ -238,6 +321,13 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     if (self.lastBitrateChangeTimestamp == 0) {
         self.lastBitrateChangeTimestamp = [[NSDate date] timeIntervalSince1970];
     }
+
+    // Seed the initial rendition. Required because NRTrackerAVPlayer's
+    // checkRenditionChange (NRTrackerAVPlayer.m:351-354) silently stamps
+    // lastWidth/Height on the first valid observation WITHOUT firing
+    // CONTENT_RENDITION_CHANGE — so the change-handler path never sees the
+    // initial variant. We seed from CONTENT_START's attributes instead.
+    [self recordCurrentRenditionFromAttributes:attributes];
 }
 
 - (void)handleBufferEndWithAttributes:(NSDictionary *)attributes {
@@ -266,6 +356,53 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     } else {
         self.hadStartupError = YES;
     }
+}
+
+// Count rendition up/down switches from the player-published "shift" attribute.
+// Fires only on CONTENT_RENDITION_CHANGE. On iOS, shift ("up"/"down") is computed
+// from resolution area in NRTrackerAVPlayer. isEqual: is safe against nil and NSNull
+- (void)handleRenditionChangeWithAttributes:(NSDictionary *)attributes {
+    NSString *shift = attributes[@"shift"];
+    if ([shift isEqual:@"up"]) {
+        self.totalSwitchUps += 1;
+    } else if ([shift isEqual:@"down"]) {
+        self.totalSwitchDowns += 1;
+    }
+    [self recordCurrentRenditionFromAttributes:attributes];
+}
+
+// Add the current rendition (W × H) to the distinct-variants set.
+- (void)recordCurrentRenditionFromAttributes:(NSDictionary *)attributes {
+    NSNumber *w = attributes[@"contentRenditionWidth"];
+    NSNumber *h = attributes[@"contentRenditionHeight"];
+    if (![w isKindOfClass:[NSNumber class]] || ![h isKindOfClass:[NSNumber class]]) return;
+    long width = [w longValue], height = [h longValue];
+    if (width <= 0 || height <= 0) return;
+    [self.playedRenditions addObject:@(width * height)];
+}
+
+// CONTENT_PAUSE: arm the open-segment timer. The closed-segment accumulator
+// is NOT touched here — it gets fed by timeSincePaused on the matching RESUME.
+- (void)handlePause {
+    // A content pause during an ad break is the player paused for the ad, not a
+    // user pause — don't arm the timer, so it isn't counted in totalPauseTime.
+    if (_adBreakActive) {
+        return;
+    }
+    self.pauseStartTimestamp = [[NSDate date] timeIntervalSince1970];
+}
+
+// CONTENT_RESUME: bank the closed segment using timeSincePaused (already
+// computed by the timeSince table) and disarm the open-segment timer.
+//
+// IMPORTANT: pauseStartTimestamp = 0 MUST happen here.
+- (void)handleResumeWithAttributes:(NSDictionary *)attributes {
+    // Only bank the closed segment if the matching pause armed the timer.
+    NSNumber *timeSincePaused = attributes[@"timeSincePaused"];
+    if (timeSincePaused && self.pauseStartTimestamp > 0) {
+        self.totalPauseTime += [timeSincePaused longValue];
+    }
+    self.pauseStartTimestamp = 0;
 }
 
 // TIME-WEIGHTED AVERAGE BITRATE ALGORITHM:
@@ -317,6 +454,33 @@ static NSDictionary<NSString *, QoEActionHandler> *sActionHandlers;
     }
 
     self.currentBitrate = bitrate;
+}
+
+- (void)updateDownloadRateFromAttributes:(NSDictionary *)attributes {
+    NSNumber *downloadRateValue = attributes[@"contentNetworkDownloadBitrate"];
+    if (![downloadRateValue isKindOfClass:[NSNumber class]]) {
+        return;
+    }
+
+    long sample = [downloadRateValue longValue];
+    if (sample <= 0) {
+        return;
+    }
+
+    if (self.lastDownloadRateSample != nil
+        && [self.lastDownloadRateSample longValue] == sample) {
+        return;
+    }
+    self.lastDownloadRateSample = @(sample);
+
+    self.downloadRateSum += sample;
+    self.downloadRateSampleCount += 1;
+
+    self.minDownloadRate = (self.minDownloadRate == nil)
+        ? @(sample) : @(MIN([self.minDownloadRate longValue], sample));
+
+    self.maxDownloadRate = (self.maxDownloadRate == nil)
+        ? @(sample) : @(MAX([self.maxDownloadRate longValue], sample));
 }
 
 // Called on CONTENT_END to close the final bitrate segment.
