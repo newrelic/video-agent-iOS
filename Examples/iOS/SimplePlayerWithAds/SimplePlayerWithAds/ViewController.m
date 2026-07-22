@@ -92,13 +92,13 @@ static const double kTC1TopBitrate = 4000000;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.playerController.player.currentItem.preferredPeakBitRate = kTC1MidBitrate;
     });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(23 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(27 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.playerController.player.currentItem.preferredPeakBitRate = kTC1TopBitrate;
     });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(26 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(34 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         self.playerController.player.currentItem.preferredPeakBitRate = kTC1MidBitrate;
     });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(29 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(41 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSLog(@"GAMEDAY TC1 pausing for 10s");
         [self.playerController.player pause];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
