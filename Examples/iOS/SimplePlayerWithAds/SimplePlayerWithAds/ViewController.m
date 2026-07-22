@@ -86,6 +86,7 @@ static const double kTC1TopBitrate = 4000000;
 - (void)runTC1 {
     NSLog(@"GAMEDAY TC1 started");
     [self playVideo:kGamedayAssetURL];
+    self.view.userInteractionEnabled = NO;
     self.playerController.player.currentItem.preferredPeakBitRate = kTC1LowBitrate;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
@@ -102,6 +103,7 @@ static const double kTC1TopBitrate = 4000000;
         [self.playerController.player pause];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.playerController.player play];
+            self.view.userInteractionEnabled = YES;
         });
     });
 }
@@ -109,6 +111,7 @@ static const double kTC1TopBitrate = 4000000;
 - (void)runTC2 {
     NSLog(@"GAMEDAY TC2 started");
     [self playVideo:kGamedayAssetURL];
+    self.view.userInteractionEnabled = NO;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSLog(@"GAMEDAY TC2 triggering broken URL");
@@ -130,6 +133,7 @@ static const double kTC1TopBitrate = 4000000;
         [NRVAVideo recordCustomEvent:@"GAMEDAY_TC2_CUSTOM_EVENT"
                           trackerId:@(self.trackerId)
                          attributes:@{}];
+        self.view.userInteractionEnabled = YES;
     });
 }
 
