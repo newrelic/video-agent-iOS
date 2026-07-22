@@ -36,14 +36,101 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+
     self.multipleAdTagURL = @"http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod%26deployment%3Dgmf-js&cmsid=496&vid=short_onecue&correlator=";
-    
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                             selector:@selector(appDidBecomeActive:)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    
+
+    [self setupGamedayButtons];
+}
+
+static NSString * const kGamedayAssetURL = @"https://devstreaming-cdn.apple.com/videos/streaming/examples/bipbop_adv_example_hevc/master.m3u8";
+static const double kTC1LowBitrate = 400000;
+static const double kTC1MidBitrate = 1100000;
+static const double kTC1TopBitrate = 4000000;
+
+- (void)setupGamedayButtons {
+    NSArray<NSString *> *titles = @[@"Run TC0: Baseline", @"Run TC1: Happy Path", @"Run TC2: Stress/Error"];
+    NSArray *selectors = @[
+        [NSValue valueWithPointer:@selector(runTC0)],
+        [NSValue valueWithPointer:@selector(runTC1)],
+        [NSValue valueWithPointer:@selector(runTC2)]
+    ];
+    UIView *previousAnchorView = nil;
+    for (NSInteger i = 0; i < titles.count; i++) {
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+        button.translatesAutoresizingMaskIntoConstraints = NO;
+        [button setTitle:titles[i] forState:UIControlStateNormal];
+        SEL selector;
+        [selectors[i] getValue:&selector];
+        [button addTarget:self action:selector forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:button];
+        [button.centerXAnchor constraintEqualToAnchor:self.view.centerXAnchor].active = YES;
+        if (previousAnchorView == nil) {
+            [button.bottomAnchor constraintEqualToAnchor:self.view.safeAreaLayoutGuide.bottomAnchor constant:-80].active = YES;
+        } else {
+            [button.bottomAnchor constraintEqualToAnchor:previousAnchorView.topAnchor constant:-8].active = YES;
+        }
+        previousAnchorView = button;
+    }
+}
+
+- (void)runTC0 {
+    NSLog(@"GAMEDAY TC0 started");
+    [self playVideo:kGamedayAssetURL];
+}
+
+- (void)runTC1 {
+    NSLog(@"GAMEDAY TC1 started");
+    [self playVideo:kGamedayAssetURL];
+    self.playerController.player.currentItem.preferredPeakBitRate = kTC1LowBitrate;
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(20 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.playerController.player.currentItem.preferredPeakBitRate = kTC1MidBitrate;
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(23 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.playerController.player.currentItem.preferredPeakBitRate = kTC1TopBitrate;
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(26 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        self.playerController.player.currentItem.preferredPeakBitRate = kTC1MidBitrate;
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(29 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"GAMEDAY TC1 pausing for 10s");
+        [self.playerController.player pause];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.playerController.player play];
+        });
+    });
+}
+
+- (void)runTC2 {
+    NSLog(@"GAMEDAY TC2 started");
+    [self playVideo:kGamedayAssetURL];
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"GAMEDAY TC2 triggering broken URL");
+        NSString *brokenUrlString = [NSString stringWithFormat:@"https://commondatastorage.googleapis.com/does-not-exist/broken-%f.mp4", [[NSDate date] timeIntervalSince1970]];
+        AVPlayerItem *brokenItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:brokenUrlString]];
+        [self.playerController.player replaceCurrentItemWithPlayerItem:brokenItem];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        AVPlayerItem *item = self.playerController.player.currentItem;
+        CMTime duration = item.duration;
+        if (CMTIME_IS_VALID(duration) && CMTimeGetSeconds(duration) > 3) {
+            NSLog(@"GAMEDAY TC2 seeking near end");
+            CMTime seekTarget = CMTimeSubtract(duration, CMTimeMake(3, 1));
+            [self.playerController.player seekToTime:seekTarget];
+        }
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(9 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"GAMEDAY TC2 firing one custom event");
+        [NRVAVideo recordCustomEvent:@"GAMEDAY_TC2_CUSTOM_EVENT"
+                          trackerId:@(self.trackerId)
+                         attributes:@{}];
+    });
 }
 
 - (void)appDidBecomeActive:(NSNotification *)notif {
