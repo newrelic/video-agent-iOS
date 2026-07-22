@@ -114,12 +114,6 @@ static const double kTC1TopBitrate = 4000000;
     self.view.userInteractionEnabled = NO;
 
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        NSLog(@"GAMEDAY TC2 triggering broken URL");
-        NSString *brokenUrlString = [NSString stringWithFormat:@"https://commondatastorage.googleapis.com/does-not-exist/broken-%f.mp4", [[NSDate date] timeIntervalSince1970]];
-        AVPlayerItem *brokenItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:brokenUrlString]];
-        [self.playerController.player replaceCurrentItemWithPlayerItem:brokenItem];
-    });
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         AVPlayerItem *item = self.playerController.player.currentItem;
         CMTime duration = item.duration;
         if (CMTIME_IS_VALID(duration) && CMTimeGetSeconds(duration) > 3) {
@@ -127,6 +121,12 @@ static const double kTC1TopBitrate = 4000000;
             CMTime seekTarget = CMTimeSubtract(duration, CMTimeMake(3, 1));
             [self.playerController.player seekToTime:seekTarget];
         }
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"GAMEDAY TC2 triggering broken URL");
+        NSString *brokenUrlString = [NSString stringWithFormat:@"https://commondatastorage.googleapis.com/does-not-exist/broken-%f.mp4", [[NSDate date] timeIntervalSince1970]];
+        AVPlayerItem *brokenItem = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:brokenUrlString]];
+        [self.playerController.player replaceCurrentItemWithPlayerItem:brokenItem];
     });
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(9 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         NSLog(@"GAMEDAY TC2 firing one custom event");
