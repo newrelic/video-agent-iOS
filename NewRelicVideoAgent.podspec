@@ -34,6 +34,11 @@ Pod::Spec.new do |s|
 
   s.source_files = 'NewRelicVideoCore/NewRelicVideoCore/**/*.m', 'NewRelicVideoCore/NewRelicVideoCore/**/*.h'
 
+  # Milestone 1: KMP shared-core QoE aggregator, run in shadow inside NRVideoTracker.m. Declared as
+  # a dependency (not vendored directly here) so NewRelicVideoCore's sources can actually import its
+  # generated header — see NRSharedCore.podspec for why.
+  s.dependency 'NRSharedCore'
+
   # s.public_header_files = 'Pod/Classes/**/*.h'
   # s.frameworks = 'UIKit', 'MapKit'
   # s.dependency 'NewRelicAgent'
