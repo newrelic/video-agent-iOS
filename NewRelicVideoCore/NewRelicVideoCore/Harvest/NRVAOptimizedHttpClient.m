@@ -11,6 +11,7 @@
 #import "NRVATokenManager.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
+#import "NRVADeviceInformation.h"
 
 static const int kMaxRetryAttempts = 3;
 
@@ -219,7 +220,7 @@ static const int kMaxRetryAttempts = 3;
     NSString *architecture = [self getArchitecture];
     NSString *agentName = @"NewRelic-VideoAgent-iOS";
     NSString *agentVersion = @"4.2.0";
-    NSString *deviceId = [NRVAUtils generateSessionId];
+    NSString *deviceId = [NRVADeviceInformation sharedInstance].deviceId;
     NSString *manufacturer = @"Apple";
     
     NSDictionary *deviceMetadata = @{
