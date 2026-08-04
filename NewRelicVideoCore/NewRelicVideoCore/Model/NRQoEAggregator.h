@@ -59,6 +59,15 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying;
 
 /**
+ As above, but marks whether this content event occurred during an ad break.
+ A CONTENT_PAUSE delivered with adBreakActive == YES is the player paused for an
+ ad, not a user pause, so it is excluded from totalPauseTime.
+
+ @param adBreakActive Whether an ad break is currently in progress (from the linked ad tracker).
+ */
+- (void)processAction:(NSString *)action attributes:(NSDictionary *)attributes isPlaying:(BOOL)isPlaying adBreakActive:(BOOL)adBreakActive;
+
+/**
  Generate the QoE aggregate attributes dictionary.
  Includes the current in-progress bitrate segment in the average calculation
  so that intermediate reports (during playback) are accurate.

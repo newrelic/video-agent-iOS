@@ -530,7 +530,12 @@
     [self sendResume];
     // Send END
     [super sendEnd];
-    
+
+    // Reset the rendition-shift baseline so the NEXT view's first rendition is
+    // treated as a first observation
+    self.lastRenditionWidth = 0;
+    self.lastRenditionHeight = 0;
+
     AV_LOG(@"(AVPlayerTracker) sendEnd");
 }
 

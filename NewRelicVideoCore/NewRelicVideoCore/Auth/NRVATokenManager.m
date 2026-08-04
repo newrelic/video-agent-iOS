@@ -10,6 +10,7 @@
 #import "NRVAVideoConfiguration.h"
 #import "NRVAUtils.h"
 #import "NRVALog.h"
+#import "NRVADeviceInformation.h"
 
 #import <UIKit/UIKit.h>
 
@@ -187,6 +188,8 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
         return @"https://mobile-collector.ap.newrelic.com/mobile/v5/connect";
     } else if ([region isEqualToString:@"GOV"]) {
         return @"https://gov-mobile-collector.newrelic.com/mobile/v5/connect";
+    } else if ([region isEqualToString:@"JP"]) {
+        return @"https://mobile-collector.jp.nr-data.net/mobile/v5/connect";
     } else {
         return @"https://mobile-collector.newrelic.com/mobile/v5/connect"; // US/DEFAULT
     }
@@ -278,7 +281,7 @@ static const NSTimeInterval kNRVA_READ_TIMEOUT = 30.0;    // 30 seconds for TV n
     NSString *architecture = [self getArchitecture];
     NSString *agentName = @"NewRelic-VideoAgent-iOS";
     NSString *agentVersion = @"4.2.0";
-    NSString *deviceId = [NRVAUtils generateSessionId]; // Use session ID as device identifier
+    NSString *deviceId = [NRVADeviceInformation sharedInstance].deviceId;
     NSString *manufacturer = @"Apple";
     
     // Device metadata
