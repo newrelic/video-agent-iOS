@@ -273,6 +273,8 @@ static const int kMaxRetryAttempts = 3;
         return @"https://mobile-collector.ap.newrelic.com/mobile/v3/data";
     } else if ([region isEqualToString:@"GOV"]) {
         return @"https://gov-mobile-collector.newrelic.com/mobile/v3/data";
+    } else if ([region isEqualToString:@"JP"]) {
+        return @"https://mobile-collector.jp.nr-data.net/mobile/v3/data";
     } else {
         return @"https://mobile-collector.newrelic.com/mobile/v3/data"; // US/DEFAULT
     }
