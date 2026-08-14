@@ -1,10 +1,9 @@
 // swift-tools-version:5.5
 import PackageDescription
 
-// NOTE: url/checksum below are placeholders, intentionally not tied to a real release.
-// They are populated automatically by ios-release.yml as part of the next real version
-// bump - this file does not become resolvable via SPM until that next release runs.
-// See SPM_SUPPORT.md for the full design and rollout plan.
+// NOTE: url/checksum below are placeholders, not tied to a release yet.
+// They are populated automatically by ios-publish.yml as part of the next
+// version release - this file does not become resolvable via SPM until then.
 let releaseTag = "REPLACED_ON_NEXT_RELEASE"
 let releaseBaseURL = "https://github.com/newrelic/video-agent-iOS/releases/download"
 
