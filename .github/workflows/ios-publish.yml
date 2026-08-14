@@ -47,6 +47,11 @@ jobs:
           gem install cocoapods
           pod --version
 
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Extract version from podspec
         id: get_version
         run: |
@@ -161,12 +166,73 @@ jobs:
           fi
           echo "CocoaPods trunk authentication verified"
 
+      - name: Build XCFrameworks
+        run: |
+          chmod +x ./build-xcframeworks.sh
+          ./build-xcframeworks.sh
+
+      - name: Update Package.swift for SPM
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG="v${VERSION}"
+
+          echo "Updating Package.swift release tag to $TAG..."
+          sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
+          rm -f Package.swift.bak
+
+          # Checksums are computed from the exact zips this job just built above -
+          # the same files "Create GitHub Release" attaches later in this job. Never
+          # recompute these against a separately-built zip: a fresh xcodebuild run
+          # produces different file mtimes, which changes the zip bytes and therefore
+          # the checksum, even when the compiled content is identical.
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker; do
+            CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
+            echo "${fw} checksum: ${CHECKSUM}"
+
+            FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
+              my $name = $ENV{FW_NAME};
+              my $checksum = $ENV{FW_CHECKSUM};
+              s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
+            ' Package.swift
+          done
+
+          if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
+            echo "Failed to update releaseTag in Package.swift"
+            exit 1
+          fi
+
+          if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
+            echo "Failed to update one or more checksums in Package.swift"
+            exit 1
+          fi
+
+          echo ""
+          echo "Package.swift after update:"
+          cat Package.swift
+
+          echo ""
+          echo "Verifying Package.swift resolves..."
+          swift package dump-package > /dev/null
+
+          # Package.swift must be committed and pushed to master before the tag below
+          # is created, since SPM resolves Package.swift as of the tagged commit's tree -
+          # a tag created first would still point at the placeholder checksums.
+          if git diff --quiet -- Package.swift; then
+            echo "Package.swift already up to date, nothing to commit"
+          elif [ "$DRY_RUN" = "true" ]; then
+            echo "[DRY RUN] Would commit and push: chore: update Package.swift for ${TAG}"
+            git diff -- Package.swift
+          else
+            git add Package.swift
+            git commit -m "chore: update Package.swift for ${TAG}"
+            git push origin HEAD:master
+            echo "Package.swift committed and pushed to master"
+          fi
+
       - name: Create and push git tag
         if: env.DRY_RUN != 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           echo "Creating tag v$VERSION..."
           git tag "v$VERSION"
@@ -313,12 +379,6 @@ jobs:
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Build XCFrameworks
-        if: env.DRY_RUN != 'true'
-        run: |
-          chmod +x ./build-xcframeworks.sh
-          ./build-xcframeworks.sh
-
       - name: Create GitHub Release
         if: env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@v1
@@ -335,10 +395,16 @@ jobs:
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
             - NRMediaTailorTracker `${{ steps.get_version.outputs.version }}`
 
+            Also available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
+
             ### What's Changed
 
             ${{ steps.changelog.outputs.changelog }}
-          files: xcframeworks.zip
+          files: |
+            xcframeworks.zip
+            NewRelicVideoCore.xcframework.zip
+            NRAVPlayerTracker.xcframework.zip
+            NRIMATracker.xcframework.zip
           draft: false
           prerelease: false
         env:
@@ -366,8 +432,11 @@ jobs:
             echo "  - Version extraction: $VERSION"
             echo "  - Podspec validation: passed"
             echo "  - Trunk authentication: verified"
+            echo "  - XCFramework build: passed"
+            echo "  - Package.swift checksum computation: passed (see [DRY RUN] diff above)"
             echo ""
             echo "Steps skipped (dry run):"
+            echo "  - Package.swift commit/push to master"
             echo "  - Tag creation: v$VERSION"
             echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
             echo "  - XCFramework build"

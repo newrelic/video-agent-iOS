@@ -18,65 +18,73 @@ echo "Removing old framework dependencies..."
 rm -rf NRAVPlayerTracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NRAVPlayerTracker.framework
+rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
 
-# Download Google IMA SDK if not present
-if [ ! -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
-    echo "Downloading Google IMA SDK..."
+# Download a Google IMA SDK variant (iOS or tvOS) into a holding directory under build/,
+# so NRIMATracker's per-platform build steps can swap in the correct one.
+# tvOS note: the current Google IMA tvOS SDK (GoogleAds-IMA-tvOS-SDK) only ships real
+# device+simulator slices from ~> 4.17.0 onward, which requires tvOS 15.0+ - higher than
+# this repo's overall tvOS 12.0 baseline. That's a real constraint of Google's SDK, not
+# something this script can work around, so NRIMATracker's tvOS target is pinned to
+# tvOS 15.0 (see NRIMATracker.xcodeproj) even though the rest of the SDK targets tvOS 12.0.
+download_google_ima_sdk() {
+    local platform=$1          # ios | tvos
+    local min_deployment=$2    # e.g. 12.0 or 15.0
+    local pod_name=$3          # GoogleAds-IMA-iOS-SDK | GoogleAds-IMA-tvOS-SDK
+    local version_constraint=$4 # e.g. '' or "~> 4.17.0"
+    local dest="build/GoogleInteractiveMediaAds-${platform}.xcframework"
 
-    # Create temporary directory for download
-    TEMP_DIR=$(mktemp -d)
-    ORIGINAL_DIR=$(pwd)
-    cd "$TEMP_DIR"
+    if [ -d "$dest" ]; then
+        return 0
+    fi
 
-    # Download the Google IMA SDK (latest version)
-    # Using CocoaPods to get the framework
-    cat > Podfile <<'EOF'
-platform :ios, '12.0'
-install! 'cocoapods', :integrate_targets => false
-use_frameworks!
-pod 'GoogleAds-IMA-iOS-SDK'
-EOF
+    echo "Downloading Google IMA SDK for $platform..."
 
-    # Set UTF-8 encoding for CocoaPods
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    local original_dir="$(pwd)"
+    cd "$temp_dir"
+
+    {
+        echo "platform :${platform}, '${min_deployment}'"
+        echo "install! 'cocoapods', :integrate_targets => false"
+        echo "use_frameworks!"
+        if [ -n "$version_constraint" ]; then
+            echo "pod '${pod_name}', '${version_constraint}'"
+        else
+            echo "pod '${pod_name}'"
+        fi
+    } > Podfile
+
     export LANG=en_US.UTF-8
     export LC_ALL=en_US.UTF-8
 
-    echo "Running 'pod install' in $TEMP_DIR"
+    echo "Running 'pod install' in $temp_dir"
 
-    # Run pod install with error logging
     if ! pod install 2>&1 | tee pod_install.log; then
-        echo "Pod install failed. Log output:"
+        echo "Pod install failed for $pod_name. Log output:"
         cat pod_install.log
-        cd "$ORIGINAL_DIR"
-        rm -rf "$TEMP_DIR"
+        cd "$original_dir"
+        rm -rf "$temp_dir"
         exit 1
     fi
 
-    echo "Checking for SDK at: Pods/GoogleAds-IMA-iOS-SDK/"
-    ls -la Pods/ 2>&1 || echo "Pods directory not found"
-
-    # Extract the XCFramework
-    if [ -d "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" ]; then
-        echo "Found Google IMA SDK XCFramework"
-        cp -R "Pods/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.xcframework" "$ORIGINAL_DIR/NRIMATracker/"
-        echo "Google IMA SDK installed"
+    if [ -d "Pods/${pod_name}/GoogleInteractiveMediaAds.xcframework" ]; then
+        echo "Found Google IMA SDK XCFramework for $platform"
+        mkdir -p "$original_dir/build"
+        cp -R "Pods/${pod_name}/GoogleInteractiveMediaAds.xcframework" "$original_dir/$dest"
     else
-        echo "Failed to download Google IMA SDK"
+        echo "Failed to download Google IMA SDK for $platform"
         echo "Contents of Pods directory:"
         ls -la Pods/ 2>&1 || echo "Pods directory not found"
-        if [ -d "Pods/GoogleAds-IMA-iOS-SDK" ]; then
-            echo "Contents of GoogleAds-IMA-iOS-SDK:"
-            ls -la Pods/GoogleAds-IMA-iOS-SDK/
-        fi
-        cd "$ORIGINAL_DIR"
-        rm -rf "$TEMP_DIR"
+        cd "$original_dir"
+        rm -rf "$temp_dir"
         exit 1
     fi
 
-    # Clean up
-    cd "$ORIGINAL_DIR"
-    rm -rf "$TEMP_DIR"
-fi
+    cd "$original_dir"
+    rm -rf "$temp_dir"
+}
 
 # Function to build for a specific platform
 build_framework() {
@@ -134,12 +142,29 @@ setup_dependency() {
     fi
 }
 
+# Swap in the correct platform's Google IMA SDK xcframework for NRIMATracker's build.
+# Needed because a single xcframework can't hold arbitrary third-party slices the way
+# our own archived frameworks do - each platform's build needs its own copy in place.
+setup_google_ima_sdk() {
+    local target_dir=$1
+    local sdk=$2
+
+    rm -rf "$target_dir/GoogleInteractiveMediaAds.xcframework"
+
+    if [ "$sdk" == "iphoneos" ] || [ "$sdk" == "iphonesimulator" ]; then
+        cp -R "build/GoogleInteractiveMediaAds-ios.xcframework" "$target_dir/GoogleInteractiveMediaAds.xcframework"
+    elif [ "$sdk" == "appletvos" ] || [ "$sdk" == "appletvsimulator" ]; then
+        cp -R "build/GoogleInteractiveMediaAds-tvos.xcframework" "$target_dir/GoogleInteractiveMediaAds.xcframework"
+    fi
+}
+
 # Function to build complete framework with all platforms
 build_complete_framework() {
     local framework=$1
     local ios_scheme=$2
     local tvos_scheme=$3
     local depends_on=$4
+    local needs_google_ima=$5   # "true" for NRIMATracker, empty otherwise
 
     echo ""
     echo "Building $framework..."
@@ -152,6 +177,9 @@ build_complete_framework() {
         if [ -n "$depends_on" ]; then
             rm -rf "$framework/$depends_on.framework" 2>/dev/null
             setup_dependency "$framework" "$depends_on" "iphoneos"
+        fi
+        if [ "$needs_google_ima" == "true" ]; then
+            setup_google_ima_sdk "$framework" "iphoneos"
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
@@ -167,6 +195,9 @@ build_complete_framework() {
             rm -rf "$framework/$depends_on.framework" 2>/dev/null
             setup_dependency "$framework" "$depends_on" "iphonesimulator"
         fi
+        if [ "$needs_google_ima" == "true" ]; then
+            setup_google_ima_sdk "$framework" "iphonesimulator"
+        fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
             extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
@@ -180,6 +211,9 @@ build_complete_framework() {
         if [ -n "$depends_on" ]; then
             rm -rf "$framework/$depends_on.framework" 2>/dev/null
             setup_dependency "$framework" "$depends_on" "appletvos"
+        fi
+        if [ "$needs_google_ima" == "true" ]; then
+            setup_google_ima_sdk "$framework" "appletvos"
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
@@ -195,12 +229,19 @@ build_complete_framework() {
             rm -rf "$framework/$depends_on.framework" 2>/dev/null
             setup_dependency "$framework" "$depends_on" "appletvsimulator"
         fi
+        if [ "$needs_google_ima" == "true" ]; then
+            setup_google_ima_sdk "$framework" "appletvsimulator"
+        fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
             extra_flags="FRAMEWORK_SEARCH_PATHS=\"\\\$(inherited) $project_root/$framework\""
         fi
         build_framework "$framework" "$tvos_scheme" "appletvsimulator" "$framework-tvos-simulator" "$extra_flags"
         rm -rf "$framework/$depends_on.framework" 2>/dev/null
+    fi
+
+    if [ "$needs_google_ima" == "true" ]; then
+        rm -rf "$framework/GoogleInteractiveMediaAds.xcframework"
     fi
 
     # Create XCFramework
@@ -226,20 +267,22 @@ build_complete_framework() {
     echo "$framework.xcframework created successfully!"
 }
 
+# Google IMA SDK - iOS variant (used by NRIMATracker's iOS build)
+download_google_ima_sdk "ios" "12.0" "GoogleAds-IMA-iOS-SDK" ""
+
+# Google IMA SDK - tvOS variant (used by NRIMATracker's tvOS build)
+# Pinned to ~> 4.17.0: this is the first version confirmed to ship real tvOS
+# device+simulator slices, and it requires tvOS 15.0+ (see NRIMATracker.xcodeproj).
+download_google_ima_sdk "tvos" "15.0" "GoogleAds-IMA-tvOS-SDK" "~> 4.17.0"
+
 # Build NewRelicVideoCore first (it's the base dependency)
-build_complete_framework "NewRelicVideoCore" "iOS NewRelicVideoCore" "tvOS NewRelicVideoCore" ""
+build_complete_framework "NewRelicVideoCore" "iOS NewRelicVideoCore" "tvOS NewRelicVideoCore" "" ""
 
 # Build NRAVPlayerTracker (depends on NewRelicVideoCore)
-build_complete_framework "NRAVPlayerTracker" "iOS NRAVPlayerTracker" "tvOS NRAVPlayerTracker" "NewRelicVideoCore"
+build_complete_framework "NRAVPlayerTracker" "iOS NRAVPlayerTracker" "tvOS NRAVPlayerTracker" "NewRelicVideoCore" ""
 
-# Build NRIMATracker (depends on NewRelicVideoCore) - iOS only
-build_complete_framework "NRIMATracker" "NRIMATracker" "" "NewRelicVideoCore"
-
-# Clean up Google IMA SDK after building NRIMATracker
-if [ -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
-    echo "Cleaning up Google IMA SDK..."
-    rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
-fi
+# Build NRIMATracker (depends on NewRelicVideoCore + Google IMA SDK)
+build_complete_framework "NRIMATracker" "iOS NRIMATracker" "tvOS NRIMATracker" "NewRelicVideoCore" "true"
 
 # Build NRMediaTailorTracker (depends on NewRelicVideoCore) - iOS + tvOS
 build_complete_framework "NRMediaTailorTracker" "NRMediaTailorTracker-iOS" "NRMediaTailorTracker-tvOS" "NewRelicVideoCore"
@@ -258,18 +301,23 @@ echo "   - iOS Simulator (arm64 + x86_64)"
 echo "   - tvOS Device (arm64)"
 echo "   - tvOS Simulator (arm64 + x86_64)"
 echo ""
-echo "Note: NRIMATracker is iOS-only (Google IMA SDK doesn't support tvOS)"
+echo "Note: NRIMATracker's tvOS build targets tvOS 15.0+ (Google IMA SDK requirement)."
+echo "      The rest of this SDK targets tvOS 12.0 - this is a deliberate, narrower floor"
+echo "      for IMA ad-tracking on tvOS specifically, not a change to the overall baseline."
 echo ""
 echo "To verify architectures:"
 echo "   find NewRelicVideoCore.xcframework -name 'NewRelicVideoCore' -type f -exec lipo -info {} \\;"
 
 echo ""
+# Per-tracker zips, for SPM (each product independently resolvable) - additive,
+# does not change the combined xcframeworks.zip below, which the existing manual
+# "Install via XCFrameworks" README option continues to rely on unchanged.
+for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker; do
+    zip -rq "${fw}.xcframework.zip" "${fw}.xcframework"
+done
+echo "Per-tracker zips created: NewRelicVideoCore.xcframework.zip, NRAVPlayerTracker.xcframework.zip, NRIMATracker.xcframework.zip"
+
 # Group all .xcframeworks in a folder called xcframeworks
 mkdir -p xcframeworks
 mv *.xcframework xcframeworks/
-
-# Zip the xcframeworks folder
 zip -rq xcframeworks.zip xcframeworks
-
-# Remove the folder and .xcframeworks
-rm -rf xcframeworks
