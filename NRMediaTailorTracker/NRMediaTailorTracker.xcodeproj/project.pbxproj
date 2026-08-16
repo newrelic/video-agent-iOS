@@ -28,6 +28,8 @@
 		CD100002000000000000A000 /* MTAdErrorCode.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A000 /* MTAdErrorCode.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD100003000000000000A000 /* MTAdErrorCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A000 /* MTAdErrorCode.m */; };
 		CD100004000000000000A000 /* MTAdErrorCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A000 /* MTAdErrorCode.m */; };
+		CD100003000000000000A008 /* MTStringHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A008 /* MTStringHelpers.m */; };
+		CD100004000000000000A008 /* MTStringHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A008 /* MTStringHelpers.m */; };
 		CD100001000000000000A001 /* MTTrackingEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A001 /* MTTrackingEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD100002000000000000A001 /* MTTrackingEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = CD100000000000000000A001 /* MTTrackingEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CD100003000000000000A001 /* MTTrackingEvent.m in Sources */ = {isa = PBXBuildFile; fileRef = CD100010000000000000A001 /* MTTrackingEvent.m */; };
@@ -86,6 +88,11 @@
 		CE300003000000000000A001 /* MTTrackingError.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300010000000000000A001 /* MTTrackingError.m */; };
 		CE300004000000000000A001 /* MTTrackingError.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300010000000000000A001 /* MTTrackingError.m */; };
 		CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CE300000000000000000A100 /* MTTrackingClientTests.m */; };
+		CE400001000000000000B000 /* MTManifestFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = CE400000000000000000B000 /* MTManifestFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE400002000000000000B000 /* MTManifestFetcher.h in Headers */ = {isa = PBXBuildFile; fileRef = CE400000000000000000B000 /* MTManifestFetcher.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		CE400003000000000000B000 /* MTManifestFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = CE400010000000000000B000 /* MTManifestFetcher.m */; };
+		CE400004000000000000B000 /* MTManifestFetcher.m in Sources */ = {isa = PBXBuildFile; fileRef = CE400010000000000000B000 /* MTManifestFetcher.m */; };
+		CE400005000000000000B100 /* MTManifestFetcherTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CE400000000000000000B100 /* MTManifestFetcherTests.m */; };
 		FA100001000000000000A000 /* MTManifestParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A000 /* MTManifestParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA100002000000000000A000 /* MTManifestParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A000 /* MTManifestParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FA100001000000000000A001 /* MTDashParser.h in Headers */ = {isa = PBXBuildFile; fileRef = FA100000000000000000A001 /* MTDashParser.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -111,6 +118,7 @@
 		C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C71000000000000000A000 /* MTPlayheadStateMachineTests.m */; };
 		D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */; };
 		D80001000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */; };
+		D80001000000000000A002 /* NRTrackerMediaTailorAutoActivationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D80000000000000000A002 /* NRTrackerMediaTailorAutoActivationTests.m */; };
 		DH200001000000000000A000 /* MTDashParserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DH200000000000000000A000 /* MTDashParserTests.m */; };
 		DH200002000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd */; };
 		DH200002000000000000A001 /* mediatailor_dash_dynamic_live.mpd in Resources */ = {isa = PBXBuildFile; fileRef = DH200010000000000000A001 /* mediatailor_dash_dynamic_live.mpd */; };
@@ -159,6 +167,8 @@
 		AB100000000000000000A004 /* NRMediaTailorTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NRMediaTailorTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD100000000000000000A000 /* MTAdErrorCode.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAdErrorCode.h; sourceTree = "<group>"; };
 		CD100010000000000000A000 /* MTAdErrorCode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTAdErrorCode.m; sourceTree = "<group>"; };
+		CD100000000000000000A008 /* MTStringHelpers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTStringHelpers.h; sourceTree = "<group>"; };
+		CD100010000000000000A008 /* MTStringHelpers.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTStringHelpers.m; sourceTree = "<group>"; };
 		CD100000000000000000A001 /* MTTrackingEvent.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTTrackingEvent.h; sourceTree = "<group>"; };
 		CD100010000000000000A001 /* MTTrackingEvent.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingEvent.m; sourceTree = "<group>"; };
 		CD100000000000000000A002 /* MTAd.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTAd.h; sourceTree = "<group>"; };
@@ -195,6 +205,9 @@
 		CE300000000000000000A001 /* MTTrackingError.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTTrackingError.h; sourceTree = "<group>"; };
 		CE300010000000000000A001 /* MTTrackingError.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingError.m; sourceTree = "<group>"; };
 		CE300000000000000000A100 /* MTTrackingClientTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTTrackingClientTests.m; sourceTree = "<group>"; };
+		CE400000000000000000B000 /* MTManifestFetcher.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTManifestFetcher.h; sourceTree = "<group>"; };
+		CE400010000000000000B000 /* MTManifestFetcher.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestFetcher.m; sourceTree = "<group>"; };
+		CE400000000000000000B100 /* MTManifestFetcherTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTManifestFetcherTests.m; sourceTree = "<group>"; };
 		FA100000000000000000A000 /* MTManifestParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTManifestParser.h; sourceTree = "<group>"; };
 		FA100000000000000000A001 /* MTDashParser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MTDashParser.h; sourceTree = "<group>"; };
 		FA100010000000000000A001 /* MTDashParser.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParser.m; sourceTree = "<group>"; };
@@ -210,6 +223,7 @@
 		C71000000000000000A000 /* MTPlayheadStateMachineTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTPlayheadStateMachineTests.m; sourceTree = "<group>"; };
 		D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorEventTests.m; sourceTree = "<group>"; };
 		D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorLifecycleTests.m; sourceTree = "<group>"; };
+		D80000000000000000A002 /* NRTrackerMediaTailorAutoActivationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerMediaTailorAutoActivationTests.m; sourceTree = "<group>"; };
 		DH200000000000000000A000 /* MTDashParserTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MTDashParserTests.m; sourceTree = "<group>"; };
 		DH200010000000000000A000 /* mediatailor_dash_vod_multiperiod.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_vod_multiperiod.mpd; sourceTree = "<group>"; };
 		DH200010000000000000A001 /* mediatailor_dash_dynamic_live.mpd */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = mediatailor_dash_dynamic_live.mpd; sourceTree = "<group>"; };
@@ -303,6 +317,7 @@
 				C71040000000000000A000 /* StateMachine */,
 				D80000000000000000A000 /* NRTrackerMediaTailorEventTests.m */,
 				D80000000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m */,
+				D80000000000000000A002 /* NRTrackerMediaTailorAutoActivationTests.m */,
 			);
 			path = NRMediaTailorTrackerTests;
 			sourceTree = "<group>";
@@ -333,6 +348,8 @@
 				CD100010000000000000A005 /* MTTrackingResponse.m */,
 				CD100000000000000000A006 /* MTAdPod.h */,
 				CD100010000000000000A006 /* MTAdPod.m */,
+				CD100000000000000000A008 /* MTStringHelpers.h */,
+				CD100010000000000000A008 /* MTStringHelpers.m */,
 				CD100000000000000000A007 /* MTAdBreak.h */,
 				CD100010000000000000A007 /* MTAdBreak.m */,
 			);
@@ -416,6 +433,8 @@
 				CE300010000000000000A000 /* MTTrackingClient.m */,
 				CE300000000000000000A001 /* MTTrackingError.h */,
 				CE300010000000000000A001 /* MTTrackingError.m */,
+				CE400000000000000000B000 /* MTManifestFetcher.h */,
+				CE400010000000000000B000 /* MTManifestFetcher.m */,
 			);
 			path = Net;
 			sourceTree = "<group>";
@@ -424,6 +443,7 @@
 			isa = PBXGroup;
 			children = (
 				CE300000000000000000A100 /* MTTrackingClientTests.m */,
+				CE400000000000000000B100 /* MTManifestFetcherTests.m */,
 			);
 			path = Net;
 			sourceTree = "<group>";
@@ -489,6 +509,7 @@
 				EE100001000000000000A001 /* MTManifestParseResult.h in Headers */,
 				CE300001000000000000A000 /* MTTrackingClient.h in Headers */,
 				CE300001000000000000A001 /* MTTrackingError.h in Headers */,
+				CE400001000000000000B000 /* MTManifestFetcher.h in Headers */,
 				FA100001000000000000A000 /* MTManifestParser.h in Headers */,
 				FA100001000000000000A001 /* MTDashParser.h in Headers */,
 				C70001000000000000A000 /* MTAdState.h in Headers */,
@@ -517,6 +538,7 @@
 				EE100002000000000000A001 /* MTManifestParseResult.h in Headers */,
 				CE300002000000000000A000 /* MTTrackingClient.h in Headers */,
 				CE300002000000000000A001 /* MTTrackingError.h in Headers */,
+				CE400002000000000000B000 /* MTManifestFetcher.h in Headers */,
 				FA100002000000000000A000 /* MTManifestParser.h in Headers */,
 				FA100002000000000000A001 /* MTDashParser.h in Headers */,
 				C70002000000000000A000 /* MTAdState.h in Headers */,
@@ -679,10 +701,12 @@
 				CD100003000000000000A005 /* MTTrackingResponse.m in Sources */,
 				CD100003000000000000A006 /* MTAdPod.m in Sources */,
 				CD100003000000000000A007 /* MTAdBreak.m in Sources */,
+				CD100003000000000000A008 /* MTStringHelpers.m in Sources */,
 				EE100003000000000000A000 /* MTHlsParser.m in Sources */,
 				EE100003000000000000A001 /* MTManifestParseResult.m in Sources */,
 				CE300003000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300003000000000000A001 /* MTTrackingError.m in Sources */,
+				CE400003000000000000B000 /* MTManifestFetcher.m in Sources */,
 				FA100003000000000000A001 /* MTDashParser.m in Sources */,
 				C70003000000000000A001 /* MTPlayheadStateMachine.m in Sources */,
 			);
@@ -704,10 +728,12 @@
 				CD100004000000000000A005 /* MTTrackingResponse.m in Sources */,
 				CD100004000000000000A006 /* MTAdPod.m in Sources */,
 				CD100004000000000000A007 /* MTAdBreak.m in Sources */,
+				CD100004000000000000A008 /* MTStringHelpers.m in Sources */,
 				EE100004000000000000A000 /* MTHlsParser.m in Sources */,
 				EE100004000000000000A001 /* MTManifestParseResult.m in Sources */,
 				CE300004000000000000A000 /* MTTrackingClient.m in Sources */,
 				CE300004000000000000A001 /* MTTrackingError.m in Sources */,
+				CE400004000000000000B000 /* MTManifestFetcher.m in Sources */,
 				FA100004000000000000A001 /* MTDashParser.m in Sources */,
 				C70004000000000000A001 /* MTPlayheadStateMachine.m in Sources */,
 			);
@@ -725,9 +751,11 @@
 				FA200001000000000000A000 /* MTManifestParserSeamTests.m in Sources */,
 				DH200001000000000000A000 /* MTDashParserTests.m in Sources */,
 				CE300005000000000000A100 /* MTTrackingClientTests.m in Sources */,
+				CE400005000000000000B100 /* MTManifestFetcherTests.m in Sources */,
 				C71001000000000000A000 /* MTPlayheadStateMachineTests.m in Sources */,
 				D80001000000000000A000 /* NRTrackerMediaTailorEventTests.m in Sources */,
 				D80001000000000000A001 /* NRTrackerMediaTailorLifecycleTests.m in Sources */,
+				D80001000000000000A002 /* NRTrackerMediaTailorAutoActivationTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

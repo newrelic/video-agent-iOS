@@ -23,7 +23,7 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
 
 @implementation MTHlsParser
 
-#pragma mark - MTManifestParser conformance (T11 seam)
+#pragma mark - MTManifestParser conformance
 
 - (MTManifestParseResult *)parseManifest:(NSData *)manifest baseURL:(NSURL *)baseURL {
     if (manifest.length == 0) {
@@ -55,13 +55,13 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     NSURL *trackingURL = [self findTrackingURLInLines:lines manifestURL:manifestURL];
     NSMutableArray<NSDictionary<NSString *, NSString *> *> *dateRangeBreakCandidates = [NSMutableArray array];
     NSArray<MTAdBreak *> *breaks = [self buildBreaksFromLines:lines
+                                                   manifestURL:manifestURL
                                                        markers:markers
                                        dateRangeBreakCandidates:dateRangeBreakCandidates];
 
-    // Bug A2 / atomic facts §6 — surface DATERANGE-only avails as no-fill
-    // breaks so the merger (T06) emits AD_BREAK_START → AD_BREAK_END for
-    // ad-server-failure / unstitched avails even when the tracking-API path
-    // is unavailable or silent.
+    // Surface DATERANGE-only avails as no-fill breaks so the merger emits
+    // AD_BREAK_START → AD_BREAK_END for ad-server-failure / unstitched
+    // avails even when the tracking-API path is unavailable or silent.
     if (breaks.count == 0 && dateRangeBreakCandidates.count > 0) {
         breaks = [self synthesizeNoFillBreaksFromCandidates:dateRangeBreakCandidates];
     }
@@ -100,6 +100,7 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
 #pragma mark - Break / pod construction
 
 + (NSArray<MTAdBreak *> *)buildBreaksFromLines:(NSArray<NSString *> *)lines
+                                   manifestURL:(nullable NSURL *)manifestURL
                                        markers:(NSArray<NSString *> *)markers
                       dateRangeBreakCandidates:(NSMutableArray<NSDictionary<NSString *, NSString *> *> *)dateRangeBreakCandidates {
     NSMutableArray<MTAdBreak *> *out = [NSMutableArray array];
@@ -143,12 +144,24 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
             continue;
         }
 
-        // Non-comment line: a media segment URL.
+        // Non-comment line: a media segment URL. Real manifests commonly
+        // reference segments *relatively* (e.g. `../../../../segment/{acct}/
+        // {config}/{sessionId}/0/0`) — as raw text that never contains a
+        // `/v1/` prefix at all (the `../` traversal consumes it); it only
+        // appears once resolved against the manifest's own URL. Marker
+        // matching against the raw, unresolved line would silently never
+        // match any `/v1/...`-shaped marker for a real, relative manifest —
+        // resolve first so matching works uniformly for both relative and
+        // already-absolute segment references.
         NSString *segURL = line;
+        NSURL *resolvedSegURL = manifestURL != nil
+            ? [NSURL URLWithString:segURL relativeToURL:manifestURL].absoluteURL
+            : [NSURL URLWithString:segURL];
+        NSString *segURLForMatching = resolvedSegURL != nil ? resolvedSegURL.absoluteString : segURL;
         NSTimeInterval segDurMs = pendingExtInfMs > 0 ? pendingExtInfMs : 0.0;
         NSTimeInterval segStartMs = cursorMs;
 
-        BOOL isAdSegment = [self segmentURL:segURL matchesAnyMarker:markers];
+        BOOL isAdSegment = [self segmentURL:segURLForMatching matchesAnyMarker:markers];
 
         if (isAdSegment) {
             if (currentBreak == nil) {
@@ -201,7 +214,7 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     [br.pods addObject:pod];
 }
 
-// Bug A6: clamp pod to the break window if it would overshoot.
+// Clamp pod to the break window if it would overshoot.
 + (BOOL)clampPodIfNeeded:(MTAdPod *)pod toBreak:(MTAdBreak *)br {
     if (pod == nil || br == nil) return NO;
     NSTimeInterval podEnd = pod.startTimeMs + pod.durationMs;
@@ -220,11 +233,11 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
     [out addObject:br];
 }
 
-#pragma mark - No-fill synthesis (Bug A2 / atomic facts §6)
+#pragma mark - No-fill synthesis
 
 // Given DATERANGE entries with an ad-break CLASS and no matching ad-segment
 // breaks in the manifest, synthesise placeholder MTAdBreaks marked `isNoFill`
-// so the merger (T06) and state machine (T07) can emit AD_BREAK_START /
+// so the merger and state machine can emit AD_BREAK_START /
 // AD_BREAK_END + AD_ERROR(NO_FILL) without depending on the tracking-API.
 + (NSArray<MTAdBreak *> *)synthesizeNoFillBreaksFromCandidates:
     (NSArray<NSDictionary<NSString *, NSString *> *> *)candidates {
@@ -244,6 +257,7 @@ static NSString * const kMTClampedPodCountThreadKey = @"NRMT.MTHlsParser.clamped
                                               startTimeMs:0.0
                                                durationMs:durationMs];
         br.isNoFill = YES;
+        br.startTimeIsUnknown = YES;
         if (startDate.length > 0) {
             br.availProgramDateTime = startDate;
         }

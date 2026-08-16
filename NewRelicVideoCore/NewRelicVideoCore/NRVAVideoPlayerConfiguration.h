@@ -43,6 +43,24 @@ typedef NS_ENUM(NSInteger, NRAdTrackerType) {
 @end
 
 /**
+ * Adopted by ad tracker classes — usually shipped in their own pod, e.g.
+ * `NRTrackerMediaTailor` in `NRMediaTailorTracker` — that need tracker-specific
+ * configuration pushed to them once `+[NRVAVideo addPlayer:]` creates them.
+ *
+ * Declaring this protocol here (in the core, dependency-free framework) lets
+ * `NRVAVideo` configure any conforming tracker generically: no per-tracker-type
+ * branch, and no risk of a KVC key string silently drifting from a setter
+ * selector name, since there is exactly one strongly-typed call.
+ */
+@protocol NRAdTrackerConfigurable <NSObject>
+
+/// @param adConfig The ad configuration selected for this player session.
+/// @param player The player instance from `NRVAVideoPlayerConfiguration`, or nil.
+- (void)configureWithAdConfig:(NRAdConfig *)adConfig player:(nullable id)player;
+
+@end
+
+/**
  * Configuration for video player details and attributes
  * Supports AVPlayer and custom player implementations
  */

@@ -6,6 +6,7 @@
 #import "MTTrackingResponse.h"
 #import "MTAvail.h"
 #import "MTNonLinearAvail.h"
+#import "MTTrackingError.h"
 
 @implementation MTTrackingResponse
 
@@ -22,7 +23,9 @@
 
 + (instancetype)fromJSONData:(NSData *)data error:(NSError **)error {
     if (data.length == 0) {
-        if (error) *error = [NSError errorWithDomain:@"MTTrackingResponse" code:1 userInfo:@{NSLocalizedDescriptionKey: @"empty body"}];
+        if (error) *error = [NSError errorWithDomain:MTTrackingErrorDomain
+                                                 code:MTTrackingErrorCodeInvalidResponse
+                                             userInfo:@{NSLocalizedDescriptionKey: @"empty body"}];
         return nil;
     }
     NSError *jsonError = nil;
@@ -32,7 +35,9 @@
         return nil;
     }
     if (![parsed isKindOfClass:[NSDictionary class]]) {
-        if (error) *error = [NSError errorWithDomain:@"MTTrackingResponse" code:2 userInfo:@{NSLocalizedDescriptionKey: @"top-level not object"}];
+        if (error) *error = [NSError errorWithDomain:MTTrackingErrorDomain
+                                                 code:MTTrackingErrorCodeParseFailed
+                                             userInfo:@{NSLocalizedDescriptionKey: @"top-level not object"}];
         return nil;
     }
     return [self fromDictionary:parsed];

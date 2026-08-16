@@ -22,6 +22,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// One named, ready-to-play MediaTailor sample URL, offered to the user by
+/// `clickMediaTailorSample:` as an action-sheet choice — picking the flow to
+/// exercise is a tap, not a scheme-environment-variable edit.
+@interface MediaTailorSampleOption : NSObject
+
+@property (nonatomic, copy, readonly) NSString *label;
+@property (nonatomic, copy, readonly) NSString *urlString;
+
+- (instancetype)initWithLabel:(NSString *)label urlString:(NSString *)urlString NS_DESIGNATED_INITIALIZER;
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+
 @interface MediaTailorSamples : NSObject
 
 /// Resolved MediaTailor session URL. Never nil. See file header for the
@@ -31,6 +44,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// The NSUserDefaults key consulted by the override path above. Exposed
 /// so tests or developers can clear/set it programmatically.
 + (NSString *)defaultsKey;
+
+/// Named MediaTailor URLs covering the shapes that actually occur in real
+/// deployments — the bare direct/implicit entry URL, the explicit
+/// session-init URL (POST-only; the tracker never does this, the sample app
+/// itself resolves it — see `ViewController.m`'s `resolveMediaTailorSessionURL:`),
+/// and the raw non-CDN endpoint for comparison. Presented to the user as an
+/// action sheet by `clickMediaTailorSample:` so no environment-variable or
+/// NSUserDefaults setup is needed to switch between them.
++ (NSArray<MediaTailorSampleOption *> *)sampleOptions;
 
 @end
 

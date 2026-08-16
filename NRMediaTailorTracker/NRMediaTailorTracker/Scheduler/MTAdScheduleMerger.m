@@ -29,21 +29,27 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
     NSMutableSet<NSString *> *seenDedupKeys = [NSMutableSet set];
 
     // Pass 1: walk the manifest breaks and enrich each one with the best-
-    // matching avail. Manifest geometry wins (Bug A3); tracking provides
-    // metadata only.
+    // matching avail. Manifest geometry wins; tracking provides metadata
+    // only.
     for (MTAdBreak *manifestBreak in (manifestBreaks ?: @[])) {
+        // Duplicate (live window slide). Decide first, before any
+        // matching/enrichment runs: a dropped break never reaches `outBreaks`,
+        // so an error queued against it (`MTMergedScheduleError.adBreak` is
+        // `weak`) would otherwise go orphaned and be silently unmatchable by
+        // `drainPendingErrorsForBreak:` once this method returns.
+        NSString *key = [self dedupKeyForBreak:manifestBreak];
+        if ([seenDedupKeys containsObject:key]) {
+            continue;
+        }
+        [seenDedupKeys addObject:key];
+
         MTAvail *match = [self matchAvailForBreak:manifestBreak in:avails consumed:consumedAvails];
         if (match) {
             [consumedAvails addObject:match];
             [self enrichBreak:manifestBreak withAvail:match outErrors:errors];
         }
 
-        NSString *key = [self dedupKeyForBreak:manifestBreak];
-        if (![seenDedupKeys containsObject:key]) {
-            [seenDedupKeys addObject:key];
-            [outBreaks addObject:manifestBreak];
-        }
-        // else: A4 — duplicate (live window slide). Drop it.
+        [outBreaks addObject:manifestBreak];
     }
 
     // Pass 2: surface avails that did NOT match any manifest break. This
@@ -53,7 +59,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
     //   (b) DATERANGE-only avails synthesized as no-fill by the HLS parser
     //       already arrived in `manifestBreaks` — those got matched above.
     // We still need to emit AD_BREAK_START / AD_BREAK_END for empty avails
-    // returned by the tracking API that have no manifest analog (A2).
+    // returned by the tracking API that have no manifest analog.
     for (MTAvail *avail in avails) {
         if ([consumedAvails containsObject:avail]) continue;
         if (avail.ads.count > 0) {
@@ -95,7 +101,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
     }
     // Pass 2 — same availId. Lets a manifest break carry an availId from a
     // DATERANGE marker and still find its tracking-API counterpart even when
-    // the tracking-API avail is missing startTimeInSeconds (Bug A8 trigger).
+    // the tracking-API avail is missing startTimeInSeconds.
     if (br.availId.length > 0) {
         for (MTAvail *avail in avails) {
             if ([consumed containsObject:avail]) continue;
@@ -110,14 +116,14 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
         if ([consumed containsObject:avail]) continue;
         if (!avail.hasStartTime) continue;
         NSTimeInterval delta = fabs(avail.startTimeMs - br.startTimeMs);
-        if (delta <= bestDelta) {
+        if (delta < bestDelta) {
             best = avail;
             bestDelta = delta;
         }
     }
     if (best) return best;
-    // Pass 4 — positional fallback for the Bug A8 case: a single unconsumed
-    // avail with `hasStartTime == NO` pairs with the current manifest break.
+    // Pass 4 — positional fallback: a single unconsumed avail with
+    // `hasStartTime == NO` pairs with the current manifest break.
     // Without this, the data-integrity warning would never fire.
     MTAvail *positional = nil;
     for (MTAvail *avail in avails) {
@@ -141,7 +147,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
         br.availProgramDateTime = avail.availProgramDateTime;
     }
 
-    // Bug A2: empty ads → no-fill break.
+    // Empty ads → no-fill break.
     if (avail.isNoFill) {
         br.isNoFill = YES;
         [errors addObject:[[MTMergedScheduleError alloc] initWithBreak:br
@@ -150,7 +156,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
         return;
     }
 
-    // Bug A8: avail missing startTimeInSeconds, but ads are present.
+    // Avail missing startTimeInSeconds, but ads are present.
     // Log + queue AD_ERROR + fall back.
     if (!avail.hasStartTime) {
         NSLog(@"[NRMediaTailorTracker] dataIntegrityWarning: avail %@ missing startTimeInSeconds; falling back to first ad startTime",
@@ -159,8 +165,9 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
                                                              errorCode:MTAdErrorCodeMissingAvailStart
                                                                message:@"avail missing startTimeInSeconds; inferred from first ad"]];
         MTAd *firstAd = avail.ads.firstObject;
-        if (firstAd && br.startTimeMs == 0.0) {
+        if (firstAd && br.startTimeIsUnknown) {
             br.startTimeMs = firstAd.startTimeMs;
+            br.startTimeIsUnknown = NO;
         }
     }
 
@@ -183,7 +190,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
             [self applyAd:avail.ads[i] toPod:br.pods[i]];
         }
     } else {
-        // Bug A3: count mismatch. Keep manifest geometry, enrich each pod
+        // Count mismatch. Keep manifest geometry, enrich each pod
         // with the closest-by-startTime tracking ad, flag the break.
         br.podCountMismatch = YES;
         [errors addObject:[[MTMergedScheduleError alloc] initWithBreak:br
@@ -199,7 +206,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
 }
 
 + (void)applyAd:(MTAd *)ad toPod:(MTAdPod *)pod {
-    // Bug B2: identity = creativeId primary, composite fallback.
+    // Identity = creativeId primary, composite fallback.
     pod.primaryKey = [ad primaryKey];
     pod.creativeId = ad.creativeId;
     pod.adId = ad.adId;
@@ -232,6 +239,7 @@ static const NSTimeInterval kMTMergerStartTimeToleranceMs = 500.0;
     MTAdBreak *br = [[MTAdBreak alloc] initWithAvailId:avail.availId
                                            startTimeMs:startMs
                                             durationMs:avail.durationMs];
+    br.startTimeIsUnknown = !avail.hasStartTime;
     if (avail.availProgramDateTime.length > 0) {
         br.availProgramDateTime = avail.availProgramDateTime;
     }

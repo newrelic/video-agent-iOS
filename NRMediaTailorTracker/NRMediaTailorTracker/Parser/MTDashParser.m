@@ -2,8 +2,9 @@
 //  MTDashParser.m
 //  NRMediaTailorTracker
 //
-//  See MTDashParser.h for the design notes (Bug A7 fix, SCTE-35 handling,
-//  filters). Uses NSXMLParser (Foundation) — no new pod deps.
+//  See MTDashParser.h for the design notes (mixed-representation
+//  classification, SCTE-35 handling, filters). Uses NSXMLParser
+//  (Foundation) — no new pod deps.
 //
 
 #import "MTDashParser.h"
@@ -13,6 +14,17 @@
 #import "MTDetector.h"
 
 static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
+
+/// Which container's <BaseURL> child is currently being captured — at most
+/// one at a time, enforced structurally instead of by convention across
+/// four independent BOOL/NSMutableString pairs.
+typedef NS_ENUM(NSInteger, MTBaseURLCaptureTarget) {
+    MTBaseURLCaptureNone = 0,
+    MTBaseURLCaptureTopLevel,
+    MTBaseURLCapturePeriod,
+    MTBaseURLCaptureAdaptation,
+    MTBaseURLCaptureRepresentation,
+};
 
 #pragma mark - Per-period accumulator
 
@@ -56,8 +68,6 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     // Top-level state.
     NSURL *_baseURLParam;
     NSURL *_topLevelBaseURL;                  // resolved <BaseURL> child of <MPD>
-    NSMutableString *_topLevelBaseURLText;    // raw text accumulator
-    BOOL _capturingTopLevelBaseURL;
     NSTimeInterval _availabilityStartTimeUnixMs; // 0 if absent
     BOOL _hasAvailabilityStartTime;
 
@@ -65,13 +75,9 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     BOOL _capturingLocation;
     NSMutableString *_locationText;
 
-    // <BaseURL> text accumulators (depth-aware).
-    BOOL _capturingPeriodBaseURL;
-    NSMutableString *_periodBaseURLText;
-    BOOL _capturingAdaptationBaseURL;
-    NSMutableString *_adaptationBaseURLText;
-    BOOL _capturingRepresentationBaseURL;
-    NSMutableString *_representationBaseURLText;
+    // <BaseURL> text accumulator — depth-aware via _baseURLCaptureTarget.
+    MTBaseURLCaptureTarget _baseURLCaptureTarget;
+    NSMutableString *_baseURLText;
 
     // Period accumulator + running sum-of-prior-durations for `start` fallback.
     MTDashPeriodAcc *_currentPeriod;
@@ -82,7 +88,7 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     BOOL _insideTrackingEventStream;  // urn:aws:elemental:mediatailor:tracking
     double _eventStreamTimescale;     // defaults to 1 per DASH spec
 
-    // Mixed-classification telemetry (Bug A7).
+    // Mixed-classification telemetry.
     NSUInteger _mixedPeriodCount;
 }
 
@@ -109,18 +115,12 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     _parseError = nil;
     _baseURLParam = baseURL;
     _topLevelBaseURL = nil;
-    _topLevelBaseURLText = nil;
-    _capturingTopLevelBaseURL = NO;
     _availabilityStartTimeUnixMs = 0;
     _hasAvailabilityStartTime = NO;
     _capturingLocation = NO;
     _locationText = nil;
-    _capturingPeriodBaseURL = NO;
-    _periodBaseURLText = nil;
-    _capturingAdaptationBaseURL = NO;
-    _adaptationBaseURLText = nil;
-    _capturingRepresentationBaseURL = NO;
-    _representationBaseURLText = nil;
+    _baseURLCaptureTarget = MTBaseURLCaptureNone;
+    _baseURLText = nil;
     _currentPeriod = nil;
     _runningPriorPeriodEndMs = 0;
     _insideAdEventStream = NO;
@@ -175,19 +175,16 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
         if (_currentPeriod != nil) {
             if (_currentPeriod.currentRepresentationBaseURL == nil &&
                 _currentPeriod.currentAdaptationBaseURL == nil) {
-                _capturingPeriodBaseURL = YES;
-                _periodBaseURLText = [NSMutableString string];
+                _baseURLCaptureTarget = MTBaseURLCapturePeriod;
             } else if (_currentPeriod.currentRepresentationBaseURL == nil) {
-                _capturingAdaptationBaseURL = YES;
-                _adaptationBaseURLText = [NSMutableString string];
+                _baseURLCaptureTarget = MTBaseURLCaptureAdaptation;
             } else {
-                _capturingRepresentationBaseURL = YES;
-                _representationBaseURLText = [NSMutableString string];
+                _baseURLCaptureTarget = MTBaseURLCaptureRepresentation;
             }
         } else {
-            _capturingTopLevelBaseURL = YES;
-            _topLevelBaseURLText = [NSMutableString string];
+            _baseURLCaptureTarget = MTBaseURLCaptureTopLevel;
         }
+        _baseURLText = [NSMutableString string];
         return;
     }
 
@@ -249,7 +246,12 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
         if (_currentPeriod == nil) return;
         double presentationTime = [attrs[@"presentationTime"] doubleValue];
         double duration         = [attrs[@"duration"] doubleValue];
-        NSTimeInterval startMs    = (presentationTime / _eventStreamTimescale) * 1000.0;
+        // presentationTime is relative to the enclosing <Period>'s start
+        // (DASH spec) — mirror finalizeCurrentPeriod's start-resolution so an
+        // EventStream-derived break lands at the same absolute position a
+        // BaseURL-classified break in the same period would.
+        NSTimeInterval periodStartMs = _currentPeriod.hasStart ? _currentPeriod.startMs : _runningPriorPeriodEndMs;
+        NSTimeInterval startMs    = periodStartMs + (presentationTime / _eventStreamTimescale) * 1000.0;
         NSTimeInterval durationMs = (duration / _eventStreamTimescale) * 1000.0;
 
         // Resolve availId: prefer Period id, fall back to event messageData.
@@ -277,20 +279,8 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
         [_locationText appendString:string];
         return;
     }
-    if (_capturingRepresentationBaseURL) {
-        [_representationBaseURLText appendString:string];
-        return;
-    }
-    if (_capturingAdaptationBaseURL) {
-        [_adaptationBaseURLText appendString:string];
-        return;
-    }
-    if (_capturingPeriodBaseURL) {
-        [_periodBaseURLText appendString:string];
-        return;
-    }
-    if (_capturingTopLevelBaseURL) {
-        [_topLevelBaseURLText appendString:string];
+    if (_baseURLCaptureTarget != MTBaseURLCaptureNone) {
+        [_baseURLText appendString:string];
         return;
     }
 }
@@ -312,34 +302,28 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     }
 
     if ([elementName isEqualToString:@"BaseURL"]) {
-        NSString *trimmed = nil;
-        if (_capturingRepresentationBaseURL) {
-            trimmed = [_representationBaseURLText stringByTrimmingCharactersInSet:
-                       [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            _currentPeriod.currentRepresentationBaseURL = trimmed;
-            _capturingRepresentationBaseURL = NO;
-            _representationBaseURLText = nil;
-        } else if (_capturingAdaptationBaseURL) {
-            trimmed = [_adaptationBaseURLText stringByTrimmingCharactersInSet:
-                       [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            _currentPeriod.currentAdaptationBaseURL = trimmed;
-            _capturingAdaptationBaseURL = NO;
-            _adaptationBaseURLText = nil;
-        } else if (_capturingPeriodBaseURL) {
-            trimmed = [_periodBaseURLText stringByTrimmingCharactersInSet:
-                       [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            _currentPeriod.periodBaseURL = trimmed;
-            _capturingPeriodBaseURL = NO;
-            _periodBaseURLText = nil;
-        } else if (_capturingTopLevelBaseURL) {
-            trimmed = [_topLevelBaseURLText stringByTrimmingCharactersInSet:
-                       [NSCharacterSet whitespaceAndNewlineCharacterSet]];
-            if (trimmed.length > 0) {
-                _topLevelBaseURL = [self resolveURLString:trimmed against:_baseURLParam];
-            }
-            _capturingTopLevelBaseURL = NO;
-            _topLevelBaseURLText = nil;
+        NSString *trimmed = [_baseURLText stringByTrimmingCharactersInSet:
+                             [NSCharacterSet whitespaceAndNewlineCharacterSet]];
+        switch (_baseURLCaptureTarget) {
+            case MTBaseURLCaptureRepresentation:
+                _currentPeriod.currentRepresentationBaseURL = trimmed;
+                break;
+            case MTBaseURLCaptureAdaptation:
+                _currentPeriod.currentAdaptationBaseURL = trimmed;
+                break;
+            case MTBaseURLCapturePeriod:
+                _currentPeriod.periodBaseURL = trimmed;
+                break;
+            case MTBaseURLCaptureTopLevel:
+                if (trimmed.length > 0) {
+                    _topLevelBaseURL = [self resolveURLString:trimmed against:_baseURLParam];
+                }
+                break;
+            case MTBaseURLCaptureNone:
+                break;
         }
+        _baseURLCaptureTarget = MTBaseURLCaptureNone;
+        _baseURLText = nil;
         return;
     }
 
@@ -388,8 +372,8 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
     if (p == nil) return;
 
     // 1. SCTE-35 / tracking EventStream events take precedence regardless of
-    //    BaseURL classification (atomic facts §10 — they're the canonical
-    //    DASH ad-break markers).
+    //    BaseURL classification — they're the canonical DASH ad-break
+    //    markers.
     if (p.eventStreamBreaks.count > 0) {
         [_breaks addObjectsFromArray:p.eventStreamBreaks];
         // Advance the running cursor by the period duration when known so
@@ -400,13 +384,13 @@ static const NSTimeInterval kMTDashMinAdDurationMs = 500.0;
         return;
     }
 
-    // 2. BaseURL-marker classification (Bug A7 — ALL representations must match).
+    // 2. BaseURL-marker classification (ALL representations must match).
     BOOL classifiedAsAd = NO;
     if (p.representationCount > 0) {
         if (p.representationAdMatchCount == p.representationCount) {
             classifiedAsAd = YES;
         } else if (p.representationAdMatchCount > 0) {
-            // Mixed — Bug A7: classify as content, not ad.
+            // Mixed — classify as content, not ad.
             _mixedPeriodCount += 1;
             NSLog(@"⚠️ [MTDashParser] mixed-content period %@: %lu reps, %lu match ad markers — classifying as CONTENT",
                   p.periodId ?: @"<no-id>",

@@ -7,13 +7,13 @@
 //  firing flags used to dedupe `AD_BREAK_START` / `AD_BREAK_END` /
 //  `AD_START` events.
 //
-//  Identity (Bug A4): for VOD the `availId` + `startTimeMs` are stable. For
-//  live, `availProgramDateTime` (wall-clock) is the only correlation key that
+//  Identity: for VOD the `availId` + `startTimeMs` are stable. For live,
+//  `availProgramDateTime` (wall-clock) is the only correlation key that
 //  survives HLS sliding-window rotation — the schedule merger should use a
 //  compound key `(availId, availProgramDateTime ?? startTimeMs)`.
 //
-//  `isNoFill` (Bug A2): empty avail. The state machine must emit
-//  `AD_BREAK_START` → `AD_BREAK_END` only and never `AD_START` / quartiles.
+//  `isNoFill`: empty avail. The state machine must emit `AD_BREAK_START` →
+//  `AD_BREAK_END` only and never `AD_START` / quartiles.
 //
 
 #import <Foundation/Foundation.h>
@@ -26,28 +26,33 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, nullable) NSString *availId;
 @property (nonatomic, assign) NSTimeInterval startTimeMs;
+
+/// YES when `startTimeMs` is a placeholder (no PROGRAM-DATE-TIME anchor was
+/// available to derive a real position) rather than a genuine manifest
+/// position — including a legitimate preroll parsed at `0`. The schedule
+/// merger's positional fallback must gate on this flag, not on `startTimeMs
+/// == 0.0`, since `0` is itself a valid position for a preroll break.
+@property (nonatomic, assign) BOOL startTimeIsUnknown;
+
 @property (nonatomic, assign) NSTimeInterval durationMs;
 @property (nonatomic, assign, readonly) NSTimeInterval endTimeMs;
 
 @property (nonatomic, copy, nullable) NSString *availProgramDateTime; // ISO 8601 wall-clock (Live)
 
-/// Bug A2: no-fill. When YES, the state machine must NOT emit AD_START /
+/// No-fill. When YES, the state machine must NOT emit AD_START /
 /// AD_QUARTILE / AD_END inside this break.
 @property (nonatomic, assign) BOOL isNoFill;
 
-/// Bug A3: set by the schedule merger when the manifest pod count and tracking
+/// Set by the schedule merger when the manifest pod count and tracking
 /// API ad count disagree. Surfaced as an `AD_BREAK_START` attribute.
 @property (nonatomic, assign) BOOL podCountMismatch;
 
 @property (nonatomic, strong, readonly) NSMutableArray<MTAdPod *> *pods;
 
-// Firing flags
+// Firing flags. Quartile/ad-start firing is tracked per-pod on `MTAdPod`,
+// not here — a break can contain multiple pods.
 @property (nonatomic, assign) BOOL hasFiredStart;
 @property (nonatomic, assign) BOOL hasFiredEnd;
-@property (nonatomic, assign) BOOL hasFiredAdStart;
-@property (nonatomic, assign) BOOL hasFiredQ1;
-@property (nonatomic, assign) BOOL hasFiredQ2;
-@property (nonatomic, assign) BOOL hasFiredQ3;
 
 - (instancetype)initWithAvailId:(nullable NSString *)availId
                     startTimeMs:(NSTimeInterval)startTimeMs

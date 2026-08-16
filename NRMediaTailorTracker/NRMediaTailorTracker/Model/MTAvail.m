@@ -5,6 +5,7 @@
 
 #import "MTAvail.h"
 #import "MTAd.h"
+#import "MTStringHelpers.h"
 
 @implementation MTAvail
 
@@ -28,12 +29,10 @@
 + (instancetype)fromDictionary:(NSDictionary *)dict {
     if (![dict isKindOfClass:[NSDictionary class]]) return nil;
 
-    NSString *availId = [dict[@"availId"] isKindOfClass:[NSString class]] ? dict[@"availId"] : nil;
-    NSString *availPdt = [dict[@"availProgramDateTime"] isKindOfClass:[NSString class]]
-                             ? dict[@"availProgramDateTime"]
-                             : nil;
+    NSString *availId = MTStringOrNil(dict, @"availId");
+    NSString *availPdt = MTStringOrNil(dict, @"availProgramDateTime");
 
-    // Bug A8: track whether the JSON actually provided a start time so the
+    // Track whether the JSON actually provided a start time so the
     // merger can emit MISSING_AVAIL_START instead of silently inferring.
     BOOL hasStart = [dict[@"startTimeInSeconds"] isKindOfClass:[NSNumber class]];
     NSTimeInterval startMs = hasStart ? [dict[@"startTimeInSeconds"] doubleValue] * 1000.0 : 0;

@@ -2,10 +2,9 @@
 //  MTAdScheduleMergerTests.m
 //  NRMediaTailorTrackerTests
 //
-//  T06 — bug-fix tests for the schedule merger.
-//
-//  One test per Group A bug fix, plus a golden path, plus the B2 identity
-//  check called out in the acceptance criteria.
+//  Unit tests for the schedule merger: manifest/tracking-API enrichment,
+//  no-fill and mismatch handling, dedup, missing-avail-start fallback, and
+//  the creativeId-based identity check.
 //
 
 #import <XCTest/XCTest.h>
@@ -80,9 +79,9 @@
     XCTAssertEqualObjects(merged.pods[1].adId, @"ad-B");
 }
 
-#pragma mark - A2: empty ads → no-fill
+#pragma mark - Empty ads → no-fill
 
-- (void)testA2_emptyAdsInAvail_breakMarkedNoFillAndQueuesError {
+- (void)testEmptyAdsInAvail_breakMarkedNoFillAndQueuesError {
     MTAdBreak *br = [self breakAtMs:5000 durationMs:3000 pods:@[]];
 
     NSDictionary *json = @{
@@ -98,7 +97,7 @@
 
     XCTAssertEqual(result.breaks.count, 1u);
     MTAdBreak *merged = result.breaks.firstObject;
-    XCTAssertTrue(merged.isNoFill, @"empty avail must flag break as no-fill (Bug A2)");
+    XCTAssertTrue(merged.isNoFill, @"empty avail must flag break as no-fill");
 
     XCTAssertEqual(result.pendingErrors.count, 1u);
     MTMergedScheduleError *err = result.pendingErrors.firstObject;
@@ -106,7 +105,7 @@
     XCTAssertEqual(err.adBreak, merged);
 }
 
-- (void)testA2_emptyAvailWithNoManifestCounterpart_synthesizesNoFillBreak {
+- (void)testEmptyAvailWithNoManifestCounterpart_synthesizesNoFillBreak {
     // Tracking returns an empty avail at 8 s but the manifest has no break
     // there yet (e.g. tracking-API ahead of the player). Merger must still
     // surface an AD_BREAK_START/END pair so the customer sees the no-fill.
@@ -127,9 +126,9 @@
     XCTAssertEqual(result.pendingErrors.count, 1u);
 }
 
-#pragma mark - A3: pod-count mismatch keeps manifest geometry
+#pragma mark - Pod-count mismatch keeps manifest geometry
 
-- (void)testA3_manifest2PodsTracking3Ads_keepsManifestPodsAndFlagsMismatch {
+- (void)testManifest2PodsTracking3Ads_keepsManifestPodsAndFlagsMismatch {
     MTAdBreak *br = [self breakAtMs:0 durationMs:15000
                                pods:@[[NSValue valueWithRange:NSMakeRange(0, 7000)],
                                       [NSValue valueWithRange:NSMakeRange(7000, 8000)]]];
@@ -154,7 +153,7 @@
 
     XCTAssertEqual(result.breaks.count, 1u);
     MTAdBreak *merged = result.breaks.firstObject;
-    XCTAssertEqual(merged.pods.count, 2u, @"manifest pod count is preserved (Bug A3)");
+    XCTAssertEqual(merged.pods.count, 2u, @"manifest pod count is preserved");
     XCTAssertTrue(merged.podCountMismatch);
 
     // First pod at 0 ms is closest to ad a1 at 0 s; second pod at 7000 ms
@@ -169,9 +168,9 @@
     XCTAssertTrue(gotMismatchError);
 }
 
-#pragma mark - A4: live-window slide dedup
+#pragma mark - Live-window slide dedup
 
-- (void)testA4_sameAvailIdAndProgramDateTime_deduplicated {
+- (void)testSameAvailIdAndProgramDateTime_deduplicated {
     MTAdBreak *first = [self breakAtMs:30000 durationMs:5000 pods:@[]];
     first.availId = @"live-avail-1";
     first.availProgramDateTime = @"2026-06-22T18:00:00.000Z";
@@ -185,11 +184,11 @@
 
     MergedSchedule *result = [MTAdScheduleMerger mergeManifestBreaks:@[first, second]
                                                     trackingResponse:nil];
-    XCTAssertEqual(result.breaks.count, 1u, @"compound (availId, programDateTime) dedup (Bug A4)");
+    XCTAssertEqual(result.breaks.count, 1u, @"compound (availId, programDateTime) dedup");
     XCTAssertEqualObjects(result.breaks.firstObject.availProgramDateTime, @"2026-06-22T18:00:00.000Z");
 }
 
-- (void)testA4_differentProgramDateTime_notDeduplicated {
+- (void)testDifferentProgramDateTime_notDeduplicated {
     MTAdBreak *first = [self breakAtMs:30000 durationMs:5000 pods:@[]];
     first.availId = @"live-avail-1";
     first.availProgramDateTime = @"2026-06-22T18:00:00.000Z";
@@ -203,16 +202,17 @@
     XCTAssertEqual(result.breaks.count, 2u, @"distinct wall-clocks must NOT collapse");
 }
 
-#pragma mark - A8: missing avail start
+#pragma mark - Missing avail start
 
-- (void)testA8_missingAvailStartTime_logsAndQueuesError {
+- (void)testMissingAvailStartTime_logsAndQueuesError {
     MTAdBreak *br = [self breakAtMs:0 durationMs:5000
                                pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)]]];
+    br.startTimeIsUnknown = YES; // manifest genuinely didn't know this break's position
 
     NSDictionary *json = @{
         @"avails": @[@{
             @"availId": @"broken-avail",
-            // NO startTimeInSeconds — Bug A8 trigger
+            // NO startTimeInSeconds
             @"durationInSeconds": @5.0,
             @"ads": @[
                 @{@"adId": @"a1", @"creativeId": @"c1",
@@ -227,14 +227,42 @@
     for (MTMergedScheduleError *e in result.pendingErrors) {
         if (e.errorCode == MTAdErrorCodeMissingAvailStart) { gotMissingStart = YES; break; }
     }
-    XCTAssertTrue(gotMissingStart, @"missing avail start must surface MISSING_AVAIL_START error (Bug A8)");
+    XCTAssertTrue(gotMissingStart, @"missing avail start must surface MISSING_AVAIL_START error");
     // And the merger must still produce the break (fallback worked).
     XCTAssertEqual(result.breaks.count, 1u);
+    XCTAssertEqualWithAccuracy(result.breaks.firstObject.startTimeMs, 42000.0, 0.01,
+                               @"break with a genuinely unknown start must adopt the first ad's startTime");
 }
 
-#pragma mark - B2: creativeId is the primary identity
+- (void)testDoesNotOverwriteLegitimateZeroPositionPreroll {
+    // A real preroll parsed at position 0 — startTimeIsUnknown defaults to NO,
+    // so this must NOT be confused with the "unknown position" placeholder
+    // that also happens to be 0.
+    MTAdBreak *br = [self breakAtMs:0 durationMs:5000
+                               pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)]]];
 
-- (void)testB2_creativeIdUsedAsPrimaryIdentityOverAdId {
+    NSDictionary *json = @{
+        @"avails": @[@{
+            @"availId": @"broken-avail",
+            // NO startTimeInSeconds
+            @"durationInSeconds": @5.0,
+            @"ads": @[
+                @{@"adId": @"a1", @"creativeId": @"c1",
+                  @"startTimeInSeconds": @42.0, @"durationInSeconds": @5.0},
+            ],
+        }],
+    };
+    MergedSchedule *result = [MTAdScheduleMerger mergeManifestBreaks:@[br]
+                                                    trackingResponse:[self trackingWithDict:json]];
+
+    XCTAssertEqual(result.breaks.count, 1u);
+    XCTAssertEqualWithAccuracy(result.breaks.firstObject.startTimeMs, 0.0, 0.01,
+                               @"a legitimate preroll at position 0 must not be clobbered by the A8 fallback");
+}
+
+#pragma mark - creativeId is the primary identity
+
+- (void)testCreativeIdUsedAsPrimaryIdentityOverAdId {
     MTAdBreak *br = [self breakAtMs:0 durationMs:5000
                                pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)]]];
 
@@ -253,10 +281,10 @@
                                                     trackingResponse:[self trackingWithDict:json]];
     MTAdPod *pod = result.breaks.firstObject.pods.firstObject;
     XCTAssertEqualObjects(pod.primaryKey, @"creative-xyz",
-                          @"primaryKey must come from creativeId (Bug B2)");
+                          @"primaryKey must come from creativeId");
 }
 
-- (void)testB2_missingCreativeId_fallsBackToCompositeKey {
+- (void)testMissingCreativeId_fallsBackToCompositeKey {
     MTAdBreak *br = [self breakAtMs:0 durationMs:5000
                                pods:@[[NSValue valueWithRange:NSMakeRange(0, 5000)]]];
 
@@ -275,7 +303,7 @@
                                                     trackingResponse:[self trackingWithDict:json]];
     MTAdPod *pod = result.breaks.firstObject.pods.firstObject;
     XCTAssertEqualObjects(pod.primaryKey, @"avail-1:ad-99",
-                          @"missing creativeId must fall back to composite (Bug B2)");
+                          @"missing creativeId must fall back to composite");
 }
 
 #pragma mark - Edge cases

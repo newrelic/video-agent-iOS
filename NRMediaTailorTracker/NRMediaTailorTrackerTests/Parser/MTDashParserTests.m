@@ -2,9 +2,9 @@
 //  MTDashParserTests.m
 //  NRMediaTailorTrackerTests
 //
-//  Unit tests for MTDashParser (T16). Mirrors MTHlsParserTests' shape:
+//  Unit tests for MTDashParser. Mirrors MTHlsParserTests' shape:
 //   - Fixture-driven happy paths (VOD multi-period, dynamic live w/ SCTE-35).
-//   - Bug A7: mixed-representation periods → classified as content, mixed
+//   - Mixed-representation periods → classified as content, mixed
 //     counter incremented.
 //   - Negative paths (nil / empty / invalid UTF-8 / malformed XML / no periods).
 //
@@ -72,9 +72,41 @@
 
     // availabilityStartTime + 30s offset = 2026-06-29T12:00:30.000Z.
     XCTAssertNotNil(br.availProgramDateTime,
-                    @"dynamic live with availabilityStartTime must populate availProgramDateTime (Bug A4)");
+                    @"dynamic live with availabilityStartTime must populate availProgramDateTime");
     XCTAssertTrue([br.availProgramDateTime hasPrefix:@"2026-06-29T12:00:30"],
                   @"expected 2026-06-29T12:00:30… but got %@", br.availProgramDateTime);
+}
+
+#pragma mark - EventStream presentationTime is Period-relative
+
+- (void)testParse_eventStreamInNonZeroStartPeriod_offsetsByPeriodStart {
+    // Per the DASH spec, EventStream Event presentationTime is relative to
+    // the enclosing Period's own `start`. A Period starting at PT100S with
+    // an Event at presentationTime=5000 (timescale 1000, i.e. 5s in) must
+    // produce a break at the absolute position 100s + 5s = 105s — not at 5s.
+    NSString *mpd =
+        @"<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        @"<MPD xmlns=\"urn:mpeg:dash:schema:mpd:2011\" type=\"dynamic\">"
+        @"  <Period id=\"live-1\" start=\"PT100S\">"
+        @"    <EventStream schemeIdUri=\"urn:scte:scte35:2014:xml\" timescale=\"1000\">"
+        @"      <Event id=\"scte-1\" presentationTime=\"5000\" duration=\"8000\" messageData=\"avail-live-2\"/>"
+        @"    </EventStream>"
+        @"    <AdaptationSet mimeType=\"video/mp4\" contentType=\"video\">"
+        @"      <Representation id=\"v0\" bandwidth=\"600000\" codecs=\"avc1.42c01e\">"
+        @"        <BaseURL>https://cdn.example.com/live/content/</BaseURL>"
+        @"      </Representation>"
+        @"    </AdaptationSet>"
+        @"  </Period>"
+        @"</MPD>";
+    NSData *data = [mpd dataUsingEncoding:NSUTF8StringEncoding];
+    MTDashParser *parser = [[MTDashParser alloc] init];
+    MTManifestParseResult *result = [parser parseManifest:data baseURL:nil];
+
+    XCTAssertEqual(result.breaks.count, (NSUInteger)1);
+    MTAdBreak *br = result.breaks.firstObject;
+    XCTAssertEqualWithAccuracy(br.startTimeMs, 105000.0, 0.001,
+                               @"EventStream presentationTime must be offset by the enclosing Period's start");
+    XCTAssertEqualWithAccuracy(br.durationMs, 8000.0, 0.001);
 }
 
 #pragma mark - Fixture 3 — A7 mixed-representation period
@@ -87,7 +119,7 @@
 
     XCTAssertNotNil(result);
     XCTAssertEqual(result.breaks.count, (NSUInteger)0,
-                   @"Bug A7: when representations disagree, period must be classified as CONTENT (no break)");
+                   @"when representations disagree, period must be classified as CONTENT (no break)");
     XCTAssertEqual(parser.mixedPeriodCount, (NSUInteger)1,
                    @"the single mixed period must increment the mixed-period counter");
 }

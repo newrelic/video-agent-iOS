@@ -46,11 +46,41 @@
 /// MediaTailor server-side ad-insertion smoke path. Uses
 /// `NRTrackerMediaTailor` instead of the IMA ads stack — MediaTailor
 /// ads are stitched into the HLS manifest, so the client does not
-/// instantiate IMAAdsLoader/AdsManager. Override the URL via
-/// NSUserDefaults `MediaTailorSampleURL` or the `MT_SAMPLE_URL`
-/// environment variable; see `MediaTailorSamples.h`.
+/// instantiate IMAAdsLoader/AdsManager. Presents an action sheet so the
+/// flow to exercise (direct/implicit vs. explicit session-init, etc.) is a
+/// tap — no scheme environment variable or NSUserDefaults setup needed.
+/// The NSUserDefaults `MediaTailorSampleURL` / `MT_SAMPLE_URL` overrides
+/// from `MediaTailorSamples.h` still work too (CI-friendly) — they just add
+/// an "Override" entry to the same sheet instead of being the only path in.
 - (IBAction)clickMediaTailorSample:(id)sender {
-    [self playMediaTailorVideo:[MediaTailorSamples defaultSampleURLString]];
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"MediaTailor Sample"
+                                                                     message:@"Choose a URL shape to test"
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
+
+    for (MediaTailorSampleOption *option in [MediaTailorSamples sampleOptions]) {
+        [sheet addAction:[UIAlertAction actionWithTitle:option.label
+                                                   style:UIAlertActionStyleDefault
+                                                 handler:^(UIAlertAction * _Nonnull action) {
+            [self playMediaTailorVideo:option.urlString];
+        }]];
+    }
+
+    NSString *overrideURL = [MediaTailorSamples defaultSampleURLString];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"NSUserDefaults/MT_SAMPLE_URL Override"
+                                               style:UIAlertActionStyleDefault
+                                             handler:^(UIAlertAction * _Nonnull action) {
+        [self playMediaTailorVideo:overrideURL];
+    }]];
+
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+    // iPad requires a popover source; use the tapped control if we got one.
+    sheet.popoverPresentationController.sourceView = [sender isKindOfClass:[UIView class]] ? sender : self.view;
+    if ([sender isKindOfClass:[UIView class]]) {
+        sheet.popoverPresentationController.sourceRect = ((UIView *)sender).bounds;
+    }
+
+    [self presentViewController:sheet animated:YES completion:nil];
 }
 
 - (void)viewDidLoad {
@@ -73,6 +103,7 @@
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [NRVAVideo releaseTracker:@(self.trackerId)];
     [self.mediaTailorTracker dispose];
 }
 
@@ -104,10 +135,17 @@
         @"customTag": @"SimplePlayerWithAds"
     };
 
+    // Config-based wiring — parity with the MediaTailor path below.
+    // `NRAdConfig.csai` tells the agent to create and attach an `NRTrackerIMA`
+    // as the ad tracker (equivalent to the legacy `adEnabled:YES`, which sets
+    // this same config under the hood). We still drive the actual Google IMA
+    // SDK ourselves (`setupAds:`/`requestAds`) and forward its events via
+    // `handleAdEvent:`/`handleAdError:` — NRTrackerIMA is a passive observer,
+    // same role NRTrackerMediaTailor plays for server-side-stitched ads.
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"TEST_ADS"
         player:player
-        adEnabled:YES
+        adConfig:[NRAdConfig csai]
         customAttributes:customAttributes];
 
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
@@ -139,26 +177,118 @@
     } ];
 }
 
-/// MediaTailor playback path. Spins up an AVPlayer, attaches a
-/// NRTrackerMediaTailor, and registers a content tracker alongside.
-/// Per FEATURE_SPEC §9 "Definition of Done": run with a real
-/// MediaTailor URL, capture a proxy log proving
-/// `/v1/tracking/<sessionId>` round-trips `nextToken`, and confirm in
-/// NRDB that AD_BREAK_START → AD_START → 3×AD_QUARTILE → AD_END →
-/// AD_BREAK_END fires for at least one ad break.
+/// MediaTailor playback entry point. A raw explicit-flow session-init URL
+/// (`/v1/session/{account}/{config}/...`) is POST-only and returns 405 on
+/// GET, so `AVPlayer` can't play it directly — detect that shape and resolve
+/// it to a `manifestUrl` first via `-resolveMediaTailorSessionURL:completion:`
+/// before handing off to `-startMediaTailorPlaybackWithManifestURL:sourceURLString:`.
+/// Any other shape (already-resolved explicit URL, or direct/implicit) is
+/// passed straight through unchanged.
 - (void)playMediaTailorVideo:(NSString *)videoURLString {
     NSURL *videoURL = [NSURL URLWithString:videoURLString];
     if (videoURL == nil) {
         NSLog(@"❌ [MediaTailor] Invalid URL: %@", videoURLString);
         return;
     }
-    if (![MTDetector isMediaTailorURL:videoURL]) {
+
+    if ([videoURL.path containsString:@"/v1/session/"]) {
+        NSLog(@"🎥 [MediaTailor] Session-init URL detected — resolving via POST before playback: %@", videoURLString);
+        [self resolveMediaTailorSessionURL:videoURL completion:^(NSURL * _Nullable manifestURL) {
+            NSURL *resolvedURL = manifestURL;
+            if (resolvedURL == nil) {
+                NSLog(@"⚠️ [MediaTailor] Session-init resolution failed — falling back to original URL: %@", videoURLString);
+                resolvedURL = videoURL;
+            }
+            [self startMediaTailorPlaybackWithManifestURL:resolvedURL sourceURLString:videoURLString];
+        }];
+        return;
+    }
+
+    [self startMediaTailorPlaybackWithManifestURL:videoURL sourceURLString:videoURLString];
+}
+
+/// POSTs an empty body to a MediaTailor explicit session-init URL
+/// (`/v1/session/{account}/{config}/...`) and parses `manifestUrl`/
+/// `trackingUrl` out of the JSON response. `manifestUrl` is what gets handed
+/// to `AVPlayer`; `trackingUrl` is unused here — `NRTrackerMediaTailor`
+/// resolves its own tracking URL once it observes the player's manifest.
+/// Calls `completion` with the resolved manifest URL, or nil on any failure
+/// (network error, non-2xx, malformed JSON, missing key) — each failure is
+/// logged so a fallback to the original URL is traceable.
+- (void)resolveMediaTailorSessionURL:(NSURL *)sessionURL
+                           completion:(void (^)(NSURL * _Nullable manifestURL))completion {
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:sessionURL];
+    request.HTTPMethod = @"POST";
+    request.HTTPBody = [NSData data];
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithRequest:request
+        completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+            if (error != nil) {
+                NSLog(@"❌ [MediaTailor] Session-init POST failed: %@", error.localizedDescription);
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(nil); });
+                return;
+            }
+
+            NSInteger statusCode = [(NSHTTPURLResponse *)response statusCode];
+            if (statusCode < 200 || statusCode >= 300) {
+                NSLog(@"❌ [MediaTailor] Session-init POST returned status %ld for %@", (long)statusCode, sessionURL);
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(nil); });
+                return;
+            }
+
+            NSError *jsonError = nil;
+            id json = data != nil ? [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError] : nil;
+            if (jsonError != nil || ![json isKindOfClass:[NSDictionary class]]) {
+                NSLog(@"❌ [MediaTailor] Session-init response was not valid JSON: %@",
+                      jsonError != nil ? jsonError.localizedDescription : @"response was not a JSON object");
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(nil); });
+                return;
+            }
+
+            NSDictionary *jsonDict = (NSDictionary *)json;
+            NSString *manifestUrlString = jsonDict[@"manifestUrl"];
+            NSString *trackingUrlString = jsonDict[@"trackingUrl"];
+            if (![manifestUrlString isKindOfClass:[NSString class]] || manifestUrlString.length == 0) {
+                NSLog(@"❌ [MediaTailor] Session-init response missing manifestUrl: %@", jsonDict);
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(nil); });
+                return;
+            }
+
+            // MediaTailor's session-init response returns manifestUrl/trackingUrl as a
+            // host-relative path (e.g. "/v1/master/...", no scheme/host) — resolving it
+            // with no base URL silently produces a scheme-less NSURL that AVPlayer then
+            // rejects with -1002 "unsupported URL". Resolve against sessionURL's host.
+            NSURL *manifestURL = [NSURL URLWithString:manifestUrlString relativeToURL:sessionURL].absoluteURL;
+            if (manifestURL == nil) {
+                NSLog(@"❌ [MediaTailor] Session-init returned an unparsable manifestUrl: %@", manifestUrlString);
+                dispatch_async(dispatch_get_main_queue(), ^{ completion(nil); });
+                return;
+            }
+
+            NSLog(@"🎥 [MediaTailor] Session-init resolved manifestUrl: %@ (trackingUrl: %@)",
+                  manifestURL, trackingUrlString ?: @"none");
+            dispatch_async(dispatch_get_main_queue(), ^{ completion(manifestURL); });
+    }];
+    [task resume];
+}
+
+/// MediaTailor playback path. Spins up an AVPlayer, attaches a
+/// NRTrackerMediaTailor, and registers a content tracker alongside.
+///
+/// `manifestURL` is the URL actually handed to `AVPlayer` — already resolved
+/// via `-resolveMediaTailorSessionURL:completion:` if the original URL was a
+/// session-init URL. `sourceURLString` is the original URL string passed to
+/// `-playMediaTailorVideo:`, kept for logging/custom attributes.
+- (void)startMediaTailorPlaybackWithManifestURL:(NSURL *)manifestURL
+                                 sourceURLString:(NSString *)sourceURLString {
+    if (![MTDetector isMediaTailorURL:manifestURL]) {
         NSLog(@"⚠️ [MediaTailor] URL does not look like a MediaTailor session — "
               @"the tracker will not activate. Override via NSUserDefaults "
               @"`MediaTailorSampleURL` or env `MT_SAMPLE_URL`.");
     }
 
-    AVPlayer *player = [AVPlayer playerWithURL:videoURL];
+    AVPlayer *player = [AVPlayer playerWithURL:manifestURL];
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = player;
     self.playerController.showsPlaybackControls = YES;
@@ -172,24 +302,23 @@
         player:player
         adConfig:[NRAdConfig mediaTailor]
         customAttributes:@{
-            @"videoURL": videoURLString,
+            @"videoURL": sourceURLString,
             @"adStitching": @"server-side",
             @"customTag": @"SimplePlayerWithAds-MediaTailor",
         }];
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
 
-    // The agent already created the tracker and attached it to the player; grab
-    // it so we can feed the merged schedule once the manifest + tracking JSON
-    // are available (MediaTailor is a passive schedule observer).
+    // The agent already created the tracker, attached it to the player, and
+    // (per NRTrackerMediaTailor's auto-activation) started fetching/tracking
+    // on its own. Grabbing it here is only for optional advanced use
+    // (e.g. -notifyAdSkipped, inspecting activationStatus) — not required.
     self.mediaTailorTracker = (NRTrackerMediaTailor *)[[NewRelicVideoAgent sharedInstance] adTracker:@(self.trackerId)];
 
     NSLog(@"🎥 [MediaTailor] Started MediaTailor video tracking with ID: %ld", (long)self.trackerId);
 
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
-        NSLog(@"▶️ [MediaTailor] Playback started — feed a parsed schedule via "
-              @"-[mediaTailorTracker startTrackingWithSchedule:] once your "
-              @"app has both the manifest and tracking JSON.");
+        NSLog(@"▶️ [MediaTailor] Playback started.");
     }];
 }
 

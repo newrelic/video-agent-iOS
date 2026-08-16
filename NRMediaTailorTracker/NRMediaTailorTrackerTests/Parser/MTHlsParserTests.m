@@ -3,11 +3,11 @@
 //  NRMediaTailorTrackerTests
 //
 //  Unit tests for MTHlsParser:
-//   - Primary DATERANGE tracking-URL path (Bug B4)
+//   - Primary DATERANGE tracking-URL path
 //   - Fallback segment-marker break detection (no DATERANGE)
-//   - Live PROGRAM-DATE-TIME propagation onto MTAdBreak (Bug A4/A8)
+//   - Live PROGRAM-DATE-TIME propagation onto MTAdBreak
 //   - Empty-avail manifest (no ad segments) returns zero breaks
-//   - Pod-fits-in-break invariant + clamp helper (Bug A6)
+//   - Pod-fits-in-break invariant + clamp helper
 //
 
 #import <XCTest/XCTest.h>
@@ -96,6 +96,38 @@
     XCTAssertNotNil(result.trackingURL);
     XCTAssertEqualObjects(result.trackingURL.absoluteString,
                           @"https://host.example.com/v1/master/x/track/abc");
+}
+
+// Confirmed against a real MediaTailor manifest: ad segments are commonly
+// referenced *relatively* (e.g. `../../../../segment/{acct}/{cfg}/{sessionId}/
+// 0/0`) — as raw, unresolved text that never contains a `/v1/` prefix at all
+// (the `../` traversal consumes it); the marker only matches once the line is
+// resolved against the manifest's own URL. Absolute segment references
+// (`testParse_VODWithSegmentMarkersOnly_detectsBreakWithTwoPods` below) were
+// the only shape covered before this, silently masking the real bug.
+- (void)testParse_RelativeAdSegmentReferences_resolvedAgainstManifestURLBeforeMarkerMatching {
+    NSString *manifest =
+        @"#EXTM3U\n"
+        @"#EXTINF:4.0,\n"
+        @"content-0.ts\n"
+        @"#EXT-X-DISCONTINUITY\n"
+        @"#EXTINF:2.0,\n"
+        @"../../../../segment/acct/cfg/sess-1/0/0\n"
+        @"#EXTINF:2.0,\n"
+        @"../../../../segment/acct/cfg/sess-1/0/1\n"
+        @"#EXT-X-DISCONTINUITY\n"
+        @"#EXTINF:4.0,\n"
+        @"content-1.ts\n";
+    NSURL *manifestURL = [NSURL URLWithString:@"https://host.example.com/v1/manifest/acct/cfg/sess-1/0.m3u8"];
+
+    MTManifestParseResult *result =
+        [MTHlsParser parseManifestText:manifest manifestURL:manifestURL customSegmentMarkers:nil];
+
+    XCTAssertEqual(result.breaks.count, (NSUInteger)1,
+                   @"relative ad-segment lines must resolve against manifestURL before marker matching");
+    MTAdBreak *br = result.breaks.firstObject;
+    XCTAssertEqualWithAccuracy(br.startTimeMs, 4000.0, 0.001);
+    XCTAssertEqualWithAccuracy(br.durationMs, 4000.0, 0.001);
 }
 
 #pragma mark - Fallback segment-marker path
@@ -213,7 +245,7 @@
     XCTAssertEqual(result.breaks.count, (NSUInteger)0);
 }
 
-#pragma mark - Pod-fits-in-break invariant (Bug A6)
+#pragma mark - Pod-fits-in-break invariant
 
 - (void)testParse_oversizePodFixture_naturalParseRespectsInvariant {
     NSString *manifest = [self loadFixture:@"mediatailor_oversize_pod"];
@@ -223,7 +255,7 @@
     MTAdBreak *br = result.breaks.firstObject;
     XCTAssertEqual(br.pods.count, (NSUInteger)3);
 
-    // Invariant: every pod's end ≤ break's end (Bug A6).
+    // Invariant: every pod's end ≤ break's end.
     for (MTAdPod *pod in br.pods) {
         XCTAssertLessThanOrEqual(pod.endTimeMs, br.endTimeMs,
                                  @"Pod end (%f) must not exceed break end (%f)",

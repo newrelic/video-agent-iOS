@@ -3,8 +3,8 @@
 //  NRMediaTailorTrackerTests
 //
 //  Per-field tests for MTAd, MTTrackingEvent and the runtime models
-//  MTAdBreak / MTAdPod. Validates Bug B2 (`creativeId` primary identity) and
-//  Bug B5 (`trackingEvents[*].startTimeInSeconds` is relative to ad start).
+//  MTAdBreak / MTAdPod. Validates that `creativeId` is the primary identity
+//  and that `trackingEvents[*].startTimeInSeconds` is relative to ad start.
 //
 
 #import <XCTest/XCTest.h>
@@ -31,14 +31,14 @@
     return obj;
 }
 
-#pragma mark - Bug B2: creativeId primary identity
+#pragma mark - creativeId primary identity
 
 - (void)testPrimaryKey_creativeIdWhenPresent {
     MTTrackingResponse *resp = [MTTrackingResponse fromDictionary:[self loadFixture:@"tracking_full"]];
     MTAd *ad = resp.avails.firstObject.ads.firstObject;
     XCTAssertEqualObjects(ad.creativeId, @"creative-A");
     XCTAssertEqualObjects([ad primaryKey], @"creative-A",
-                          @"primaryKey must prefer creativeId (Bug B2)");
+                          @"primaryKey must prefer creativeId");
 }
 
 - (void)testPrimaryKey_compositeFallbackWhenCreativeIdMissing {
@@ -46,7 +46,7 @@
     MTAd *ad = resp.avails.firstObject.ads.firstObject;
     XCTAssertNil(ad.creativeId);
     XCTAssertEqualObjects([ad primaryKey], @"avail-200:ad-99",
-                          @"primaryKey must fall back to availId:adId (Bug B2)");
+                          @"primaryKey must fall back to availId:adId");
 }
 
 - (void)testPrimaryKey_compositeIsStableAcrossAds {
@@ -65,7 +65,7 @@
     XCTAssertEqualObjects([avail.ads[1] primaryKey], @"a1:y");
 }
 
-#pragma mark - Bug B5: tracking event time is relative to ad start
+#pragma mark - Tracking event time is relative to ad start
 
 - (void)testTrackingEvent_startTimeIsRelativeToAdStart_notManifest {
     MTTrackingResponse *resp = [MTTrackingResponse fromDictionary:[self loadFixture:@"tracking_full"]];
@@ -78,7 +78,7 @@
     MTTrackingEvent *firstQuartile = ad.trackingEvents[1];
     XCTAssertEqualObjects(firstQuartile.eventType, @"firstQuartile");
     XCTAssertEqualWithAccuracy(firstQuartile.relativeToAdStartMs, 5000.0, 0.001,
-                               @"firstQuartile is 5s into the ad (Bug B5)");
+                               @"firstQuartile is 5s into the ad");
 
     MTTrackingEvent *complete = ad.trackingEvents[3];
     XCTAssertEqualObjects(complete.eventType, @"complete");
@@ -93,7 +93,7 @@
     XCTAssertEqualObjects(impression.beaconUrls.firstObject, [NSURL URLWithString:@"https://example.com/track/imp1"]);
 }
 
-#pragma mark - Bug A8 surface: missing avail start time
+#pragma mark - Missing avail start time
 
 - (void)testAvail_hasStartTimeFalseWhenJSONMissing {
     NSDictionary *raw = @{
@@ -102,7 +102,7 @@
         @"ads": @[],
     };
     MTAvail *avail = [MTAvail fromDictionary:raw];
-    XCTAssertFalse(avail.hasStartTime, @"missing startTimeInSeconds must be detectable (Bug A8)");
+    XCTAssertFalse(avail.hasStartTime, @"missing startTimeInSeconds must be detectable");
     XCTAssertEqual(avail.startTimeMs, 0.0);
 }
 
@@ -187,10 +187,6 @@
     MTAdBreak *brk = [[MTAdBreak alloc] initWithAvailId:@"a" startTimeMs:0 durationMs:100];
     XCTAssertFalse(brk.hasFiredStart);
     XCTAssertFalse(brk.hasFiredEnd);
-    XCTAssertFalse(brk.hasFiredAdStart);
-    XCTAssertFalse(brk.hasFiredQ1);
-    XCTAssertFalse(brk.hasFiredQ2);
-    XCTAssertFalse(brk.hasFiredQ3);
     XCTAssertFalse(brk.isNoFill);
     XCTAssertFalse(brk.podCountMismatch);
 }

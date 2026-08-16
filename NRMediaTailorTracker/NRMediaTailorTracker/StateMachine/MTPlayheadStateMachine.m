@@ -14,7 +14,6 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
 
 @property (nonatomic, strong, readonly) MergedSchedule *schedule;
 @property (nonatomic, assign, readwrite) NSTimeInterval playheadPollInterval;
-@property (nonatomic, assign, readwrite) MTAdState currentState;
 @property (nonatomic, weak, readwrite, nullable) MTAdBreak *currentAdBreak;
 @property (nonatomic, weak, readwrite, nullable) MTAdPod *currentAdPod;
 
@@ -36,7 +35,6 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
     if (self) {
         _schedule = schedule;
         _playheadPollInterval = (interval > 0.0) ? interval : kDefaultPlayheadPollInterval;
-        _currentState = MTAdStateContent;
         _drainedErrors = [NSMutableSet set];
     }
     return self;
@@ -80,6 +78,15 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
 
 #pragma mark - State machine core
 
+/// Computed rather than manually synced: derived straight from the state
+/// this object already tracks independently, so there is no "forgot to
+/// update currentState at this transition" bug category to worry about.
+- (MTAdState)currentState {
+    if (self.currentAdBreak == nil) return MTAdStateContent;
+    if (self.currentAdBreak.isNoFill) return MTAdStateNoFill;
+    return self.currentAdPod != nil ? MTAdStateInPod : MTAdStateInBreak;
+}
+
 - (void)tickAtPositionMs:(NSTimeInterval)positionMs {
     NSAssert([NSThread isMainThread], @"tickAtPositionMs: must be called on main thread");
 
@@ -112,9 +119,8 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
         if (containingPod != nil) {
             [self enterPod:containingPod];
         } else {
-            // Between pods or after the last pod — A6: stay InBreak.
+            // Between pods or after the last pod — stay InBreak.
             self.currentAdPod = nil;
-            self.currentState = MTAdStateInBreak;
         }
     }
 
@@ -144,7 +150,6 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
             self.currentAdBreak.hasFiredEnd = YES;
         }
         self.currentAdBreak = nil;
-        self.currentState = MTAdStateContent;
     }
 }
 
@@ -155,7 +160,6 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
         brk.hasFiredStart = YES;
         [self drainPendingErrorsForBreak:brk];
     }
-    self.currentState = brk.isNoFill ? MTAdStateNoFill : MTAdStateInBreak;
 }
 
 - (void)enterPod:(MTAdPod *)pod {
@@ -164,24 +168,24 @@ static const NSTimeInterval kDefaultPlayheadPollInterval = 0.250;
         [self.delegate stateMachine:self enteredPod:pod inBreak:self.currentAdBreak];
         pod.hasFiredStart = YES;
     }
-    self.currentState = MTAdStateInPod;
 }
 
 - (void)checkQuartilesForPod:(MTAdPod *)pod atPositionMs:(NSTimeInterval)positionMs {
     if (pod.durationMs <= 0.0) { return; }
     double progress = (positionMs - pod.startTimeMs) / pod.durationMs;
 
-    if (progress >= 0.25 && !pod.hasFiredQ1) {
-        pod.hasFiredQ1 = YES;
-        [self.delegate stateMachine:self crossedQuartile:1 inPod:pod inBreak:self.currentAdBreak];
-    }
-    if (progress >= 0.50 && !pod.hasFiredQ2) {
-        pod.hasFiredQ2 = YES;
-        [self.delegate stateMachine:self crossedQuartile:2 inPod:pod inBreak:self.currentAdBreak];
-    }
-    if (progress >= 0.75 && !pod.hasFiredQ3) {
-        pod.hasFiredQ3 = YES;
-        [self.delegate stateMachine:self crossedQuartile:3 inPod:pod inBreak:self.currentAdBreak];
+    static const struct { double threshold; NSInteger quartile; } kQuartiles[] = {
+        {0.25, 1}, {0.50, 2}, {0.75, 3},
+    };
+    for (NSUInteger i = 0; i < sizeof(kQuartiles) / sizeof(kQuartiles[0]); i++) {
+        NSString *flagKey = [NSString stringWithFormat:@"hasFiredQ%ld", (long)kQuartiles[i].quartile];
+        if (progress >= kQuartiles[i].threshold && ![[pod valueForKey:flagKey] boolValue]) {
+            [pod setValue:@YES forKey:flagKey];
+            [self.delegate stateMachine:self
+                         crossedQuartile:kQuartiles[i].quartile
+                                   inPod:pod
+                                 inBreak:self.currentAdBreak];
+        }
     }
 }
 

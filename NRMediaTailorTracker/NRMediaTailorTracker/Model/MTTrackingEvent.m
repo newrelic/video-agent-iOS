@@ -4,6 +4,7 @@
 //
 
 #import "MTTrackingEvent.h"
+#import "MTStringHelpers.h"
 
 @implementation MTTrackingEvent
 
@@ -25,13 +26,11 @@
 + (instancetype)fromDictionary:(NSDictionary *)dict {
     if (![dict isKindOfClass:[NSDictionary class]]) return nil;
 
-    NSString *eventType = [dict[@"eventType"] isKindOfClass:[NSString class]] ? dict[@"eventType"] : nil;
-    NSString *eventId = [dict[@"eventId"] isKindOfClass:[NSString class]] ? dict[@"eventId"] : nil;
-    NSString *eventProgramDateTime = [dict[@"eventProgramDateTime"] isKindOfClass:[NSString class]]
-                                         ? dict[@"eventProgramDateTime"]
-                                         : nil;
+    NSString *eventType = MTStringOrNil(dict, @"eventType");
+    NSString *eventId = MTStringOrNil(dict, @"eventId");
+    NSString *eventProgramDateTime = MTStringOrNil(dict, @"eventProgramDateTime");
 
-    // Bug B5: `startTimeInSeconds` here is RELATIVE TO AD START (not manifest time).
+    // `startTimeInSeconds` here is RELATIVE TO AD START (not manifest time).
     NSTimeInterval relativeMs = 0;
     id seconds = dict[@"startTimeInSeconds"];
     if ([seconds isKindOfClass:[NSNumber class]]) {

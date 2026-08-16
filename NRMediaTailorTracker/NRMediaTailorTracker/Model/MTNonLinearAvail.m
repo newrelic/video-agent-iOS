@@ -4,6 +4,7 @@
 //
 
 #import "MTNonLinearAvail.h"
+#import "MTStringHelpers.h"
 
 @implementation MTNonLinearAvail
 
@@ -23,7 +24,7 @@
 + (instancetype)fromDictionary:(NSDictionary *)dict {
     if (![dict isKindOfClass:[NSDictionary class]]) return nil;
 
-    NSString *availId = [dict[@"availId"] isKindOfClass:[NSString class]] ? dict[@"availId"] : nil;
+    NSString *availId = MTStringOrNil(dict, @"availId");
 
     NSTimeInterval startMs = 0;
     NSTimeInterval durMs = 0;

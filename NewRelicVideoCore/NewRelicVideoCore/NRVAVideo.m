@@ -129,21 +129,14 @@ static dispatch_once_t onceToken;
             NRVA_DEBUG_LOG(@"Set player instance on content tracker for '%@'", config.playerName);
         }
 
-        // MediaTailor ad tracker needs the AVPlayer + its custom-CDN config.
-        // (IMA drives itself via the IMA SDK, so it needs neither.) The host
-        // still calls -startTrackingWithSchedule: once it has the manifest +
-        // tracking JSON — MediaTailor is a passive schedule observer.
-        if (adTracker && config.adConfig.type == NRAdTrackerTypeMediaTailor) {
-            if (config.player && [adTracker respondsToSelector:@selector(setPlayer:)]) {
-                [adTracker setPlayer:config.player];
-            }
-            if (config.adConfig.adSegmentPrefix.length > 0 && [adTracker respondsToSelector:@selector(setAdSegmentPrefix:)]) {
-                [adTracker setValue:config.adConfig.adSegmentPrefix forKey:@"adSegmentPrefix"];
-            }
-            if (config.adConfig.trackingUrl.length > 0 && [adTracker respondsToSelector:@selector(setTrackingUrl:)]) {
-                [adTracker setValue:config.adConfig.trackingUrl forKey:@"trackingUrl"];
-            }
-            NRVA_DEBUG_LOG(@"Configured MediaTailor ad tracker for '%@'", config.playerName);
+        // Trackers that need session-specific setup (e.g. MediaTailor needs
+        // the AVPlayer + its custom-CDN config; IMA drives itself via the IMA
+        // SDK and conforms to nothing here) opt in by conforming to
+        // NRAdTrackerConfigurable — no per-tracker-type branch needed, and no
+        // KVC-key/selector-name drift risk since this is one direct call.
+        if (adTracker && config.adConfig && [adTracker conformsToProtocol:@protocol(NRAdTrackerConfigurable)]) {
+            [(id<NRAdTrackerConfigurable>)adTracker configureWithAdConfig:config.adConfig player:config.player];
+            NRVA_DEBUG_LOG(@"Configured ad tracker for '%@' via NRAdTrackerConfigurable", config.playerName);
         }
     } else {
         NRVA_ERROR_LOG(@"No trackers created for player '%@', tracking not started", config.playerName);
