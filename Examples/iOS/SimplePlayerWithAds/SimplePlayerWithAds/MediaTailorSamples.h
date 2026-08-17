@@ -30,7 +30,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly) NSString *label;
 @property (nonatomic, copy, readonly) NSString *urlString;
 
-- (instancetype)initWithLabel:(NSString *)label urlString:(NSString *)urlString NS_DESIGNATED_INITIALIZER;
+/// Passed to `NRAdConfig mediaTailorWithSegmentPrefix:trackingUrl:` when
+/// non-nil — for a CDN that rewrites ad-segment URLs to a custom path
+/// instead of AWS's own conventions. Nil for the standard AWS-path samples.
+@property (nonatomic, copy, readonly, nullable) NSString *adSegmentPrefix;
+
+/// Passed to `NRAdConfig mediaTailorWithSegmentPrefix:trackingUrl:` when
+/// non-nil — for a deployment where the tracking-API URL can't be derived
+/// from the manifest URL by the default heuristic. Nil to derive as usual.
+@property (nonatomic, copy, readonly, nullable) NSString *trackingUrl;
+
+- (instancetype)initWithLabel:(NSString *)label urlString:(NSString *)urlString;
+- (instancetype)initWithLabel:(NSString *)label
+                     urlString:(NSString *)urlString
+               adSegmentPrefix:(nullable NSString *)adSegmentPrefix
+                   trackingUrl:(nullable NSString *)trackingUrl NS_DESIGNATED_INITIALIZER;
 - (instancetype)init NS_UNAVAILABLE;
 
 @end
@@ -49,10 +63,27 @@ NS_ASSUME_NONNULL_BEGIN
 /// deployments — the bare direct/implicit entry URL, the explicit
 /// session-init URL (POST-only; the tracker never does this, the sample app
 /// itself resolves it — see `ViewController.m`'s `resolveMediaTailorSessionURL:`),
-/// and the raw non-CDN endpoint for comparison. Presented to the user as an
-/// action sheet by `clickMediaTailorSample:` so no environment-variable or
-/// NSUserDefaults setup is needed to switch between them.
+/// the raw non-CDN endpoint for comparison, and a custom-domain entry whose
+/// URL/ad-segment-prefix/tracking-URL are read from the NSUserDefaults/env
+/// overrides below (so a real custom-CDN deployment can be exercised without
+/// editing source). Presented to the user as an action sheet by
+/// `clickMediaTailorSample:` so no environment-variable or NSUserDefaults
+/// setup is needed to switch between them.
 + (NSArray<MediaTailorSampleOption *> *)sampleOptions;
+
+/// NSUserDefaults key for the custom-domain sample's URL. Falls back to the
+/// `MT_CUSTOM_DOMAIN_URL` environment variable, then a placeholder.
++ (NSString *)customDomainURLDefaultsKey;
+
+/// NSUserDefaults key for the custom-domain sample's ad-segment-prefix
+/// override. Falls back to the `MT_CUSTOM_SEGMENT_PREFIX` environment
+/// variable, then a placeholder. See `NRTrackerMediaTailor.adSegmentPrefix`.
++ (NSString *)customSegmentPrefixDefaultsKey;
+
+/// NSUserDefaults key for the custom-domain sample's tracking-URL override.
+/// Falls back to the `MT_CUSTOM_TRACKING_URL` environment variable; empty
+/// means "derive as usual". See `NRTrackerMediaTailor.trackingUrl`.
++ (NSString *)customTrackingURLDefaultsKey;
 
 @end
 

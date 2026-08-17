@@ -68,4 +68,28 @@
     [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:120.0]];
 }
 
+// Exercises the `adSegmentPrefix`/`trackingUrl` override path
+// (`NRAdConfig mediaTailorWithSegmentPrefix:trackingUrl:`). Requires
+// `MediaTailorCustomDomainURL`/`MediaTailorCustomSegmentPrefix` (or the
+// `MT_CUSTOM_DOMAIN_URL`/`MT_CUSTOM_SEGMENT_PREFIX` env vars) to point at a
+// real CDN that rewrites ad-segment URLs to a non-default path — otherwise
+// this exercises the placeholder URL and only proves the UI wiring.
+- (void)testPlayMediaTailorSample_customDomain_andWaitForPlayback {
+    XCUIApplication *app = [[XCUIApplication alloc] init];
+    [app launch];
+
+    XCUIElement *button = app.buttons[@"MediaTailor Sample"];
+    XCTAssertTrue([button waitForExistenceWithTimeout:10.0], @"MediaTailor Sample button did not appear");
+    [button tap];
+
+    XCUIElement *option = app.buttons[@"Custom Domain (segment-prefix override)"];
+    XCTAssertTrue([option waitForExistenceWithTimeout:5.0], @"action sheet option did not appear");
+    [option tap];
+
+    // Let playback run long enough to cross multiple known ad avails
+    // (0s, 26s, 52s, 74s in the test content) while logs/screenshots are
+    // captured externally.
+    [[NSRunLoop currentRunLoop] runUntilDate:[NSDate dateWithTimeIntervalSinceNow:120.0]];
+}
+
 @end

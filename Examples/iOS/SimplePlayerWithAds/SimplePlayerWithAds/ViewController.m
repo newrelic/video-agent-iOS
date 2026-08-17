@@ -61,7 +61,9 @@
         [sheet addAction:[UIAlertAction actionWithTitle:option.label
                                                    style:UIAlertActionStyleDefault
                                                  handler:^(UIAlertAction * _Nonnull action) {
-            [self playMediaTailorVideo:option.urlString];
+            [self playMediaTailorVideo:option.urlString
+                        adSegmentPrefix:option.adSegmentPrefix
+                            trackingUrl:option.trackingUrl];
         }]];
     }
 
@@ -69,7 +71,7 @@
     [sheet addAction:[UIAlertAction actionWithTitle:@"NSUserDefaults/MT_SAMPLE_URL Override"
                                                style:UIAlertActionStyleDefault
                                              handler:^(UIAlertAction * _Nonnull action) {
-        [self playMediaTailorVideo:overrideURL];
+        [self playMediaTailorVideo:overrideURL adSegmentPrefix:nil trackingUrl:nil];
     }]];
 
     [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
@@ -184,7 +186,9 @@
 /// before handing off to `-startMediaTailorPlaybackWithManifestURL:sourceURLString:`.
 /// Any other shape (already-resolved explicit URL, or direct/implicit) is
 /// passed straight through unchanged.
-- (void)playMediaTailorVideo:(NSString *)videoURLString {
+- (void)playMediaTailorVideo:(NSString *)videoURLString
+             adSegmentPrefix:(nullable NSString *)adSegmentPrefix
+                 trackingUrl:(nullable NSString *)trackingUrl {
     NSURL *videoURL = [NSURL URLWithString:videoURLString];
     if (videoURL == nil) {
         NSLog(@"❌ [MediaTailor] Invalid URL: %@", videoURLString);
@@ -199,12 +203,18 @@
                 NSLog(@"⚠️ [MediaTailor] Session-init resolution failed — falling back to original URL: %@", videoURLString);
                 resolvedURL = videoURL;
             }
-            [self startMediaTailorPlaybackWithManifestURL:resolvedURL sourceURLString:videoURLString];
+            [self startMediaTailorPlaybackWithManifestURL:resolvedURL
+                                           sourceURLString:videoURLString
+                                           adSegmentPrefix:adSegmentPrefix
+                                               trackingUrl:trackingUrl];
         }];
         return;
     }
 
-    [self startMediaTailorPlaybackWithManifestURL:videoURL sourceURLString:videoURLString];
+    [self startMediaTailorPlaybackWithManifestURL:videoURL
+                                   sourceURLString:videoURLString
+                                   adSegmentPrefix:adSegmentPrefix
+                                       trackingUrl:trackingUrl];
 }
 
 /// POSTs an empty body to a MediaTailor explicit session-init URL
@@ -281,7 +291,9 @@
 /// session-init URL. `sourceURLString` is the original URL string passed to
 /// `-playMediaTailorVideo:`, kept for logging/custom attributes.
 - (void)startMediaTailorPlaybackWithManifestURL:(NSURL *)manifestURL
-                                 sourceURLString:(NSString *)sourceURLString {
+                                 sourceURLString:(NSString *)sourceURLString
+                                 adSegmentPrefix:(nullable NSString *)adSegmentPrefix
+                                     trackingUrl:(nullable NSString *)trackingUrl {
     if (![MTDetector isMediaTailorURL:manifestURL]) {
         NSLog(@"⚠️ [MediaTailor] URL does not look like a MediaTailor session — "
               @"the tracker will not activate. Override via NSUserDefaults "
@@ -295,12 +307,17 @@
 
     // Config-based wiring — parity with the IMA path. `NRAdConfig.mediaTailor()`
     // tells the agent to create and attach an `NRTrackerMediaTailor` as the ad
-    // tracker (custom-CDN: use `+mediaTailorWithSegmentPrefix:trackingUrl:`).
-    // No IMAAdsLoader / IMAAdsManager — MediaTailor ads are server-side-stitched.
+    // tracker. A CDN that rewrites ad-segment URLs to a non-default path (or
+    // needs an explicit tracking-URL override) supplies those here via
+    // `+mediaTailorWithSegmentPrefix:trackingUrl:`. No IMAAdsLoader /
+    // IMAAdsManager — MediaTailor ads are server-side-stitched.
+    NRAdConfig *adConfig = (adSegmentPrefix.length > 0 || trackingUrl.length > 0)
+        ? [NRAdConfig mediaTailorWithSegmentPrefix:adSegmentPrefix trackingUrl:trackingUrl]
+        : [NRAdConfig mediaTailor];
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"MediaTailorPlayer"
         player:player
-        adConfig:[NRAdConfig mediaTailor]
+        adConfig:adConfig
         customAttributes:@{
             @"videoURL": sourceURLString,
             @"adStitching": @"server-side",
