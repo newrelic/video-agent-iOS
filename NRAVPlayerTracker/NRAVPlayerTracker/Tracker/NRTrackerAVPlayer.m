@@ -242,14 +242,19 @@
     else if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"] && self.state.isSeeking && self.state.isPaused) {
         [self sendBufferStart];
     }
-    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isSeeking && self.state.isPaused) {
+    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isPaused) {
+        // NR-531411: not gated on isSeeking anymore — a plain (non-seek) rebuffer
+        // that resolves while the user is paused needs to close the buffer window
+        // here too, since the timeControlStatus handler below now defers to this
+        // observer for that case instead of closing it prematurely.
         [self sendBufferEnd];
         [self sendSeekEnd];
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
         [self sendRequest];
 
-        if (self.state.isSeeking && self.state.isPaused && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
+        if (self.state.isPaused && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
+            // NR-531411: same broadening as playbackBufferFull above.
             [self sendBufferEnd];
             [self sendSeekEnd];
         }
@@ -290,7 +295,20 @@
                 [self sendBufferStart];
             }
             else {
-                [self sendBufferEnd];
+                // NR-531411: timeControlStatus reflects playback intent, not buffer
+                // health — it can flip to Paused as soon as the user pauses, well
+                // before the underlying network buffer has actually filled. If
+                // we're mid-buffer when that happens, don't close the buffer window
+                // here; let the playbackLikelyToKeepUp/playbackBufferFull observers
+                // above close it once buffering genuinely resolves. (If buffering
+                // already resolved via one of those observers by the time we get
+                // here, self.state.isBuffering is already false and sendBufferEnd
+                // below is a safe no-op either way.)
+                BOOL isPausingDuringActiveBuffer = self.state.isBuffering &&
+                    self.playerInstance.timeControlStatus == AVPlayerTimeControlStatusPaused;
+                if (!isPausingDuringActiveBuffer) {
+                    [self sendBufferEnd];
+                }
                 [self sendSeekEnd];
             }
         } else {
