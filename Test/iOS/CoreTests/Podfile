@@ -7,4 +7,5 @@ target 'CoreTests' do
 
   # Pods for CoreTests
   pod 'NewRelicVideoAgent', :path => '../../../'
+  pod 'NRTHEOplayerTracker', :path => '../../../'
 end

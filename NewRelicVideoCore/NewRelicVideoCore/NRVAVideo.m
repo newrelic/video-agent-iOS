@@ -98,7 +98,8 @@ static dispatch_once_t onceToken;
     // Create content tracker
     id contentTracker = nil;
     if (config.player) {
-        contentTracker = [self createContentTracker];
+        NRPlayerType effectiveType = [self detectedPlayerTypeForPlayer:config.player fallback:config.playerType];
+        contentTracker = [self createContentTrackerForPlayerType:effectiveType];
     } else {
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
@@ -380,25 +381,52 @@ static dispatch_once_t onceToken;
 #pragma mark - Tracker Creation (Internal Methods)
 
 /**
- * Creates a content tracker for AVPlayer
- * Creates tracker without player, then sets player after initialization
+ * Identifies the real player type from the player instance itself, so config.playerType only needs to
+ * be set explicitly for a custom/wrapped player class this can't identify. AVPlayer is a compile-time
+ * dependency already (AVFoundation is imported above); THEOplayer never is, by design, so it's looked up
+ * the exact same NSClassFromString way createContentTrackerForPlayerType: below already looks up the
+ * tracker classes themselves — a bare Objective-C runtime check, unaffected by THEOplayer exposing only
+ * one member (videoRect) to Objective-C (confirmed via ObjCBridgeProbe during this pod's development),
+ * which is exactly why duck-typing via respondsToSelector: isn't an option here.
  */
-+ (id)createContentTracker {
-    // Create NRTrackerAVPlayer without player
-    // Player will be set after tracker initialization
-    Class trackerClass = NSClassFromString(@"NRTrackerAVPlayer");
++ (NRPlayerType)detectedPlayerTypeForPlayer:(id)player fallback:(NRPlayerType)fallback {
+    if ([player isKindOfClass:[AVPlayer class]]) {
+        return NRPlayerTypeAVPlayer;
+    }
+    // "THEOplayerSDK.THEOplayer", not bare "THEOplayer" — confirmed empirically via
+    // NSStringFromClass(type(of: realTHEOplayerInstance)) against a real instance: THEOplayer has no
+    // explicit @objc(Name) annotation of its own (unlike NRTrackerTHEOplayer, which needs one specifically
+    // to defeat this), so Swift registers it under the module-qualified runtime name. The generated
+    // Objective-C header's internal SWIFT_CLASS("_TtC13THEOplayerSDK10THEOplayer") macro argument is a
+    // different, mangled representation NSClassFromString does not accept — do not use that string here.
+    Class theoPlayerClass = NSClassFromString(@"THEOplayerSDK.THEOplayer");
+    if (theoPlayerClass && [player isKindOfClass:theoPlayerClass]) {
+        return NRPlayerTypeTHEOplayer;
+    }
+    return fallback;
+}
+
+/**
+ * Creates a content tracker for the given player type.
+ * Creates tracker without player, then sets player after initialization.
+ */
++ (id)createContentTrackerForPlayerType:(NRPlayerType)playerType {
+    NSString *className = (playerType == NRPlayerTypeTHEOplayer) ? @"NRTrackerTHEOplayer" : @"NRTrackerAVPlayer";
+    NSString *podName = (playerType == NRPlayerTypeTHEOplayer) ? @"NRTHEOplayerTracker" : @"NRAVPlayerTracker";
+
+    Class trackerClass = NSClassFromString(className);
     if (!trackerClass) {
-        NRVA_ERROR_LOG(@"NRTrackerAVPlayer class not found - ensure NRAVPlayerTracker pod is installed");
+        NRVA_ERROR_LOG(@"%@ class not found - ensure %@ pod is installed", className, podName);
         return nil;
     }
-    
+
     // Create tracker using default constructor (no player parameter)
     id tracker = [[trackerClass alloc] init];
     if (tracker) {
-        NRVA_DEBUG_LOG(@"Created content tracker (without player)");
+        NRVA_DEBUG_LOG(@"Created content tracker (without player): %@", className);
         return tracker;
     } else {
-        NRVA_ERROR_LOG(@"Failed to create NRTrackerAVPlayer instance");
+        NRVA_ERROR_LOG(@"Failed to create %@ instance", className);
         return nil;
     }
 }
