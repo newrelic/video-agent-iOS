@@ -4,6 +4,10 @@ target 'SimpleTheoplayerTest' do
   # Comment the next line if you don't want to use dynamic frameworks
   use_frameworks!
 
-  # THEOplayer SDK only — this app validates THEOplayer directly, no New Relic code involved.
   pod 'THEOplayerSDK-core'
+
+  # NRTrackerTHEOplayer integration — validates the real tracker against real playback with a real
+  # New Relic application token, not just the CoreTests suite's synthetic/error-only scenarios.
+  pod 'NewRelicVideoAgent', :path => '../../../'
+  pod 'NRTHEOplayerTracker', :path => '../../../'
 end

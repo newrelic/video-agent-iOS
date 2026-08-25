@@ -21,6 +21,12 @@
 		9CAD2A89260B645800C0AD85 /* Test5.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAD2A81260B645800C0AD85 /* Test5.swift */; };
 		9CAD2A8A260B645800C0AD85 /* Test7.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAD2A82260B645800C0AD85 /* Test7.swift */; };
 		2FEA78F45F94EE21281F71B1 /* Test14.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C767ECC7577772515F896B0 /* Test14.swift */; };
+		F991498F3B810E4603CC2072 /* Test8.swift in Sources */ = {isa = PBXBuildFile; fileRef = 812E97F70C796ABBCCF82DD4 /* Test8.swift */; };
+		EF7D700A96EBF5F13AB291BC /* Test9.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28E5DF94E9143F28CCFBA4C1 /* Test9.swift */; };
+		3A2D23D35A52DE2FF05617B8 /* Test10.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6D6C24FC571583B963C7D21A /* Test10.swift */; };
+		C561C9E7C8C91B1C15F75977 /* Test11.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30D009E02ABF12159577588C /* Test11.swift */; };
+		DD15767E1647C58FC981524E /* Test12.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC636AD1EEC457CBDC51B991 /* Test12.swift */; };
+		336625641AE7D365BA08EE8D /* Test13.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3180FD8A7EB7F7B74CBB0277 /* Test13.swift */; };
 		88E90EAF81F6AF190F2386B3 /* Test15.swift in Sources */ = {isa = PBXBuildFile; fileRef = D16F10E7FA4B863DBEB77342 /* Test15.swift */; };
 		9CAD2A8B260B645800C0AD85 /* Test2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAD2A83260B645800C0AD85 /* Test2.swift */; };
 		9CAD2A8C260B645800C0AD85 /* Test1.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9CAD2A84260B645800C0AD85 /* Test1.swift */; };
@@ -43,6 +49,12 @@
 		9CAD2A81260B645800C0AD85 /* Test5.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test5.swift; path = ../../Tests/Test5.swift; sourceTree = "<group>"; };
 		9CAD2A82260B645800C0AD85 /* Test7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test7.swift; path = ../../Tests/Test7.swift; sourceTree = "<group>"; };
 		8C767ECC7577772515F896B0 /* Test14.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test14.swift; path = ../../Tests/Test14.swift; sourceTree = "<group>"; };
+		812E97F70C796ABBCCF82DD4 /* Test8.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test8.swift; path = ../../Tests/Test8.swift; sourceTree = "<group>"; };
+		28E5DF94E9143F28CCFBA4C1 /* Test9.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test9.swift; path = ../../Tests/Test9.swift; sourceTree = "<group>"; };
+		6D6C24FC571583B963C7D21A /* Test10.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test10.swift; path = ../../Tests/Test10.swift; sourceTree = "<group>"; };
+		30D009E02ABF12159577588C /* Test11.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test11.swift; path = ../../Tests/Test11.swift; sourceTree = "<group>"; };
+		EC636AD1EEC457CBDC51B991 /* Test12.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test12.swift; path = ../../Tests/Test12.swift; sourceTree = "<group>"; };
+		3180FD8A7EB7F7B74CBB0277 /* Test13.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test13.swift; path = ../../Tests/Test13.swift; sourceTree = "<group>"; };
 		D16F10E7FA4B863DBEB77342 /* Test15.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test15.swift; path = ../../Tests/Test15.swift; sourceTree = "<group>"; };
 		9CAD2A83260B645800C0AD85 /* Test2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test2.swift; path = ../../Tests/Test2.swift; sourceTree = "<group>"; };
 		9CAD2A84260B645800C0AD85 /* Test1.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Test1.swift; path = ../../Tests/Test1.swift; sourceTree = "<group>"; };
@@ -81,6 +93,12 @@
 				9CAD2A7D260B645800C0AD85 /* Test6.swift */,
 				9CAD2A82260B645800C0AD85 /* Test7.swift */,
 				8C767ECC7577772515F896B0 /* Test14.swift */,
+				812E97F70C796ABBCCF82DD4 /* Test8.swift */,
+				28E5DF94E9143F28CCFBA4C1 /* Test9.swift */,
+				6D6C24FC571583B963C7D21A /* Test10.swift */,
+				30D009E02ABF12159577588C /* Test11.swift */,
+				EC636AD1EEC457CBDC51B991 /* Test12.swift */,
+				3180FD8A7EB7F7B74CBB0277 /* Test13.swift */,
 				D16F10E7FA4B863DBEB77342 /* Test15.swift */,
 				9CAD2A80260B645800C0AD85 /* TestProtocol.swift */,
 				9C42B1472603A1FE00732AA5 /* CoreTests */,
@@ -242,6 +260,12 @@
 				9CAD2A89260B645800C0AD85 /* Test5.swift in Sources */,
 				9CAD2A8A260B645800C0AD85 /* Test7.swift in Sources */,
 				2FEA78F45F94EE21281F71B1 /* Test14.swift in Sources */,
+				F991498F3B810E4603CC2072 /* Test8.swift in Sources */,
+				EF7D700A96EBF5F13AB291BC /* Test9.swift in Sources */,
+				3A2D23D35A52DE2FF05617B8 /* Test10.swift in Sources */,
+				C561C9E7C8C91B1C15F75977 /* Test11.swift in Sources */,
+				DD15767E1647C58FC981524E /* Test12.swift in Sources */,
+				336625641AE7D365BA08EE8D /* Test13.swift in Sources */,
 				88E90EAF81F6AF190F2386B3 /* Test15.swift in Sources */,
 				9CAD2A8B260B645800C0AD85 /* Test2.swift in Sources */,
 				9CAD2A8C260B645800C0AD85 /* Test1.swift in Sources */,
