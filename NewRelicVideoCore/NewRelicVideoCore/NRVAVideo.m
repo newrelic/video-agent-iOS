@@ -99,7 +99,13 @@ static dispatch_once_t onceToken;
     id contentTracker = nil;
     if (config.player) {
         NRPlayerType effectiveType = [self detectedPlayerTypeForPlayer:config.player fallback:config.playerType];
-        contentTracker = [self createContentTrackerForPlayerType:effectiveType];
+        if (effectiveType == NRPlayerTypeUnspecified) {
+            NRVA_ERROR_LOG(@"Could not determine player type for '%@' — player is not a recognized AVPlayer or "
+                           @"THEOplayer instance, and no explicit config.playerType was set. Tracking will NOT "
+                           @"start. Set config.playerType explicitly for custom/wrapped player types.", config.playerName);
+        } else {
+            contentTracker = [self createContentTrackerForPlayerType:effectiveType];
+        }
     } else {
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
@@ -381,13 +387,16 @@ static dispatch_once_t onceToken;
 #pragma mark - Tracker Creation (Internal Methods)
 
 /**
- * Identifies the real player type from the player instance itself, so config.playerType only needs to
- * be set explicitly for a custom/wrapped player class this can't identify. AVPlayer is a compile-time
- * dependency already (AVFoundation is imported above); THEOplayer never is, by design, so it's looked up
- * the exact same NSClassFromString way createContentTrackerForPlayerType: below already looks up the
- * tracker classes themselves — a bare Objective-C runtime check, unaffected by THEOplayer exposing only
- * one member (videoRect) to Objective-C (confirmed via ObjCBridgeProbe during this pod's development),
- * which is exactly why duck-typing via respondsToSelector: isn't an option here.
+ * Identifies the real player type from the player instance itself, as a safety net for a caller who
+ * didn't set config.playerType explicitly (the recommended path — see NRPlayerType's own doc comment).
+ * AVPlayer is a compile-time dependency already (AVFoundation is imported above); THEOplayer never is, by
+ * design, so it's looked up the exact same NSClassFromString way createContentTrackerForPlayerType:
+ * below already looks up the tracker classes themselves — a bare Objective-C runtime check, unaffected by
+ * THEOplayer exposing only one member (videoRect) to Objective-C (confirmed via ObjCBridgeProbe during
+ * this pod's development), which is exactly why duck-typing via respondsToSelector: isn't an option here.
+ * Returns NRPlayerTypeUnspecified — never silently guesses AVPlayer — if detection fails and fallback is
+ * also NRPlayerTypeUnspecified (i.e. the caller didn't identify a custom/wrapped player explicitly
+ * either); addPlayer: treats that as "don't start tracking", not as a reason to pick something.
  */
 + (NRPlayerType)detectedPlayerTypeForPlayer:(id)player fallback:(NRPlayerType)fallback {
     if ([player isKindOfClass:[AVPlayer class]]) {
@@ -409,8 +418,17 @@ static dispatch_once_t onceToken;
 /**
  * Creates a content tracker for the given player type.
  * Creates tracker without player, then sets player after initialization.
+ * playerType must be NRPlayerTypeAVPlayer or NRPlayerTypeTHEOplayer — addPlayer: is the only caller, and
+ * it never passes NRPlayerTypeUnspecified through to here (see its own guard). Checked defensively
+ * anyway rather than letting NRPlayerTypeUnspecified silently fall into the "anything not THEOplayer
+ * means AVPlayer" ternary below, in case a future call site doesn't know that invariant.
  */
 + (id)createContentTrackerForPlayerType:(NRPlayerType)playerType {
+    if (playerType == NRPlayerTypeUnspecified) {
+        NRVA_ERROR_LOG(@"createContentTrackerForPlayerType: called with NRPlayerTypeUnspecified — this is a caller bug, not a valid player type. No tracker created.");
+        return nil;
+    }
+
     NSString *className = (playerType == NRPlayerTypeTHEOplayer) ? @"NRTrackerTHEOplayer" : @"NRTrackerAVPlayer";
     NSString *podName = (playerType == NRPlayerTypeTHEOplayer) ? @"NRTHEOplayerTracker" : @"NRAVPlayerTracker";
 
