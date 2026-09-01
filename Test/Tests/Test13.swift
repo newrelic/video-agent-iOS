@@ -67,7 +67,7 @@ class Test13: TestProtocol {
 
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             captured.append(action)
-            if let shift = attributes["renditionChangeShift"] as? String {
+            if let shift = attributes["shift"] as? String {
                 lastShift = shift
             }
             return false

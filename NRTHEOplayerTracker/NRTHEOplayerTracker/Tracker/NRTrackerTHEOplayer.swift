@@ -150,7 +150,14 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         lastRenditionHeight = height
         lastRenditionBandwidth = bandwidth
 
-        setAttribute("renditionChangeShift", value: shift as NSString)
+        // "shift", not "renditionChangeShift" — NRQoEAggregator.m's handleRenditionChangeWithAttributes:
+        // reads attributes[@"shift"] to compute totalSwitchUps/totalSwitchDowns (confirmed by reading
+        // NRTrackerAVPlayer.m's own getAttributes: override, which injects exactly this key, scoped to
+        // just the CONTENT_RENDITION_CHANGE event). Scoped via forAction: for the same reason — a plain
+        // setAttribute(key:value:) applies globally to every subsequent event, not just this one, which
+        // is why the earlier version of this line leaked "renditionChangeShift" onto unrelated events
+        // (PAUSE, ERROR, HEARTBEAT) in real NRDB data.
+        setAttribute("shift", value: shift as NSString, forAction: "CONTENT_RENDITION_CHANGE")
         if let droppedFrames {
             setAttribute("droppedVideoFrames", value: NSNumber(value: droppedFrames))
         }
