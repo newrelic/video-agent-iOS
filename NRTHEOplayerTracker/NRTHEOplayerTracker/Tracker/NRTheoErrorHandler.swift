@@ -18,21 +18,28 @@ final class NRTheoErrorHandler {
     }
 
     /// `category` distinguishes DRM/config/network failures without a separate error-event constant —
-    /// iOS folds all of these into the one ERROR event, unlike Android's CONTENTPROTECTIONERROR.
-    var asNSError: NSError {
-        let errorCode = error.map { String(describing: $0.code) } ?? "UNKNOWN"
-        let errorMessage = error?.message ?? fallbackMessage
+    /// iOS folds all of these into the one ERROR event, unlike Android's CONTENTPROTECTIONERROR. Exposed
+    /// separately (not via asNSError's userInfo) because NRVideoTracker.m's sendError: only ever reads
+    /// error.domain/.code/.localizedDescription off the NSError itself — never userInfo — so anything
+    /// stuffed into userInfo silently never reaches NRDB. The caller (handleError) surfaces this via
+    /// setAttribute(forAction: CONTENT_ERROR) instead, the same scoped-custom-attribute mechanism
+    /// CONTENT_RENDITION_CHANGE's "shift" attribute uses.
+    var category: String? {
+        error.map { String(describing: $0.category) }
+    }
 
-        var userInfo: [String: Any] = [
-            NSLocalizedDescriptionKey: errorMessage,
-            "errorCode": errorCode,
-        ]
-        if let error {
-            userInfo["category"] = String(describing: error.category)
-            if let cause = error.cause {
-                userInfo["cause"] = "\(cause.name): \(cause.message)"
-            }
-        }
-        return NSError(domain: "com.newrelic.theoplayer", code: 0, userInfo: userInfo)
+    var cause: String? {
+        error?.cause.map { "\($0.name): \($0.message)" }
+    }
+
+    /// code must be the NSError's real `.code` — THEOErrorCode is a real, meaningful Int32 enum (e.g.
+    /// LICENSE_ERROR, NETWORK_ERROR), not a placeholder — because sendError: reads `.code` directly.
+    /// A prior version hardcoded this to 0 and stashed the real value in userInfo, where it was silently
+    /// discarded; every real error this shipped ever produced showed errorCode=0 in NRDB regardless of
+    /// what actually went wrong.
+    var asNSError: NSError {
+        let code = error.map { Int($0.code.rawValue) } ?? 0
+        let message = error?.message ?? fallbackMessage
+        return NSError(domain: "com.newrelic.theoplayer", code: code, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }

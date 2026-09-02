@@ -274,6 +274,15 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
 
     func handleError(_ event: ErrorEvent) {
         let handler = NRTheoErrorHandler(error: event.errorObject, fallbackMessage: event.error)
+        // Scoped to CONTENT_ERROR only, same mechanism as CONTENT_RENDITION_CHANGE's "shift" — these
+        // don't apply to any other event, and a plain setAttribute(key:value:) would otherwise leak them
+        // onto every subsequent event regardless of type.
+        if let category = handler.category {
+            setAttribute("category", value: category as NSString, forAction: "CONTENT_ERROR")
+        }
+        if let cause = handler.cause {
+            setAttribute("cause", value: cause as NSString, forAction: "CONTENT_ERROR")
+        }
         sendError(handler.asNSError)
     }
 

@@ -43,11 +43,17 @@ class Test12: TestProtocol {
         }
 
         // Confirm real, non-empty error data actually flowed through NRTheoErrorHandler, not just that
-        // *some* CONTENT_ERROR fired.
+        // *some* CONTENT_ERROR fired. Checking category via the spy (not error.userInfo) deliberately —
+        // NRVideoTracker.m's sendError: never reads userInfo, only error.domain/.code/.localizedDescription,
+        // so category/cause only ever reach NRDB via the scoped "category"/"cause" custom attributes on
+        // CONTENT_ERROR (see NRTrackerTHEOplayer.handleError). Not asserting error.code != 0 either:
+        // THEOErrorCode's first case (CONFIGURATION_ERROR) has raw value 0, so 0 is a legitimate real
+        // error code here, not just the old bug's placeholder.
         guard let error = tracker.lastError,
               !error.localizedDescription.isEmpty,
-              (error.userInfo["errorCode"] as? String)?.isEmpty == false else {
-            self.callback!(testName + " sendError should receive a populated NSError, not an empty one", false)
+              let category = tracker.lastErrorCategory,
+              !category.isEmpty else {
+            self.callback!(testName + " sendError should receive a populated NSError with a real category attribute", false)
             return
         }
 
@@ -61,9 +67,13 @@ class Test12: TestProtocol {
     class TestContentTracker: NRTrackerTHEOplayer {
         var captured: [String] = []
         var lastError: NSError?
+        var lastErrorCategory: String?
 
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             captured.append(action)
+            if action == CONTENT_ERROR, let category = attributes["category"] as? String {
+                lastErrorCategory = category
+            }
             return false
         }
 
