@@ -239,15 +239,25 @@ final class ViewController: UIViewController {
             })
         } else {
             // videoTracks is likely empty until a source is loaded — re-attempt once SOURCE_CHANGE fires.
-            addListener(player.addEventListener(type: PlayerEventTypes.SOURCE_CHANGE) { [weak self] _ in
+            // Stored separately (not via addListener) so it can be removed once it succeeds — otherwise
+            // this stays permanently registered and re-attaches one more ACTIVE_QUALITY_CHANGED listener
+            // on every subsequent source change, so after N source changes a single rendition switch logs
+            // N events. Harmless in this reference harness, but skews event-frequency observations.
+            fallbackSourceChangeListener = player.addEventListener(type: PlayerEventTypes.SOURCE_CHANGE) { [weak self] _ in
                 guard let self, let player = self.theoplayer, let videoTrack = Self.firstVideoTrack(of: player) else { return }
                 self.addListener(videoTrack.addEventListener(type: MediaTrackEventTypes.ACTIVE_QUALITY_CHANGED) { [weak self] _ in
                     self?.eventLog.log("ACTIVE_QUALITY_CHANGED")
                     self?.refreshAttributePanel()
                 })
-            })
+                if let token = self.fallbackSourceChangeListener {
+                    player.removeEventListener(type: PlayerEventTypes.SOURCE_CHANGE, listener: token)
+                    self.fallbackSourceChangeListener = nil
+                }
+            }
         }
     }
+
+    private var fallbackSourceChangeListener: (any EventListener)?
 
     private static func firstVideoTrack(of player: THEOplayer) -> (any MediaTrack)? {
         // VideoTrackList doesn't narrow get(_:)'s return type below MediaTrackList's own — confirmed
