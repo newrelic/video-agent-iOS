@@ -1,0 +1,9 @@
+platform :ios, '14.1'
+
+target 'SimpleTheoplayerTest' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # THEOplayer SDK only — this app validates THEOplayer directly, no New Relic code involved.
+  pod 'THEOplayerSDK-core'
+end

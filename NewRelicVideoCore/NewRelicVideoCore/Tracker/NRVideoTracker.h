@@ -257,7 +257,14 @@ NS_ASSUME_NONNULL_BEGIN
  
  @return Attribute.
  */
-- (NSString *)getSrc;
+// NS_SWIFT_NAME is deliberate, not stylistic: without an explicit Swift name, the Swift compiler
+// (reproduced on Xcode 17C529 with a from-scratch isolated subclass, unrelated to any other code in
+// this repo) treats a Swift override of the auto-imported `getSrc()` as satisfying two distinct
+// superclass declarations simultaneously and fails to build with "declaration 'getSrc()' cannot
+// override more than one superclass declaration". The Objective-C selector is unchanged — this only
+// affects what Swift subclasses call the override; NRVideoTracker.m's `[self getSrc]` dispatch still
+// resolves polymorphically to a Swift override exactly as before.
+- (NSString *)getSrc NS_SWIFT_NAME(nrGetSrc());
 
 /**
  Get whether video is muted or not.

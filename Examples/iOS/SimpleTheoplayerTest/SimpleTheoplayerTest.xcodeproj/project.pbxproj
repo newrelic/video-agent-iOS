@@ -1,0 +1,421 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BB4DE032D4CA79580751DF84 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA8E58285A77E3BD6479573A /* AppDelegate.swift */; };
+		0942DF38D752B2B9B42293E8 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D41449C27B74FC6DDB38C625 /* SceneDelegate.swift */; };
+		6CAF8DFF7EFE8188466CD4E3 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC185886CE30F3C471BDB8A /* ViewController.swift */; };
+		6EABD165D2904B8B01E840F0 /* EventLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470566DD5CF4B2978EDDC989 /* EventLogView.swift */; };
+		9CC57DC725A4965F00DE7431 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CC57DC525A4965F00DE7431 /* Main.storyboard */; };
+		9CC57DC925A4966300DE7431 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9CC57DC825A4966300DE7431 /* Assets.xcassets */; };
+		9CC57DCC25A4966300DE7431 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CC57DCA25A4966300DE7431 /* LaunchScreen.storyboard */; };
+		E713A69BE4CFF5F7F480FE0B /* Pods_SimpleTheoplayerTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 001920FCA051F5E3753FDB64 /* Pods_SimpleTheoplayerTest.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		001920FCA051F5E3753FDB64 /* Pods_SimpleTheoplayerTest.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimpleTheoplayerTest.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0B42A12E3BCCD58A3F8C6C7C /* Pods-SimpleTheoplayerTest.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleTheoplayerTest.debug.xcconfig"; path = "Target Support Files/Pods-SimpleTheoplayerTest/Pods-SimpleTheoplayerTest.debug.xcconfig"; sourceTree = "<group>"; };
+		9CC57DB925A4965F00DE7431 /* SimpleTheoplayerTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTheoplayerTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA8E58285A77E3BD6479573A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		D41449C27B74FC6DDB38C625 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		CEC185886CE30F3C471BDB8A /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		470566DD5CF4B2978EDDC989 /* EventLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLogView.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* SimpleTheoplayerTest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SimpleTheoplayerTest-Bridging-Header.h"; sourceTree = "<group>"; };
+		9CC57DC625A4965F00DE7431 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		9CC57DC825A4966300DE7431 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		9CC57DCB25A4966300DE7431 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		9CC57DCD25A4966300DE7431 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C0F859C7A5DFBA24BA7F385A /* Pods-SimpleTheoplayerTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimpleTheoplayerTest.release.xcconfig"; path = "Target Support Files/Pods-SimpleTheoplayerTest/Pods-SimpleTheoplayerTest.release.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		9CC57DB625A4965F00DE7431 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E713A69BE4CFF5F7F480FE0B /* Pods_SimpleTheoplayerTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		874972F84C6751F28606381D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				0B42A12E3BCCD58A3F8C6C7C /* Pods-SimpleTheoplayerTest.debug.xcconfig */,
+				C0F859C7A5DFBA24BA7F385A /* Pods-SimpleTheoplayerTest.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		9CC57DB025A4965F00DE7431 = {
+			isa = PBXGroup;
+			children = (
+				9CC57DBB25A4965F00DE7431 /* SimpleTheoplayerTest */,
+				9CC57DBA25A4965F00DE7431 /* Products */,
+				874972F84C6751F28606381D /* Pods */,
+				BBB5E6843E043D6D6C9F0A2C /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		9CC57DBA25A4965F00DE7431 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9CC57DB925A4965F00DE7431 /* SimpleTheoplayerTest.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9CC57DBB25A4965F00DE7431 /* SimpleTheoplayerTest */ = {
+			isa = PBXGroup;
+			children = (
+				BA8E58285A77E3BD6479573A /* AppDelegate.swift */,
+				D41449C27B74FC6DDB38C625 /* SceneDelegate.swift */,
+				CEC185886CE30F3C471BDB8A /* ViewController.swift */,
+				470566DD5CF4B2978EDDC989 /* EventLogView.swift */,
+				A1B2C3D4E5F60718293A4B5C /* SimpleTheoplayerTest-Bridging-Header.h */,
+				9CC57DC525A4965F00DE7431 /* Main.storyboard */,
+				9CC57DC825A4966300DE7431 /* Assets.xcassets */,
+				9CC57DCA25A4966300DE7431 /* LaunchScreen.storyboard */,
+				9CC57DCD25A4966300DE7431 /* Info.plist */,
+			);
+			path = SimpleTheoplayerTest;
+			sourceTree = "<group>";
+		};
+		BBB5E6843E043D6D6C9F0A2C /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				001920FCA051F5E3753FDB64 /* Pods_SimpleTheoplayerTest.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		9CC57DB825A4965F00DE7431 /* SimpleTheoplayerTest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9CC57DD225A4966300DE7431 /* Build configuration list for PBXNativeTarget "SimpleTheoplayerTest" */;
+			buildPhases = (
+				078304B80E51A3EDBDD2B0A0 /* [CP] Check Pods Manifest.lock */,
+				9CC57DB525A4965F00DE7431 /* Sources */,
+				9CC57DB625A4965F00DE7431 /* Frameworks */,
+				9CC57DB725A4965F00DE7431 /* Resources */,
+				8AF22C5727A3600FDCAF2248 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleTheoplayerTest;
+			productName = SimpleTheoplayerTest;
+			productReference = 9CC57DB925A4965F00DE7431 /* SimpleTheoplayerTest.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		9CC57DB125A4965F00DE7431 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1210;
+				TargetAttributes = {
+					9CC57DB825A4965F00DE7431 = {
+						CreatedOnToolsVersion = 12.1;
+					};
+				};
+			};
+			buildConfigurationList = 9CC57DB425A4965F00DE7431 /* Build configuration list for PBXProject "SimpleTheoplayerTest" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 9CC57DB025A4965F00DE7431;
+			productRefGroup = 9CC57DBA25A4965F00DE7431 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				9CC57DB825A4965F00DE7431 /* SimpleTheoplayerTest */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9CC57DB725A4965F00DE7431 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9CC57DCC25A4966300DE7431 /* LaunchScreen.storyboard in Resources */,
+				9CC57DC925A4966300DE7431 /* Assets.xcassets in Resources */,
+				9CC57DC725A4965F00DE7431 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		078304B80E51A3EDBDD2B0A0 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SimpleTheoplayerTest-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		8AF22C5727A3600FDCAF2248 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SimpleTheoplayerTest/Pods-SimpleTheoplayerTest-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SimpleTheoplayerTest/Pods-SimpleTheoplayerTest-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SimpleTheoplayerTest/Pods-SimpleTheoplayerTest-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		9CC57DB525A4965F00DE7431 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6CAF8DFF7EFE8188466CD4E3 /* ViewController.swift in Sources */,
+				BB4DE032D4CA79580751DF84 /* AppDelegate.swift in Sources */,
+				0942DF38D752B2B9B42293E8 /* SceneDelegate.swift in Sources */,
+				6EABD165D2904B8B01E840F0 /* EventLogView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		9CC57DC525A4965F00DE7431 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9CC57DC625A4965F00DE7431 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		9CC57DCA25A4966300DE7431 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				9CC57DCB25A4966300DE7431 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		9CC57DD025A4966300DE7431 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		9CC57DD125A4966300DE7431 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		9CC57DD325A4966300DE7431 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0B42A12E3BCCD58A3F8C6C7C /* Pods-SimpleTheoplayerTest.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				INFOPLIST_FILE = SimpleTheoplayerTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimpleTheoplayerTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SimpleTheoplayerTest/SimpleTheoplayerTest-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		9CC57DD425A4966300DE7431 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0F859C7A5DFBA24BA7F385A /* Pods-SimpleTheoplayerTest.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				INFOPLIST_FILE = SimpleTheoplayerTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimpleTheoplayerTest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "SimpleTheoplayerTest/SimpleTheoplayerTest-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9CC57DB425A4965F00DE7431 /* Build configuration list for PBXProject "SimpleTheoplayerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CC57DD025A4966300DE7431 /* Debug */,
+				9CC57DD125A4966300DE7431 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9CC57DD225A4966300DE7431 /* Build configuration list for PBXNativeTarget "SimpleTheoplayerTest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9CC57DD325A4966300DE7431 /* Debug */,
+				9CC57DD425A4966300DE7431 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 9CC57DB125A4965F00DE7431 /* Project object */;
+}
