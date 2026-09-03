@@ -331,6 +331,8 @@ let config = NRVAVideoConfiguration.builder()
 
 ## Video Player Integration
 
+Options 1 and 2 below use the legacy `adEnabled:` boolean initializer, which still works. [Option 3](#option-3-config-based-setup-with-nradconfig-recommended) shows the current `NRAdConfig`-based initializer, which also supports AWS MediaTailor server-side ad insertion.
+
 ### Option 1: Simple Video Player (No Ads)
 
 For basic video playback without advertisements:
@@ -785,6 +787,77 @@ extension ViewController: IMAAdsManagerDelegate {
     }
 }
 ```
+
+### Option 3: Config-Based Setup with `NRAdConfig` (Recommended)
+
+Options 1 and 2 above use the legacy `adEnabled:` boolean. The current API is `NRAdConfig` — the single place to select and configure the ad tracker for a player session, replacing the `adEnabled:` initializer with an explicit `adConfig:` one.
+
+| Legacy | Current equivalent |
+|--------|---------------------|
+| `adEnabled:NO` / `adEnabled: false` | `adConfig:nil` / `adConfig: nil` |
+| `adEnabled:YES` / `adEnabled: true` | `adConfig:[NRAdConfig csai]` / `adConfig: NRAdConfig.csai()` |
+| *(not previously available)* | `adConfig:[NRAdConfig mediaTailor]` / `adConfig: NRAdConfig.mediaTailor()` for AWS MediaTailor server-side ad insertion |
+
+#### Objective-C
+
+```objectivec
+// No ads — same tracker behavior as Option 1
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:self.player
+    adConfig:nil
+    customAttributes:@{@"videoTitle": @"Sample Video"}];
+
+// Google IMA ads — same tracker behavior as Option 2, wire up IMAAdsLoader as shown there
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:self.player
+    adConfig:[NRAdConfig csai]
+    customAttributes:@{@"videoTitle": @"Sample Video with Ads"}];
+
+// AWS MediaTailor server-side ad insertion — no IMAAdsLoader/IMAAdsManager needed;
+// ads are already stitched into the HLS manifest. Requires the NRMediaTailorTracker pod.
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:self.player
+    adConfig:[NRAdConfig mediaTailor]
+    customAttributes:@{@"videoTitle": @"Sample Video with MediaTailor Ads"}];
+
+self.trackerId = [NRVAVideo addPlayer:playerConfig];
+```
+
+#### Swift
+
+```swift
+// No ads — same tracker behavior as Option 1
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: player!,
+    adConfig: nil,
+    customAttributes: ["videoTitle": "Sample Video"]
+)
+
+// Google IMA ads — same tracker behavior as Option 2, wire up IMAAdsLoader as shown there
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: player!,
+    adConfig: NRAdConfig.csai(),
+    customAttributes: ["videoTitle": "Sample Video with Ads"]
+)
+
+// AWS MediaTailor server-side ad insertion — no IMAAdsLoader/IMAAdsManager needed;
+// ads are already stitched into the HLS manifest. Requires the NRMediaTailorTracker pod.
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: player!,
+    adConfig: NRAdConfig.mediaTailor(),
+    customAttributes: ["videoTitle": "Sample Video with MediaTailor Ads"]
+)
+
+trackerId = NRVAVideo.addPlayer(playerConfig)
+```
+
+For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides, session-init resolution) see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
 
 ## Advanced Features
 

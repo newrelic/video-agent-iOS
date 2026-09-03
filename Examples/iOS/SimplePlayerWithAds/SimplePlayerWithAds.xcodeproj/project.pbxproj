@@ -15,7 +15,20 @@
 		9CEE257B25EE7547000491C5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9CEE257A25EE7547000491C5 /* Assets.xcassets */; };
 		9CEE257E25EE7547000491C5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 9CEE257C25EE7547000491C5 /* LaunchScreen.storyboard */; };
 		9CEE258125EE7547000491C5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE258025EE7547000491C5 /* main.m */; };
+		F717E5B23E7433E0C22FE99E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 967D33171DA194C2EF9FFEA0 /* Foundation.framework */; };
+		FCED19D5BB92B628E01CDF33 /* MediaTailorUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 191BE2192FD6C43A3D4A28CD /* MediaTailorUITests.m */; };
+		MT01000200000000000A0001 /* MediaTailorSamples.m in Sources */ = {isa = PBXBuildFile; fileRef = MT01000100000000000A0001 /* MediaTailorSamples.m */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		6A56EFE41342F02C646529E8 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9CEE256325EE7543000491C5 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 9CEE256A25EE7543000491C5;
+			remoteInfo = SimplePlayerWithAds;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
 		9C7BCAAF2A333F6600F30D39 /* Embed Frameworks */ = {
@@ -31,8 +44,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		191BE2192FD6C43A3D4A28CD /* MediaTailorUITests.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = MediaTailorUITests.m; sourceTree = "<group>"; };
 		44415BE075CBA2D52C30571B /* Pods_SimplePlayerWithAds.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimplePlayerWithAds.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5FFB7ECB39AC3A5FBBD61477 /* Pods-SimplePlayerWithAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayerWithAds.release.xcconfig"; path = "Target Support Files/Pods-SimplePlayerWithAds/Pods-SimplePlayerWithAds.release.xcconfig"; sourceTree = "<group>"; };
+		967D33171DA194C2EF9FFEA0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		9CEE256B25EE7543000491C5 /* SimplePlayerWithAds.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimplePlayerWithAds.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9CEE256E25EE7543000491C5 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		9CEE256F25EE7543000491C5 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
@@ -45,7 +60,10 @@
 		9CEE257D25EE7547000491C5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		9CEE257F25EE7547000491C5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9CEE258025EE7547000491C5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CE06F183176B43B1FA8B90B9 /* SimplePlayerWithAdsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimplePlayerWithAdsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		DF11329A6C51988651C9CE47 /* Pods-SimplePlayerWithAds.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayerWithAds.debug.xcconfig"; path = "Target Support Files/Pods-SimplePlayerWithAds/Pods-SimplePlayerWithAds.debug.xcconfig"; sourceTree = "<group>"; };
+		MT01000000000000000A0001 /* MediaTailorSamples.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MediaTailorSamples.h; sourceTree = "<group>"; };
+		MT01000100000000000A0001 /* MediaTailorSamples.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MediaTailorSamples.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +75,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D992A8A36C8AF444B2D76F75 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F717E5B23E7433E0C22FE99E /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -64,8 +90,26 @@
 			isa = PBXGroup;
 			children = (
 				44415BE075CBA2D52C30571B /* Pods_SimplePlayerWithAds.framework */,
+				6C24899BA43C0A3EAD339B90 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3FBE5277B864E8FBFB7A6654 /* SimplePlayerWithAdsUITests */ = {
+			isa = PBXGroup;
+			children = (
+				191BE2192FD6C43A3D4A28CD /* MediaTailorUITests.m */,
+			);
+			name = SimplePlayerWithAdsUITests;
+			path = SimplePlayerWithAdsUITests;
+			sourceTree = "<group>";
+		};
+		6C24899BA43C0A3EAD339B90 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				967D33171DA194C2EF9FFEA0 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		93F675112C09216775BC5BED /* Pods */ = {
@@ -84,6 +128,7 @@
 				9CEE256C25EE7543000491C5 /* Products */,
 				93F675112C09216775BC5BED /* Pods */,
 				20F9EF901D9418BA23CF5B5B /* Frameworks */,
+				3FBE5277B864E8FBFB7A6654 /* SimplePlayerWithAdsUITests */,
 			);
 			sourceTree = "<group>";
 		};
@@ -91,6 +136,7 @@
 			isa = PBXGroup;
 			children = (
 				9CEE256B25EE7543000491C5 /* SimplePlayerWithAds.app */,
+				CE06F183176B43B1FA8B90B9 /* SimplePlayerWithAdsUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,6 +150,8 @@
 				9CEE257225EE7543000491C5 /* SceneDelegate.m */,
 				9CEE257425EE7543000491C5 /* ViewController.h */,
 				9CEE257525EE7543000491C5 /* ViewController.m */,
+				MT01000000000000000A0001 /* MediaTailorSamples.h */,
+				MT01000100000000000A0001 /* MediaTailorSamples.m */,
 				9CEE257725EE7543000491C5 /* Main.storyboard */,
 				9CEE257A25EE7547000491C5 /* Assets.xcassets */,
 				9CEE257C25EE7547000491C5 /* LaunchScreen.storyboard */,
@@ -116,6 +164,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		81B776CE8728F8F84B6CB051 /* SimplePlayerWithAdsUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 413D31AF91CDAD0318DB7D26 /* Build configuration list for PBXNativeTarget "SimplePlayerWithAdsUITests" */;
+			buildPhases = (
+				B42E30ED30030E66D2FE7530 /* Sources */,
+				D992A8A36C8AF444B2D76F75 /* Frameworks */,
+				BBFE862F30C705F972040241 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BDE3C958D8CBBD69E8F9D508 /* PBXTargetDependency */,
+			);
+			name = SimplePlayerWithAdsUITests;
+			productName = SimplePlayerWithAdsUITests;
+			productReference = CE06F183176B43B1FA8B90B9 /* SimplePlayerWithAdsUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		9CEE256A25EE7543000491C5 /* SimplePlayerWithAds */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 9CEE258425EE7547000491C5 /* Build configuration list for PBXNativeTarget "SimplePlayerWithAds" */;
@@ -163,6 +229,7 @@
 			projectRoot = "";
 			targets = (
 				9CEE256A25EE7543000491C5 /* SimplePlayerWithAds */,
+				81B776CE8728F8F84B6CB051 /* SimplePlayerWithAdsUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -175,6 +242,13 @@
 				9CEE257E25EE7547000491C5 /* LaunchScreen.storyboard in Resources */,
 				9CEE257B25EE7547000491C5 /* Assets.xcassets in Resources */,
 				9CEE257925EE7543000491C5 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BBFE862F30C705F972040241 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -228,13 +302,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEE257625EE7543000491C5 /* ViewController.m in Sources */,
+				MT01000200000000000A0001 /* MediaTailorSamples.m in Sources */,
 				9CEE257025EE7543000491C5 /* AppDelegate.m in Sources */,
 				9CEE258125EE7547000491C5 /* main.m in Sources */,
 				9CEE257325EE7543000491C5 /* SceneDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		B42E30ED30030E66D2FE7530 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FCED19D5BB92B628E01CDF33 /* MediaTailorUITests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BDE3C958D8CBBD69E8F9D508 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = SimplePlayerWithAds;
+			target = 9CEE256A25EE7543000491C5 /* SimplePlayerWithAds */;
+			targetProxy = 6A56EFE41342F02C646529E8 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		9CEE257725EE7543000491C5 /* Main.storyboard */ = {
@@ -256,6 +348,45 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		07026D0B43495209CB403D15 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SU7SUNGZJP;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimplePlayerWithAdsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SimplePlayerWithAds;
+			};
+			name = Debug;
+		};
+		2C9A4C372C3D4B59CAA8DBDE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = SU7SUNGZJP;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.4;
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimplePlayerWithAdsUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = SimplePlayerWithAds;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		9CEE258225EE7547000491C5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -409,6 +540,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		413D31AF91CDAD0318DB7D26 /* Build configuration list for PBXNativeTarget "SimplePlayerWithAdsUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2C9A4C372C3D4B59CAA8DBDE /* Release */,
+				07026D0B43495209CB403D15 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		9CEE256625EE7543000491C5 /* Build configuration list for PBXProject "SimplePlayerWithAds" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
