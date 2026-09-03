@@ -904,7 +904,7 @@ static const NSTimeInterval kAccessLogDiscoveryTimeout = 20.0;
 }
 
 - (NSString *)getTrackerVersion {
-    return @"4.3.0";
+    return @"4.4.0";
 }
 
 - (NSMutableDictionary *)getAttributes:(NSString *)action
