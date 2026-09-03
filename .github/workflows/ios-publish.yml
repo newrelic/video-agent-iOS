@@ -176,77 +176,60 @@ jobs:
           VERSION="${{ steps.get_version.outputs.version }}"
           TAG="v${VERSION}"
 
-          # This job's checkout is pinned to a fixed commit (the merge commit that
-          # triggered it), which never changes on a retry - GitHub's "re-run failed
-          # jobs" replays the same event. So if an earlier run already got this far
-          # and pushed the real Package.swift to master before failing on a later
-          # step, a naive retry would recompute fresh (differently-mtimed but
-          # equally valid) checksums and push against a now-stale base, which git
-          # rejects as non-fast-forward. Detect that case first and fast-forward
-          # onto it instead of colliding with it.
-          git fetch origin master --quiet
-          if git show "origin/master:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"${TAG}\""; then
-            echo "origin/master already has Package.swift for ${TAG} (an earlier run got this far) - reusing it, not recomputing"
-            git reset --hard origin/master
+          echo "Updating Package.swift release tag to $TAG..."
+          sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
+          rm -f Package.swift.bak
+
+          # Checksums are computed from the exact zips this job just built above -
+          # the same files "Create GitHub Release" attaches later in this job. Never
+          # recompute these against a separately-built zip: a fresh xcodebuild run
+          # produces different file mtimes, which changes the zip bytes and therefore
+          # the checksum, even when the compiled content is identical.
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
+            CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
+            echo "${fw} checksum: ${CHECKSUM}"
+
+            FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
+              my $name = $ENV{FW_NAME};
+              my $checksum = $ENV{FW_CHECKSUM};
+              s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
+            ' Package.swift
+          done
+
+          if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
+            echo "Failed to update releaseTag in Package.swift"
+            exit 1
+          fi
+
+          if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
+            echo "Failed to update one or more checksums in Package.swift"
+            exit 1
+          fi
+
+          echo ""
+          echo "Package.swift after update:"
+          cat Package.swift
+
+          echo ""
+          echo "Verifying Package.swift resolves..."
+          swift package dump-package > /dev/null
+
+          # master is protected (requires a PR + an approval + a passing FOSSA
+          # run) - a same-job automated push can never satisfy that, and it must
+          # not try to. So this commit is local only, never pushed directly.
+          # SPM resolves Package.swift as of the tagged commit's tree, not
+          # master's history, so tagging this local commit below is already
+          # enough to make the release fully resolvable via SPM regardless of
+          # what happens to master. Syncing master's own copy is handled later,
+          # as a separate, non-blocking PR (see "Sync Package.swift to master
+          # via PR" near the end of this job).
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[DRY RUN] Would commit locally (never pushed - master is protected): chore: update Package.swift for ${TAG}"
+            git diff -- Package.swift
           else
-            echo "Updating Package.swift release tag to $TAG..."
-            sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
-            rm -f Package.swift.bak
-
-            # Checksums are computed from the exact zips this job just built above -
-            # the same files "Create GitHub Release" attaches later in this job. Never
-            # recompute these against a separately-built zip: a fresh xcodebuild run
-            # produces different file mtimes, which changes the zip bytes and therefore
-            # the checksum, even when the compiled content is identical.
-            for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
-              CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
-              echo "${fw} checksum: ${CHECKSUM}"
-
-              FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
-                my $name = $ENV{FW_NAME};
-                my $checksum = $ENV{FW_CHECKSUM};
-                s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
-              ' Package.swift
-            done
-
-            if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
-              echo "Failed to update releaseTag in Package.swift"
-              exit 1
-            fi
-
-            if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
-              echo "Failed to update one or more checksums in Package.swift"
-              exit 1
-            fi
-
-            echo ""
-            echo "Package.swift after update:"
-            cat Package.swift
-
-            echo ""
-            echo "Verifying Package.swift resolves..."
-            swift package dump-package > /dev/null
-
-            # Package.swift must be committed and pushed to master before the tag below
-            # is created, since SPM resolves Package.swift as of the tagged commit's tree -
-            # a tag created first would still point at the placeholder checksums.
-            if git diff --quiet -- Package.swift; then
-              echo "Package.swift already up to date, nothing to commit"
-            elif [ "$DRY_RUN" = "true" ]; then
-              echo "[DRY RUN] Would commit and push: chore: update Package.swift for ${TAG}"
-              git diff -- Package.swift
-            else
-              git add Package.swift
-              git commit -m "chore: update Package.swift for ${TAG}"
-
-              if ! git push origin HEAD:master; then
-                echo "Push rejected - master moved since checkout. Rebasing onto the latest tip and retrying once..."
-                git fetch origin master --quiet
-                git rebase origin/master
-                git push origin HEAD:master
-              fi
-              echo "Package.swift committed and pushed to master"
-            fi
+            git add Package.swift
+            git commit -m "chore: update Package.swift for ${TAG}"
+            echo "Package.swift committed locally - tagged next, never pushed to master"
           fi
 
       - name: Create and push git tag
@@ -439,6 +422,52 @@ jobs:
           gh workflow run release-notes-docs-pr.yml --ref master --field tag="v${{ steps.get_version.outputs.version }}" --field dry_run=false
           echo "Triggered release-notes-docs-pr.yml for v${{ steps.get_version.outputs.version }}"
 
+      - name: Sync Package.swift to master via PR
+        if: env.DRY_RUN != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG="v${VERSION}"
+          BRANCH="chore/package-swift-${TAG}"
+
+          # Pure housekeeping, deliberately decoupled from the release itself:
+          # by this point v${VERSION} is already tagged, published to CocoaPods,
+          # and has a GitHub Release - SPM already resolves it correctly via the
+          # tag, independent of master. master is protected (requires a PR + an
+          # approval + a passing FOSSA run), so this can never land with a
+          # same-job push - it only ever opens a small, self-contained PR
+          # containing nothing but this one checksum update, for a human to
+          # merge whenever. continue-on-error above: a failure here must never
+          # mark an already-successful release as failed.
+          cp Package.swift /tmp/Package.swift.release
+
+          git fetch origin master --quiet
+          if git show "origin/master:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"${TAG}\""; then
+            echo "master's Package.swift already references ${TAG} - nothing to sync"
+            exit 0
+          fi
+
+          EXISTING=$(gh pr list --repo "${{ github.repository }}" --base master --head "$BRANCH" --state open --json number --jq 'length')
+          if [ "$EXISTING" != "0" ]; then
+            echo "A PR for ${BRANCH} is already open - not opening another"
+            exit 0
+          fi
+
+          git checkout -B "$BRANCH" origin/master
+          cp /tmp/Package.swift.release Package.swift
+          git add Package.swift
+          git commit -m "chore: update Package.swift for ${TAG}"
+          git push --force-with-lease origin "$BRANCH"
+
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --base master \
+            --head "$BRANCH" \
+            --title "chore: update Package.swift for ${TAG}" \
+            --body "Syncs master's checked-in \`Package.swift\` with the checksums already tagged as \`${TAG}\`. Doesn't gate or affect the release itself - \`${TAG}\` is already tagged, published to CocoaPods, and live via SPM (which resolves the tag, not master's HEAD). Pure housekeeping so master's own copy isn't stuck on the placeholder."
+
       - name: Verify publication
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -459,7 +488,7 @@ jobs:
             echo "  - Package.swift checksum computation: passed (see [DRY RUN] diff above)"
             echo ""
             echo "Steps skipped (dry run):"
-            echo "  - Package.swift commit/push to master"
+            echo "  - Package.swift commit (local only - never pushed to master, which is protected)"
             echo "  - Tag creation: v$VERSION"
             echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
             echo "  - XCFramework build"
@@ -508,12 +537,16 @@ jobs:
           fi
 
           echo ""
-          echo "=== Package.swift on master (SPM) ==="
-          git fetch origin master --quiet
-          if git show "origin/master:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"v$VERSION\""; then
-            echo "Package.swift on master - verified for v$VERSION"
+          echo "=== Package.swift at tag v$VERSION (SPM) ==="
+          # Checked against the tag's own tree, not master's - Package.swift is
+          # committed locally and tagged, but deliberately never pushed to
+          # master (which is protected and requires a PR + a passing FOSSA
+          # run). SPM resolves the tagged commit, not master's HEAD, so that's
+          # the tree that actually matters here.
+          if git show "v$VERSION:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"v$VERSION\""; then
+            echo "Package.swift at tag v$VERSION - verified"
           else
-            echo "WARNING: master's Package.swift does not reference v$VERSION yet"
+            echo "WARNING: tag v$VERSION's Package.swift does not reference itself"
           fi
 
           echo ""
