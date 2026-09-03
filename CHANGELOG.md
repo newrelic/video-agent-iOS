@@ -1,3 +1,14 @@
+## [4.4.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v4.4.0) (2026-09-03)
+
+### New features
+
+* add Swift Package Manager support ([e8114d8](https://github.com/newrelic/video-agent-iOS/commit/e8114d8580d56dea1b9b6ebe5b64cb48a2940482))
+* **NRMediaTailorTracker** — new module. AWS MediaTailor server-side ad-insertion tracker for AVPlayer, in parity with `NRIMATracker`. Detects ads inside an HLS stream, polls the MediaTailor `/v1/tracking/<sessionId>` endpoint with proper `NextToken` round-trip (fixing the Android module's biggest deviation from the AWS contract), and emits `AD_BREAK_START` / `AD_REQUEST` / `AD_START` / `AD_QUARTILE` / `AD_END` / `AD_BREAK_END` / `AD_SKIP` / `AD_PAUSE` / `AD_RESUME` / `AD_ERROR`. iOS 12 + tvOS 12. HLS-only in v1; ships with an `MTManifestParser` protocol seam so customers using third-party DASH players (THEOplayer, Bitmovin, Shaka) can plug in their own parser.
+
+### Bug Fixes
+
+* **ios-publish:** make retries survive a partial failure ([ff54204](https://github.com/newrelic/video-agent-iOS/commit/ff54204d741db29dbe70cba5abd430267372663a))
+
 ## [4.3.0](https://github.com/newrelic/video-agent-iOS/compare/v4.2.0...v4.3.0) (2026-08-04)
 
 ### New features
