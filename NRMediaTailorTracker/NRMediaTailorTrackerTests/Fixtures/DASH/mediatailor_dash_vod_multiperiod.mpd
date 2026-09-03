@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="static"
+     minBufferTime="PT2S"
+     mediaPresentationDuration="PT30S"
+     profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
+
+  <Period id="content-0" start="PT0S" duration="PT10S">
+    <AdaptationSet mimeType="video/mp4" contentType="video">
+      <Representation id="v0" bandwidth="600000" codecs="avc1.42c01e">
+        <BaseURL>https://cdn.example.com/content/seg-0/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+
+  <Period id="avail-1" start="PT10S" duration="PT8S">
+    <AdaptationSet mimeType="video/mp4" contentType="video">
+      <Representation id="v0" bandwidth="600000" codecs="avc1.42c01e">
+        <BaseURL>https://abc.segments.mediatailor.us-east-1.amazonaws.com/v1/dashsegment/avail-1/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+
+  <Period id="content-2" start="PT18S" duration="PT12S">
+    <AdaptationSet mimeType="video/mp4" contentType="video">
+      <Representation id="v0" bandwidth="600000" codecs="avc1.42c01e">
+        <BaseURL>https://cdn.example.com/content/seg-2/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+  </Period>
+
+</MPD>

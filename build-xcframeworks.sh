@@ -241,6 +241,9 @@ if [ -d "NRIMATracker/GoogleInteractiveMediaAds.xcframework" ]; then
     rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
 fi
 
+# Build NRMediaTailorTracker (depends on NewRelicVideoCore) - iOS + tvOS
+build_complete_framework "NRMediaTailorTracker" "NRMediaTailorTracker-iOS" "NRMediaTailorTracker-tvOS" "NewRelicVideoCore"
+
 echo ""
 echo "All XCFrameworks built successfully!"
 echo ""

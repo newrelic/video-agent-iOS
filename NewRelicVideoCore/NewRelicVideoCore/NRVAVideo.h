@@ -15,6 +15,7 @@
 @class IMAAdEvent;
 @class IMAAdError;
 @class IMAAdsManager;
+@class NRAdConfig;
 
 /**
  * New Relic Video Agent - iOS & tvOS Optimized
@@ -172,10 +173,11 @@
 + (id)createContentTracker:(id)player;
 
 /**
- * Creates an ad tracker for IMA (internal method)
+ * Creates an ad tracker whose class matches the ad config's type (internal method)
+ * @param adConfig The ad config specifying which tracker type to create
  * @return The ad tracker instance
  */
-+ (id)createAdTracker;
++ (id)createAdTrackerForConfig:(NRAdConfig *)adConfig;
 
 /**
  * Record an event with attributes

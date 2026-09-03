@@ -1,0 +1,63 @@
+{
+  "avails": [
+    {
+      "availId": "avail-100",
+      "startTimeInSeconds": 30.0,
+      "durationInSeconds": 45.0,
+      "availProgramDateTime": "2026-06-22T12:30:00.000Z",
+      "ads": [
+        {
+          "adId": "ad-1",
+          "creativeId": "creative-A",
+          "adTitle": "Sample Ad One",
+          "adSystem": "BrandX",
+          "creativeSequence": "1",
+          "vastAdId": "vast-001",
+          "skipOffset": "00:00:05",
+          "adProgramDateTime": "2026-06-22T12:30:00.000Z",
+          "startTimeInSeconds": 30.0,
+          "durationInSeconds": 20.0,
+          "trackingEvents": [
+            {
+              "eventType": "impression",
+              "eventId": "ev-1",
+              "startTimeInSeconds": 0.0,
+              "beaconUrls": ["https://example.com/track/imp1", "https://example.com/track/imp2"],
+              "eventProgramDateTime": "2026-06-22T12:30:00.000Z"
+            },
+            {
+              "eventType": "firstQuartile",
+              "eventId": "ev-2",
+              "startTimeInSeconds": 5.0,
+              "beaconUrls": ["https://example.com/track/q1"]
+            },
+            {
+              "eventType": "midpoint",
+              "eventId": "ev-3",
+              "startTimeInSeconds": 10.0,
+              "beaconUrls": ["https://example.com/track/q2"]
+            },
+            {
+              "eventType": "complete",
+              "eventId": "ev-4",
+              "startTimeInSeconds": 20.0,
+              "beaconUrls": ["https://example.com/track/complete"]
+            }
+          ]
+        },
+        {
+          "adId": "ad-2",
+          "creativeId": "creative-B",
+          "adTitle": "Sample Ad Two",
+          "adSystem": "BrandY",
+          "creativeSequence": "2",
+          "vastAdId": "vast-002",
+          "startTimeInSeconds": 50.0,
+          "durationInSeconds": 25.0,
+          "trackingEvents": []
+        }
+      ]
+    }
+  ],
+  "nonLinearAvails": []
+}

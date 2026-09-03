@@ -128,6 +128,7 @@ jobs:
           validate_with_retry "NewRelicVideoAgent.podspec"
           validate_with_retry "NRAVPlayerTracker.podspec"
           validate_with_retry "NRIMATracker.podspec"
+          validate_with_retry "NRMediaTailorTracker.podspec"
 
           echo ""
           echo "All podspecs validated successfully!"
@@ -285,6 +286,7 @@ jobs:
           # so the second doesn't need any additional wait
           publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
           publish_pod "NRIMATracker" "NRIMATracker.podspec"
+          publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
 
           echo ""
           echo "All pods published!"
@@ -331,6 +333,7 @@ jobs:
             - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
             - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
+            - NRMediaTailorTracker `${{ steps.get_version.outputs.version }}`
 
             ### What's Changed
 
@@ -366,7 +369,7 @@ jobs:
             echo ""
             echo "Steps skipped (dry run):"
             echo "  - Tag creation: v$VERSION"
-            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker"
+            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
             echo "  - XCFramework build"
             echo "  - GitHub release creation"
             exit 0
@@ -394,6 +397,7 @@ jobs:
           verify_pod "NewRelicVideoAgent"
           verify_pod "NRAVPlayerTracker"
           verify_pod "NRIMATracker"
+          verify_pod "NRMediaTailorTracker"
 
           echo ""
           echo "=================================="
@@ -404,3 +408,4 @@ jobs:
           echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
           echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
           echo "  pod 'NRIMATracker', '~> $VERSION'"
+          echo "  pod 'NRMediaTailorTracker', '~> $VERSION'"

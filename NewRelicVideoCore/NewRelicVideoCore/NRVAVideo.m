@@ -103,10 +103,10 @@ static dispatch_once_t onceToken;
         NRVA_DEBUG_LOG(@"No player instance provided in config for '%@', content tracker not created", config.playerName);
     }
     
-    // Create ad tracker
+    // Create ad tracker — class selected by the ad config (IMA vs MediaTailor).
     id adTracker = nil;
-    if (config.isAdEnabled) {
-        adTracker = [self createAdTracker];
+    if (config.adConfig) {
+        adTracker = [self createAdTrackerForConfig:config.adConfig];
     }
 
     // Start tracking with NewRelicVideoAgent 
@@ -127,6 +127,16 @@ static dispatch_once_t onceToken;
         if (contentTracker && config.player && [contentTracker respondsToSelector:@selector(setPlayer:)]) {
             [contentTracker setPlayer:config.player];
             NRVA_DEBUG_LOG(@"Set player instance on content tracker for '%@'", config.playerName);
+        }
+
+        // Trackers that need session-specific setup (e.g. MediaTailor needs
+        // the AVPlayer + its custom-CDN config; IMA drives itself via the IMA
+        // SDK and conforms to nothing here) opt in by conforming to
+        // NRAdTrackerConfigurable — no per-tracker-type branch needed, and no
+        // KVC-key/selector-name drift risk since this is one direct call.
+        if (adTracker && config.adConfig && [adTracker conformsToProtocol:@protocol(NRAdTrackerConfigurable)]) {
+            [(id<NRAdTrackerConfigurable>)adTracker configureWithAdConfig:config.adConfig player:config.player];
+            NRVA_DEBUG_LOG(@"Configured ad tracker for '%@' via NRAdTrackerConfigurable", config.playerName);
         }
     } else {
         NRVA_ERROR_LOG(@"No trackers created for player '%@', tracking not started", config.playerName);
@@ -404,24 +414,31 @@ static dispatch_once_t onceToken;
 }
 
 /**
- * Creates an ad tracker for IMA
- * Uses dynamic class loading with graceful fallback
+ * Creates the ad tracker whose class matches the ad config's type.
+ * Uses dynamic class loading (no hard link) with graceful fallback:
+ * CSAI → NRTrackerIMA (NRIMATracker pod), MediaTailor → NRTrackerMediaTailor
+ * (NRMediaTailorTracker pod).
  */
-+ (id)createAdTracker {
-    // Dynamic class loading with graceful fallback
-    Class trackerClass = NSClassFromString(@"NRTrackerIMA");
++ (id)createAdTrackerForConfig:(NRAdConfig *)adConfig {
+    NSString *className = (adConfig.type == NRAdTrackerTypeMediaTailor)
+        ? @"NRTrackerMediaTailor"
+        : @"NRTrackerIMA";
+    NSString *podName = (adConfig.type == NRAdTrackerTypeMediaTailor)
+        ? @"NRMediaTailorTracker"
+        : @"NRIMATracker";
+
+    Class trackerClass = NSClassFromString(className);
     if (!trackerClass) {
-        NRVA_ERROR_LOG(@"NRTrackerIMA class not found - ensure NRIMATracker pod is installed");
+        NRVA_ERROR_LOG(@"%@ class not found - ensure the %@ pod is installed", className, podName);
         return nil;
     }
-    
-    // Standard initialization without parameters
+
     id adTracker = [[trackerClass alloc] init];
     if (adTracker) {
-        NRVA_DEBUG_LOG(@"Created IMA ad tracker");
+        NRVA_DEBUG_LOG(@"Created ad tracker: %@", className);
         return adTracker;
     } else {
-        NRVA_ERROR_LOG(@"Failed to create NRTrackerIMA instance");
+        NRVA_ERROR_LOG(@"Failed to create %@ instance", className);
         return nil;
     }
 }

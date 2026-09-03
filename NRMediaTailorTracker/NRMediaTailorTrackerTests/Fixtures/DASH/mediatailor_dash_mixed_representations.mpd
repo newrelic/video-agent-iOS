@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MPD xmlns="urn:mpeg:dash:schema:mpd:2011"
+     type="static"
+     minBufferTime="PT2S"
+     mediaPresentationDuration="PT10S"
+     profiles="urn:mpeg:dash:profile:isoff-on-demand:2011">
+
+  <Period id="mixed-period" start="PT0S" duration="PT10S">
+
+    <!-- AdaptationSet A: two representations with ad BaseURLs -->
+    <AdaptationSet mimeType="video/mp4" contentType="video">
+      <Representation id="v0-hi" bandwidth="1200000" codecs="avc1.42c01e">
+        <BaseURL>https://abc.segments.mediatailor.us-east-1.amazonaws.com/v1/dashsegment/spot/hi/</BaseURL>
+      </Representation>
+      <Representation id="v0-lo" bandwidth="600000" codecs="avc1.42c01e">
+        <BaseURL>https://abc.segments.mediatailor.us-east-1.amazonaws.com/v1/dashsegment/spot/lo/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+
+    <!-- AdaptationSet B: one representation pointed at content (origin CDN) -->
+    <AdaptationSet mimeType="audio/mp4" contentType="audio">
+      <Representation id="a0" bandwidth="64000" codecs="mp4a.40.2">
+        <BaseURL>https://cdn.example.com/origin/audio/</BaseURL>
+      </Representation>
+    </AdaptationSet>
+
+  </Period>
+
+</MPD>
