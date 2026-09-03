@@ -185,7 +185,7 @@ jobs:
           # recompute these against a separately-built zip: a fresh xcodebuild run
           # produces different file mtimes, which changes the zip bytes and therefore
           # the checksum, even when the compiled content is identical.
-          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker; do
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
             CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
             echo "${fw} checksum: ${CHECKSUM}"
 
@@ -405,6 +405,7 @@ jobs:
             NewRelicVideoCore.xcframework.zip
             NRAVPlayerTracker.xcframework.zip
             NRIMATracker.xcframework.zip
+            NRMediaTailorTracker.xcframework.zip
           draft: false
           prerelease: false
         env:

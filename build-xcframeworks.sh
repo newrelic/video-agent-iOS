@@ -312,10 +312,10 @@ echo ""
 # Per-tracker zips, for SPM (each product independently resolvable) - additive,
 # does not change the combined xcframeworks.zip below, which the existing manual
 # "Install via XCFrameworks" README option continues to rely on unchanged.
-for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker; do
+for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
     zip -rq "${fw}.xcframework.zip" "${fw}.xcframework"
 done
-echo "Per-tracker zips created: NewRelicVideoCore.xcframework.zip, NRAVPlayerTracker.xcframework.zip, NRIMATracker.xcframework.zip"
+echo "Per-tracker zips created: NewRelicVideoCore.xcframework.zip, NRAVPlayerTracker.xcframework.zip, NRIMATracker.xcframework.zip, NRMediaTailorTracker.xcframework.zip"
 
 # Group all .xcframeworks in a folder called xcframeworks
 mkdir -p xcframeworks

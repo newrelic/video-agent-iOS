@@ -14,6 +14,7 @@ let package = Package(
         .library(name: "NewRelicVideoCore", targets: ["NewRelicVideoCore"]),
         .library(name: "NRAVPlayerTracker", targets: ["NRAVPlayerTracker"]),
         .library(name: "NRIMATracker", targets: ["NRIMATracker"]),
+        .library(name: "NRMediaTailorTracker", targets: ["NRMediaTailorTracker"]),
     ],
     targets: [
         .binaryTarget(
@@ -29,6 +30,11 @@ let package = Package(
         .binaryTarget(
             name: "NRIMATracker",
             url: "\(releaseBaseURL)/\(releaseTag)/NRIMATracker.xcframework.zip",
+            checksum: "0000000000000000000000000000000000000000000000000000000000000000"
+        ),
+        .binaryTarget(
+            name: "NRMediaTailorTracker",
+            url: "\(releaseBaseURL)/\(releaseTag)/NRMediaTailorTracker.xcframework.zip",
             checksum: "0000000000000000000000000000000000000000000000000000000000000000"
         ),
     ]
