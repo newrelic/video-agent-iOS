@@ -214,23 +214,13 @@ jobs:
           echo "Verifying Package.swift resolves..."
           swift package dump-package > /dev/null
 
-          # master is protected (requires a PR + an approval + a passing FOSSA
-          # run) - a same-job automated push can never satisfy that, and it must
-          # not try to. So this commit is local only, never pushed directly.
-          # SPM resolves Package.swift as of the tagged commit's tree, not
-          # master's history, so tagging this local commit below is already
-          # enough to make the release fully resolvable via SPM regardless of
-          # what happens to master. Syncing master's own copy is handled later,
-          # as a separate, non-blocking PR (see "Sync Package.swift to master
-          # via PR" near the end of this job).
-          if [ "$DRY_RUN" = "true" ]; then
-            echo "[DRY RUN] Would commit locally (never pushed - master is protected): chore: update Package.swift for ${TAG}"
-            git diff -- Package.swift
-          else
-            git add Package.swift
-            git commit -m "chore: update Package.swift for ${TAG}"
-            echo "Package.swift committed locally - tagged next, never pushed to master"
-          fi
+          # master is protected (PR + approval + FOSSA required), so this commit
+          # stays local - it's carried by the tag pushed next. Master's own copy
+          # is synced separately, non-blocking, by "Sync Package.swift to master
+          # via PR" later in this job.
+          git add Package.swift
+          git commit -m "chore: update Package.swift for ${TAG}"
+          echo "Package.swift committed locally - tagged next, never pushed to master"
 
       - name: Create and push git tag
         if: env.DRY_RUN != 'true'
@@ -432,15 +422,8 @@ jobs:
           TAG="v${VERSION}"
           BRANCH="chore/package-swift-${TAG}"
 
-          # Pure housekeeping, deliberately decoupled from the release itself:
-          # by this point v${VERSION} is already tagged, published to CocoaPods,
-          # and has a GitHub Release - SPM already resolves it correctly via the
-          # tag, independent of master. master is protected (requires a PR + an
-          # approval + a passing FOSSA run), so this can never land with a
-          # same-job push - it only ever opens a small, self-contained PR
-          # containing nothing but this one checksum update, for a human to
-          # merge whenever. continue-on-error above: a failure here must never
-          # mark an already-successful release as failed.
+          # Housekeeping only - the release is already fully shipped by this
+          # point, so this just opens a small PR to sync master's own copy.
           cp Package.swift /tmp/Package.swift.release
 
           git fetch origin master --quiet
@@ -485,10 +468,9 @@ jobs:
             echo "  - Podspec validation: passed"
             echo "  - Trunk authentication: verified"
             echo "  - XCFramework build: passed"
-            echo "  - Package.swift checksum computation: passed (see [DRY RUN] diff above)"
+            echo "  - Package.swift checksum computation + local commit: passed (see cat above)"
             echo ""
             echo "Steps skipped (dry run):"
-            echo "  - Package.swift commit (local only - never pushed to master, which is protected)"
             echo "  - Tag creation: v$VERSION"
             echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
             echo "  - XCFramework build"
@@ -538,11 +520,7 @@ jobs:
 
           echo ""
           echo "=== Package.swift at tag v$VERSION (SPM) ==="
-          # Checked against the tag's own tree, not master's - Package.swift is
-          # committed locally and tagged, but deliberately never pushed to
-          # master (which is protected and requires a PR + a passing FOSSA
-          # run). SPM resolves the tagged commit, not master's HEAD, so that's
-          # the tree that actually matters here.
+          # Checked against the tag's tree, not master's - that's what SPM resolves.
           if git show "v$VERSION:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"v$VERSION\""; then
             echo "Package.swift at tag v$VERSION - verified"
           else
