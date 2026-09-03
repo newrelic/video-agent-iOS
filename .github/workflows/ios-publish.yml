@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   actions: write
+  pull-requests: write
 
 jobs:
   publish:
@@ -99,7 +100,7 @@ jobs:
 
               set +e
               pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
-              EXIT_CODE=$?
+              EXIT_CODE=${PIPESTATUS[0]}
               set -e
 
               if [ $EXIT_CODE -eq 0 ]; then
@@ -270,7 +271,7 @@ jobs:
 
               set +e
               pod trunk push "$podspec" --allow-warnings 2>&1 | tee publish_output.log
-              local exit_code=$?
+              local exit_code=${PIPESTATUS[0]}
               set -e
 
               if [ $exit_code -eq 0 ]; then
