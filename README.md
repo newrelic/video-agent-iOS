@@ -71,7 +71,6 @@ For more details on all installation methods, see [INSTALLATION.md](INSTALLATION
 Before using the Video Agent, ensure you have:
 
 - **New Relic Account** — Active account with a valid application token
-- **New Relic iOS Agent** — [Installed and configured](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/installation/spm-installation) in your project
 - **AVFoundation** — Available by default on iOS 12+ / tvOS 12+
 - **Google IMA SDK** (optional) — Required only if tracking IMA ads
 - **Minimum Deployment Target** — iOS 12.0 / tvOS 12.0 or higher
@@ -82,7 +81,7 @@ The Video Agent is composed of four modules:
 
 | Module | Description | Required |
 |--------|-------------|----------|
-| **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Depends on the New Relic iOS Agent. | Yes |
+| **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Standalone — no New Relic iOS Agent dependency required. | Yes |
 | **NRAVPlayerTracker** | Video tracker for AVPlayer. Automatically hooks into player lifecycle events via KVO and notifications. | Yes (for AVPlayer) |
 | **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors. | Optional |
 | **NRMediaTailorTracker** | Ad tracker for AWS MediaTailor server-side ad insertion (SSAI). Detects ads inside an `AVPlayer` HLS stream and emits the standard ad event vocabulary plus `AD_ERROR`. HLS-only in v1; DASH support is via a customer-supplied adapter. iOS 12 + tvOS 12. See [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md). | Optional |
