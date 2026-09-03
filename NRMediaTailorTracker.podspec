@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'NRMediaTailorTracker'
-  s.version          = '4.2.0'
+  s.version          = '4.3.0'
   s.summary          = 'New Relic Video Agent, AWS MediaTailor Ads Tracker.'
 
 # This description is used to generate tags and improve search results.
