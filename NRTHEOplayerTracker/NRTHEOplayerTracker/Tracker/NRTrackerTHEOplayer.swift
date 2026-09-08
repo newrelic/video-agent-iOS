@@ -26,8 +26,16 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // internal view hierarchy) alive for as long as this tracker stays registered, if a host app ever
     // dropped its own player reference without also calling dispose()/releaseTracker.
     weak var player: THEOplayer?
-    var listeners: [Any] = []
+    // Teardown closures, not raw tokens — removeEventListener needs the original `type` alongside the
+    // token addEventListener returns, and discarding the type (keeping only `[Any]` tokens, as this used
+    // to) meant unregisterListeners() could only ever clear its own bookkeeping array, never actually
+    // tell THEOplayer to stop invoking the closure. See addListener(on:type:handler:) below.
+    var listeners: [() -> Void] = []
     private var qualityChangeListener: Any?
+    // Separate from `listeners` (rather than just appended into it) so handleSourceChange() below can
+    // tear down and re-attach *just* the per-track quality listener on a mid-session source change,
+    // without touching the player-level listeners that stay registered for the tracker's whole lifetime.
+    private var qualityChangeTeardown: (() -> Void)?
 
     // Defensive, matching NRTrackerAVPlayer's own dealloc: tears down listeners even if the host app
     // released the tracker without calling dispose(). unregisterListeners() is idempotent (confirmed via
@@ -55,44 +63,58 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         super.registerListeners()
         guard let player else { return }
 
-        listeners.append(player.addEventListener(type: PlayerEventTypes.SOURCE_CHANGE) { [weak self] _ in
+        addListener(on: player, type: PlayerEventTypes.SOURCE_CHANGE) { [weak self] _ in
             self?.handleSourceChange()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.PLAY) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.PLAY) { [weak self] _ in
             self?.handlePlay()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.PLAYING) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.PLAYING) { [weak self] _ in
             self?.handlePlaying()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.PAUSE) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.PAUSE) { [weak self] _ in
             self?.handlePause()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.WAITING) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.WAITING) { [weak self] _ in
             self?.handleWaiting()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.SEEKING) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.SEEKING) { [weak self] _ in
             self?.handleSeeking()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.SEEKED) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.SEEKED) { [weak self] _ in
             self?.handleSeeked()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.ENDED) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.ENDED) { [weak self] _ in
             self?.handleEnded()
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.ERROR) { [weak self] event in
+        }
+        addListener(on: player, type: PlayerEventTypes.ERROR) { [weak self] event in
             self?.handleError(event)
-        })
-        listeners.append(player.addEventListener(type: PlayerEventTypes.RATE_CHANGE) { [weak self] _ in
+        }
+        addListener(on: player, type: PlayerEventTypes.RATE_CHANGE) { [weak self] _ in
             self?.handleRateChange()
-        })
+        }
 
         attachQualityChangeListenerIfNeeded()
     }
 
     public override func unregisterListeners() {
         super.unregisterListeners()
+        listeners.forEach { $0() }
         listeners.removeAll()
+        qualityChangeTeardown?()
+        qualityChangeTeardown = nil
         qualityChangeListener = nil
+    }
+
+    // Registers a THEOplayer event listener and stores a matching teardown closure in `listeners`,
+    // instead of just the opaque token addEventListener returns — removeEventListener needs both the
+    // token and its original `type` (E is generic, and THEOplayer doesn't expose a type-erased removal),
+    // so keeping only tokens meant unregisterListeners() below could never actually call
+    // player.removeEventListener at all. [weak player] avoids extending the player's lifetime just to
+    // tear down its own listener.
+    private func addListener<E: EventProtocol>(on player: THEOplayer, type: EventType<E>, handler: @escaping (E) -> Void) {
+        let token = player.addEventListener(type: type, listener: handler)
+        listeners.append { [weak player] in player?.removeEventListener(type: type, listener: token) }
     }
 
     // MARK: - QoE (rendition/bitrate/dropped-frames)
@@ -115,11 +137,16 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
 
     private func attachQualityChangeListenerIfNeeded() {
         guard qualityChangeListener == nil, let track = firstVideoTrack() else { return }
-        let listener = track.addEventListener(type: MediaTrackEventTypes.ACTIVE_QUALITY_CHANGED) { [weak self] _ in
+        let token = track.addEventListener(type: MediaTrackEventTypes.ACTIVE_QUALITY_CHANGED) { [weak self] _ in
             self?.handleActiveQualityChanged()
         }
-        qualityChangeListener = listener
-        listeners.append(listener)
+        qualityChangeListener = token
+        // MediaTrack (unlike THEOplayer itself) isn't passed into the shared addListener helper here —
+        // removeEventListener needs `track`, not `player`, as the receiver. Track : AnyObject (confirmed
+        // against the real THEOplayerSDK.swiftinterface), so [weak track] is valid the same way
+        // [weak player] is above. Kept in qualityChangeTeardown, not appended to `listeners`, so
+        // handleSourceChange() can detach just this one on a mid-session source change.
+        qualityChangeTeardown = { [weak track] in track?.removeEventListener(type: MediaTrackEventTypes.ACTIVE_QUALITY_CHANGED, listener: token) }
     }
 
     func handleActiveQualityChanged() {
@@ -204,6 +231,12 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         lastRenditionWidth = 0
         lastRenditionHeight = 0
         lastRenditionBandwidth = 0
+        // Actually detach the previous source's track listener, not just forget our own token for it —
+        // otherwise a mid-session source change left the old ACTIVE_QUALITY_CHANGED listener attached to
+        // the old track forever (same underlying bug as unregisterListeners(), just triggered by a
+        // source change instead of teardown).
+        qualityChangeTeardown?()
+        qualityChangeTeardown = nil
         qualityChangeListener = nil
         sendRequest()
         attachQualityChangeListenerIfNeeded()
