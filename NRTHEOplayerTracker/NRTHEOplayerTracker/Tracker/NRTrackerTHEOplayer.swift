@@ -201,13 +201,29 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         NSNumber(value: lastRenditionHeight)
     }
 
-    public override func getBitrate() -> NSNumber {
-        NSNumber(value: lastRenditionBandwidth)
-    }
-
+    // lastRenditionBandwidth is VideoQuality.bandwidth (confirmed against the real THEOplayerSDK
+    // interface) — a manifest/ABR-ladder-advertised value, not a measured throughput. It genuinely
+    // belongs on getRenditionBitrate() (the current rendition's bitrate) and getManifestBitrate() (the
+    // manifest-advertised bitrate) — those are the same real number for an ABR stream. getBitrate() is
+    // deliberately left unoverridden here (falling through to NRVideoTracker's own NSNull default,
+    // same as getMeasuredBitrate()/getDownloadBitrate() below): its doc comment specifically means a
+    // *measured* average, and iOS THEOplayer's public SDK has no measured-throughput signal at all
+    // (confirmed against the real interface — Metrics only exposes droppedVideoFrames/renderedFramerate,
+    // and the one bandwidth-shaped field beyond VideoQuality is gated behind @_spi(Core), not usable by
+    // a normal consumer). Reporting the manifest value under contentBitrate's measured-throughput label
+    // would be actively misleading, not just incomplete.
     public override func getRenditionBitrate() -> NSNumber {
         NSNumber(value: lastRenditionBandwidth)
     }
+
+    public override func getManifestBitrate() -> NSNumber {
+        NSNumber(value: lastRenditionBandwidth)
+    }
+
+    // getMeasuredBitrate() (-> contentSegmentDownloadBitrate) and getDownloadBitrate() (->
+    // contentNetworkDownloadBitrate) are also deliberately left unoverridden — no real measured-
+    // throughput or download-rate signal exists on iOS THEOplayer's public SDK to give them (same
+    // platform-limitation class as contentNetworkDownloadBitrate being Android-only per the CDD).
 
     public override func getFps() -> NSNumber {
         // Measured, not encoded — unlike Android, which reads the encoded target framerate off

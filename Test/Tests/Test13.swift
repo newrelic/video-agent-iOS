@@ -34,8 +34,16 @@ class Test13: TestProtocol {
             self.callback!(testName + " getRenditionWidth/Height should reflect the cached quality", false)
             return
         }
-        if tracker.getBitrate().intValue != 500_000 || tracker.getRenditionBitrate().intValue != 500_000 {
-            self.callback!(testName + " getBitrate/getRenditionBitrate should reflect the cached bandwidth", false)
+        if tracker.getRenditionBitrate().intValue != 500_000 || tracker.getManifestBitrate().intValue != 500_000 {
+            self.callback!(testName + " getRenditionBitrate/getManifestBitrate should reflect the cached bandwidth", false)
+            return
+        }
+        // getBitrate() means a *measured* average (CDD §6.4) — iOS THEOplayer has no such signal, so it
+        // must stay the base class's real NSNull sentinel, not silently alias the manifest value under a
+        // measured-throughput label. `as AnyObject` sidesteps the static NSNumber typing (NRVideoTracker.h
+        // declares it nonnull) to actually check the underlying runtime class.
+        if !((tracker.getBitrate() as AnyObject) is NSNull) {
+            self.callback!(testName + " getBitrate() should stay null on iOS (no real measured-throughput signal), not alias the manifest bandwidth", false)
             return
         }
 
