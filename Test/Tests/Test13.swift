@@ -65,6 +65,24 @@ class Test13: TestProtocol {
             return
         }
 
+        // droppedVideoFrames must be scoped to CONTENT_RENDITION_CHANGE the same way "shift" is — an
+        // unscoped setAttribute() sticks around as a stale snapshot on every subsequent event, the exact
+        // bug "shift" itself used to have before it was scoped. sendPause()'s goPause() is gated on
+        // isStarted (NRTrackerState.m), which handleActiveQualityChanged() alone never sets — sendRequest()
+        // + sendStart() first are required or CONTENT_PAUSE never actually fires and this assertion would
+        // pass vacuously regardless of the real bug.
+        tracker.sendRequest()
+        tracker.sendStart()
+        tracker.handlePause()
+        if tracker.captured.last != CONTENT_PAUSE {
+            self.callback!(testName + " sendRequest/sendStart/handlePause should have produced a real CONTENT_PAUSE to inspect", false)
+            return
+        }
+        if tracker.lastPauseAttributes?["droppedVideoFrames"] != nil {
+            self.callback!(testName + " droppedVideoFrames should not leak onto CONTENT_PAUSE", false)
+            return
+        }
+
         NewRelicVideoAgent.sharedInstance().releaseTracker(trackerId)
         self.callback!(testName, true)
     }
@@ -72,11 +90,15 @@ class Test13: TestProtocol {
     class TestContentTracker: NRTrackerTHEOplayer {
         var captured: [String] = []
         var lastShift: String?
+        var lastPauseAttributes: NSDictionary?
 
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
             captured.append(action)
             if let shift = attributes["shift"] as? String {
                 lastShift = shift
+            }
+            if action == CONTENT_PAUSE {
+                lastPauseAttributes = attributes
             }
             return false
         }

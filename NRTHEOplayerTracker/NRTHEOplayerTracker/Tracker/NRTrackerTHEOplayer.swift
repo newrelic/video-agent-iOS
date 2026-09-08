@@ -185,8 +185,11 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         // is why the earlier version of this line leaked "renditionChangeShift" onto unrelated events
         // (PAUSE, ERROR, HEARTBEAT) in real NRDB data.
         setAttribute("shift", value: shift as NSString, forAction: "CONTENT_RENDITION_CHANGE")
+        // Same leak "shift" used to have, same fix: scoped via forAction:, or this snapshot sticks
+        // around as a stale value on every subsequent event (PAUSE, ERROR, HEARTBEAT, ...) instead of
+        // just the CONTENT_RENDITION_CHANGE it was actually measured for.
         if let droppedFrames {
-            setAttribute("droppedVideoFrames", value: NSNumber(value: droppedFrames))
+            setAttribute("droppedVideoFrames", value: NSNumber(value: droppedFrames), forAction: "CONTENT_RENDITION_CHANGE")
         }
         sendRenditionChange()
     }
