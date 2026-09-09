@@ -32,12 +32,12 @@ class Test12: TestProtocol {
         }
 
         var attempts = 0
-        while !tracker.captured.contains(CONTENT_ERROR) && attempts < 20 {
+        while !tracker.hasCaptured(CONTENT_ERROR) && attempts < 20 {
             Thread.sleep(forTimeInterval: 0.25)
             attempts += 1
         }
 
-        if !tracker.captured.contains(CONTENT_ERROR) {
+        if !tracker.hasCaptured(CONTENT_ERROR) {
             self.callback!(testName + " real ERROR event (no license configured) never reached handleError() via registerListeners()", false)
             return
         }
@@ -65,12 +65,24 @@ class Test12: TestProtocol {
     }
 
     class TestContentTracker: NRTrackerTHEOplayer {
-        var captured: [String] = []
+        // `captured` is written from the main thread (real THEOplayer event callbacks drive
+        // preSendAction) while doTest()'s poll loop reads it from a background thread — the lock
+        // guards against a genuine data race on the underlying Array buffer, not just style.
+        private let capturedLock = NSLock()
+        private var captured: [String] = []
         var lastError: NSError?
         var lastErrorCategory: String?
 
+        func hasCaptured(_ action: String) -> Bool {
+            capturedLock.lock()
+            defer { capturedLock.unlock() }
+            return captured.contains(action)
+        }
+
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
+            capturedLock.lock()
             captured.append(action)
+            capturedLock.unlock()
             if action == CONTENT_ERROR, let category = attributes["category"] as? String {
                 lastErrorCategory = category
             }

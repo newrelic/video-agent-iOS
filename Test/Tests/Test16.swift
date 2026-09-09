@@ -50,7 +50,7 @@ class Test16: TestProtocol {
         // fired yet.
         Thread.sleep(forTimeInterval: 7.0)
 
-        if tracker.captured.contains(CONTENT_ERROR) {
+        if tracker.hasCaptured(CONTENT_ERROR) {
             self.callback!(testName + " unregisterListeners() should detach from the real THEOplayer instance, not just clear local bookkeeping — CONTENT_ERROR still arrived after unregister", false)
             return
         }
@@ -63,10 +63,21 @@ class Test16: TestProtocol {
     }
 
     class TestContentTracker: NRTrackerTHEOplayer {
-        var captured: [String] = []
+        // Same cross-thread access as Test12.swift (main-thread real event callbacks vs. this test's
+        // background-thread poll after the fixed 7s wait) — same lock-guarded fix.
+        private let capturedLock = NSLock()
+        private var captured: [String] = []
+
+        func hasCaptured(_ action: String) -> Bool {
+            capturedLock.lock()
+            defer { capturedLock.unlock() }
+            return captured.contains(action)
+        }
 
         override func preSendAction(_ action: String, attributes: NSMutableDictionary) -> Bool {
+            capturedLock.lock()
             captured.append(action)
+            capturedLock.unlock()
             return false
         }
     }

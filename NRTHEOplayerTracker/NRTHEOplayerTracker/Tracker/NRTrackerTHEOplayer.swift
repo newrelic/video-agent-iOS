@@ -169,6 +169,21 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // math and attribute/getter caching with synthetic data — real playback with a real multi-rendition
     // stream isn't available in an automated test (needs a real license + real network).
     func handleActiveQualityChanged(width: Int, height: Int, bandwidth: Int, droppedFrames: Int?) {
+        // Matches NRTrackerAVPlayer.m's checkRenditionChange: the very first rendition observation only
+        // seeds the cache and does NOT call sendRenditionChange(). NRQoEAggregator.m's
+        // handleStartWithAttributes: seeds its own "current rendition" from CONTENT_START's attributes
+        // instead (its own comment explains checkRenditionChange does the same on Android/AVPlayer) —
+        // so treating the initial pick here as a "shift" would double-count it, permanently inflating
+        // totalSwitchUps by 1 on every single session (confirmed: sendRenditionChange() has no state
+        // guard of its own, and handleRenditionChangeWithAttributes: unconditionally increments on any
+        // shift="up"/"down", including one that fires before CONTENT_START).
+        guard lastRenditionWidth > 0, lastRenditionHeight > 0 else {
+            lastRenditionWidth = width
+            lastRenditionHeight = height
+            lastRenditionBandwidth = bandwidth
+            return
+        }
+
         let previousArea = lastRenditionWidth * lastRenditionHeight
         let newArea = width * height
         let shift = newArea >= previousArea ? "up" : "down"

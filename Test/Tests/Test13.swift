@@ -24,18 +24,22 @@ class Test13: TestProtocol {
         self.callback = callback
         let tracker = NewRelicVideoAgent.sharedInstance().contentTracker(trackerId) as! TestContentTracker
 
-        // First rendition: nothing cached yet (0x0), so any real resolution counts as "up".
+        // First rendition: nothing cached yet (0x0). Matches NRTrackerAVPlayer.m's checkRenditionChange —
+        // the initial pick only seeds the cache and must NOT send CONTENT_RENDITION_CHANGE.
+        // NRQoEAggregator.m seeds its own "current rendition" from CONTENT_START's attributes instead
+        // (see its handleStartWithAttributes: comment); treating the initial pick as a "shift" here too
+        // would double-count it and inflate totalSwitchUps by 1 on every single session.
         tracker.handleActiveQualityChanged(width: 640, height: 360, bandwidth: 500_000, droppedFrames: 2)
-        if tracker.captured.last != CONTENT_RENDITION_CHANGE {
-            self.callback!(testName + " first quality change should send CONTENT_RENDITION_CHANGE", false)
+        if tracker.captured.contains(CONTENT_RENDITION_CHANGE) {
+            self.callback!(testName + " the initial rendition pick should only seed the cache, not send CONTENT_RENDITION_CHANGE", false)
             return
         }
         if tracker.getRenditionWidth().intValue != 640 || tracker.getRenditionHeight().intValue != 360 {
-            self.callback!(testName + " getRenditionWidth/Height should reflect the cached quality", false)
+            self.callback!(testName + " getRenditionWidth/Height should reflect the cached quality even without a send", false)
             return
         }
         if tracker.getRenditionBitrate().intValue != 500_000 || tracker.getManifestBitrate().intValue != 500_000 {
-            self.callback!(testName + " getRenditionBitrate/getManifestBitrate should reflect the cached bandwidth", false)
+            self.callback!(testName + " getRenditionBitrate/getManifestBitrate should reflect the cached bandwidth even without a send", false)
             return
         }
         // getBitrate() means a *measured* average (CDD §6.4) — iOS THEOplayer has no such signal, so it
@@ -47,8 +51,13 @@ class Test13: TestProtocol {
             return
         }
 
-        // Step up to a higher rendition — shift should be "up".
+        // Step up to a higher rendition — the first real change, so it must send CONTENT_RENDITION_CHANGE
+        // with shift="up".
         tracker.handleActiveQualityChanged(width: 1280, height: 720, bandwidth: 1_500_000, droppedFrames: 5)
+        if tracker.captured.last != CONTENT_RENDITION_CHANGE {
+            self.callback!(testName + " a real quality change should send CONTENT_RENDITION_CHANGE", false)
+            return
+        }
         if tracker.lastShift != "up" {
             self.callback!(testName + " stepping up in resolution should report shift=up", false)
             return

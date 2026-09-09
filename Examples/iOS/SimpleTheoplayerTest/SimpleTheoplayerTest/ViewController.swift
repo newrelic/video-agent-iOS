@@ -69,6 +69,9 @@ final class ViewController: UIViewController {
 
     deinit {
         removeAllListeners()
+        // Symmetric with addPlayer in setupPlayer() — without this the tracker outlives this
+        // ViewController and its event closures keep firing against a deallocated player context.
+        NRVAVideo.releaseTracker(nrTrackerId)
     }
 
     // MARK: - UI construction
@@ -186,7 +189,10 @@ final class ViewController: UIViewController {
         // No playerType needed — addPlayer: identifies the real THEOplayer instance by class on its own
         // (NRVAVideoPlayerConfiguration.h's playerType is now just a fallback for player types it can't
         // identify that way).
-        let nrConfig = NRVAVideoPlayerConfiguration(playerName: "theoplayer-sample", player: player)!
+        guard let nrConfig = NRVAVideoPlayerConfiguration(playerName: "theoplayer-sample", player: player) else {
+            eventLog.log("[NR] Failed to build NRVAVideoPlayerConfiguration — tracker not attached")
+            return
+        }
         nrTrackerId = NRVAVideo.addPlayer(nrConfig)
         eventLog.log("[NR] addPlayer -> trackerId=\(nrTrackerId)")
     }
