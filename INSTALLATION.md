@@ -5,13 +5,14 @@
 Add to your `Podfile`:
 
 ```ruby
-platform :ios, '12.0'
+platform :ios, '12.0'  # Use '13.0' instead if you add NRTHEOplayerTracker below
 use_frameworks!
 
 target 'YourApp' do
   pod 'NewRelicVideoAgent'
   pod 'NRAVPlayerTracker'
-  pod 'NRIMATracker'  # Optional, for Google IMA ads
+  pod 'NRIMATracker'         # Optional, for Google IMA ads
+  pod 'NRTHEOplayerTracker'  # Optional, for THEOplayer (Dolby OptiView Player)
 end
 ```
 
@@ -21,7 +22,11 @@ pod install
 open YourApp.xcworkspace
 ```
 
+> **Note:** THEOplayer support also requires a valid THEOplayer license from Dolby, picked up automatically from a `THEOplayerLicense` key in your app's `Info.plist` (see THEOplayer's own setup docs). This is separate from your New Relic application token.
+
 ## Method 2: Manual Build
+
+> **Note:** `NRTHEOplayerTracker` is not covered by the manual build steps below — it depends on the third-party `THEOplayerSDK-core` CocoaPod, which (unlike Google IMA) isn't distributed as a standalone zip/xcframework. Use [Method 1: CocoaPods](#method-1-cocoapods-recommended) if you need THEOplayer support.
 
 ### Prerequisites
 - Xcode 14.0+
