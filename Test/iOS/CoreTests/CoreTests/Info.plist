@@ -20,6 +20,11 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Deliberately invalid, not a real secret — Test12 relies on the resulting real
+	     "license could not be decoded" ERROR event to test NRTrackerTHEOplayer's error wiring
+	     end-to-end without needing an actual THEOplayer license. -->
+	<key>THEOplayerLicense</key>
+	<string>INVALID_TEST_LICENSE_FOR_ERROR_WIRING_TEST</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

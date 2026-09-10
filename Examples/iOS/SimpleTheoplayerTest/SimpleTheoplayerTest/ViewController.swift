@@ -1,5 +1,6 @@
 import UIKit
 import THEOplayerSDK
+import NewRelicVideoCore
 
 /// Standalone THEOplayer validation harness — no New Relic code involved at all.
 ///
@@ -18,6 +19,7 @@ final class ViewController: UIViewController {
 
     private var theoplayer: THEOplayer?
     private var listeners: [Any] = [] // holds every listener token returned by addEventListener, for symmetric teardown
+    private var nrTrackerId: Int = 0 // NRVAVideo.addPlayer's return value, for the real NRTrackerTHEOplayer integration
 
     // MARK: - UI
 
@@ -67,6 +69,9 @@ final class ViewController: UIViewController {
 
     deinit {
         removeAllListeners()
+        // Symmetric with addPlayer in setupPlayer() — without this the tracker outlives this
+        // ViewController and its event closures keep firing against a deallocated player context.
+        NRVAVideo.releaseTracker(nrTrackerId)
     }
 
     // MARK: - UI construction
@@ -177,6 +182,19 @@ final class ViewController: UIViewController {
 
         registerEventListeners(on: player)
         eventLog.log("THEOplayer initialized (version: \(THEOplayer.version))")
+
+        // Wire the real NRTrackerTHEOplayer via the real NRVAVideo dispatch path — validates the whole
+        // stack (Core dispatch, tracker, real events landing in NRDB) against real playback with a real
+        // application token, not just CoreTests' synthetic/error-only scenarios.
+        // No playerType needed — addPlayer: identifies the real THEOplayer instance by class on its own
+        // (NRVAVideoPlayerConfiguration.h's playerType is now just a fallback for player types it can't
+        // identify that way).
+        guard let nrConfig = NRVAVideoPlayerConfiguration(playerName: "theoplayer-sample", player: player) else {
+            eventLog.log("[NR] Failed to build NRVAVideoPlayerConfiguration — tracker not attached")
+            return
+        }
+        nrTrackerId = NRVAVideo.addPlayer(nrConfig)
+        eventLog.log("[NR] addPlayer -> trackerId=\(nrTrackerId)")
     }
 
     // MARK: - Event wiring — mirrors the CDD's §10 event mapping table

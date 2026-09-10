@@ -158,8 +158,12 @@ static dispatch_once_t onceToken;
                                      userInfo:nil];
     }
     
-    // Handle invalid tracker IDs gracefully
-    if (trackerId <= 0) {
+    // Handle invalid tracker IDs gracefully. 0 is NOT invalid here — NewRelicVideoAgent's
+    // trackerIdIndex is 0-indexed (NewRelicVideoAgent.m), so the very first tracker created in the
+    // process legitimately has ID 0. Rejecting it silently no-oped releaseTracker: for that tracker
+    // forever — its heartbeat timer (which retains the tracker itself, per NSTimer target-retain
+    // semantics) never got invalidated, so it kept firing and harvesting indefinitely after "release."
+    if (trackerId < 0) {
         NRVA_DEBUG_LOG(@"Invalid tracker ID %ld - skipping release", (long)trackerId);
         return;
     }
