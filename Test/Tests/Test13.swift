@@ -67,6 +67,16 @@ class Test13: TestProtocol {
             return
         }
 
+        // Repeat the exact same quality — THEOplayer can emit ACTIVE_QUALITY_CHANGED again for the same
+        // resolution. Since the area hasn't actually changed, this must NOT send a second
+        // CONTENT_RENDITION_CHANGE (that would double-count a switch that never happened).
+        let renditionChangeCountBeforeRepeat = tracker.captured.filter { $0 == CONTENT_RENDITION_CHANGE }.count
+        tracker.handleActiveQualityChanged(width: 1280, height: 720, bandwidth: 1_500_000, droppedFrames: 5)
+        if tracker.captured.filter({ $0 == CONTENT_RENDITION_CHANGE }).count != renditionChangeCountBeforeRepeat {
+            self.callback!(testName + " a repeat callback for the same resolution should not send another CONTENT_RENDITION_CHANGE", false)
+            return
+        }
+
         // Step down to a lower rendition — shift should be "down".
         tracker.handleActiveQualityChanged(width: 640, height: 360, bandwidth: 500_000, droppedFrames: 5)
         if tracker.lastShift != "down" {

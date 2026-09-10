@@ -192,6 +192,12 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         lastRenditionHeight = height
         lastRenditionBandwidth = bandwidth
 
+        // THEOplayer can emit ACTIVE_QUALITY_CHANGED again for the same resolution (confirmed possible
+        // per real playback observation, not just theoretical). Only a real area change is a rendition
+        // "shift" worth reporting — without this, sendRenditionChange() would fire (and
+        // totalSwitchUps/totalSwitchDowns would increment) on every repeat callback for the same quality.
+        guard newArea != previousArea else { return }
+
         // "shift", not "renditionChangeShift" — NRQoEAggregator.m's handleRenditionChangeWithAttributes:
         // reads attributes[@"shift"] to compute totalSwitchUps/totalSwitchDowns (confirmed by reading
         // NRTrackerAVPlayer.m's own getAttributes: override, which injects exactly this key, scoped to
