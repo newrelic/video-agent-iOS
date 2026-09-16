@@ -11,12 +11,11 @@
 #import "NRVALog.h"
 #import "NRTimeSince.h"
 #import "NRChrono.h"
-#import "NRQoEAggregator.h"
 #import "NRVAVideo.h"
 #import "NRVAVideoConfiguration.h"
 #import <CommonCrypto/CommonDigest.h>
-// Milestone 1: KMP shared-core, run in shadow alongside the ObjC aggregator below. Selector names
-// are Kotlin/Native's generated ObjC export of NRQoEAggregator.kt (framework name "NRSharedCore" +
+// Milestone 1: QoE aggregation is the KMP shared-core's Kotlin implementation. Selector names are
+// Kotlin/Native's generated ObjC export of NRQoEAggregator.kt (framework name "NRSharedCore" +
 // class name -> NRSCNRQoEAggregator) — verify against the built framework header if these change.
 #import <NRSharedCore/NRSharedCore.h>
 
@@ -55,14 +54,12 @@
 // --- QoE Aggregate ---
 // The aggregator observes CONTENT_* events via preSendAction and accumulates KPIs.
 // QoE aggregate events are generated at harvest time via a callback block set on the harvest manager.
-// See NRQoEAggregator.h for the full design overview.
-@property (nonatomic) NRQoEAggregator *qoeAggregator;
-// Milestone 1 shadow: the KMP shared-core's Kotlin aggregator, fed the identical inputs as
-// qoeAggregator above. Its output is logged for comparison, never sent to the collector — the
-// ObjC aggregator above stays authoritative until the team decides to reconcile and cut over.
-// As of release/06JUL2026, the only remaining known divergence from Kotlin/Android is isPlaying
-// semantics after buffer/seek-end while paused — KPI set and ad-break pause exclusion now match.
-@property (nonatomic) NRSCNRQoEAggregator *sharedCoreQoeAggregatorShadow;
+// Milestone 1: this is the KMP shared-core's Kotlin implementation (NRQoEAggregator.kt, exported to
+// ObjC as NRSCNRQoEAggregator) — authoritative as of this cutover. It ran in shadow alongside the
+// (now-deleted) native ObjC NRQoEAggregator for the length of Milestone 1's validation; the one known
+// divergence from that comparison (isPlaying semantics after buffer/seek-end while paused) was already
+// reconciled before cutover.
+@property (nonatomic) NRSCNRQoEAggregator *sharedCoreQoeAggregator;
 // Snapshot of the last content event's fully-assembled attributes (post-getAttributes,
 // post-timeSince, post-instrumentation, NSNull-cleaned). Used by buildQoeEvent to
 // carry over content metadata, player info, rendition, etc. to QOE_AGGREGATE events.
@@ -102,8 +99,7 @@
         self.acc = 0;
         // QoE aggregator is only created if enabled in NRVAVideoConfiguration.
         if ([NRVAVideo isQoeAggregateEnabled]) {
-            self.qoeAggregator = [[NRQoEAggregator alloc] init];
-            self.sharedCoreQoeAggregatorShadow = [[NRSCNRQoEAggregator alloc] init];
+            self.sharedCoreQoeAggregator = [[NRSCNRQoEAggregator alloc] init];
         }
 
         // Initialize per-tracker cycle management
@@ -298,25 +294,18 @@
         }
     }
 
-    if (self.qoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
+    if (self.sharedCoreQoeAggregator && !self.state.isAd && [action hasPrefix:@"CONTENT_"]) {
         // Set totalPreRollAdTime in aggregator for CONTENT_START startup calculation
-        if ([action isEqualToString:CONTENT_START] && self.qoeAggregator) {
-            [self.qoeAggregator setTotalPreRollAdTime:self.totalPreRollAdTime];
-            [self.sharedCoreQoeAggregatorShadow setStartupAdTimeMs:self.totalPreRollAdTime];
+        if ([action isEqualToString:CONTENT_START]) {
+            [self.sharedCoreQoeAggregator setStartupAdTimeMs:self.totalPreRollAdTime];
         }
         // A CONTENT_PAUSE during a break is the player paused for the ad, not a user pause.
         BOOL adBreakActive = [self.linkedTracker isKindOfClass:[NRVideoTracker class]]
                              && ((NRVideoTracker *)self.linkedTracker).state.isAdBreak;
-        [self.qoeAggregator processAction:action attributes:attributes isPlaying:self.state.isPlaying adBreakActive:adBreakActive];
-
-        // Milestone 1 shadow: feed the KMP aggregator the identical inputs, including the same
-        // adBreakActive this method just computed for the real ObjC aggregator above — the two no
-        // longer diverge on ad-break pause handling as of release/06JUL2026, so this call now
-        // mainly surfaces the one remaining known divergence (isPlaying after buffer/seek-end).
-        [self.sharedCoreQoeAggregatorShadow processActionAction:action
-                                                       attributes:attributes
-                                                        isPlaying:self.state.isPlaying
-                                                    adBreakActive:adBreakActive];
+        [self.sharedCoreQoeAggregator processActionAction:action
+                                                 attributes:attributes
+                                                  isPlaying:self.state.isPlaying
+                                              adBreakActive:adBreakActive];
 
         self.lastContentEventAttributes = [attributes copy];
     }
@@ -424,7 +413,7 @@
             [self sendVideoEvent:CONTENT_END];
             // Build final QoE eagerly while all state is still valid
             // Push directly to buffer like any other video event
-            if (self.isViewSessionActive && self.qoeAggregator) {
+            if (self.isViewSessionActive && self.sharedCoreQoeAggregator) {
                 NSDictionary *finalQoe = [self buildQoeEvent];
                 if (finalQoe) {
                     // Send final QOE directly to buffer (not via harvest provider)
@@ -437,8 +426,7 @@
             self.isViewSessionActive = NO;
 
             // Clean up for next viewId
-            [self.qoeAggregator reset];
-            [self.sharedCoreQoeAggregatorShadow reset];
+            [self.sharedCoreQoeAggregator reset];
             self.lastContentEventAttributes = nil;
             self.lastSentQoEAttributes = nil;  // Clear QoE snapshot for next session
             self.hasContentStarted = NO;  // Mark content session as ended
@@ -546,16 +534,14 @@
 - (void)sendError:(nullable NSError *)error {
     self.numberOfErrors++;
 
-    // Milestone 1 shadow: the real ObjC aggregator now classifies CONTENT_ERROR automatically via
-    // its action-dispatch table (release/06JUL2026's handleError, reading hasReceivedStart) when the
-    // error event flows through the normal preSendAction -> processAction path below. The Kotlin
-    // aggregator's processAction has no CONTENT_ERROR case at all — it needs these explicit calls,
-    // classified the same way (by whether content has started), to reach the same state.
-    if (!self.state.isAd && self.sharedCoreQoeAggregatorShadow) {
-        if ([self.sharedCoreQoeAggregatorShadow hasContentStarted]) {
-            [self.sharedCoreQoeAggregatorShadow recordPlaybackError];
+    // The Kotlin aggregator's processAction has no CONTENT_ERROR case — CONTENT_ERROR is classified
+    // explicitly here instead (by whether content has already started), since it doesn't flow through
+    // the normal preSendAction -> processAction path below.
+    if (!self.state.isAd && self.sharedCoreQoeAggregator) {
+        if ([self.sharedCoreQoeAggregator hasContentStarted]) {
+            [self.sharedCoreQoeAggregator recordPlaybackError];
         } else {
-            [self.sharedCoreQoeAggregatorShadow recordStartupError];
+            [self.sharedCoreQoeAggregator recordStartupError];
         }
     }
 
@@ -857,9 +843,11 @@
 // 2. Overlay computed QoE KPI attributes from the aggregator.
 // 3. Set actionName, eventType, and timestamp for direct batch injection.
 - (NSDictionary *)buildQoeEvent {
-    if (!self.qoeAggregator) return nil;
+    if (!self.sharedCoreQoeAggregator) return nil;
 
-    NSDictionary *kpiAttributes = [self.qoeAggregator generateAggregateAttributes];
+    long freshPlaytime = [self currentTotalPlaytime];
+    NSDictionary *kpiAttributes = [self.sharedCoreQoeAggregator
+        generateAggregateAttributesRealtimePlaytimeMs:freshPlaytime];
     if (!kpiAttributes) return nil;
 
     NSMutableDictionary *attrs = [NSMutableDictionary dictionary];
@@ -929,8 +917,8 @@
     // Overlay computed QoE KPI attributes from the aggregator
     [attrs addEntriesFromDictionary:kpiAttributes];
 
-    // Override totalPlaytime with real-time value (aggregator's is stale between events)
-    long freshPlaytime = [self currentTotalPlaytime];
+    // Override totalPlaytime with the same real-time value the aggregator was fed (belt-and-braces —
+    // keeps this correct even if the aggregator's own echo of it ever differs).
     attrs[KPI_TOTAL_PLAYTIME] = @(freshPlaytime);
 
     // Recompute rebufferingRatio using fresh totalPlaytime
@@ -945,23 +933,13 @@
     attrs[@"timestamp"] = @((long long)([[NSDate date] timeIntervalSince1970] * 1000));
     attrs[@"qoeAggregateVersion"] = QOE_AGGREGATE_VERSION;
 
-    // Milestone 1 shadow comparison: same harvest cycle, same freshPlaytime, run through the KMP
-    // aggregator too, and log both KPI sets side by side. This is the live evidence for the one
-    // remaining known divergence (isPlaying after buffer/seek-end while paused) — it is NOT fed
-    // into `attrs`, so it cannot affect what's actually sent.
-    NSDictionary *sharedCoreKpis = [self.sharedCoreQoeAggregatorShadow
-        generateAggregateAttributesRealtimePlaytimeMs:freshPlaytime];
-    if (sharedCoreKpis) {
-        NRVA_DEBUG_LOG(@"[Milestone1 QoE shadow] objc=%@ kmp=%@", kpiAttributes, sharedCoreKpis);
-    }
-
     return [attrs copy];
 }
 
 // QoE generation for harvest manager
 - (NSDictionary * _Nullable)generateQoeEventIfNeeded {
     // Only generate QoE events for content sessions, not ads
-    if (self.state.isAd || !self.isViewSessionActive || !self.qoeAggregator) {
+    if (self.state.isAd || !self.isViewSessionActive || !self.sharedCoreQoeAggregator) {
         return nil;
     }
 
