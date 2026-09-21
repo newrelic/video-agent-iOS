@@ -19,6 +19,8 @@ rm -rf NRAVPlayerTracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NewRelicVideoCore.framework
 rm -rf NRIMATracker/NRAVPlayerTracker.framework
 rm -rf NRIMATracker/GoogleInteractiveMediaAds.xcframework
+rm -rf NRTHEOplayerTracker/NewRelicVideoCore.framework
+rm -rf NRTHEOplayerTracker/THEOplayerSDK.xcframework
 
 # Download a Google IMA SDK variant (iOS or tvOS) into a holding directory under build/,
 # so NRIMATracker's per-platform build steps can swap in the correct one.
@@ -83,6 +85,49 @@ download_google_ima_sdk() {
     fi
 
     cd "$original_dir"
+    rm -rf "$temp_dir"
+}
+
+# Download THEOplayerSDK-core into a holding directory under build/, for NRTHEOplayerTracker's
+# iOS build. Unlike Google IMA, THEOplayerSDK-core ships as a plain public HTTP-downloadable
+# xcframework zip (no CocoaPods roundtrip needed) - confirmed against its own real podspec
+# (s.source = { http: "https://cdn.theoplayer.com/build/sdk-apple/<version>/THEOplayerSDK.xcframework.zip" }).
+# iOS-only: THEOplayerSDK-core's own minimum is iOS/tvOS 13.0, but NRTHEOplayerTracker itself
+# is iOS-only by scope (see NRTHEOplayerTracker.podspec) - not part of this build.
+download_theoplayer_sdk() {
+    local version=$1   # pinned to match NRTHEOplayerTracker.podspec's `~> 10.14` constraint
+    local dest="build/THEOplayerSDK.xcframework"
+
+    if [ -d "$dest" ]; then
+        return 0
+    fi
+
+    echo "Downloading THEOplayerSDK $version..."
+
+    local temp_zip
+    temp_zip=$(mktemp).zip
+
+    if ! curl -fL "https://cdn.theoplayer.com/build/sdk-apple/${version}/THEOplayerSDK.xcframework.zip" -o "$temp_zip"; then
+        echo "Failed to download THEOplayerSDK $version"
+        rm -f "$temp_zip"
+        exit 1
+    fi
+
+    local temp_dir
+    temp_dir=$(mktemp -d)
+    unzip -oq "$temp_zip" -d "$temp_dir"
+
+    if [ -d "$temp_dir/THEOplayerSDK.xcframework" ]; then
+        mkdir -p build
+        cp -R "$temp_dir/THEOplayerSDK.xcframework" "$dest"
+    else
+        echo "Downloaded THEOplayerSDK zip did not contain THEOplayerSDK.xcframework"
+        rm -f "$temp_zip"
+        rm -rf "$temp_dir"
+        exit 1
+    fi
+
+    rm -f "$temp_zip"
     rm -rf "$temp_dir"
 }
 
@@ -158,6 +203,15 @@ setup_google_ima_sdk() {
     fi
 }
 
+# Swap in THEOplayerSDK.xcframework for NRTHEOplayerTracker's iOS build. iOS-only -
+# never called for a tvOS sdk, since NRTHEOplayerTracker has no tvOS scheme.
+setup_theoplayer_sdk() {
+    local target_dir=$1
+
+    rm -rf "$target_dir/THEOplayerSDK.xcframework"
+    cp -R "build/THEOplayerSDK.xcframework" "$target_dir/THEOplayerSDK.xcframework"
+}
+
 # Function to build complete framework with all platforms
 build_complete_framework() {
     local framework=$1
@@ -165,6 +219,7 @@ build_complete_framework() {
     local tvos_scheme=$3
     local depends_on=$4
     local needs_google_ima=$5   # "true" for NRIMATracker, empty otherwise
+    local needs_theoplayer=$6  # "true" for NRTHEOplayerTracker, empty otherwise
 
     echo ""
     echo "Building $framework..."
@@ -180,6 +235,9 @@ build_complete_framework() {
         fi
         if [ "$needs_google_ima" == "true" ]; then
             setup_google_ima_sdk "$framework" "iphoneos"
+        fi
+        if [ "$needs_theoplayer" == "true" ]; then
+            setup_theoplayer_sdk "$framework"
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
@@ -197,6 +255,9 @@ build_complete_framework() {
         fi
         if [ "$needs_google_ima" == "true" ]; then
             setup_google_ima_sdk "$framework" "iphonesimulator"
+        fi
+        if [ "$needs_theoplayer" == "true" ]; then
+            setup_theoplayer_sdk "$framework"
         fi
         local extra_flags=""
         if [ -n "$depends_on" ]; then
@@ -244,6 +305,10 @@ build_complete_framework() {
         rm -rf "$framework/GoogleInteractiveMediaAds.xcframework"
     fi
 
+    if [ "$needs_theoplayer" == "true" ]; then
+        rm -rf "$framework/THEOplayerSDK.xcframework"
+    fi
+
     # Create XCFramework
     echo "Creating XCFramework..."
 
@@ -275,6 +340,10 @@ download_google_ima_sdk "ios" "12.0" "GoogleAds-IMA-iOS-SDK" ""
 # device+simulator slices, and it requires tvOS 15.0+ (see NRIMATracker.xcodeproj).
 download_google_ima_sdk "tvos" "15.0" "GoogleAds-IMA-tvOS-SDK" "~> 4.17.0"
 
+# THEOplayerSDK-core - iOS only (used by NRTHEOplayerTracker's iOS build). Pinned to match
+# NRTHEOplayerTracker.podspec's `~> 10.14` constraint.
+download_theoplayer_sdk "10.14.0"
+
 # Build NewRelicVideoCore first (it's the base dependency)
 build_complete_framework "NewRelicVideoCore" "iOS NewRelicVideoCore" "tvOS NewRelicVideoCore" "" ""
 
@@ -286,6 +355,10 @@ build_complete_framework "NRIMATracker" "iOS NRIMATracker" "tvOS NRIMATracker" "
 
 # Build NRMediaTailorTracker (depends on NewRelicVideoCore) - iOS + tvOS
 build_complete_framework "NRMediaTailorTracker" "NRMediaTailorTracker-iOS" "NRMediaTailorTracker-tvOS" "NewRelicVideoCore"
+
+# Build NRTHEOplayerTracker (depends on NewRelicVideoCore + THEOplayerSDK-core) - iOS only,
+# no tvOS scheme (see NRTHEOplayerTracker.podspec for why this is iOS-only by scope).
+build_complete_framework "NRTHEOplayerTracker" "NRTHEOplayerTracker-iOS" "" "NewRelicVideoCore" "" "true"
 
 echo ""
 echo "All XCFrameworks built successfully!"
@@ -305,6 +378,9 @@ echo "Note: NRIMATracker's tvOS build targets tvOS 15.0+ (Google IMA SDK require
 echo "      The rest of this SDK targets tvOS 12.0 - this is a deliberate, narrower floor"
 echo "      for IMA ad-tracking on tvOS specifically, not a change to the overall baseline."
 echo ""
+echo "Note: NRTHEOplayerTracker is iOS-only (no tvOS scheme) - not a Google IMA-style SDK"
+echo "      gap, this is NRTHEOplayerTracker's own scope (see NRTHEOplayerTracker.podspec)."
+echo ""
 echo "To verify architectures:"
 echo "   find NewRelicVideoCore.xcframework -name 'NewRelicVideoCore' -type f -exec lipo -info {} \\;"
 
@@ -312,10 +388,10 @@ echo ""
 # Per-tracker zips, for SPM (each product independently resolvable) - additive,
 # does not change the combined xcframeworks.zip below, which the existing manual
 # "Install via XCFrameworks" README option continues to rely on unchanged.
-for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
+for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker NRTHEOplayerTracker; do
     zip -rq "${fw}.xcframework.zip" "${fw}.xcframework"
 done
-echo "Per-tracker zips created: NewRelicVideoCore.xcframework.zip, NRAVPlayerTracker.xcframework.zip, NRIMATracker.xcframework.zip, NRMediaTailorTracker.xcframework.zip"
+echo "Per-tracker zips created: NewRelicVideoCore.xcframework.zip, NRAVPlayerTracker.xcframework.zip, NRIMATracker.xcframework.zip, NRMediaTailorTracker.xcframework.zip, NRTHEOplayerTracker.xcframework.zip"
 
 # Group all .xcframeworks in a folder called xcframeworks
 mkdir -p xcframeworks

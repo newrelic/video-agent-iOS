@@ -377,6 +377,17 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         THEOplayer.version
     }
 
+    // NRTHEOplayerTracker's own version (kept in sync with NRTHEOplayerTracker.podspec's s.version
+    // by ios-release.yml's version-bump step) - distinct from getPlayerVersion() above, which reports
+    // the underlying THEOplayer SDK's version. Base NRVideoTracker.getTrackerVersion returns NSNull
+    // unless overridden, unlike the other trackers (NRTrackerAVPlayer/NRTrackerIMA/NRTrackerMediaTailor),
+    // which all override it with their own hardcoded version literal. Swift's Clang importer drops the
+    // redundant "Tracker" word from the selector name here, so the override is getVersion(), not
+    // getTrackerVersion() - confirmed against the real compiled interface (compiler error otherwise).
+    public override func getVersion() -> String {
+        return "4.3.0"
+    }
+
     // Named nrGetSrc(), not getSrc() — see the NS_SWIFT_NAME comment on NRVideoTracker.h's
     // declaration for why. Still overrides the same `getSrc` Objective-C selector.
     public override func nrGetSrc() -> String {

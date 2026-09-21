@@ -40,7 +40,7 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 
 Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
-> **Note:** `NRTHEOplayerTracker` is not currently included in `XCFrameworks.zip` — use [CocoaPods](#option-2-install-via-cocoapods) if you need THEOplayer support.
+> **Note:** `NRTHEOplayerTracker.xcframework` is included in `XCFrameworks.zip` (and published on its own as `NRTHEOplayerTracker.xcframework.zip`), but — like `NRIMATracker` and Google IMA — it doesn't bundle THEOplayerSDK-core itself. You'll still need to add THEOplayerSDK-core to your project separately (e.g. via its own [xcframework zip](https://www.theoplayer.com/docs/theoplayer/ios/) or [CocoaPods](#option-2-install-via-cocoapods)) plus a valid THEOplayer license from Dolby.
 
 ### Option 2: Install via CocoaPods
 
@@ -307,7 +307,7 @@ deinit {
 </p>
 </details>
 
-> **Note:** THEOplayer support requires the `NRTHEOplayerTracker` pod (iOS 13.0+, CocoaPods only — not yet part of the XCFrameworks release) and a valid THEOplayer license from Dolby. See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration.
+> **Note:** THEOplayer support requires `NRTHEOplayerTracker` (iOS 13.0+, via CocoaPods or `NRTHEOplayerTracker.xcframework` — see [Option 1](#option-1-install-via-xcframeworks-recommended) for what that does and doesn't bundle) and a valid THEOplayer license from Dolby. See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration.
 
 For comprehensive setup instructions and additional examples, see the [Developer Onboarding Guide](ONBOARDING.md).
 
