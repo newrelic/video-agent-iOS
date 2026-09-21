@@ -15,6 +15,12 @@
 		9CEE255D25EE74C9000491C5 /* NRTrackerIMA.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */; };
 		9CIM33A8D4441D714479B72A /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
 		9CIMDA78CE5FF3EC4778A707 /* GoogleInteractiveMediaAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */; };
+		8766B7B707A13384C841E055 /* NRTrackerIMA.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */; };
+		6EDB39245FB6238BA3A1F2FA /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; };
+		4F2AE4B45D85A20F05465175 /* NRIMATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE253E25EE737D000491C5 /* NRIMATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		62EBC63B9459DED916A084B1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */; };
+		3DE4DAB0FF30B3A441CFA7A8 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
+		D4BA4A4B9EFCF3C7D350DF73 /* GoogleInteractiveMediaAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -39,6 +45,7 @@
 		9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerIMA.m; sourceTree = "<group>"; };
 		9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NewRelicVideoCore.framework; path = NewRelicVideoCore.framework; sourceTree = "<group>"; };
 		9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = GoogleInteractiveMediaAds.xcframework; path = GoogleInteractiveMediaAds.xcframework; sourceTree = "<group>"; };
+		413FD423D4407A84601C55D8 /* NRIMATracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = NRIMATracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -56,6 +63,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEE254525EE737E000491C5 /* NRIMATracker.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A6A478C3DD2B5D961AC8A23 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3DE4DAB0FF30B3A441CFA7A8 /* NewRelicVideoCore.framework in Frameworks */,
+				D4BA4A4B9EFCF3C7D350DF73 /* GoogleInteractiveMediaAds.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,6 +93,7 @@
 			children = (
 				9CEE253B25EE737D000491C5 /* NRIMATracker.framework */,
 				9CEE254425EE737E000491C5 /* NRIMATrackerTests.xctest */,
+				413FD423D4407A84601C55D8 /* NRIMATracker.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -121,6 +138,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		C398A8BD4B210B40A4EC38C1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4F2AE4B45D85A20F05465175 /* NRIMATracker.h in Headers */,
+				6EDB39245FB6238BA3A1F2FA /* NRTrackerIMA.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -137,9 +163,27 @@
 			);
 			dependencies = (
 			);
-			name = NRIMATracker;
+			name = "iOS NRIMATracker";
 			productName = NRIMATracker;
 			productReference = 9CEE253B25EE737D000491C5 /* NRIMATracker.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		A1B1D33481640756EC1B842B /* tvOS NRIMATracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D2B11333300CEA9A802E7222 /* Build configuration list for PBXNativeTarget "tvOS NRIMATracker" */;
+			buildPhases = (
+				C398A8BD4B210B40A4EC38C1 /* Headers */,
+				FE9658C237780C320EC5FE9E /* Sources */,
+				4A6A478C3DD2B5D961AC8A23 /* Frameworks */,
+				69760F90F5F3156CB8646129 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "tvOS NRIMATracker";
+			productName = "tvOS NRIMATracker";
+			productReference = 413FD423D4407A84601C55D8 /* NRIMATracker.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		9CEE254325EE737E000491C5 /* NRIMATrackerTests */ = {
@@ -174,6 +218,9 @@
 					9CEE254325EE737E000491C5 = {
 						CreatedOnToolsVersion = 12.4;
 					};
+					A1B1D33481640756EC1B842B = {
+						CreatedOnToolsVersion = 12.4;
+					};
 				};
 			};
 			buildConfigurationList = 9CEE253525EE737D000491C5 /* Build configuration list for PBXProject "NRIMATracker" */;
@@ -189,8 +236,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				9CEE253A25EE737D000491C5 /* NRIMATracker */,
+				9CEE253A25EE737D000491C5 /* iOS NRIMATracker */,
 				9CEE254325EE737E000491C5 /* NRIMATrackerTests */,
+				A1B1D33481640756EC1B842B /* tvOS NRIMATracker */,
 			);
 		};
 /* End PBXProject section */
@@ -211,6 +259,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		69760F90F5F3156CB8646129 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				62EBC63B9459DED916A084B1 /* PrivacyInfo.xcprivacy in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -227,6 +283,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEE254A25EE737E000491C5 /* NRIMATrackerTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE9658C237780C320EC5FE9E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8766B7B707A13384C841E055 /* NRTrackerIMA.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,7 +445,7 @@
 					"$(SRCROOT)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = NRIMATracker;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -409,9 +473,69 @@
 					"$(SRCROOT)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				PRODUCT_NAME = NRIMATracker;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		0CEDF295CA087BBE5F72E7B6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = NRIMATracker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
+				PRODUCT_NAME = NRIMATracker;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
+			};
+			name = Debug;
+		};
+		91296D61C4804E340838DEB6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = NRIMATracker/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.NRIMATracker;
+				PRODUCT_NAME = NRIMATracker;
+				SDKROOT = appletvos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = 3;
+				TVOS_DEPLOYMENT_TARGET = 15.0;
 			};
 			name = Release;
 		};
@@ -475,6 +599,15 @@
 			buildConfigurations = (
 				9CEE255325EE737E000491C5 /* Debug */,
 				9CEE255425EE737E000491C5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D2B11333300CEA9A802E7222 /* Build configuration list for PBXNativeTarget "tvOS NRIMATracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0CEDF295CA087BBE5F72E7B6 /* Debug */,
+				91296D61C4804E340838DEB6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

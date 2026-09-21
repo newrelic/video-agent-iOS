@@ -1,0 +1,13 @@
+#EXTM3U
+#EXT-X-VERSION:6
+#EXT-X-TARGETDURATION:4
+#EXT-X-MEDIA-SEQUENCE:0
+#EXT-X-PLAYLIST-TYPE:VOD
+#EXT-X-DATERANGE:ID="avail-empty",CLASS="com.apple.hls.interstitial",START-DATE="2026-06-22T20:00:00.000Z",DURATION=0.0,URI="https://abc.mediatailor.us-east-1.amazonaws.com/v1/tracking/abcd/sess-empty"
+#EXTINF:4.0,
+https://cdn.example.com/content/seg-0.ts
+#EXTINF:4.0,
+https://cdn.example.com/content/seg-1.ts
+#EXTINF:4.0,
+https://cdn.example.com/content/seg-2.ts
+#EXT-X-ENDLIST

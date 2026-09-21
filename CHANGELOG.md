@@ -1,11 +1,22 @@
+## [4.4.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v4.4.0) (2026-09-03)
+
+### New features
+
+* Added support for Swift Package Manager. ([e8114d8](https://github.com/newrelic/video-agent-iOS/commit/e8114d8580d56dea1b9b6ebe5b64cb48a2940482))
+* `NRMediaTailorTracker`: Added a new AWS MediaTailor server-side ad-insertion (SSAI) tracker for AVPlayer (iOS 12+ and tvOS 12+), offering feature parity with `NRIMATracker`.
+
+### Bug Fixes
+
+* `ios-publish`: Modified retry logic to survive partial pipeline failures. ([ff54204](https://github.com/newrelic/video-agent-iOS/commit/ff54204d741db29dbe70cba5abd430267372663a))
+
 ## [4.3.0](https://github.com/newrelic/video-agent-iOS/compare/v4.2.0...v4.3.0) (2026-08-04)
 
-### Features
+### New features
 
 * add JP region support ([2acc442](https://github.com/newrelic/video-agent-iOS/commit/2acc4429e3dd71b0b3fec37d999c4f4e01309176))
 * Add new QOE attributes ([7b06033](https://github.com/newrelic/video-agent-iOS/commit/7b0603316a802bb366b9507bcbba41da432ed502))
 
-### Bug Fixes
+### Bug fixes
 
 * Ad-break time inflating totalPauseTime ([7c41112](https://github.com/newrelic/video-agent-iOS/commit/7c411125965d4ad1e37ef56aa297c7151a7c70c2))
 * correct rendition KPIs across views in multi-video sessions ([bd7d6c9](https://github.com/newrelic/video-agent-iOS/commit/bd7d6c9f745434e832945e89ac8a2682eab252d0))

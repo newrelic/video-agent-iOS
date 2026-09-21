@@ -75,7 +75,6 @@ For more details on all installation methods, see [INSTALLATION.md](INSTALLATION
 Before using the Video Agent, ensure you have:
 
 - **New Relic Account** — Active account with a valid application token
-- **New Relic iOS Agent** — [Installed and configured](https://docs.newrelic.com/docs/mobile-monitoring/new-relic-mobile-ios/installation/spm-installation) in your project
 - **AVFoundation** — Available by default on iOS 12+ / tvOS 12+
 - **Google IMA SDK** (optional) — Required only if tracking IMA ads
 - **THEOplayer SDK** (optional) — Required only if tracking THEOplayer; requires a valid THEOplayer license from Dolby
@@ -83,14 +82,15 @@ Before using the Video Agent, ensure you have:
 
 ## Modules
 
-The Video Agent is composed of four modules:
+The Video Agent is composed of five modules:
 
 | Module | Description | Required |
 |--------|-------------|----------|
-| **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Depends on the New Relic iOS Agent. | Yes |
+| **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Standalone — no New Relic iOS Agent dependency required. | Yes |
 | **NRAVPlayerTracker** | Video tracker for AVPlayer. Automatically hooks into player lifecycle events via KVO and notifications. | Yes (for AVPlayer) |
 | **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors. | Optional |
 | **NRTHEOplayerTracker** | Video tracker for THEOplayer (Dolby OptiView Player). Wires real lifecycle, QoE/rendition, and error events via THEOplayer's own listener API. iOS only, iOS 13.0+. | Optional (for THEOplayer) |
+| **NRMediaTailorTracker** | Ad tracker for AWS MediaTailor server-side ad insertion (SSAI). Detects ads inside an `AVPlayer` HLS stream and emits the standard ad event vocabulary plus `AD_ERROR`. HLS-only in v1; DASH support is via a customer-supplied adapter. iOS 12 + tvOS 12. See [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md). | Optional |
 
 ## Usage
 
@@ -211,6 +211,75 @@ let adTracker = NRVAVideo.adTracker(forId: trackerId) as? NRIMATracker
 
 </p>
 </details>
+
+### Setup with `NRAdConfig` (Recommended)
+
+`adEnabled` above is a legacy boolean shortcut. The current API is `NRAdConfig` — the single place to select and configure the ad tracker for a player session: client-side ads (Google IMA/CSAI) or AWS MediaTailor server-side ad insertion.
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```objc
+// Client-side ads (Google IMA) — equivalent to the legacy adEnabled:YES
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adConfig:[NRAdConfig csai]
+    customAttributes:nil];
+
+// AWS MediaTailor server-side ad insertion (requires NRMediaTailorTracker)
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adConfig:[NRAdConfig mediaTailor]
+    customAttributes:nil];
+
+// No ads / disable ad tracking — equivalent to the legacy adEnabled:NO
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adConfig:nil
+    customAttributes:nil];
+```
+
+</p>
+</details>
+
+<details>
+<summary>Swift</summary>
+<p>
+
+```swift
+// Client-side ads (Google IMA) — equivalent to the legacy adEnabled: true
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adConfig: NRAdConfig.csai(),
+    customAttributes: nil
+)
+
+// AWS MediaTailor server-side ad insertion (requires NRMediaTailorTracker)
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adConfig: NRAdConfig.mediaTailor(),
+    customAttributes: nil
+)
+
+// No ads / disable ad tracking — equivalent to the legacy adEnabled: false
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adConfig: nil,
+    customAttributes: nil
+)
+```
+
+</p>
+</details>
+
+For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides), see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
 
 ### Basic Setup — THEOplayer
 
@@ -362,7 +431,8 @@ if shouldEnable {
 |-----------|------|-------------|
 | `playerName` | `String` | Unique identifier for the video player. |
 | `player` | `AVPlayer` or `THEOplayer` | The player instance to track. A real `AVPlayer`/`THEOplayer` instance is identified by class automatically. |
-| `adEnabled` | `Bool` | Set `true` if the player uses an IMA ads loader; `false` otherwise. |
+| `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
+| `adEnabled` | `Bool` | Legacy shortcut for `adConfig`. `true` → `NRAdConfig.csai()`; `false` → `nil`. |
 | `customAttributes` | `[String: Any]?` | Custom attributes to attach to all events from this player. |
 | `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. |
 
@@ -389,7 +459,22 @@ Limits for custom attributes added to default mobile events:
 
 ### Live Stream Configuration
 
-For live streams, the agent automatically uses a shorter harvest cycle (30–60 seconds) for near-real-time data transmission.
+The agent uses a separate harvest interval for VOD and LIVE content:
+
+| Content Type | Default Interval | Range | Builder Method |
+| --- | --- | --- | --- |
+| VOD | 300s (Mobile) / 180s (TV) | 5–300s | `.withHarvestCycle(seconds)` |
+| LIVE | 30s (Mobile) / 10s (TV) | 1–60s | `.withLiveHarvestCycle(seconds)` |
+
+```swift
+// Live stream — flush every 10 seconds on TV, 30s on Mobile (or override)
+let tracker = NewRelicVideoAgent.build(
+    withHarvestCycle: 300,
+    withLiveHarvestCycle: 10
+)
+```
+
+> **Note:** Harvest intervals are immutable after `.build()`.
 
 ## API Reference
 
