@@ -4,11 +4,12 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics for Apple platform applications using AVPlayer. Track video events, monitor playback quality, identify errors, and gain deep insights into user engagement and performance — for both iPhone/iPad and Apple TV.
+The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics for Apple platform applications using AVPlayer or THEOplayer (Dolby OptiView Player). Track video events, monitor playback quality, identify errors, and gain deep insights into user engagement and performance — for both iPhone/iPad and Apple TV.
 
 ## Features
 
 - **Automatic Event Detection** — Captures AVPlayer lifecycle events automatically without manual instrumentation
+- **THEOplayer Support** — Native tracker for THEOplayer (Dolby OptiView Player) covering lifecycle events, QoE/rendition tracking, and error mapping (iOS only, iOS 13.0+)
 - **QoE Metrics** — Per-session aggregate covering startup time, rebuffering, bitrate (peak / average / per-sample download rate min / max / mean), adaptive-bitrate behavior (rendition switch counts, distinct renditions seen), pause time, and playback errors. See [DATAMODEL.md](./DATAMODEL.md#qoe_aggregate-attributes) for the full attribute reference.
 - **Event Segregation** — Organized event types: `VideoAction`, `VideoAdAction`, `VideoErrorAction`, `VideoCustomAction`
 - **IMA Ads Support** — Built-in Google IMA SDK ad tracking via dedicated ad tracker
@@ -39,6 +40,8 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 
 Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
+> **Note:** `NRTHEOplayerTracker.xcframework` is included in `XCFrameworks.zip` (and published on its own as `NRTHEOplayerTracker.xcframework.zip`), but — like `NRIMATracker` and Google IMA — it doesn't bundle THEOplayerSDK-core itself. You'll still need to add THEOplayerSDK-core to your project separately (e.g. via its own [xcframework zip](https://www.theoplayer.com/docs/theoplayer/ios/) or [CocoaPods](#option-2-install-via-cocoapods)) plus a valid THEOplayer license from Dolby.
+
 ### Option 2: Install via CocoaPods
 
 Add the dependencies to your `Podfile`:
@@ -46,7 +49,8 @@ Add the dependencies to your `Podfile`:
 ```ruby
 pod 'NewRelicVideoAgent'
 pod 'NRAVPlayerTracker'
-pod 'NRIMATracker'   # Optional — only if using Google IMA ads
+pod 'NRIMATracker'         # Optional — only if using Google IMA ads
+pod 'NRTHEOplayerTracker'  # Optional — only if using THEOplayer (iOS 13.0+, requires a THEOplayer license)
 ```
 
 Then run:
@@ -73,17 +77,19 @@ Before using the Video Agent, ensure you have:
 - **New Relic Account** — Active account with a valid application token
 - **AVFoundation** — Available by default on iOS 12+ / tvOS 12+
 - **Google IMA SDK** (optional) — Required only if tracking IMA ads
-- **Minimum Deployment Target** — iOS 12.0 / tvOS 12.0 or higher
+- **THEOplayer SDK** (optional) — Required only if tracking THEOplayer; requires a valid THEOplayer license from Dolby
+- **Minimum Deployment Target** — iOS 12.0 / tvOS 12.0 or higher (iOS 13.0+ if using `NRTHEOplayerTracker`, per THEOplayer's own minimum)
 
 ## Modules
 
-The Video Agent is composed of four modules:
+The Video Agent is composed of five modules:
 
 | Module | Description | Required |
 |--------|-------------|----------|
 | **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Standalone — no New Relic iOS Agent dependency required. | Yes |
 | **NRAVPlayerTracker** | Video tracker for AVPlayer. Automatically hooks into player lifecycle events via KVO and notifications. | Yes (for AVPlayer) |
 | **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors. | Optional |
+| **NRTHEOplayerTracker** | Video tracker for THEOplayer (Dolby OptiView Player). Wires real lifecycle, QoE/rendition, and error events via THEOplayer's own listener API. iOS only, iOS 13.0+. | Optional (for THEOplayer) |
 | **NRMediaTailorTracker** | Ad tracker for AWS MediaTailor server-side ad insertion (SSAI). Detects ads inside an `AVPlayer` HLS stream and emits the standard ad event vocabulary plus `AD_ERROR`. HLS-only in v1; DASH support is via a customer-supplied adapter. iOS 12 + tvOS 12. See [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md). | Optional |
 
 ## Usage
@@ -275,6 +281,34 @@ let playerConfig = NRVAVideoPlayerConfiguration(
 
 For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides), see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
 
+### Basic Setup — THEOplayer
+
+<details>
+<summary>Swift</summary>
+<p>
+
+```swift
+// Step 1: Initialize NRVAVideo (same as the AVPlayer example above)
+
+// Step 2: Register your THEOplayer instance. No `playerType` is needed for a real
+// THEOplayer instance — addPlayer identifies it by class automatically.
+guard let playerConfig = NRVAVideoPlayerConfiguration(playerName: "MainVideoPlayer", player: theoplayer) else {
+    // The initializer is failable — handle nil rather than force-unwrapping it.
+    return
+}
+let trackerId = NRVAVideo.addPlayer(playerConfig)
+
+// Step 3: Release the tracker when done
+deinit {
+    NRVAVideo.releaseTracker(trackerId)
+}
+```
+
+</p>
+</details>
+
+> **Note:** THEOplayer support requires `NRTHEOplayerTracker` (iOS 13.0+, via CocoaPods or `NRTHEOplayerTracker.xcframework` — see [Option 1](#option-1-install-via-xcframeworks-recommended) for what that does and doesn't bundle) and a valid THEOplayer license from Dolby. See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration.
+
 For comprehensive setup instructions and additional examples, see the [Developer Onboarding Guide](ONBOARDING.md).
 
 ## Best Practices
@@ -396,10 +430,11 @@ if shouldEnable {
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `playerName` | `String` | Unique identifier for the video player. |
-| `player` | `AVPlayer` | The AVPlayer instance to track. |
+| `player` | `AVPlayer` or `THEOplayer` | The player instance to track. A real `AVPlayer`/`THEOplayer` instance is identified by class automatically. |
 | `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
 | `adEnabled` | `Bool` | Legacy shortcut for `adConfig`. `true` → `NRAdConfig.csai()`; `false` → `nil`. |
 | `customAttributes` | `[String: Any]?` | Custom attributes to attach to all events from this player. |
+| `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. |
 
 ### Custom Attribute Limits
 

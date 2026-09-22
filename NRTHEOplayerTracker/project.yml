@@ -1,0 +1,46 @@
+name: NRTHEOplayerTracker
+options:
+  bundleIdPrefix: com.newrelic
+  developmentLanguage: en
+  deploymentTarget:
+    iOS: "13.0"
+
+settings:
+  base:
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: G8ZB8K99NL
+    SWIFT_VERSION: "5.0"
+    DEFINES_MODULE: YES
+    SKIP_INSTALL: YES
+    DYLIB_COMPATIBILITY_VERSION: "1"
+    DYLIB_CURRENT_VERSION: "1"
+    DYLIB_INSTALL_NAME_BASE: "@rpath"
+    INSTALL_PATH: "$(LOCAL_LIBRARY_DIR)/Frameworks"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    LD_RUNPATH_SEARCH_PATHS:
+      - "$(inherited)"
+      - "@executable_path/Frameworks"
+      - "@loader_path/Frameworks"
+    FRAMEWORK_SEARCH_PATHS:
+      - "$(inherited)"
+      - "$(BUILT_PRODUCTS_DIR)"
+      - "$(SRCROOT)"
+
+targets:
+  NRTHEOplayerTracker-iOS:
+    type: framework
+    platform: iOS
+    productName: NRTHEOplayerTracker
+    deploymentTarget: "13.0"
+    sources:
+      - path: NRTHEOplayerTracker/Tracker
+    settings:
+      base:
+        INFOPLIST_FILE: NRTHEOplayerTracker/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.newrelic.NRTHEOplayerTracker
+        PRODUCT_NAME: NRTHEOplayerTracker
+    dependencies:
+      - framework: NewRelicVideoCore.framework
+        embed: false
+      - framework: THEOplayerSDK.xcframework
+        embed: false

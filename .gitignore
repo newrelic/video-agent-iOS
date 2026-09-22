@@ -31,3 +31,7 @@ xcuserdata/*
 Pods
 docs
 
+## Swift Package Manager
+.build/
+.swiftpm/
+

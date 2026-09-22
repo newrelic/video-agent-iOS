@@ -135,6 +135,7 @@ jobs:
           validate_with_retry "NRAVPlayerTracker.podspec"
           validate_with_retry "NRIMATracker.podspec"
           validate_with_retry "NRMediaTailorTracker.podspec"
+          validate_with_retry "NRTHEOplayerTracker.podspec"
 
           echo ""
           echo "All podspecs validated successfully!"
@@ -186,7 +187,7 @@ jobs:
           # recompute these against a separately-built zip: a fresh xcodebuild run
           # produces different file mtimes, which changes the zip bytes and therefore
           # the checksum, even when the compiled content is identical.
-          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker NRTHEOplayerTracker; do
             CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
             echo "${fw} checksum: ${CHECKSUM}"
 
@@ -347,6 +348,7 @@ jobs:
           publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
           publish_pod "NRIMATracker" "NRIMATracker.podspec"
           publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
+          publish_pod "NRTHEOplayerTracker" "NRTHEOplayerTracker.podspec"
 
           echo ""
           echo "All pods published!"
@@ -388,6 +390,7 @@ jobs:
             - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
             - NRMediaTailorTracker `${{ steps.get_version.outputs.version }}`
+            - NRTHEOplayerTracker `${{ steps.get_version.outputs.version }}`
 
             Also available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
 
@@ -400,6 +403,7 @@ jobs:
             NRAVPlayerTracker.xcframework.zip
             NRIMATracker.xcframework.zip
             NRMediaTailorTracker.xcframework.zip
+            NRTHEOplayerTracker.xcframework.zip
           draft: false
           prerelease: false
         env:
@@ -473,7 +477,7 @@ jobs:
             echo ""
             echo "Steps skipped (dry run):"
             echo "  - Tag creation: v$VERSION"
-            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
+            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker, NRTHEOplayerTracker"
             echo "  - XCFramework build"
             echo "  - GitHub release creation"
             exit 0
@@ -502,6 +506,7 @@ jobs:
           verify_pod "NRAVPlayerTracker"
           verify_pod "NRIMATracker"
           verify_pod "NRMediaTailorTracker"
+          verify_pod "NRTHEOplayerTracker"
 
           echo ""
           echo "=== git tag v$VERSION ==="
@@ -538,3 +543,4 @@ jobs:
           echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
           echo "  pod 'NRIMATracker', '~> $VERSION'"
           echo "  pod 'NRMediaTailorTracker', '~> $VERSION'"
+          echo "  pod 'NRTHEOplayerTracker', '~> $VERSION'"

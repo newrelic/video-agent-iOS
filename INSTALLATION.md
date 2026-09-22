@@ -5,13 +5,14 @@
 Add to your `Podfile`:
 
 ```ruby
-platform :ios, '12.0'
+platform :ios, '12.0'  # Use '13.0' instead if you add NRTHEOplayerTracker below
 use_frameworks!
 
 target 'YourApp' do
   pod 'NewRelicVideoAgent'
   pod 'NRAVPlayerTracker'
-  pod 'NRIMATracker'  # Optional, for Google IMA ads
+  pod 'NRIMATracker'         # Optional, for Google IMA ads
+  pod 'NRTHEOplayerTracker'  # Optional, for THEOplayer (Dolby OptiView Player)
 end
 ```
 
@@ -20,6 +21,8 @@ Install:
 pod install
 open YourApp.xcworkspace
 ```
+
+> **Note:** THEOplayer support also requires a valid THEOplayer license from Dolby, picked up automatically from a `THEOplayerLicense` key in your app's `Info.plist` (see THEOplayer's own setup docs). This is separate from your New Relic application token.
 
 ## Method 2: Manual Build
 
@@ -100,6 +103,38 @@ xcodebuild -project NRIMATracker/NRIMATracker.xcodeproj \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
+
+**4. Build NRTHEOplayerTracker** (optional, for THEOplayer — requires iOS 13.0+, per THEOplayerSDK-core's own minimum)
+
+First, download THEOplayerSDK-core (a plain public xcframework zip — confirmed against its own real podspec, no CocoaPods roundtrip needed):
+```bash
+cd NRTHEOplayerTracker
+curl -L "https://cdn.theoplayer.com/build/sdk-apple/10.14.0/THEOplayerSDK.xcframework.zip" -o THEOplayerSDK.zip
+unzip -o THEOplayerSDK.zip && rm THEOplayerSDK.zip
+cd ..
+```
+
+Then build:
+```bash
+# Device
+xcodebuild -project NRTHEOplayerTracker/NRTHEOplayerTracker.xcodeproj \
+  -scheme "NRTHEOplayerTracker-iOS" \
+  -configuration Release \
+  -sdk iphoneos \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+
+# Simulator
+xcodebuild -project NRTHEOplayerTracker/NRTHEOplayerTracker.xcodeproj \
+  -scheme "NRTHEOplayerTracker-iOS" \
+  -configuration Release \
+  -sdk iphonesimulator \
+  -destination 'generic/platform=iOS Simulator' \
+  CODE_SIGNING_ALLOWED=NO \
+  build
+```
+
+You'll also need to add THEOplayerSDK.xcframework itself (from the zip above) to your project, plus a valid THEOplayer license from Dolby — same shape as the Google IMA requirement in step 3, just for THEOplayer.
 
 ### Framework Locations
 
