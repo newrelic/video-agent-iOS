@@ -1,3 +1,14 @@
+## [4.4.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v4.4.0) (2026-09-03)
+
+### New features
+
+* Added support for Swift Package Manager. ([e8114d8](https://github.com/newrelic/video-agent-iOS/commit/e8114d8580d56dea1b9b6ebe5b64cb48a2940482))
+* `NRMediaTailorTracker`: Added a new AWS MediaTailor server-side ad-insertion (SSAI) tracker for AVPlayer (iOS 12+ and tvOS 12+), offering feature parity with `NRIMATracker`.
+
+### Bug Fixes
+
+* `ios-publish`: Modified retry logic to survive partial pipeline failures. ([ff54204](https://github.com/newrelic/video-agent-iOS/commit/ff54204d741db29dbe70cba5abd430267372663a))
+
 ## [4.3.0](https://github.com/newrelic/video-agent-iOS/compare/v4.2.0...v4.3.0) (2026-08-04)
 
 ### New features

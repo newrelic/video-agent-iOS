@@ -17,6 +17,7 @@ on:
 permissions:
   contents: write
   actions: write
+  pull-requests: write
 
 jobs:
   publish:
@@ -46,6 +47,11 @@ jobs:
         run: |
           gem install cocoapods
           pod --version
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Extract version from podspec
         id: get_version
@@ -94,7 +100,7 @@ jobs:
 
               set +e
               pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
-              EXIT_CODE=$?
+              EXIT_CODE=${PIPESTATUS[0]}
               set -e
 
               if [ $EXIT_CODE -eq 0 ]; then
@@ -128,6 +134,7 @@ jobs:
           validate_with_retry "NewRelicVideoAgent.podspec"
           validate_with_retry "NRAVPlayerTracker.podspec"
           validate_with_retry "NRIMATracker.podspec"
+          validate_with_retry "NRMediaTailorTracker.podspec"
 
           echo ""
           echo "All podspecs validated successfully!"
@@ -160,12 +167,66 @@ jobs:
           fi
           echo "CocoaPods trunk authentication verified"
 
+      - name: Build XCFrameworks
+        run: |
+          chmod +x ./build-xcframeworks.sh
+          ./build-xcframeworks.sh
+
+      - name: Update Package.swift for SPM
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG="v${VERSION}"
+
+          echo "Updating Package.swift release tag to $TAG..."
+          sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
+          rm -f Package.swift.bak
+
+          # Checksums are computed from the exact zips this job just built above -
+          # the same files "Create GitHub Release" attaches later in this job. Never
+          # recompute these against a separately-built zip: a fresh xcodebuild run
+          # produces different file mtimes, which changes the zip bytes and therefore
+          # the checksum, even when the compiled content is identical.
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker; do
+            CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
+            echo "${fw} checksum: ${CHECKSUM}"
+
+            FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
+              my $name = $ENV{FW_NAME};
+              my $checksum = $ENV{FW_CHECKSUM};
+              s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
+            ' Package.swift
+          done
+
+          if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
+            echo "Failed to update releaseTag in Package.swift"
+            exit 1
+          fi
+
+          if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
+            echo "Failed to update one or more checksums in Package.swift"
+            exit 1
+          fi
+
+          echo ""
+          echo "Package.swift after update:"
+          cat Package.swift
+
+          echo ""
+          echo "Verifying Package.swift resolves..."
+          swift package dump-package > /dev/null
+
+          # master is protected (PR + approval + FOSSA required), so this commit
+          # stays local - it's carried by the tag pushed next. Master's own copy
+          # is synced separately, non-blocking, by "Sync Package.swift to master
+          # via PR" later in this job.
+          git add Package.swift
+          git commit -m "chore: update Package.swift for ${TAG}"
+          echo "Package.swift committed locally - tagged next, never pushed to master"
+
       - name: Create and push git tag
         if: env.DRY_RUN != 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           echo "Creating tag v$VERSION..."
           git tag "v$VERSION"
@@ -210,7 +271,7 @@ jobs:
 
               set +e
               pod trunk push "$podspec" --allow-warnings 2>&1 | tee publish_output.log
-              local exit_code=$?
+              local exit_code=${PIPESTATUS[0]}
               set -e
 
               if [ $exit_code -eq 0 ]; then
@@ -285,6 +346,7 @@ jobs:
           # so the second doesn't need any additional wait
           publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
           publish_pod "NRIMATracker" "NRIMATracker.podspec"
+          publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
 
           echo ""
           echo "All pods published!"
@@ -311,12 +373,6 @@ jobs:
           echo "$CHANGELOG" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Build XCFrameworks
-        if: env.DRY_RUN != 'true'
-        run: |
-          chmod +x ./build-xcframeworks.sh
-          ./build-xcframeworks.sh
-
       - name: Create GitHub Release
         if: env.DRY_RUN != 'true'
         uses: softprops/action-gh-release@v1
@@ -331,11 +387,19 @@ jobs:
             - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
             - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
             - NRIMATracker `${{ steps.get_version.outputs.version }}`
+            - NRMediaTailorTracker `${{ steps.get_version.outputs.version }}`
+
+            Also available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
 
             ### What's Changed
 
             ${{ steps.changelog.outputs.changelog }}
-          files: xcframeworks.zip
+          files: |
+            xcframeworks.zip
+            NewRelicVideoCore.xcframework.zip
+            NRAVPlayerTracker.xcframework.zip
+            NRIMATracker.xcframework.zip
+            NRMediaTailorTracker.xcframework.zip
           draft: false
           prerelease: false
         env:
@@ -349,7 +413,48 @@ jobs:
           gh workflow run release-notes-docs-pr.yml --ref master --field tag="v${{ steps.get_version.outputs.version }}" --field dry_run=false
           echo "Triggered release-notes-docs-pr.yml for v${{ steps.get_version.outputs.version }}"
 
+      - name: Sync Package.swift to master via PR
+        if: env.DRY_RUN != 'true'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          TAG="v${VERSION}"
+          BRANCH="chore/package-swift-${TAG}"
+
+          # Housekeeping only - the release is already fully shipped by this
+          # point, so this just opens a small PR to sync master's own copy.
+          cp Package.swift /tmp/Package.swift.release
+
+          git fetch origin master --quiet
+          if git show "origin/master:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"${TAG}\""; then
+            echo "master's Package.swift already references ${TAG} - nothing to sync"
+            exit 0
+          fi
+
+          EXISTING=$(gh pr list --repo "${{ github.repository }}" --base master --head "$BRANCH" --state open --json number --jq 'length')
+          if [ "$EXISTING" != "0" ]; then
+            echo "A PR for ${BRANCH} is already open - not opening another"
+            exit 0
+          fi
+
+          git checkout -B "$BRANCH" origin/master
+          cp /tmp/Package.swift.release Package.swift
+          git add Package.swift
+          git commit -m "chore: update Package.swift for ${TAG}"
+          git push --force-with-lease origin "$BRANCH"
+
+          gh pr create \
+            --repo "${{ github.repository }}" \
+            --base master \
+            --head "$BRANCH" \
+            --title "chore: update Package.swift for ${TAG}" \
+            --body "Syncs master's checked-in \`Package.swift\` with the checksums already tagged as \`${TAG}\`. Doesn't gate or affect the release itself - \`${TAG}\` is already tagged, published to CocoaPods, and live via SPM (which resolves the tag, not master's HEAD). Pure housekeeping so master's own copy isn't stuck on the placeholder."
+
       - name: Verify publication
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
 
@@ -363,10 +468,12 @@ jobs:
             echo "  - Version extraction: $VERSION"
             echo "  - Podspec validation: passed"
             echo "  - Trunk authentication: verified"
+            echo "  - XCFramework build: passed"
+            echo "  - Package.swift checksum computation + local commit: passed (see cat above)"
             echo ""
             echo "Steps skipped (dry run):"
             echo "  - Tag creation: v$VERSION"
-            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker"
+            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker"
             echo "  - XCFramework build"
             echo "  - GitHub release creation"
             exit 0
@@ -394,6 +501,32 @@ jobs:
           verify_pod "NewRelicVideoAgent"
           verify_pod "NRAVPlayerTracker"
           verify_pod "NRIMATracker"
+          verify_pod "NRMediaTailorTracker"
+
+          echo ""
+          echo "=== git tag v$VERSION ==="
+          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION"; then
+            echo "tag v$VERSION - verified on remote"
+          else
+            echo "WARNING: tag v$VERSION not found on remote"
+          fi
+
+          echo ""
+          echo "=== GitHub Release v$VERSION ==="
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "GitHub Release v$VERSION - verified"
+          else
+            echo "WARNING: GitHub Release v$VERSION not found"
+          fi
+
+          echo ""
+          echo "=== Package.swift at tag v$VERSION (SPM) ==="
+          # Checked against the tag's tree, not master's - that's what SPM resolves.
+          if git show "v$VERSION:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"v$VERSION\""; then
+            echo "Package.swift at tag v$VERSION - verified"
+          else
+            echo "WARNING: tag v$VERSION's Package.swift does not reference itself"
+          fi
 
           echo ""
           echo "=================================="
@@ -404,3 +537,4 @@ jobs:
           echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
           echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
           echo "  pod 'NRIMATracker', '~> $VERSION'"
+          echo "  pod 'NRMediaTailorTracker', '~> $VERSION'"

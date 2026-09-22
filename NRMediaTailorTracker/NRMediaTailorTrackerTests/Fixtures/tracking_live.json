@@ -1,0 +1,30 @@
+{
+  "avails": [
+    {
+      "availId": "live-avail-1",
+      "startTimeInSeconds": 1200.0,
+      "durationInSeconds": 30.0,
+      "availProgramDateTime": "2026-06-22T18:00:00.000Z",
+      "ads": [
+        {
+          "adId": "live-ad-1",
+          "creativeId": "live-creative-A",
+          "adTitle": "Live Ad",
+          "adSystem": "LiveBrand",
+          "adProgramDateTime": "2026-06-22T18:00:00.000Z",
+          "startTimeInSeconds": 1200.0,
+          "durationInSeconds": 30.0,
+          "trackingEvents": [
+            {
+              "eventType": "impression",
+              "eventId": "live-ev-1",
+              "startTimeInSeconds": 0.0,
+              "beaconUrls": ["https://example.com/live/imp"]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nonLinearAvails": []
+}

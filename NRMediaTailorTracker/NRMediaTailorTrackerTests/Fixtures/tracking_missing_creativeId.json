@@ -1,0 +1,20 @@
+{
+  "avails": [
+    {
+      "availId": "avail-200",
+      "startTimeInSeconds": 10.0,
+      "durationInSeconds": 15.0,
+      "ads": [
+        {
+          "adId": "ad-99",
+          "adTitle": "No CreativeId Ad",
+          "adSystem": "BrandZ",
+          "startTimeInSeconds": 10.0,
+          "durationInSeconds": 15.0,
+          "trackingEvents": []
+        }
+      ]
+    }
+  ],
+  "nonLinearAvails": []
+}

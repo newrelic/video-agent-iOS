@@ -133,6 +133,7 @@ jobs:
           sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NewRelicVideoAgent.podspec
           sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NRAVPlayerTracker.podspec
           sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NRIMATracker.podspec
+          sed -i.bak -E "s/(s\.version[[:space:]]*=[[:space:]]*')[^']+'/\1$VERSION'/" NRMediaTailorTracker.podspec
           
           rm -f *.podspec.bak
           
@@ -141,6 +142,7 @@ jobs:
           grep -E "^\s*s\.version\s*=" NewRelicVideoAgent.podspec
           grep -E "^\s*s\.version\s*=" NRAVPlayerTracker.podspec
           grep -E "^\s*s\.version\s*=" NRIMATracker.podspec
+          grep -E "^\s*s\.version\s*=" NRMediaTailorTracker.podspec
 
       - name: Update version in source files
         if: steps.get_version.outputs.should_create_pr == 'true' && steps.check_branch.outputs.branch_exists == 'false'
@@ -157,6 +159,7 @@ jobs:
           echo "Updating tracker implementation files..."
           sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m
           sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m
+          sed -i.bak -E "s/(return @\")[0-9]+\.[0-9]+\.[0-9]+/\1$VERSION/" NRMediaTailorTracker/NRMediaTailorTracker/Tracker/NRTrackerMediaTailor.m
 
           # Update version in core device and network files
           echo "Updating NewRelicVideoCore version strings..."
@@ -176,6 +179,8 @@ jobs:
           grep "return @\"" NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
           echo "  NRTrackerIMA.m:"
           grep "return @\"" NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
+          echo "  NRTrackerMediaTailor.m:"
+          grep "return @\"" NRMediaTailorTracker/NRMediaTailorTracker/Tracker/NRTrackerMediaTailor.m | grep -E "[0-9]+\.[0-9]+\.[0-9]+" || echo "    [not found]"
           echo "  NRVADeviceInformation.m:"
           grep "agentVersion = @\"" NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m | head -1 || echo "    [not found]"
           echo ""
@@ -193,6 +198,7 @@ jobs:
           git add NewRelicVideoCore/NewRelicVideoCore/NRVideoDefs.h \
                   NRAVPlayerTracker/NRAVPlayerTracker/Tracker/NRTrackerAVPlayer.m \
                   NRIMATracker/NRIMATracker/Tracker/NRTrackerIMA.m \
+                  NRMediaTailorTracker/NRMediaTailorTracker/Tracker/NRTrackerMediaTailor.m \
                   NewRelicVideoCore/NewRelicVideoCore/Auth/NRVATokenManager.m \
                   NewRelicVideoCore/NewRelicVideoCore/Harvest/NRVAOptimizedHttpClient.m \
                   NewRelicVideoCore/NewRelicVideoCore/Device/NRVADeviceInformation.m
