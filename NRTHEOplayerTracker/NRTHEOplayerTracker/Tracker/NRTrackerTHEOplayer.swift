@@ -31,10 +31,14 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // to) meant unregisterListeners() could only ever clear its own bookkeeping array, never actually
     // tell THEOplayer to stop invoking the closure. See addListener(on:type:handler:) below.
     var listeners: [() -> Void] = []
-    private var qualityChangeListener: Any?
     // Separate from `listeners` (rather than just appended into it) so handleSourceChange() below can
     // tear down and re-attach *just* the per-track quality listener on a mid-session source change,
     // without touching the player-level listeners that stay registered for the tracker's whole lifetime.
+    // Also doubles as the "is a quality-change listener currently attached?" guard in
+    // attachQualityChangeListenerIfNeeded() below — a separate `qualityChangeListener: Any?` property
+    // used to exist purely for that nil-check, always set/cleared in lockstep with this one at all 3
+    // call sites (no live bug, since the two never actually diverged), but it was a needless divergence
+    // surface for a future edit to trip on (flagged in review). Removed rather than kept in sync.
     private var qualityChangeTeardown: (() -> Void)?
 
     // Defensive, matching NRTrackerAVPlayer's own dealloc: tears down listeners even if the host app
@@ -103,7 +107,6 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         listeners.removeAll()
         qualityChangeTeardown?()
         qualityChangeTeardown = nil
-        qualityChangeListener = nil
     }
 
     // Registers a THEOplayer event listener and stores a matching teardown closure in `listeners`,
@@ -136,11 +139,10 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     }
 
     private func attachQualityChangeListenerIfNeeded() {
-        guard qualityChangeListener == nil, let track = firstVideoTrack() else { return }
+        guard qualityChangeTeardown == nil, let track = firstVideoTrack() else { return }
         let token = track.addEventListener(type: MediaTrackEventTypes.ACTIVE_QUALITY_CHANGED) { [weak self] _ in
             self?.handleActiveQualityChanged()
         }
-        qualityChangeListener = token
         // MediaTrack (unlike THEOplayer itself) isn't passed into the shared addListener helper here —
         // removeEventListener needs `track`, not `player`, as the receiver. Track : AnyObject (confirmed
         // against the real THEOplayerSDK.swiftinterface), so [weak track] is valid the same way
@@ -277,7 +279,6 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
         // source change instead of teardown).
         qualityChangeTeardown?()
         qualityChangeTeardown = nil
-        qualityChangeListener = nil
         sendRequest()
         attachQualityChangeListenerIfNeeded()
     }
@@ -370,7 +371,9 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // MARK: - Remaining attribute getters (CDD §6.4)
 
     public override func getPlayerName() -> String {
-        "theoplayer"
+        // Capitalized to match Dolby's own branding ("THEOplayer") — a deliberate departure from
+        // NRTrackerAVPlayer.m's lowercase "avplayer" convention, not an oversight.
+        "THEOplayer"
     }
 
     public override func getPlayerVersion() -> String {

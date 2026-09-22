@@ -31,7 +31,7 @@ class Test10: TestProtocol {
         tracker.handleRateChange()
         // No crash is the assertion here; there's no send to check since it's a custom attribute.
 
-        if tracker.getPlayerName() != "theoplayer" {
+        if tracker.getPlayerName() != "THEOplayer" {
             self.callback!(testName + " getPlayerName default", false)
             return
         }
