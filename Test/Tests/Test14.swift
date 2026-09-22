@@ -37,7 +37,7 @@ class Test14: TestProtocol {
         var trackerId = 0
         DispatchQueue.main.sync {
             let player = THEOplayer()
-            let config = NRVAVideoPlayerConfiguration(playerName: "test14-theoplayer", player: player)!
+            let config = NRVAVideoPlayerConfiguration(playerName: "test14-theoplayer", player: player)
             // Deliberately not setting config.playerType — proving addPlayer: identifies THEOplayer by
             // class on its own.
             trackerId = NRVAVideo.addPlayer(config)

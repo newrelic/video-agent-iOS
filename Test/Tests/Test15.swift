@@ -33,7 +33,7 @@ class Test15: TestProtocol {
         // Neither an AVPlayer nor a THEOplayer — e.g. a client's own wrapper object. Deliberately not
         // setting config.playerType either, to exercise the exact "nobody said what this is" case.
         let unrecognizedPlayer = NSObject()
-        let config = NRVAVideoPlayerConfiguration(playerName: "test15-unrecognized", player: unrecognizedPlayer)!
+        let config = NRVAVideoPlayerConfiguration(playerName: "test15-unrecognized", player: unrecognizedPlayer)
         let trackerId = NRVAVideo.addPlayer(config)
 
         let tracker = NewRelicVideoAgent.sharedInstance().contentTracker(NSNumber(value: trackerId))

@@ -42,7 +42,7 @@ class Test17: TestProtocol {
         var trackerId = -1
         DispatchQueue.main.sync {
             let player = THEOplayer()
-            let config = NRVAVideoPlayerConfiguration(playerName: "test17-release-zero", player: player)!
+            let config = NRVAVideoPlayerConfiguration(playerName: "test17-release-zero", player: player)
             trackerId = NRVAVideo.addPlayer(config)
         }
 

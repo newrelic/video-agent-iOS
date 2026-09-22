@@ -188,11 +188,10 @@ final class ViewController: UIViewController {
         // application token, not just CoreTests' synthetic/error-only scenarios.
         // No playerType needed — addPlayer: identifies the real THEOplayer instance by class on its own
         // (NRVAVideoPlayerConfiguration.h's playerType is now just a fallback for player types it can't
-        // identify that way).
-        guard let nrConfig = NRVAVideoPlayerConfiguration(playerName: "theoplayer-sample", player: player) else {
-            eventLog.log("[NR] Failed to build NRVAVideoPlayerConfiguration — tracker not attached")
-            return
-        }
+        // identify that way). The initializer itself is not failable — confirmed against the real
+        // compiled interface (NRVAVideoPlayerConfiguration.h declares plain `instancetype`, not
+        // `nullable instancetype`) — so there's no nil case to guard against here.
+        let nrConfig = NRVAVideoPlayerConfiguration(playerName: "theoplayer-sample", player: player)
         nrTrackerId = NRVAVideo.addPlayer(nrConfig)
         eventLog.log("[NR] addPlayer -> trackerId=\(nrTrackerId)")
     }
