@@ -39,7 +39,12 @@ final class NRTheoErrorHandler {
     /// what actually went wrong.
     var asNSError: NSError {
         let code = error.map { Int($0.code.rawValue) } ?? 0
-        let message = error?.message ?? fallbackMessage
+        // `error?.message ?? fallbackMessage` only substitutes fallbackMessage when error itself is
+        // nil — but THEOError.message is a non-optional String, so a real error with an empty message
+        // (a genuine possibility, not guaranteed non-empty by the SDK) would silently produce a blank
+        // NSError.localizedDescription instead of falling back to the more useful fallbackMessage.
+        let rawMessage = error?.message
+        let message = (rawMessage?.isEmpty ?? true) ? fallbackMessage : rawMessage!
         return NSError(domain: "com.newrelic.theoplayer", code: code, userInfo: [NSLocalizedDescriptionKey: message])
     }
 }

@@ -19,7 +19,12 @@ final class ViewController: UIViewController {
 
     private var theoplayer: THEOplayer?
     private var listeners: [Any] = [] // holds every listener token returned by addEventListener, for symmetric teardown
-    private var nrTrackerId: Int = 0 // NRVAVideo.addPlayer's return value, for the real NRTrackerTHEOplayer integration
+    // -1, not 0 — NRVAVideo.releaseTracker: now treats 0 as a real, releasable tracker ID (the
+    // first tracker ever created in the process), not a sentinel "unset" value. Defaulting to 0 here
+    // meant deinit's unconditional releaseTracker(nrTrackerId) call below would silently release
+    // whatever unrelated tracker actually owns ID 0 if this VC deallocates before setupPlayer() ever
+    // runs (e.g. allocated but never displayed) — confirmed reachable via a fresh code review.
+    private var nrTrackerId: Int = -1 // NRVAVideo.addPlayer's return value, for the real NRTrackerTHEOplayer integration
 
     // MARK: - UI
 
