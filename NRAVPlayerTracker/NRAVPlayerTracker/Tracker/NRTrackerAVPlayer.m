@@ -242,18 +242,23 @@
     else if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"] && self.state.isSeeking && self.state.isPaused) {
         [self sendBufferStart];
     }
-    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isPaused) {
-        // NR-531411: not gated on isSeeking anymore — a plain (non-seek) rebuffer
-        // that resolves while the user is paused needs to close the buffer window
-        // here too, since the timeControlStatus handler below now defers to this
-        // observer for that case instead of closing it prematurely.
+    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isBuffering) {
+        // NR-531411: gated on isBuffering, not isSeeking/isPaused — a rebuffer that
+        // resolves needs to close the buffer window here, since the
+        // timeControlStatus handler below defers to this observer whenever the user
+        // paused mid-buffer (see isPausingDuringActiveBuffer below). isBuffering is
+        // the synchronous flag that's actually maintained correctly through the
+        // whole pause-during-buffer sequence, including before playback has ever
+        // started (isPaused requires isStarted, which can't be true yet in that
+        // case) — see finding 1 in NR-531411. goBufferEnd/sendSeekEnd are idempotent,
+        // so broadening this gate cannot introduce duplicate events.
         [self sendBufferEnd];
         [self sendSeekEnd];
     }
     else if ([keyPath isEqualToString:@"currentItem.playbackLikelyToKeepUp"]) {
         [self sendRequest];
 
-        if (self.state.isPaused && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
+        if (self.state.isBuffering && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
             // NR-531411: same broadening as playbackBufferFull above.
             [self sendBufferEnd];
             [self sendSeekEnd];

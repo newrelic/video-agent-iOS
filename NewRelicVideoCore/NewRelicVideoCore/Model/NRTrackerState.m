@@ -131,7 +131,13 @@
 - (BOOL)goBufferEnd {
     if (self.isRequested && self.isBuffering) {
         self.isBuffering = false;
-        self.isPlaying = true;
+        // NR-531411: only re-assert isPlaying if the user isn't still paused.
+        // goBufferStart unconditionally sets isPlaying = false (mirrored here);
+        // resuming from a buffer window should not force isPlaying = true when
+        // the state machine already knows playback is paused, otherwise
+        // downstream consumers (NRVideoTracker's chrono/heartbeat, NRQoEAggregator's
+        // bitrate timer) incorrectly resume as if playback had continued.
+        self.isPlaying = !self.isPaused;
         return true;
     } else {
         return false;
