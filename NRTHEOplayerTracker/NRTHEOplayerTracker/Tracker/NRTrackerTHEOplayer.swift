@@ -388,7 +388,7 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // redundant "Tracker" word from the selector name here, so the override is getVersion(), not
     // getTrackerVersion() - confirmed against the real compiled interface (compiler error otherwise).
     public override func getVersion() -> String {
-        return "4.3.0"
+        return "5.0.0"
     }
 
     // Named nrGetSrc(), not getSrc() — see the NS_SWIFT_NAME comment on NRVideoTracker.h's

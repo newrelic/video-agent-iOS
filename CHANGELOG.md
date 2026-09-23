@@ -1,3 +1,51 @@
+## [5.0.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v5.0.0) (2026-09-23)
+
+### ⚠ BREAKING CHANGES
+
+* NRVAVideo.addPlayer: now fails closed for a player object
+it can't identify by class and that has no explicit playerType set - it
+creates no tracker at all, rather than silently defaulting it to an AVPlayer
+tracker as before. Existing callers passing a custom/wrapped player object
+without setting playerType will need to set NRVAVideoPlayerConfiguration's
+new playerType property explicitly.
+
+Also: NRVAVideo.releaseTracker: now correctly releases tracker ID 0 (the
+first tracker created in a process) instead of silently no-oping for it -
+callers relying on the old no-op behavior for ID 0 will see a real release
+happen instead.
+
+### Features
+
+* add Swift Package Manager support ([e8114d8](https://github.com/newrelic/video-agent-iOS/commit/e8114d8580d56dea1b9b6ebe5b64cb48a2940482))
+* add THEOplayer support with player-type dispatch ([3f36ebe](https://github.com/newrelic/video-agent-iOS/commit/3f36ebe298dd022066ba0acf77bab69ce9265188))
+* **mediatailor:** public iOS config + NRAdConfig ad-tracker selection ([593bdd2](https://github.com/newrelic/video-agent-iOS/commit/593bdd2a1bf54e06f00de769bacb46bf41f925f2))
+* **mediatailor:** self-sufficient ad tracking auto-activation ([9cd80a9](https://github.com/newrelic/video-agent-iOS/commit/9cd80a98134a67f24c354db5aadda82fef487cff))
+* **mediatailor:** wire adSegmentPrefix/trackingUrl overrides into sample app ([95aa226](https://github.com/newrelic/video-agent-iOS/commit/95aa226c850f4313e0b9ba1bdd9018753920679d))
+* **release:** wire NRMediaTailorTracker into build-xcframeworks.sh ([a09ae95](https://github.com/newrelic/video-agent-iOS/commit/a09ae953e182f54c20c0ad9a64410a2245399aac))
+* **release:** wire NRMediaTailorTracker.podspec into ios-publish.yml validate + publish lists ([0385982](https://github.com/newrelic/video-agent-iOS/commit/03859828d15c54057840e8c3ac82059a3393ff96))
+* **release:** wire NRMediaTailorTracker.podspec into ios-release.yml version-bump list ([f1be621](https://github.com/newrelic/video-agent-iOS/commit/f1be621103ce6d86305a267efb0f1de42945d9cc))
+* wire NRMediaTailorTracker into SPM support ([342d861](https://github.com/newrelic/video-agent-iOS/commit/342d861c9616d79b5403016f266b8f595baf6872)), closes [#217](https://github.com/newrelic/video-agent-iOS/issues/217)
+* wire NRTHEOplayerTracker into XCFramework + SPM packaging ([5ea1149](https://github.com/newrelic/video-agent-iOS/commit/5ea1149fdb536967bb9b4c16a70f8c8fb6047525))
+
+### Bug Fixes
+
+* correct Package.swift comment ([ca47055](https://github.com/newrelic/video-agent-iOS/commit/ca470555acfca4b146f4edd2874e7cb5920871f0))
+* **ios-publish:** grant pull-requests permission, fix swallowed exit codes ([f0beaa7](https://github.com/newrelic/video-agent-iOS/commit/f0beaa72bae863dda2e7d0534d990169adbf4cf3))
+* **ios-publish:** make retries survive a partial failure ([ff54204](https://github.com/newrelic/video-agent-iOS/commit/ff54204d741db29dbe70cba5abd430267372663a))
+* **ios-publish:** stop pushing Package.swift straight to master ([2770bdc](https://github.com/newrelic/video-agent-iOS/commit/2770bdc511bb9585ec3cdb8979e8132a8c93ca5d))
+* **NRMediaTailorTracker:** bump podspec + getTrackerVersion to 4.3.0 ([825be02](https://github.com/newrelic/video-agent-iOS/commit/825be02306bfa16526452c3d0cb2801417ffe405))
+* **NRMediaTailorTracker:** override getTrackerVersion to return @"4.2.0" ([cb74073](https://github.com/newrelic/video-agent-iOS/commit/cb74073ccae4d9512725fd7855407b8b5f553c13))
+* NRTrackerTHEOplayer.unregisterListeners() never actually detached from THEOplayer ([b6dbe13](https://github.com/newrelic/video-agent-iOS/commit/b6dbe13157c6b35934cd197b424d8d892e9e9f32))
+* NRVAVideo.releaseTracker(0) was a silent no-op, leaking the heartbeat timer forever ([0a770b1](https://github.com/newrelic/video-agent-iOS/commit/0a770b101417808309e9c01f4e07d15dfe749aa5))
+* remove invalid force-unwrap/guard-let on non-failable NRVAVideoPlayerConfiguration init ([39c4b2a](https://github.com/newrelic/video-agent-iOS/commit/39c4b2a37962381513f4366edfdf086677a9c06d))
+* rendition-shift attribute uses wrong key, breaking QoE switch-up/down counters ([68978fa](https://github.com/newrelic/video-agent-iOS/commit/68978fa737993eeecf3739bbef7bd6fb436659b4))
+* THEOplayer droppedVideoFrames leaked onto every event after a rendition change ([93ef54d](https://github.com/newrelic/video-agent-iOS/commit/93ef54d83c5c3184bc629eb4b4f217b4a0a772ee))
+* THEOplayer error category/cause/code never reached NRDB — read by nothing ([734c9b5](https://github.com/newrelic/video-agent-iOS/commit/734c9b5da9755214d131e3e433ec6e4139806e21))
+* THEOplayer getBitrate/getManifestBitrate mislabeled manifest data as measured ([d7bcb02](https://github.com/newrelic/video-agent-iOS/commit/d7bcb026f73939f746438fe099b0aacb48d98c6e))
+* THEOplayer playerName casing, remove redundant listener-guard property ([79b46ec](https://github.com/newrelic/video-agent-iOS/commit/79b46ec310e5cb4113b41f08ec69c192eb5b5f10))
+* THEOplayer sendRenditionChange() fired again on a same-resolution repeat callback ([07be502](https://github.com/newrelic/video-agent-iOS/commit/07be502285d901a397cb79d395f13ad5f8a280c3))
+* two real gaps found by a fresh code review before game day/release ([5928a71](https://github.com/newrelic/video-agent-iOS/commit/5928a711ec6973de58109afa0cedb6d3f3022efe))
+
 ## [4.4.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v4.4.0) (2026-09-03)
 
 ### New features
