@@ -86,6 +86,25 @@ jobs:
             echo "Tag v$VERSION does not exist on remote"
           fi
 
+      - name: Create and push git tag
+        if: env.DRY_RUN != 'true'
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+
+          # Pushed before podspec validation, not after: every tracker podspec
+          # declares NewRelicVideoAgent as a dependency, and NewRelicVideoAgent's
+          # already-published spec sources from this exact tag. Validating any
+          # dependent podspec needs the tag to already resolve on the remote -
+          # creating it only at the end (the old order) works on a completely
+          # fresh release, but breaks every retry after a partial publish, since
+          # "Cleanup existing tag" above just deleted the tag the previous
+          # attempt's already-published pods depend on. It gets moved forward
+          # below once Package.swift's checksums are committed.
+          echo "Creating tag v$VERSION..."
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
+          echo "Tag v$VERSION created and pushed successfully!"
+
       - name: Validate podspecs
         run: |
           echo "Validating podspecs..."
@@ -224,15 +243,19 @@ jobs:
           git commit -m "chore: update Package.swift for ${TAG}"
           echo "Package.swift committed locally - tagged next, never pushed to master"
 
-      - name: Create and push git tag
+      - name: Move git tag to include Package.swift update
         if: env.DRY_RUN != 'true'
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
 
-          echo "Creating tag v$VERSION..."
-          git tag "v$VERSION"
-          git push origin "v$VERSION"
-          echo "Tag v$VERSION created and pushed successfully!"
+          # The tag was created earlier (before podspec validation) pointing at
+          # the pre-Package.swift-update commit. Move it forward now so SPM
+          # consumers resolving this tag see the checksums that actually match
+          # the XCFramework zips this same job attaches to the GitHub release.
+          echo "Moving tag v$VERSION to include Package.swift update..."
+          git tag -f "v$VERSION"
+          git push --force origin "v$VERSION"
+          echo "Tag v$VERSION moved and re-pushed successfully!"
 
       - name: Publish pods to CocoaPods
         run: |
