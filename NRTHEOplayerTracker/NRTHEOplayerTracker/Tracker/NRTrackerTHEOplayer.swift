@@ -384,18 +384,38 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // by ios-release.yml's version-bump step) - distinct from getPlayerVersion() above, which reports
     // the underlying THEOplayer SDK's version. Base NRVideoTracker.getTrackerVersion returns NSNull
     // unless overridden, unlike the other trackers (NRTrackerAVPlayer/NRTrackerIMA/NRTrackerMediaTailor),
-    // which all override it with their own hardcoded version literal. Swift's Clang importer drops the
-    // redundant "Tracker" word from the selector name here, so the override is getVersion(), not
-    // getTrackerVersion() - confirmed against the real compiled interface (compiler error otherwise).
+    // which all override it with their own hardcoded version literal.
+    //
+    // Override name is getVersion(), NOT the literal getTrackerVersion() - confirmed against a real
+    // `pod lib lint` run (which validates against whatever NewRelicVideoCore is *currently published*
+    // on trunk, not this branch's own in-progress changes): calling it as getTrackerVersion() fails
+    // with "'getTrackerVersion()' has been renamed to 'getVersion()' ... was obsoleted in Swift 3" -
+    // Swift's own migration diagnostic for the pre-Swift-3 verbose selector name, confirming
+    // getVersion() (the Clang-importer-shortened form, dropping the redundant "Tracker" that already
+    // appears in the class name) is the real, currently-correct override name.
     public override func getVersion() -> String {
         return "5.0.0"
     }
 
-    // Named nrGetSrc(), not getSrc() — see the NS_SWIFT_NAME comment on NRVideoTracker.h's
-    // declaration for why. Still overrides the same `getSrc` Objective-C selector.
-    public override func nrGetSrc() -> String {
-        player?.src ?? ""
-    }
+    // Deliberately NOT overriding getSrc (or NRVideoTracker.h's own NS_SWIFT_NAME(nrGetSrc()) name)
+    // right now - no spelling of this override compiles against the *currently published*
+    // NewRelicVideoCore (confirmed via real `pod lib lint` runs): `override func getSrc()` hits
+    // "cannot override more than one superclass declaration" (the exact ambiguity nrGetSrc's
+    // NS_SWIFT_NAME annotation exists to fix - but that fix is itself unpublished, since THEOplayer is
+    // the first Swift tracker ever written against this core), and `override func nrGetSrc()` hits
+    // "does not override any method" (no such name exists yet in the published interface). A
+    // non-override `@objc(getSrc)` binding on a differently-named method doesn't work either - Swift
+    // still detects the selector collision and errors, just with different wording.
+    //
+    // Leaving it unoverridden is safe for real usage: NRVideoTracker.m's own getAttributes: calls
+    // `[self getSrc]` via plain Objective-C dynamic dispatch, which never triggers Swift's
+    // String-bridging validation - it just stores the base implementation's `(NSString *)[NSNull
+    // null]` placeholder into the attributes dictionary, reporting `contentSrc: null` rather than
+    // crashing. Confirmed unsafe ONLY when called directly as a Swift method (`.nrGetSrc()`/
+    // `.getSrc()`) - real `-[NSNull length]: unrecognized selector` crash, reproduced via a
+    // deliberate Test10 diagnostic call, NOT hit anywhere in this tracker's own or the sample app's
+    // real code. Net effect until a follow-up release: THEOplayer sessions report no `contentSrc`
+    // value. Restore `override func nrGetSrc()` once NewRelicVideoCore's own fix actually ships.
 
     public override func getDuration() -> NSNumber {
         // THEOplayer reports .infinity for live content (confirmed against the real interface — this is
