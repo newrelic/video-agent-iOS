@@ -11,12 +11,12 @@
 		9CEE254525EE737E000491C5 /* NRIMATracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CEE253B25EE737D000491C5 /* NRIMATracker.framework */; };
 		9CEE254A25EE737E000491C5 /* NRIMATrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE254925EE737E000491C5 /* NRIMATrackerTests.m */; };
 		9CEE254C25EE737E000491C5 /* NRIMATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE253E25EE737D000491C5 /* NRIMATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		9CEE255C25EE74C9000491C5 /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; };
+		9CEE255C25EE74C9000491C5 /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		9CEE255D25EE74C9000491C5 /* NRTrackerIMA.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */; };
 		9CIM33A8D4441D714479B72A /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
 		9CIMDA78CE5FF3EC4778A707 /* GoogleInteractiveMediaAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */; };
 		8766B7B707A13384C841E055 /* NRTrackerIMA.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE255B25EE74C9000491C5 /* NRTrackerIMA.m */; };
-		6EDB39245FB6238BA3A1F2FA /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; };
+		6EDB39245FB6238BA3A1F2FA /* NRTrackerIMA.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE255A25EE74C9000491C5 /* NRTrackerIMA.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4F2AE4B45D85A20F05465175 /* NRIMATracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 9CEE253E25EE737D000491C5 /* NRIMATracker.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		62EBC63B9459DED916A084B1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */; };
 		3DE4DAB0FF30B3A441CFA7A8 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
