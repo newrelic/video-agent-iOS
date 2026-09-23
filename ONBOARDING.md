@@ -22,6 +22,11 @@ See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions us
 
 - Google Interactive Media Ads SDK (automatically handled by CocoaPods)
 
+**Additional for THEOplayer:**
+
+- iOS 13.0+ (THEOplayer's own minimum, higher than this SDK's overall iOS 12.0+ floor)
+- THEOplayerSDK-core (automatically handled by CocoaPods) and a valid THEOplayer license from Dolby
+
 ## Import Statements
 
 ### Objective-C
@@ -858,6 +863,59 @@ trackerId = NRVAVideo.addPlayer(playerConfig)
 ```
 
 For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides, session-init resolution) see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
+
+### Option 4: THEOplayer (No Ads)
+
+For basic video playback using THEOplayer (Dolby OptiView Player) instead of AVPlayer. Requires the `NRTHEOplayerTracker` pod (iOS 13.0+) and a valid THEOplayer license from Dolby — see [Installation](#installation). THEOplayer does not currently support ad tracking, so there's no ads variant of this option the way there is for AVPlayer.
+
+Swift only — `NRTrackerTHEOplayer` itself is Swift (THEOplayer's iOS event API can't bridge to Objective-C), but that's an implementation detail of the tracker, not a constraint on your own app; there's just no Objective-C example to show here since none exists in this repo's own sample apps.
+
+#### Swift Implementation
+
+```swift
+import UIKit
+import THEOplayerSDK
+import NewRelicVideoCore
+
+class ViewController: UIViewController {
+    private var player: THEOplayer?
+    private var trackerId: Int = 0
+
+    func playVideo(videoURL: String) {
+        // Create your THEOplayer instance
+        let player = THEOplayer(with: view.bounds)
+        player.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        player.addAsSubview(of: view)
+        self.player = player
+
+        // ✅ CONFIGURATION-BASED SETUP — no playerType needed for a real THEOplayer
+        // instance; addPlayer identifies it by class automatically.
+        let playerConfig = NRVAVideoPlayerConfiguration(
+            playerName: "MainVideoPlayer",
+            player: player,
+            adEnabled: false,
+            customAttributes: [
+                "videoTitle": "Sample Video",
+                "category": "Entertainment",
+                "videoURL": videoURL
+            ]
+        )
+
+        trackerId = NRVAVideo.addPlayer(playerConfig)
+
+        // Load and play
+        player.source = SourceDescription(source: TypedSource(src: videoURL, type: "application/x-mpegurl"))
+        player.play()
+    }
+
+    deinit {
+        // Clean up tracking when done
+        NRVAVideo.releaseTracker(trackerId)
+    }
+}
+```
+
+See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration, including source switching, transport controls, and the full CDD attribute/event mapping.
 
 ## Advanced Features
 
