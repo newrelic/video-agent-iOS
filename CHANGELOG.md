@@ -3,8 +3,6 @@
 ### ⚠ BREAKING CHANGES
 
 * `NRVAVideo.addPlayer()`: Now returns without creating a tracker when it can't identify the player type and no explicit `playerType` was set, instead of silently defaulting to an AVPlayer tracker. If you pass a custom or wrapped player object, set `NRVAVideoPlayerConfiguration.playerType` explicitly.
-* `NRVAVideo.releaseTracker()`: Now correctly releases tracker ID `0` (the first tracker created in a process) instead of silently ignoring it. If your code relied on the previous no-op behavior for ID `0`, that tracker will now actually be released.
-* `NRTHEOplayerTracker`: The `playerName` attribute now reports `"THEOplayer"` (capitalized, matching Dolby's own branding) instead of `"theoplayer"`. Update any dashboards or queries that filter on the old value.
 
 ### Features
 
