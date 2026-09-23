@@ -1,3 +1,13 @@
+## [5.0.0](https://github.com/newrelic/video-agent-iOS/compare/v4.4.0...v5.0.0) (2026-09-23)
+
+### ⚠ BREAKING CHANGES
+
+* `NRVAVideo.addPlayer()`: Now returns without creating a tracker when it can't identify the player type and no explicit `playerType` was set, instead of silently defaulting to an AVPlayer tracker. If you pass a custom or wrapped player object, set `NRVAVideoPlayerConfiguration.playerType` explicitly.
+
+### Features
+
+* `NRTHEOplayerTracker`: Added a new tracker for THEOplayer (Dolby OptiView Player) — content lifecycle events, QoE/rendition tracking, and error mapping. iOS only, iOS 13.0+. Available via CocoaPods, XCFrameworks, and Swift Package Manager. ([3f36ebe](https://github.com/newrelic/video-agent-iOS/commit/3f36ebe298dd022066ba0acf77bab69ce9265188))
+
 ## [4.4.0](https://github.com/newrelic/video-agent-iOS/compare/v4.3.0...v4.4.0) (2026-09-03)
 
 ### New features

@@ -291,11 +291,10 @@ For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL o
 // Step 1: Initialize NRVAVideo (same as the AVPlayer example above)
 
 // Step 2: Register your THEOplayer instance. No `playerType` is needed for a real
-// THEOplayer instance — addPlayer identifies it by class automatically.
-guard let playerConfig = NRVAVideoPlayerConfiguration(playerName: "MainVideoPlayer", player: theoplayer) else {
-    // The initializer is failable — handle nil rather than force-unwrapping it.
-    return
-}
+// THEOplayer instance — addPlayer identifies it by class automatically. (For a
+// custom/wrapped player object that class detection can't see through, set
+// playerConfig.playerType explicitly — otherwise addPlayer creates no tracker at all.)
+let playerConfig = NRVAVideoPlayerConfiguration(playerName: "MainVideoPlayer", player: theoplayer)
 let trackerId = NRVAVideo.addPlayer(playerConfig)
 
 // Step 3: Release the tracker when done
@@ -434,7 +433,7 @@ if shouldEnable {
 | `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
 | `adEnabled` | `Bool` | Legacy shortcut for `adConfig`. `true` → `NRAdConfig.csai()`; `false` → `nil`. |
 | `customAttributes` | `[String: Any]?` | Custom attributes to attach to all events from this player. |
-| `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. |
+| `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. Left unset for such an object, `addPlayer` creates no tracker at all rather than guessing. |
 
 ### Custom Attribute Limits
 
