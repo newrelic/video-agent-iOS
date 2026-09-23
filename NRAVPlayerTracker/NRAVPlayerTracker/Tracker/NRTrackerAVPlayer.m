@@ -242,16 +242,9 @@
     else if ([keyPath isEqualToString:@"currentItem.playbackBufferEmpty"] && self.state.isSeeking && self.state.isPaused) {
         [self sendBufferStart];
     }
-    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isBuffering) {
-        // NR-531411: gated on isBuffering, not isSeeking/isPaused — a rebuffer that
-        // resolves needs to close the buffer window here, since the
-        // timeControlStatus handler below defers to this observer whenever the user
-        // paused mid-buffer (see isPausingDuringActiveBuffer below). isBuffering is
-        // the synchronous flag that's actually maintained correctly through the
-        // whole pause-during-buffer sequence, including before playback has ever
-        // started (isPaused requires isStarted, which can't be true yet in that
-        // case) — see finding 1 in NR-531411. goBufferEnd/sendSeekEnd are idempotent,
-        // so broadening this gate cannot introduce duplicate events.
+    else if ([keyPath isEqualToString:@"currentItem.playbackBufferFull"] && self.state.isBuffering
+             && self.playerInstance.currentItem.playbackBufferFull) {
+        // isBuffering (true pre-isStart, unlike isPaused) gates this; the explicit value check avoids a false trigger on KVO's NO transition (e.g. a seek discarding a stale buffer).
         [self sendBufferEnd];
         [self sendSeekEnd];
     }
@@ -259,7 +252,7 @@
         [self sendRequest];
 
         if (self.state.isBuffering && self.playerInstance.currentItem.playbackLikelyToKeepUp) {
-            // NR-531411: same broadening as playbackBufferFull above.
+            // Same broadening as playbackBufferFull above.
             [self sendBufferEnd];
             [self sendSeekEnd];
         }
@@ -300,7 +293,7 @@
                 [self sendBufferStart];
             }
             else {
-                // NR-531411: timeControlStatus reflects playback intent, not buffer
+                // timeControlStatus reflects playback intent, not buffer
                 // health — it can flip to Paused as soon as the user pauses, well
                 // before the underlying network buffer has actually filled. If
                 // we're mid-buffer when that happens, don't close the buffer window

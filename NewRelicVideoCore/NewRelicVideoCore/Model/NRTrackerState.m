@@ -131,7 +131,7 @@
 - (BOOL)goBufferEnd {
     if (self.isRequested && self.isBuffering) {
         self.isBuffering = false;
-        // NR-531411: only re-assert isPlaying if the user isn't still paused.
+        // Only re-assert isPlaying if the user isn't still paused.
         // goBufferStart unconditionally sets isPlaying = false (mirrored here);
         // resuming from a buffer window should not force isPlaying = true when
         // the state machine already knows playback is paused, otherwise
@@ -158,7 +158,8 @@
     if (self.isStarted && self.isSeeking) {
         self.isSeeking = false;
         self.isUserSeeking = false;
-        self.isPlaying = true;
+        // Same as goBufferEnd — don't force isPlaying true while paused, or a seek-end right after a paused buffer-end undoes it.
+        self.isPlaying = !self.isPaused;
         return true;
     }
     else {
