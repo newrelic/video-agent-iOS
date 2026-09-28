@@ -157,6 +157,8 @@
 		EATTRTS0001000000000002 /* NREventAttributesThreadSafetyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EATTRTS0001000000000003 /* NREventAttributesThreadSafetyTests.m */; };
 		PAIRTST0001000000000001 /* NRTrackerPairTests.m in Sources */ = {isa = PBXBuildFile; fileRef = PAIRTST0001000000000003 /* NRTrackerPairTests.m */; };
 		PAIRTST0001000000000002 /* NRTrackerPairTests.m in Sources */ = {isa = PBXBuildFile; fileRef = PAIRTST0001000000000003 /* NRTrackerPairTests.m */; };
+		BUFPAUS0001000000000001 /* NRTrackerStateBufferPauseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */; };
+		BUFPAUS0001000000000002 /* NRTrackerStateBufferPauseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */; };
 		VLDSAN0001000000000001 /* NREventAttributesValueSanitizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */; };
 		VLDSAN0001000000000002 /* NREventAttributesValueSanitizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */; };
 /* End PBXBuildFile section */
@@ -276,6 +278,7 @@
 		QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRVAHarvestManagerQoETests.m; sourceTree = "<group>"; };
 		EATTRTS0001000000000003 /* NREventAttributesThreadSafetyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NREventAttributesThreadSafetyTests.m; sourceTree = "<group>"; };
 		PAIRTST0001000000000003 /* NRTrackerPairTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerPairTests.m; sourceTree = "<group>"; };
+		BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerStateBufferPauseTests.m; sourceTree = "<group>"; };
 		VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NREventAttributesValueSanitizationTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -509,6 +512,7 @@
 				B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */,
 				EATTRTS0001000000000003 /* NREventAttributesThreadSafetyTests.m */,
 				PAIRTST0001000000000003 /* NRTrackerPairTests.m */,
+				BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */,
 				VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */,
 				QOETEST0001000000000003 /* NRQoEAggregatorTests.m */,
 				QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */,
@@ -806,6 +810,7 @@
 				72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */,
 				EATTRTS0001000000000001 /* NREventAttributesThreadSafetyTests.m in Sources */,
 				PAIRTST0001000000000001 /* NRTrackerPairTests.m in Sources */,
+				BUFPAUS0001000000000001 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000001 /* NREventAttributesValueSanitizationTests.m in Sources */,
 				QOETEST0001000000000001 /* NRQoEAggregatorTests.m in Sources */,
 				QOETEST0002000000000001 /* NRVAHarvestManagerQoETests.m in Sources */,
@@ -857,6 +862,7 @@
 				72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */,
 				EATTRTS0001000000000002 /* NREventAttributesThreadSafetyTests.m in Sources */,
 				PAIRTST0001000000000002 /* NRTrackerPairTests.m in Sources */,
+				BUFPAUS0001000000000002 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000002 /* NREventAttributesValueSanitizationTests.m in Sources */,
 				QOETEST0001000000000002 /* NRQoEAggregatorTests.m in Sources */,
 				QOETEST0002000000000002 /* NRVAHarvestManagerQoETests.m in Sources */,
