@@ -152,7 +152,7 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     }
 
     func handleActiveQualityChanged() {
-        let droppedFrames = player?.playerMetrics.droppedVideoFrames
+        let droppedFrames = player?.metrics.droppedVideoFrames
         if let track = firstVideoTrack(), let quality = track.activeQuality as? VideoQuality {
             handleActiveQualityChanged(width: quality.width, height: quality.height, bandwidth: quality.bandwidth, droppedFrames: droppedFrames)
         } else if let player, player.videoWidth > 0, player.videoHeight > 0 {
@@ -253,9 +253,9 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
 
     public override func getFps() -> NSNumber {
         // Measured, not encoded — unlike Android, which reads the encoded target framerate off
-        // VideoQuality.getFrameRate(). iOS has no confirmed encoded-framerate field; playerMetrics's
+        // VideoQuality.getFrameRate(). iOS has no confirmed encoded-framerate field; metrics's
         // renderedFramerate is the actual measured rendered fps instead (CDD §6.4).
-        NSNumber(value: player?.playerMetrics.renderedFramerate ?? 0)
+        NSNumber(value: player?.metrics.renderedFramerate ?? 0)
     }
 
     // MARK: - Event handlers
