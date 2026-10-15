@@ -2,20 +2,13 @@
 
 ### ⚠ BREAKING CHANGES
 
-* NRTHEOplayerTracker's iOS deployment target is raised
-from 13.0 to 15.0, matching THEOplayerSDK-core 11.x's own real minimum.
-Apps supporting iOS 13/14 must stay on NRTHEOplayerTracker 5.x
-(THEOplayerSDK-core ~> 10.14) until they can raise their own floor to 15.0.
-
-Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+* `NRTHEOplayerTracker`: Now requires iOS 15.0 or later (was iOS 13.0) and THEOplayerSDK-core 11.x (was 10.x). Apps that still support iOS 13 or 14 should stay on version 5.0.0 of `NRTHEOplayerTracker`. The other trackers are not affected.
 
 ### Bug Fixes
 
-* correct isPaused-gating and isPlaying corruption in buffer-end fix (NR-531411) ([e15452a](https://github.com/newrelic/video-agent-iOS/commit/e15452a1bee262effe3a89d1567ead22734020a2))
-* don't close buffer window prematurely when pausing mid-rebuffer ([44057c8](https://github.com/newrelic/video-agent-iOS/commit/44057c8482797618d9e5b5f3a43591747ff02945))
-* expose NRTrackerIMA.h as a public header in NRIMATracker ([c8cb47c](https://github.com/newrelic/video-agent-iOS/commit/c8cb47cfe8d6fa8b959beed5950668330fec9cca))
-* require explicit playbackBufferFull value + fix isPlaying in goSeekEnd (NR-531411) ([8053209](https://github.com/newrelic/video-agent-iOS/commit/8053209a0638fc773375f63cc75dc78850019b34))
-* upgrade NRTHEOplayerTracker to THEOplayerSDK-core 11.x ([590fed3](https://github.com/newrelic/video-agent-iOS/commit/590fed387c06da6096301048e3e70752f6e52f58))
+* `NRAVPlayerTracker`: Pausing while the player is rebuffering no longer sends `CONTENT_BUFFER_END` early, and playtime is no longer counted while paused.
+* `NRTHEOplayerTracker`: Fixed a crash when setting a source with THEOplayerSDK 11.x, by updating the tracker to THEOplayerSDK-core 11.x.
+* `NRIMATracker`: `NRTrackerIMA.h` is now a public header and can be imported from the framework.
 
 ## [5.0.0](https://github.com/newrelic/video-agent-iOS/compare/v4.4.0...v5.0.0) (2026-09-23)
 
