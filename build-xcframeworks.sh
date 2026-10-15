@@ -92,10 +92,10 @@ download_google_ima_sdk() {
 # iOS build. Unlike Google IMA, THEOplayerSDK-core ships as a plain public HTTP-downloadable
 # xcframework zip (no CocoaPods roundtrip needed) - confirmed against its own real podspec
 # (s.source = { http: "https://cdn.theoplayer.com/build/sdk-apple/<version>/THEOplayerSDK.xcframework.zip" }).
-# iOS-only: THEOplayerSDK-core's own minimum is iOS/tvOS 13.0, but NRTHEOplayerTracker itself
+# iOS-only: THEOplayerSDK-core 11.x's own minimum is iOS 15.0, but NRTHEOplayerTracker itself
 # is iOS-only by scope (see NRTHEOplayerTracker.podspec) - not part of this build.
 download_theoplayer_sdk() {
-    local version=$1   # pinned to match NRTHEOplayerTracker.podspec's `~> 10.14` constraint
+    local version=$1   # pinned to match NRTHEOplayerTracker.podspec's `~> 11.13` constraint
     local dest="build/THEOplayerSDK.xcframework"
 
     if [ -d "$dest" ]; then
@@ -341,8 +341,8 @@ download_google_ima_sdk "ios" "12.0" "GoogleAds-IMA-iOS-SDK" ""
 download_google_ima_sdk "tvos" "15.0" "GoogleAds-IMA-tvOS-SDK" "~> 4.17.0"
 
 # THEOplayerSDK-core - iOS only (used by NRTHEOplayerTracker's iOS build). Pinned to match
-# NRTHEOplayerTracker.podspec's `~> 10.14` constraint.
-download_theoplayer_sdk "10.14.0"
+# NRTHEOplayerTracker.podspec's `~> 11.13` constraint.
+download_theoplayer_sdk "11.13.0"
 
 # Build NewRelicVideoCore first (it's the base dependency)
 build_complete_framework "NewRelicVideoCore" "iOS NewRelicVideoCore" "tvOS NewRelicVideoCore" "" ""
