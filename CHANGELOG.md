@@ -1,3 +1,19 @@
+## [5.1.0](https://github.com/newrelic/video-agent-iOS/compare/v5.0.0...v5.1.0) (2026-10-15)
+
+### Notes
+
+- `NRTHEOplayerTracker` now requires iOS 15.0 or later (previously iOS 13.0) and THEOplayerSDK-core 11.x (previously 10.x). Apps that still support iOS 13 or 14 should stay on version 5.0.0 of `NRTHEOplayerTracker`. The other trackers are not affected.
+
+### Improvements
+
+- `NRTHEOplayerTracker` now supports THEOplayerSDK-core 11.x.
+
+### Bug fixes
+
+- `NRAVPlayerTracker`: Pausing while the player is rebuffering no longer ends the buffering event early. `CONTENT_BUFFER_END` is no longer sent while the buffer is still empty, and playtime is no longer counted while playback is paused.
+- `NRTHEOplayerTracker`: Fixed a crash when setting a source with THEOplayerSDK 11.x.
+- `NRIMATracker`: The XCFramework (used for Swift Package Manager and manual installs) now includes the `NRTrackerIMA` class. Previously it was missing, so only CocoaPods installs could use it.
+
 ## [5.0.0](https://github.com/newrelic/video-agent-iOS/compare/v4.4.0...v5.0.0) (2026-09-23)
 
 ### ⚠ BREAKING CHANGES
