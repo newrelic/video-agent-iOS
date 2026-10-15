@@ -3,7 +3,7 @@ options:
   bundleIdPrefix: com.newrelic
   developmentLanguage: en
   deploymentTarget:
-    iOS: "13.0"
+    iOS: "15.0"
 
 settings:
   base:
@@ -31,7 +31,7 @@ targets:
     type: framework
     platform: iOS
     productName: NRTHEOplayerTracker
-    deploymentTarget: "13.0"
+    deploymentTarget: "15.0"
     sources:
       - path: NRTHEOplayerTracker/Tracker
     settings:

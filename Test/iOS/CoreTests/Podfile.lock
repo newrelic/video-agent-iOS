@@ -1,9 +1,9 @@
 PODS:
-  - NewRelicVideoAgent (4.4.0)
-  - NRTHEOplayerTracker (4.3.0):
+  - NewRelicVideoAgent (5.0.0)
+  - NRTHEOplayerTracker (5.0.0):
     - NewRelicVideoAgent
-    - THEOplayerSDK-core (~> 10.14)
-  - THEOplayerSDK-core (10.14.0)
+    - THEOplayerSDK-core (~> 11.13)
+  - THEOplayerSDK-core (11.13.0)
 
 DEPENDENCIES:
   - NewRelicVideoAgent (from `../../../`)
@@ -20,9 +20,9 @@ EXTERNAL SOURCES:
     :path: "../../../"
 
 SPEC CHECKSUMS:
-  NewRelicVideoAgent: 998ff31ceed243a57ec41021eaa18973bdb4ce15
-  NRTHEOplayerTracker: 3b05d126c07ebd38750506616d1a9b68d56d2d2c
-  THEOplayerSDK-core: c9c12caccabb11103cc63340833b89191e70c2e2
+  NewRelicVideoAgent: a7b0d2f4ee4592cfc037cde99cb89e6a15e9f6e6
+  NRTHEOplayerTracker: 12b1cecf070a8264c403d77dd6bf2b4ee990c112
+  THEOplayerSDK-core: 9f1a2e572e17d8ea8630696df15250b71f444fe5
 
 PODFILE CHECKSUM: 8a167ba0d6748297a430a6e6f91c9dd5f1ec77a9
 
