@@ -5,6 +5,11 @@ on:
     branches:
       - master
   workflow_dispatch:
+    inputs:
+      release_version:
+        description: 'Optional: release this exact version (e.g. 5.1.0) instead of computing it from commits'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -71,18 +76,76 @@ jobs:
 
       - name: Get next version
         id: get_version
+        env:
+          INPUT_VERSION: ${{ inputs.release_version }}
         run: |
           CURRENT_VERSION="${{ steps.current_version.outputs.current_version }}"
           echo "Base version: $CURRENT_VERSION"
-          
-          npx semantic-release --dry-run --no-ci > semantic-output.txt 2>&1 || true
-          
-          cat semantic-output.txt
 
-          NEXT_VERSION=$(grep "The next release version is" semantic-output.txt | sed -E 's/.*The next release version is ([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          # Last release = highest vX.Y.Z tag by version number, not by git reachability. Since v4.4.0
+          # the publish workflow tags a bot commit (the Package.swift checksum update) that never lands
+          # in master's history, so tools that look for "the last tag reachable from master"
+          # (semantic-release, conventional-changelog) stay anchored on v4.3.0.
+          LAST_TAG=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -1)
+          if [ -z "$LAST_TAG" ]; then
+            echo "::error::No vX.Y.Z release tag found - is the checkout missing tags?"
+            exit 1
+          fi
+          LAST_VERSION="${LAST_TAG#v}"
+          echo "Last release tag: $LAST_TAG"
+          echo "last_tag=$LAST_TAG" >> $GITHUB_OUTPUT
+
+          # Make that tag count as an ancestor of HEAD for the rest of this job (a local-only
+          # `git replace --graft`; never pushed), so conventional-changelog starts the changelog
+          # and builds its compare link from the right release. Removed again after the changelog.
+          if ! git merge-base --is-ancestor "$LAST_TAG" HEAD; then
+            GRAFT_BASE=$(git rev-parse HEAD)
+            git replace --graft HEAD $(git rev-parse HEAD^@) "$LAST_TAG"
+            echo "graft_base=$GRAFT_BASE" >> $GITHUB_OUTPUT
+            echo "Grafted $LAST_TAG into local history (base $GRAFT_BASE)"
+          fi
+
+          if [ -n "$INPUT_VERSION" ]; then
+            NEXT_VERSION="${INPUT_VERSION#v}"
+            if ! [[ "$NEXT_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "::error::release_version '$INPUT_VERSION' is not X.Y.Z"
+              exit 1
+            fi
+            if [ "$(printf '%s\n%s\n' "$LAST_VERSION" "$NEXT_VERSION" | sort -V | tail -1)" != "$NEXT_VERSION" ] || [ "$NEXT_VERSION" = "$LAST_VERSION" ]; then
+              echo "::error::release_version $NEXT_VERSION must be greater than the last release $LAST_VERSION"
+              exit 1
+            fi
+            echo "Using requested version: $NEXT_VERSION"
+          else
+            # Same rules as .releaserc.js, applied to the commits after the last release tag.
+            export NODE_PATH="$(npm root -g)"
+            BUMP=$(LAST_TAG="$LAST_TAG" node - <<'NODE'
+          const { execFileSync } = require('child_process');
+          const { analyzeCommits } = require('@semantic-release/commit-analyzer');
+          const raw = execFileSync('git', ['log', '--format=%H%x1f%B%x1e', `${process.env.LAST_TAG}..HEAD`],
+            { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+          const commits = raw.split('\x1e').map(c => c.trim()).filter(Boolean).map(c => {
+            const [hash, message] = c.split('\x1f');
+            return { hash, message: message.trim() };
+          });
+          const cfg = require(process.cwd() + '/.releaserc.js').plugins
+            .find(p => Array.isArray(p) && p[0] === '@semantic-release/commit-analyzer')[1];
+          analyzeCommits(cfg, { cwd: process.cwd(), commits, logger: { log() {} } })
+            .then(t => console.log(t || 'none'));
+          NODE
+            )
+            echo "Release type since $LAST_TAG: $BUMP"
+            IFS=. read -r MAJ MIN PAT <<< "$LAST_VERSION"
+            case "$BUMP" in
+              major) NEXT_VERSION="$((MAJ + 1)).0.0" ;;
+              minor) NEXT_VERSION="$MAJ.$((MIN + 1)).0" ;;
+              patch) NEXT_VERSION="$MAJ.$MIN.$((PAT + 1))" ;;
+              *)     NEXT_VERSION="" ;;
+            esac
+          fi
 
           if [ -z "$NEXT_VERSION" ]; then
-            echo "::notice::No new version to release - no qualifying commits found"
+            echo "::notice::No new version to release - no qualifying commits found since $LAST_TAG"
             echo "should_create_pr=false" >> $GITHUB_OUTPUT
             exit 0
           fi
@@ -96,7 +159,7 @@ jobs:
           echo "next_version=$NEXT_VERSION" >> $GITHUB_OUTPUT
           echo "should_create_pr=true" >> $GITHUB_OUTPUT
           echo "release_branch=release/${NEXT_VERSION}" >> $GITHUB_OUTPUT
-          echo "::notice::Version bump: $CURRENT_VERSION → $NEXT_VERSION"
+          echo "::notice::Version bump: $CURRENT_VERSION → $NEXT_VERSION (commits since $LAST_TAG)"
 
       - name: Check if release branch already exists
         if: steps.get_version.outputs.should_create_pr == 'true'
@@ -227,6 +290,12 @@ jobs:
           npx conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s --context context.json
 
           rm context.json
+
+          # Drop the local graft added in "Get next version"
+          GRAFT_BASE="${{ steps.get_version.outputs.graft_base }}"
+          if [ -n "$GRAFT_BASE" ]; then
+            git replace -d "$GRAFT_BASE"
+          fi
           echo "CHANGELOG.md updated successfully."
 
       - name: Add CHANGELOG to release commit
