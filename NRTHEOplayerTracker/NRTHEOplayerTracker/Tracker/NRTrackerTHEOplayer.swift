@@ -394,7 +394,7 @@ public class NRTrackerTHEOplayer: NRVideoTracker {
     // getVersion() (the Clang-importer-shortened form, dropping the redundant "Tracker" that already
     // appears in the class name) is the real, currently-correct override name.
     public override func getVersion() -> String {
-        return "5.0.0"
+        return "6.0.0"
     }
 
     // Deliberately NOT overriding getSrc (or NRVideoTracker.h's own NS_SWIFT_NAME(nrGetSrc()) name)

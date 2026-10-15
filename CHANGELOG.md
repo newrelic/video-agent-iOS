@@ -1,3 +1,22 @@
+## [6.0.0](https://github.com/newrelic/video-agent-iOS/compare/v5.0.0...v6.0.0) (2026-10-15)
+
+### ⚠ BREAKING CHANGES
+
+* NRTHEOplayerTracker's iOS deployment target is raised
+from 13.0 to 15.0, matching THEOplayerSDK-core 11.x's own real minimum.
+Apps supporting iOS 13/14 must stay on NRTHEOplayerTracker 5.x
+(THEOplayerSDK-core ~> 10.14) until they can raise their own floor to 15.0.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+### Bug Fixes
+
+* correct isPaused-gating and isPlaying corruption in buffer-end fix (NR-531411) ([e15452a](https://github.com/newrelic/video-agent-iOS/commit/e15452a1bee262effe3a89d1567ead22734020a2))
+* don't close buffer window prematurely when pausing mid-rebuffer ([44057c8](https://github.com/newrelic/video-agent-iOS/commit/44057c8482797618d9e5b5f3a43591747ff02945))
+* expose NRTrackerIMA.h as a public header in NRIMATracker ([c8cb47c](https://github.com/newrelic/video-agent-iOS/commit/c8cb47cfe8d6fa8b959beed5950668330fec9cca))
+* require explicit playbackBufferFull value + fix isPlaying in goSeekEnd (NR-531411) ([8053209](https://github.com/newrelic/video-agent-iOS/commit/8053209a0638fc773375f63cc75dc78850019b34))
+* upgrade NRTHEOplayerTracker to THEOplayerSDK-core 11.x ([590fed3](https://github.com/newrelic/video-agent-iOS/commit/590fed387c06da6096301048e3e70752f6e52f58))
+
 ## [5.0.0](https://github.com/newrelic/video-agent-iOS/compare/v4.4.0...v5.0.0) (2026-09-23)
 
 ### ⚠ BREAKING CHANGES

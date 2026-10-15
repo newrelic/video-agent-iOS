@@ -104,7 +104,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"5.0.0";
+    return @"6.0.0";
 }
 
 - (NSNumber *)getPlayhead {
