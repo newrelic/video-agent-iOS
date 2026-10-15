@@ -1,4 +1,4 @@
-platform :ios, '14.1'
+platform :ios, '15.0'
 
 target 'SimpleTheoplayerTest' do
   # Comment the next line if you don't want to use dynamic frameworks

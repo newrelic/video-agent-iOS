@@ -308,11 +308,11 @@ final class ViewController: UIViewController {
         rateLabel.text = "playbackRate: \(player.playbackRate)"
         mutedLabel.text = "muted: \(player.muted)"
         renditionLabel.text = "rendition: \(player.videoWidth)x\(player.videoHeight)"
-        // `metrics: Any?` is deprecated in this SDK version in favor of `playerMetrics: Metrics` (confirmed
-        // against the real compiled interface — a concrete, version-specific finding worth folding back
-        // into the CDD, since earlier doc research assumed `metrics` was the name to use).
-        droppedFramesLabel.text = "droppedVideoFrames: \(player.playerMetrics.droppedVideoFrames)"
-        renderedFpsLabel.text = "renderedFramerate: \(player.playerMetrics.renderedFramerate)"
+        // THEOplayerSDK-core 11.x renamed `playerMetrics` back to `metrics` (confirmed against the real
+        // 11.13.0 compiled interface, and documented in THEOplayer's own 11.x migration guide) — the
+        // 10.x-era `playerMetrics` name below no longer exists.
+        droppedFramesLabel.text = "droppedVideoFrames: \(player.metrics.droppedVideoFrames)"
+        renderedFpsLabel.text = "renderedFramerate: \(player.metrics.renderedFramerate)"
     }
 
     // MARK: - Actions

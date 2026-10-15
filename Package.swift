@@ -6,10 +6,10 @@ import PackageDescription
 // version release - this file does not become resolvable via SPM until then.
 //
 // NOTE on NRTHEOplayerTracker specifically: this package declares iOS 12/tvOS 12 as its
-// overall platform floor, but NRTHEOplayerTracker's real minimum is iOS 13.0 (THEOplayerSDK-core's
-// own requirement - see NRTHEOplayerTracker.podspec). SPM's binaryTarget has no per-product
+// overall platform floor, but NRTHEOplayerTracker's real minimum is iOS 15.0 (THEOplayerSDK-core
+// 11.x's own requirement - see NRTHEOplayerTracker.podspec). SPM's binaryTarget has no per-product
 // platform override the way a podspec does, so this can't be expressed in the manifest itself:
-// a consumer building below iOS 13 who imports NRTHEOplayerTracker will hit a real deployment-target
+// a consumer building below iOS 15 who imports NRTHEOplayerTracker will hit a real deployment-target
 // error from Xcode at link time, not from SPM resolution. Not a bug in this file - same limitation
 // CocoaPods callers avoid only because the podspec can declare its own floor.
 let releaseTag = "v4.4.0"
