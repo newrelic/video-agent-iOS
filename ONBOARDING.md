@@ -163,6 +163,8 @@ let advancedConfig = NRVAVideoConfiguration.builder()
 | `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
 | `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+| `withLoggingEnabled:`        | BOOL       | NO            | YES/NO        | Log buffer capacity and dropped events via os_log |
+| `withLoggingLevel:`          | NRVALoggingLevel | Info    | Info/Warning/Error | Minimum level of buffer logs     |
 | `withQoeAggregateEnabled:`   | BOOL       | NO            | YES/NO        | Enable QoE aggregate event reporting   |
 | `withQoeAggregateIntervalMultiplier:` | NSInteger | 1       | >= 1          | Send QoE every N harvest cycles        |
 

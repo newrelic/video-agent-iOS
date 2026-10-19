@@ -421,8 +421,30 @@ if shouldEnable {
 | `withApplicationToken(_:)` | `String` | — | **Required.** Your New Relic application token. |
 | `withHarvestCycle(_:)` | `Int` | 300 (Mobile) / 180 (TV) | Interval in seconds between data harvests. |
 | `withDebugLogging(_:)` | `Bool` | `false` | Enable debug logging for development. |
+| `withLoggingEnabled(_:)` | `Bool` | `false` | Log event buffer capacity to `os_log` (subsystem `com.newrelic.videoagent`), including in release builds. See [Buffer logging](#buffer-logging). |
+| `withLoggingLevel(_:)` | `NRVALoggingLevel` | `.info` | Minimum level of buffer logs: `.info`, `.warning` or `.error`. Only applies when logging is enabled. |
 | `withQoeAggregateEnabled(_:)` | `Bool` | `true` | QoE aggregation is enabled out of the box. Disable with `withQoeAggregateEnabled(NO)`. |
 | `withQoeAggregateIntervalMultiplier(_:)` | `Int` | `2` | Multiplier applied to the harvest interval for QoE aggregation. Configure with `withQoeAggregateIntervalMultiplier:`. |
+
+#### Buffer logging
+
+The agent keeps events in an in-memory buffer until they are harvested. When logging is enabled it reports on that buffer:
+
+| Level | When | Example |
+|-------|------|---------|
+| `INFO` | Buffer reaches 85% (once per crossing) | `ondemand event buffer is 85% full (298/350)` |
+| `WARNING` | Buffer reaches 90% and an emergency harvest is requested (once per crossing) | `ondemand event buffer is near capacity (315/350), requesting an emergency harvest` |
+| `ERROR` | The buffer is full and the oldest event is dropped (every drop) | `ondemand event buffer full (capacity 350), oldest event dropped. Total dropped events this session: 1` |
+
+The dropped count is cumulative for the session. Logging does not change buffer sizes, harvest timing or which events are dropped.
+
+```swift
+let config = NRVAVideoConfiguration.builder()
+    .withApplicationToken("YOUR_TOKEN")
+    .withLoggingEnabled(true)
+    .withLoggingLevel(.warning)   // WARNING and ERROR only
+    .build()
+```
 
 ### NRVAVideoPlayerConfiguration
 
