@@ -59,8 +59,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         _maxOfflineStorageSizeMB = builder.maxOfflineStorageSizeMB;
         _memoryOptimized = builder.memoryOptimized;
         _debugLoggingEnabled = builder.debugLoggingEnabled;
-        _loggingEnabled = builder.loggingEnabled;
-        _loggingLevel = builder.loggingLevel;
+        _debugLoggingLevel = builder.debugLoggingLevel;
         _isTV = builder.isTV;
         _collectorAddress = builder.collectorAddress;
         _qoeAggregateEnabled = builder.qoeAggregateEnabled;
@@ -205,8 +204,7 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
         }
 
         _debugLoggingEnabled = NO;
-        _loggingEnabled = NO;
-        _loggingLevel = NRVALoggingLevelInfo;
+        _debugLoggingLevel = NRVALoggingLevelInfo;
         _collectorAddress = nil; // Will use default based on region
         _qoeAggregateEnabled = YES;
         _qoeAggregateIntervalMultiplier = 2;
@@ -243,17 +241,12 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 }
 
 - (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled {
+    return [self withDebugLogging:debugLoggingEnabled level:NRVALoggingLevelInfo];
+}
+
+- (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled level:(NRVALoggingLevel)level {
     self.debugLoggingEnabled = debugLoggingEnabled;
-    return self;
-}
-
-- (instancetype)withLoggingEnabled:(BOOL)loggingEnabled {
-    self.loggingEnabled = loggingEnabled;
-    return self;
-}
-
-- (instancetype)withLoggingLevel:(NRVALoggingLevel)loggingLevel {
-    self.loggingLevel = loggingLevel;
+    self.debugLoggingLevel = level;
     return self;
 }
 

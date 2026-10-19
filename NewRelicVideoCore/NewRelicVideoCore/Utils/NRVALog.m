@@ -10,10 +10,7 @@
 #import "NewRelicVideoAgent.h"
 #import <os/log.h>
 
-static NSLock *sBufferLogLock;
-static BOOL sBufferLoggingEnabled = NO;
-static NRVALoggingLevel sBufferLoggingLevel = NRVALoggingLevelInfo;
-static void (^sBufferLogObserver)(NRVALoggingLevel, NSString *) = nil;
+static _Atomic NRVALoggingLevel sBufferLoggingLevel = NRVALoggingLevelInfo;
 
 @implementation NRVALog
 
@@ -55,11 +52,7 @@ void NRVA_ERROR_LOG(NSString *format, ...) {
 }
 
 void NRVA_BUFFER_LOG(NRVALoggingLevel level, NSString *format, ...) {
-    [NRVALog lockBufferLog];
-    BOOL enabled = sBufferLoggingEnabled && level >= sBufferLoggingLevel;
-    void (^observer)(NRVALoggingLevel, NSString *) = sBufferLogObserver;
-    [sBufferLogLock unlock];
-    if (!enabled) return;
+    if (![[NewRelicVideoAgent sharedInstance] logging] || level < sBufferLoggingLevel) return;
 
     va_list args;
     va_start(args, format);
@@ -81,26 +74,10 @@ void NRVA_BUFFER_LOG(NRVALoggingLevel level, NSString *format, ...) {
             os_log_with_type(log, OS_LOG_TYPE_ERROR, "NRVideoAgent [ERROR] %{public}@", message);
             break;
     }
-    if (observer) observer(level, message);
 }
 
-+ (void)lockBufferLog {
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{ sBufferLogLock = [[NSLock alloc] init]; });
-    [sBufferLogLock lock];
-}
-
-+ (void)setBufferLoggingEnabled:(BOOL)enabled level:(NRVALoggingLevel)level {
-    [self lockBufferLog];
-    sBufferLoggingEnabled = enabled;
++ (void)setBufferLoggingLevel:(NRVALoggingLevel)level {
     sBufferLoggingLevel = level;
-    [sBufferLogLock unlock];
-}
-
-+ (void)setBufferLogObserver:(void (^)(NRVALoggingLevel, NSString *))observer {
-    [self lockBufferLog];
-    sBufferLogObserver = [observer copy];
-    [sBufferLogLock unlock];
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {

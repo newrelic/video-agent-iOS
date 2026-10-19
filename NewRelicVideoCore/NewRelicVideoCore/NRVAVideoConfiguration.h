@@ -35,8 +35,7 @@ typedef NS_ENUM(NSInteger, NRVALoggingLevel) {
 @property (nonatomic, readonly) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, readonly) BOOL memoryOptimized;
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
-@property (nonatomic, readonly) BOOL loggingEnabled;
-@property (nonatomic, readonly) NRVALoggingLevel loggingLevel;
+@property (nonatomic, readonly) NRVALoggingLevel debugLoggingLevel;
 @property (nonatomic, readonly) BOOL isTV;
 @property (nonatomic, readonly) NSString *collectorAddress;
 @property (nonatomic, readonly) BOOL qoeAggregateEnabled;
@@ -82,8 +81,7 @@ typedef NS_ENUM(NSInteger, NRVALoggingLevel) {
 @property (nonatomic, assign) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, assign) BOOL memoryOptimized;
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
-@property (nonatomic, assign) BOOL loggingEnabled;
-@property (nonatomic, assign) NRVALoggingLevel loggingLevel;
+@property (nonatomic, assign) NRVALoggingLevel debugLoggingLevel;
 @property (nonatomic, assign) BOOL isTV;
 @property (nonatomic, strong) NSString *collectorAddress;
 @property (nonatomic, assign) BOOL qoeAggregateEnabled;
@@ -113,21 +111,16 @@ typedef NS_ENUM(NSInteger, NRVALoggingLevel) {
 - (instancetype)withMemoryOptimization:(BOOL)memoryOptimized;
 
 /**
- * Enable debug logging
+ * Enable debug logging. Also turns on the event buffer capacity logs (INFO at 85% fill,
+ * WARNING at 90%, ERROR on every dropped event), emitted through os_log in release builds too.
+ * Equivalent to withDebugLogging:level: with NRVALoggingLevelInfo.
  */
 - (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled;
 
 /**
- * Enable buffer-capacity logging through os_log, including in release builds (default: NO).
- * Reports the event buffer nearing capacity and events dropped when it overflows.
+ * Enable debug logging and set the minimum level of the event buffer capacity logs.
  */
-- (instancetype)withLoggingEnabled:(BOOL)loggingEnabled;
-
-/**
- * Set the minimum level of buffer-capacity logs (default: NRVALoggingLevelInfo).
- * Only applies when logging is enabled with withLoggingEnabled:.
- */
-- (instancetype)withLoggingLevel:(NRVALoggingLevel)loggingLevel;
+- (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled level:(NRVALoggingLevel)level;
 
 /**
  * Set harvest cycle in seconds (5-300 seconds, validated)
