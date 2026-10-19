@@ -11,6 +11,16 @@
 @class NRVAVideoConfigurationBuilder;
 
 /**
+ * Minimum severity of the agent's buffer-capacity logs (INFO at 85% fill, WARNING at 90%,
+ * ERROR when events are dropped). A message is logged when its severity is at or above the level.
+ */
+typedef NS_ENUM(NSInteger, NRVALoggingLevel) {
+    NRVALoggingLevelInfo = 0,
+    NRVALoggingLevelWarning = 1,
+    NRVALoggingLevelError = 2
+};
+
+/**
  * Thread-safe, immutable configuration with iOS & tvOS optimizations
  */
 @interface NRVAVideoConfiguration : NSObject
@@ -25,6 +35,8 @@
 @property (nonatomic, readonly) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, readonly) BOOL memoryOptimized;
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
+@property (nonatomic, readonly) BOOL loggingEnabled;
+@property (nonatomic, readonly) NRVALoggingLevel loggingLevel;
 @property (nonatomic, readonly) BOOL isTV;
 @property (nonatomic, readonly) NSString *collectorAddress;
 @property (nonatomic, readonly) BOOL qoeAggregateEnabled;
@@ -70,6 +82,8 @@
 @property (nonatomic, assign) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, assign) BOOL memoryOptimized;
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
+@property (nonatomic, assign) BOOL loggingEnabled;
+@property (nonatomic, assign) NRVALoggingLevel loggingLevel;
 @property (nonatomic, assign) BOOL isTV;
 @property (nonatomic, strong) NSString *collectorAddress;
 @property (nonatomic, assign) BOOL qoeAggregateEnabled;
@@ -102,6 +116,18 @@
  * Enable debug logging
  */
 - (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled;
+
+/**
+ * Enable buffer-capacity logging through os_log, including in release builds (default: NO).
+ * Reports the event buffer nearing capacity and events dropped when it overflows.
+ */
+- (instancetype)withLoggingEnabled:(BOOL)loggingEnabled;
+
+/**
+ * Set the minimum level of buffer-capacity logs (default: NRVALoggingLevelInfo).
+ * Only applies when logging is enabled with withLoggingEnabled:.
+ */
+- (instancetype)withLoggingLevel:(NRVALoggingLevel)loggingLevel;
 
 /**
  * Set harvest cycle in seconds (5-300 seconds, validated)

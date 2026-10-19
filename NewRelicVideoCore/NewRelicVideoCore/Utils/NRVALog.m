@@ -8,6 +8,12 @@
 
 #import "NRVALog.h"
 #import "NewRelicVideoAgent.h"
+#import <os/log.h>
+
+static NSLock *sBufferLogLock;
+static BOOL sBufferLoggingEnabled = NO;
+static NRVALoggingLevel sBufferLoggingLevel = NRVALoggingLevelInfo;
+static void (^sBufferLogObserver)(NRVALoggingLevel, NSString *) = nil;
 
 @implementation NRVALog
 
@@ -46,6 +52,55 @@ void NRVA_ERROR_LOG(NSString *format, ...) {
     NSString *timestamp = [NRVALog formatTimestamp];
     contents = [@"NRVideoAgent [ERROR] " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
     NSLog(@"%@", contents);
+}
+
+void NRVA_BUFFER_LOG(NRVALoggingLevel level, NSString *format, ...) {
+    [NRVALog lockBufferLog];
+    BOOL enabled = sBufferLoggingEnabled && level >= sBufferLoggingLevel;
+    void (^observer)(NRVALoggingLevel, NSString *) = sBufferLogObserver;
+    [sBufferLogLock unlock];
+    if (!enabled) return;
+
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
+    static os_log_t log;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ log = os_log_create("com.newrelic.videoagent", "buffer"); });
+
+    switch (level) {
+        case NRVALoggingLevelInfo:
+            os_log_with_type(log, OS_LOG_TYPE_INFO, "NRVideoAgent [INFO] %{public}@", message);
+            break;
+        case NRVALoggingLevelWarning:
+            os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "NRVideoAgent [WARNING] %{public}@", message);
+            break;
+        case NRVALoggingLevelError:
+            os_log_with_type(log, OS_LOG_TYPE_ERROR, "NRVideoAgent [ERROR] %{public}@", message);
+            break;
+    }
+    if (observer) observer(level, message);
+}
+
++ (void)lockBufferLog {
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ sBufferLogLock = [[NSLock alloc] init]; });
+    [sBufferLogLock lock];
+}
+
++ (void)setBufferLoggingEnabled:(BOOL)enabled level:(NRVALoggingLevel)level {
+    [self lockBufferLog];
+    sBufferLoggingEnabled = enabled;
+    sBufferLoggingLevel = level;
+    [sBufferLogLock unlock];
+}
+
++ (void)setBufferLogObserver:(void (^)(NRVALoggingLevel, NSString *))observer {
+    [self lockBufferLog];
+    sBufferLogObserver = [observer copy];
+    [sBufferLogLock unlock];
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {

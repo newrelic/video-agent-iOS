@@ -27,6 +27,10 @@
     NSInteger _maxOndemandEvents;
     id<NRVAOverflowCallback> _overflowCallback;
     id<NRVACapacityCallback> _capacityCallback;
+    // Threshold log latches: set when a message is logged, cleared once the buffer drains below the threshold
+    BOOL _liveInfoLogged, _liveWarningLogged, _ondemandInfoLogged, _ondemandWarningLogged;
+    // Cumulative for the buffer's lifetime (the session); never reset by harvest or clear
+    NSInteger _totalDroppedEvents;
 }
 @end
 
@@ -101,6 +105,8 @@
                       (long)totalEvents,
                       bufferType, currentCapacity);
         
+        [self logCapacityThresholdsForType:bufferType capacity:currentCapacity count:targetQueue.count max:maxCapacity];
+        
         // Determine what actions need to be taken (but don't execute immediately)
         BOOL shouldTriggerHarvest = (currentCapacity >= 0.85);  // Trigger at 90% or higher
         BOOL shouldStartScheduler = wasEmpty;
@@ -112,10 +118,12 @@
         while (_liveEvents.count > _maxLiveEvents) {
             [_liveEvents removeObjectAtIndex:0];
             liveEventsRemoved++;
+            [self logDroppedEventForType:@"live" max:_maxLiveEvents];
         }
         while (_ondemandEvents.count > _maxOndemandEvents) {
             [_ondemandEvents removeObjectAtIndex:0];
             ondemandEventsRemoved++;
+            [self logDroppedEventForType:@"ondemand" max:_maxOndemandEvents];
         }
         
         if (liveEventsRemoved > 0 || ondemandEventsRemoved > 0) {
@@ -214,6 +222,7 @@
             }
             
             result = [batch copy];
+            [self resetCapacityLatchesForType:priority count:targetQueue.count];
         });
     }
     @finally {
@@ -248,10 +257,50 @@
     dispatch_sync(_bufferQueue, ^{
         [_liveEvents removeAllObjects];
         [_ondemandEvents removeAllObjects];
+        [self resetCapacityLatchesForType:@"live" count:0];
+        [self resetCapacityLatchesForType:@"ondemand" count:0];
     });
 }
 
 #pragma mark - Private Methods
+
+// Must run on _bufferQueue.
+- (void)logCapacityThresholdsForType:(NSString *)bufferType capacity:(double)capacity count:(NSInteger)count max:(NSInteger)max {
+    BOOL isLive = [@"live" isEqualToString:bufferType];
+    BOOL *infoLogged = isLive ? &_liveInfoLogged : &_ondemandInfoLogged;
+    BOOL *warningLogged = isLive ? &_liveWarningLogged : &_ondemandWarningLogged;
+    
+    if (capacity >= 0.85 && !*infoLogged) {
+        *infoLogged = YES;
+        NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"%@ event buffer is 85%% full (%ld/%ld)",
+                        bufferType, (long)count, (long)max);
+    }
+    if (capacity >= 0.9 && !*warningLogged) {
+        *warningLogged = YES;
+        NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"%@ event buffer is near capacity (%ld/%ld), requesting an emergency harvest",
+                        bufferType, (long)count, (long)max);
+    }
+}
+
+// Must run on _bufferQueue.
+- (void)resetCapacityLatchesForType:(NSString *)bufferType count:(NSInteger)count {
+    BOOL isLive = [@"live" isEqualToString:bufferType];
+    NSInteger max = isLive ? _maxLiveEvents : _maxOndemandEvents;
+    double capacity = (double)count / max;
+    if (capacity < 0.85) {
+        if (isLive) _liveInfoLogged = NO; else _ondemandInfoLogged = NO;
+    }
+    if (capacity < 0.9) {
+        if (isLive) _liveWarningLogged = NO; else _ondemandWarningLogged = NO;
+    }
+}
+
+// Must run on _bufferQueue. Logged for every dropped event, with no rate limiting.
+- (void)logDroppedEventForType:(NSString *)bufferType max:(NSInteger)max {
+    _totalDroppedEvents++;
+    NRVA_BUFFER_LOG(NRVALoggingLevelError, @"%@ event buffer full (capacity %ld), oldest event dropped. Total dropped events this session: %ld",
+                    bufferType, (long)max, (long)_totalDroppedEvents);
+}
 
 - (BOOL)isLiveStreamingEvent:(NSDictionary<NSString *, id> *)event {
     // Check for explicit live content marker
