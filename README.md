@@ -431,9 +431,9 @@ The agent keeps events in an in-memory buffer until they are harvested. With deb
 
 | Level | When | Example |
 |-------|------|---------|
-| `INFO` | Buffer reaches 85% (once per crossing) | `ondemand event buffer is 85% full (298/350)` |
-| `WARNING` | Buffer reaches 90% and an emergency harvest is requested (once per crossing) | `ondemand event buffer is near capacity (315/350), requesting an emergency harvest` |
-| `ERROR` | The buffer is full and the oldest event is dropped (every drop) | `ondemand event buffer full (capacity 350), oldest event dropped. Total dropped events this session: 1` |
+| `INFO` | Buffer reaches 85% (once per crossing) | `ondemand event buffer 85% full (298 of 350 events)` |
+| `WARNING` | Buffer reaches 90% and an emergency harvest is requested (once per crossing) | `ondemand event buffer 90% full (315 of 350 events), requesting an emergency harvest` |
+| `ERROR` | The buffer is full and the oldest event is dropped (every drop) | `ondemand event buffer full (capacity 350), oldest event dropped. Total dropped this session: 1` |
 
 The dead letter buffer logs the same way, with messages labelled `Dead letter (retry) buffer` and its own dropped count. Dropped counts are cumulative for the session. Logging does not change buffer sizes, harvest timing or which events are dropped.
 

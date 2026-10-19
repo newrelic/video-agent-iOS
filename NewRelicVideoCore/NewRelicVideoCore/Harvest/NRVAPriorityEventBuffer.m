@@ -272,12 +272,12 @@
     
     if (capacity >= 0.85 && !*infoLogged) {
         *infoLogged = YES;
-        NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"%@ event buffer is 85%% full (%ld/%ld)",
+        NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"%@ event buffer 85%% full (%ld of %ld events)",
                         bufferType, (long)count, (long)max);
     }
     if (capacity >= 0.9 && !*warningLogged) {
         *warningLogged = YES;
-        NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"%@ event buffer is near capacity (%ld/%ld), requesting an emergency harvest",
+        NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"%@ event buffer 90%% full (%ld of %ld events), requesting an emergency harvest",
                         bufferType, (long)count, (long)max);
     }
 }
@@ -298,7 +298,7 @@
 // Must run on _bufferQueue. Logged for every dropped event, with no rate limiting.
 - (void)logDroppedEventForType:(NSString *)bufferType max:(NSInteger)max {
     _totalDroppedEvents++;
-    NRVA_BUFFER_LOG(NRVALoggingLevelError, @"%@ event buffer full (capacity %ld), oldest event dropped. Total dropped events this session: %ld",
+    NRVA_BUFFER_LOG(NRVALoggingLevelError, @"%@ event buffer full (capacity %ld), oldest event dropped. Total dropped this session: %ld",
                     bufferType, (long)max, (long)_totalDroppedEvents);
 }
 
