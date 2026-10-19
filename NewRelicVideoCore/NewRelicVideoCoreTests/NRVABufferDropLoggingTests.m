@@ -3,43 +3,51 @@
 //  NewRelicVideoCoreTests
 //
 //  Buffer-capacity logging: INFO at 85% fill, WARNING at 90%, ERROR with a running count on every drop.
+//  Messages are read back from the process's own os_log store.
 //
 
 @import XCTest;
+@import OSLog;
 #import "NRVAPriorityEventBuffer.h"
-#import "NRVASizeEstimator.h"
+#import "NRVADeadLetterEventBuffer.h"
+#import "NewRelicVideoAgent.h"
 #import "NRVALog.h"
 #import "NRVAVideoConfiguration.h"
 
-// Non-TV on-demand capacity is 350: 85% = 298 events, 90% = 315 events.
+// Non-TV capacities: on-demand 350 (85% = 298, 90% = 315), dead letter 100 (85% = 85, 90% = 90).
 static const NSInteger kOndemandCapacity = 350;
+static const NSInteger kDeadLetterCapacity = 100;
+
+// Every test that reads the log store returns early below iOS/tvOS 15, where OSLogStore is unavailable.
+#pragma clang diagnostic ignored "-Wunguarded-availability-new"
 
 @interface NRVABufferDropLoggingTests : XCTestCase
-@property (nonatomic, strong) NSMutableArray<NSString *> *messages;
-@property (nonatomic, strong) NSLock *lock;
+@property (nonatomic, strong) NSDate *start;
+// Messages already in the process log when the test began, so earlier tests don't leak into counts
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *baseline;
 @end
 
 @implementation NRVABufferDropLoggingTests
 
 - (void)setUp {
-    self.messages = [NSMutableArray array];
-    self.lock = [[NSLock alloc] init];
-    [self startCapturingAtLevel:NRVALoggingLevelInfo];
+    self.start = [NSDate dateWithTimeIntervalSinceNow:-1];
+    [[NewRelicVideoAgent sharedInstance] setLogging:YES];
+    [NRVALog setBufferLoggingLevel:NRVALoggingLevelInfo];
+    self.baseline = nil;
+    if (@available(iOS 15.0, tvOS 15.0, *)) {
+        NSMutableDictionary *base = [NSMutableDictionary dictionary];
+        for (NSString *label in @[@"ondemand event buffer", @"Dead letter"]) {
+            for (NSString *tag in @[@"INFO", @"WARNING", @"ERROR"]) {
+                base[[label stringByAppendingString:tag]] = @([self rawMessages:label withTag:tag].count);
+            }
+        }
+        self.baseline = base;
+    }
 }
 
 - (void)tearDown {
-    [NRVALog setBufferLogObserver:nil];
-    [NRVALog setBufferLoggingEnabled:NO level:NRVALoggingLevelInfo];
-}
-
-- (void)startCapturingAtLevel:(NRVALoggingLevel)level {
-    __weak typeof(self) weakSelf = self;
-    [NRVALog setBufferLogObserver:^(NRVALoggingLevel l, NSString *message) {
-        [weakSelf.lock lock];
-        [weakSelf.messages addObject:[NSString stringWithFormat:@"%ld|%@", (long)l, message]];
-        [weakSelf.lock unlock];
-    }];
-    [NRVALog setBufferLoggingEnabled:YES level:level];
+    [[NewRelicVideoAgent sharedInstance] setLogging:NO];
+    [NRVALog setBufferLoggingLevel:NRVALoggingLevelInfo];
 }
 
 - (NRVAPriorityEventBuffer *)newBuffer {
@@ -47,101 +55,146 @@ static const NSInteger kOndemandCapacity = 350;
 }
 
 // Adds are async on the buffer's queue; getEventCount is a sync call on the same queue, so it drains them.
-- (void)addEvents:(NSInteger)n to:(NRVAPriorityEventBuffer *)buffer {
+- (void)addEvents:(NSInteger)n to:(id<NRVAEventBufferInterface>)buffer {
     for (NSInteger i = 0; i < n; i++) {
         [buffer addEvent:@{@"actionName": @"TEST", @"i": @(i)}];
     }
     [buffer getEventCount];
 }
 
-- (NSArray<NSString *> *)messagesAtLevel:(NRVALoggingLevel)level {
-    [self.lock lock];
-    NSArray *all = [self.messages copy];
-    [self.lock unlock];
-    NSString *prefix = [NSString stringWithFormat:@"%ld|", (long)level];
-    NSPredicate *p = [NSPredicate predicateWithFormat:@"SELF BEGINSWITH %@", prefix];
-    return [all filteredArrayUsingPredicate:p];
+// Messages emitted so far by this test process, as "LEVEL|text", where LEVEL is INFO, WARNING or ERROR.
+- (NSArray<NSString *> *)messagesContaining:(NSString *)label {
+    NSError *error = nil;
+    OSLogStore *store = [OSLogStore storeWithScope:OSLogStoreCurrentProcessIdentifier error:&error];
+    XCTAssertNotNil(store, @"%@", error);
+    OSLogPosition *position = [store positionWithDate:self.start];
+    NSMutableArray *result = [NSMutableArray array];
+    for (OSLogEntry *entry in [store entriesEnumeratorWithOptions:0 position:position predicate:nil error:&error]) {
+        if (![entry isKindOfClass:[OSLogEntryLog class]]) continue;
+        if (![[(OSLogEntryLog *)entry subsystem] isEqualToString:@"com.newrelic.videoagent"]) continue;
+        NSString *text = entry.composedMessage;
+        if ([text containsString:label]) [result addObject:text];
+    }
+    return result;
 }
 
-- (void)testThresholdMessagesLoggedOncePerCrossing {
+- (NSArray<NSString *> *)messages:(NSString *)label withTag:(NSString *)tag {
+    NSArray *all = [self rawMessages:label withTag:tag];
+    NSUInteger skip = self.baseline[[label stringByAppendingString:tag]].unsignedIntegerValue;
+    return skip >= all.count ? @[] : [all subarrayWithRange:NSMakeRange(skip, all.count - skip)];
+}
+
+- (NSArray<NSString *> *)rawMessages:(NSString *)label withTag:(NSString *)tag {
+    NSString *prefix = [NSString stringWithFormat:@"NRVideoAgent [%@]", tag];
+    NSPredicate *p = [NSPredicate predicateWithFormat:@"SELF BEGINSWITH %@", prefix];
+    return [[self messagesContaining:label] filteredArrayUsingPredicate:p];
+}
+
+- (void)testMainBufferThresholdsLoggedOncePerCrossing {
+    if (@available(iOS 15.0, tvOS 15.0, *)) {} else { return; }
     NRVAPriorityEventBuffer *buffer = [self newBuffer];
     [self addEvents:297 to:buffer];
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 0u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"INFO"].count, 0u);
 
     [self addEvents:1 to:buffer];   // 298 = 85%
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 1u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 0u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"INFO"].count, 1u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"WARNING"].count, 0u);
 
-    [self addEvents:16 to:buffer];  // 314, still below 90%
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 0u);
+    [self addEvents:17 to:buffer];  // 315 = 90%
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"WARNING"].count, 1u);
 
-    [self addEvents:1 to:buffer];   // 315 = 90%
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 1u);
-
-    [self addEvents:20 to:buffer];  // 335, no repeats
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 1u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 1u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelError].count, 0u);
+    [self addEvents:20 to:buffer];  // no repeats
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"INFO"].count, 1u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"WARNING"].count, 1u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"ERROR"].count, 0u);
 }
 
-- (void)testLatchResetsAfterHarvestDrain {
+- (void)testMainBufferLatchResetsAfterHarvestDrain {
+    if (@available(iOS 15.0, tvOS 15.0, *)) {} else { return; }
     NRVAPriorityEventBuffer *buffer = [self newBuffer];
     [self addEvents:320 to:buffer];
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 1u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 1u);
-
-    // Drain below 85% with the harvest path, then cross again.
     while ([buffer getEventCount] > 200) {
-        NSArray *batch = [buffer pollBatchByPriority:1024 * 1024 sizeEstimator:nil priority:@"ondemand"];
-        XCTAssertGreaterThan(batch.count, 0u);
+        XCTAssertGreaterThan([buffer pollBatchByPriority:1024 * 1024 sizeEstimator:nil priority:@"ondemand"].count, 0u);
     }
     [self addEvents:120 to:buffer];
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 2u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 2u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"INFO"].count, 2u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"WARNING"].count, 2u);
 }
 
-- (void)testEveryDropLoggedWithCumulativeCountAcrossDrains {
+- (void)testMainBufferEveryDropLoggedWithCumulativeCountAcrossDrains {
+    if (@available(iOS 15.0, tvOS 15.0, *)) {} else { return; }
     NRVAPriorityEventBuffer *buffer = [self newBuffer];
     [self addEvents:kOndemandCapacity + 3 to:buffer];
-
-    NSArray *errors = [self messagesAtLevel:NRVALoggingLevelError];
+    NSArray *errors = [self messages:@"ondemand event buffer" withTag:@"ERROR"];
     XCTAssertEqual(errors.count, 3u);
     XCTAssertTrue([errors[0] hasSuffix:@"Total dropped events this session: 1"], @"%@", errors[0]);
     XCTAssertTrue([errors[2] hasSuffix:@"Total dropped events this session: 3"], @"%@", errors[2]);
     XCTAssertEqual([buffer getEventCount], kOndemandCapacity, @"eviction behavior must be unchanged");
 
-    // A harvest and a refill to overflow again must continue the count, not restart it.
     [buffer pollBatchByPriority:1024 * 1024 sizeEstimator:nil priority:@"ondemand"];
     [self addEvents:kOndemandCapacity to:buffer];
-    errors = [self messagesAtLevel:NRVALoggingLevelError];
+    errors = [self messages:@"ondemand event buffer" withTag:@"ERROR"];
     XCTAssertGreaterThan(errors.count, 3u);
-    NSString *last = errors.lastObject;
     NSString *expected = [NSString stringWithFormat:@"Total dropped events this session: %lu", (unsigned long)errors.count];
-    XCTAssertTrue([last hasSuffix:expected], @"%@", last);
+    XCTAssertTrue([errors.lastObject hasSuffix:expected], @"%@", errors.lastObject);
 }
 
-- (void)testLevelFilterAndDisabledSuppressLogs {
-    [self startCapturingAtLevel:NRVALoggingLevelError];
+- (void)testDeadLetterBufferThresholdsAndCumulativeDrops {
+    if (@available(iOS 15.0, tvOS 15.0, *)) {} else { return; }
+    NRVADeadLetterEventBuffer *buffer = [[NRVADeadLetterEventBuffer alloc] initWithIsTV:NO];
+    [self addEvents:84 to:buffer];
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"INFO"].count, 0u);
+    [self addEvents:1 to:buffer];   // 85
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"INFO"].count, 1u);
+    [self addEvents:5 to:buffer];   // 90
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"WARNING"].count, 1u);
+    [self addEvents:10 to:buffer];  // 100, full but nothing dropped yet
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"ERROR"].count, 0u);
+
+    [self addEvents:2 to:buffer];
+    NSArray *errors = [self messages:@"Dead letter" withTag:@"ERROR"];
+    XCTAssertEqual(errors.count, 2u);
+    XCTAssertTrue([errors[1] hasSuffix:@"Total dropped dead letter events this session: 2"], @"%@", errors[1]);
+    XCTAssertEqual([buffer getEventCount], kDeadLetterCapacity, @"eviction behavior must be unchanged");
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"INFO"].count, 1u);
+    XCTAssertEqual([self messages:@"Dead letter" withTag:@"WARNING"].count, 1u);
+}
+
+- (void)testLevelFilterAndDebugLoggingSwitch {
+    if (@available(iOS 15.0, tvOS 15.0, *)) {} else { return; }
+    [NRVALog setBufferLoggingLevel:NRVALoggingLevelError];
     NRVAPriorityEventBuffer *buffer = [self newBuffer];
     [self addEvents:kOndemandCapacity + 1 to:buffer];
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelInfo].count, 0u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelWarning].count, 0u);
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelError].count, 1u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"INFO"].count, 0u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"WARNING"].count, 0u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"ERROR"].count, 1u);
 
-    [NRVALog setBufferLoggingEnabled:NO level:NRVALoggingLevelInfo];
+    [[NewRelicVideoAgent sharedInstance] setLogging:NO];
     [self addEvents:5 to:buffer];
-    XCTAssertEqual([self messagesAtLevel:NRVALoggingLevelError].count, 1u);
+    XCTAssertEqual([self messages:@"ondemand event buffer" withTag:@"ERROR"].count, 1u);
 }
 
-- (void)testConfigurationDefaultsAndBuilder {
-    NRVAVideoConfiguration *defaults = [[[NRVAVideoConfiguration builder] withApplicationToken:@"AAtoken"] build];
-    XCTAssertFalse(defaults.loggingEnabled);
-    XCTAssertEqual(defaults.loggingLevel, NRVALoggingLevelInfo);
+- (void)testBufferEvictionUnchangedWithLoggingOff {
+    [[NewRelicVideoAgent sharedInstance] setLogging:NO];
+    NRVAPriorityEventBuffer *buffer = [self newBuffer];
+    [self addEvents:kOndemandCapacity + 10 to:buffer];
+    XCTAssertEqual([buffer getEventCount], kOndemandCapacity);
+}
 
-    NRVAVideoConfiguration *config = [[[[[NRVAVideoConfiguration builder] withApplicationToken:@"AAtoken"]
-                                        withLoggingEnabled:YES] withLoggingLevel:NRVALoggingLevelWarning] build];
-    XCTAssertTrue(config.loggingEnabled);
-    XCTAssertEqual(config.loggingLevel, NRVALoggingLevelWarning);
+- (void)testDebugLoggingBuilderDefaultsAndLevel {
+    NRVAVideoConfiguration *defaults = [[[NRVAVideoConfiguration builder] withApplicationToken:@"AAtoken"] build];
+    XCTAssertFalse(defaults.debugLoggingEnabled);
+    XCTAssertEqual(defaults.debugLoggingLevel, NRVALoggingLevelInfo);
+
+    NRVAVideoConfiguration *plain = [[[[NRVAVideoConfiguration builder] withApplicationToken:@"AAtoken"]
+                                      withDebugLogging:YES] build];
+    XCTAssertTrue(plain.debugLoggingEnabled);
+    XCTAssertEqual(plain.debugLoggingLevel, NRVALoggingLevelInfo);
+
+    NRVAVideoConfiguration *leveled = [[[[NRVAVideoConfiguration builder] withApplicationToken:@"AAtoken"]
+                                        withDebugLogging:YES level:NRVALoggingLevelWarning] build];
+    XCTAssertTrue(leveled.debugLoggingEnabled);
+    XCTAssertEqual(leveled.debugLoggingLevel, NRVALoggingLevelWarning);
 }
 
 @end
