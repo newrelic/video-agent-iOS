@@ -127,15 +127,15 @@ static const NSInteger kDeadLetterCapacity = 100;
     [self addEvents:kOndemandCapacity + 3 to:buffer];
     NSArray *errors = [self messages:@"ondemand event buffer" withTag:@"ERROR"];
     XCTAssertEqual(errors.count, 3u);
-    XCTAssertTrue([errors[0] hasSuffix:@"Total dropped events this session: 1"], @"%@", errors[0]);
-    XCTAssertTrue([errors[2] hasSuffix:@"Total dropped events this session: 3"], @"%@", errors[2]);
+    XCTAssertTrue([errors[0] hasSuffix:@"Total dropped this session: 1"], @"%@", errors[0]);
+    XCTAssertTrue([errors[2] hasSuffix:@"Total dropped this session: 3"], @"%@", errors[2]);
     XCTAssertEqual([buffer getEventCount], kOndemandCapacity, @"eviction behavior must be unchanged");
 
     [buffer pollBatchByPriority:1024 * 1024 sizeEstimator:nil priority:@"ondemand"];
     [self addEvents:kOndemandCapacity to:buffer];
     errors = [self messages:@"ondemand event buffer" withTag:@"ERROR"];
     XCTAssertGreaterThan(errors.count, 3u);
-    NSString *expected = [NSString stringWithFormat:@"Total dropped events this session: %lu", (unsigned long)errors.count];
+    NSString *expected = [NSString stringWithFormat:@"Total dropped this session: %lu", (unsigned long)errors.count];
     XCTAssertTrue([errors.lastObject hasSuffix:expected], @"%@", errors.lastObject);
 }
 
@@ -154,7 +154,7 @@ static const NSInteger kDeadLetterCapacity = 100;
     [self addEvents:2 to:buffer];
     NSArray *errors = [self messages:@"Dead letter" withTag:@"ERROR"];
     XCTAssertEqual(errors.count, 2u);
-    XCTAssertTrue([errors[1] hasSuffix:@"Total dropped dead letter events this session: 2"], @"%@", errors[1]);
+    XCTAssertTrue([errors[1] hasSuffix:@"Total dropped this session: 2"], @"%@", errors[1]);
     XCTAssertEqual([buffer getEventCount], kDeadLetterCapacity, @"eviction behavior must be unchanged");
     XCTAssertEqual([self messages:@"Dead letter" withTag:@"INFO"].count, 1u);
     XCTAssertEqual([self messages:@"Dead letter" withTag:@"WARNING"].count, 1u);

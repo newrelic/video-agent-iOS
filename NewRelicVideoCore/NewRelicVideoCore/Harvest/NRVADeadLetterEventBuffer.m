@@ -52,12 +52,12 @@
         double capacity = (double)self.retryEvents.count / self.maxCapacity;
         if (capacity >= 0.85 && !self.infoLogged) {
             self.infoLogged = YES;
-            NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"Dead letter (retry) buffer is 85%% full (%ld/%ld)",
+            NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"Dead letter (retry) buffer 85%% full (%ld of %ld events)",
                             (long)self.retryEvents.count, (long)self.maxCapacity);
         }
         if (capacity >= 0.9 && !self.warningLogged) {
             self.warningLogged = YES;
-            NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"Dead letter (retry) buffer is near capacity (%ld/%ld)",
+            NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"Dead letter (retry) buffer 90%% full (%ld of %ld events)",
                             (long)self.retryEvents.count, (long)self.maxCapacity);
         }
         
@@ -65,7 +65,7 @@
         while (self.retryEvents.count > self.maxCapacity) {
             [self.retryEvents removeObjectAtIndex:0];
             self.totalDroppedEvents++;
-            NRVA_BUFFER_LOG(NRVALoggingLevelError, @"Dead letter (retry) buffer full (capacity %ld), oldest event dropped. Total dropped dead letter events this session: %ld",
+            NRVA_BUFFER_LOG(NRVALoggingLevelError, @"Dead letter (retry) buffer full (capacity %ld), oldest event dropped. Total dropped this session: %ld",
                             (long)self.maxCapacity, (long)self.totalDroppedEvents);
         }
     });
