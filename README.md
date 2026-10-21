@@ -420,9 +420,29 @@ if shouldEnable {
 |----------------|------|---------|-------------|
 | `withApplicationToken(_:)` | `String` | — | **Required.** Your New Relic application token. |
 | `withHarvestCycle(_:)` | `Int` | 300 (Mobile) / 180 (TV) | Interval in seconds between data harvests. |
-| `withDebugLogging(_:)` | `Bool` | `false` | Enable debug logging for development. |
+| `withDebugLogging(_:)` | `Bool` | `false` | Enable debug logging for development. Also turns on the event buffer logs described in [Buffer logging](#buffer-logging). |
+| `withDebugLogging(_:level:)` | `Bool`, `NRVALoggingLevel` | `false`, `.info` | Same as above, with a minimum level for the buffer logs: `.info`, `.warning` or `.error`. `withDebugLogging(true)` is equivalent to `.info`. |
 | `withQoeAggregateEnabled(_:)` | `Bool` | `true` | QoE aggregation is enabled out of the box. Disable with `withQoeAggregateEnabled(NO)`. |
 | `withQoeAggregateIntervalMultiplier(_:)` | `Int` | `2` | Multiplier applied to the harvest interval for QoE aggregation. Configure with `withQoeAggregateIntervalMultiplier:`. |
+
+#### Buffer logging
+
+The agent keeps events in an in-memory buffer until they are harvested. With debug logging enabled it reports on that buffer, and on the smaller dead letter (retry) buffer, through `os_log` (subsystem `com.newrelic.videoagent`), including in release builds:
+
+| Level | When | Example |
+|-------|------|---------|
+| `INFO` | Buffer reaches 85% (once per crossing) | `ondemand event buffer 85% full (298 of 350 events)` |
+| `WARNING` | Buffer reaches 90% and an emergency harvest is requested (once per crossing) | `ondemand event buffer 90% full (315 of 350 events), requesting an emergency harvest` |
+| `ERROR` | The buffer is full and the oldest event is dropped (every drop) | `ondemand event buffer full (capacity 350), oldest event dropped. Total dropped this session: 1` |
+
+The dead letter buffer logs the same way, with messages labelled `Dead letter (retry) buffer` and its own dropped count. Dropped counts are cumulative for the session. Logging does not change buffer sizes, harvest timing or which events are dropped.
+
+```swift
+let config = NRVAVideoConfiguration.builder()
+    .withApplicationToken("YOUR_TOKEN")
+    .withDebugLogging(true, level: .warning)   // WARNING and ERROR only
+    .build()
+```
 
 ### NRVAVideoPlayerConfiguration
 

@@ -162,7 +162,8 @@ let advancedConfig = NRVAVideoConfiguration.builder()
 | `withMaxOfflineStorageSize:` | NSInteger  | 100           | > 0 MB        | Maximum offline storage size limit     |
 | `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
-| `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+| `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable debug logging, incl. buffer capacity logs |
+| `withDebugLogging:level:`    | BOOL, NRVALoggingLevel | NO, Info | Info/Warning/Error | Debug logging with a minimum level for buffer logs |
 | `withQoeAggregateEnabled:`   | BOOL       | NO            | YES/NO        | Enable QoE aggregate event reporting   |
 | `withQoeAggregateIntervalMultiplier:` | NSInteger | 1       | >= 1          | Send QoE every N harvest cycles        |
 

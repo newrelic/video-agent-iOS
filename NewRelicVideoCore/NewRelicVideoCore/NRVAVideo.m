@@ -508,6 +508,8 @@ static dispatch_once_t onceToken;
             [[NewRelicVideoAgent sharedInstance] setLogging:YES];
         }
         
+        [NRVALog setBufferLoggingLevel:config.debugLoggingLevel];
+        
         // ADDED: Create and start lifecycle observer with crash-safe factory (matching Android)
         _lifecycleObserver = [[NRVAVideoLifecycleObserver alloc] 
                              initWithCrashSafeFactory:[_harvestManager getFactory]];

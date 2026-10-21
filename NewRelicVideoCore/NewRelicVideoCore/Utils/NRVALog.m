@@ -8,6 +8,9 @@
 
 #import "NRVALog.h"
 #import "NewRelicVideoAgent.h"
+#import <os/log.h>
+
+static _Atomic NRVALoggingLevel sBufferLoggingLevel = NRVALoggingLevelInfo;
 
 @implementation NRVALog
 
@@ -46,6 +49,35 @@ void NRVA_ERROR_LOG(NSString *format, ...) {
     NSString *timestamp = [NRVALog formatTimestamp];
     contents = [@"NRVideoAgent [ERROR] " stringByAppendingFormat:@"(%@): %@", timestamp, contents];
     NSLog(@"%@", contents);
+}
+
+void NRVA_BUFFER_LOG(NRVALoggingLevel level, NSString *format, ...) {
+    if (![[NewRelicVideoAgent sharedInstance] logging] || level < sBufferLoggingLevel) return;
+
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
+    static os_log_t log;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{ log = os_log_create("com.newrelic.videoagent", "buffer"); });
+
+    switch (level) {
+        case NRVALoggingLevelInfo:
+            os_log_with_type(log, OS_LOG_TYPE_INFO, "NRVideoAgent [INFO] %{public}@", message);
+            break;
+        case NRVALoggingLevelWarning:
+            os_log_with_type(log, OS_LOG_TYPE_DEFAULT, "NRVideoAgent [WARNING] %{public}@", message);
+            break;
+        case NRVALoggingLevelError:
+            os_log_with_type(log, OS_LOG_TYPE_ERROR, "NRVideoAgent [ERROR] %{public}@", message);
+            break;
+    }
+}
+
++ (void)setBufferLoggingLevel:(NRVALoggingLevel)level {
+    sBufferLoggingLevel = level;
 }
 
 + (void)setLoggingEnabled:(BOOL)enabled {
