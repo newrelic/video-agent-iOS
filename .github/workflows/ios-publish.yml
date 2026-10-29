@@ -4,7 +4,6 @@ name: Publish to CocoaPods
 # CocoaPods Trunk, which is going read-only permanently on Dec 2, 2026 (test blackout
 # Nov 1-7, 2026). SPM delivery (XCFrameworks + Package.swift + GitHub Release) now
 # runs unconditionally, no longer gated behind CocoaPods publishing succeeding.
-# See COCOAPODS_DEPRECATION.md for the full plan.
 
 on:
   pull_request:
@@ -49,7 +48,7 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: false
 
-      # Paused - CocoaPods Trunk decommission, see COCOAPODS_DEPRECATION.md
+      # Paused - CocoaPods Trunk decommission
       # - name: Install CocoaPods
       #   run: |
       #     gem install cocoapods
@@ -112,7 +111,7 @@ jobs:
           git push origin "v$VERSION"
           echo "Tag v$VERSION created and pushed successfully!"
 
-      # Paused - CocoaPods Trunk decommission, see COCOAPODS_DEPRECATION.md
+      # Paused - CocoaPods Trunk decommission
       # - name: Validate podspecs
         # run: |
           # echo "Validating podspecs..."
@@ -169,7 +168,7 @@ jobs:
 
 
 
-      # Paused - CocoaPods Trunk decommission, see COCOAPODS_DEPRECATION.md
+      # Paused - CocoaPods Trunk decommission
       # - name: Setup CocoaPods trunk authentication
         # env:
           # COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
@@ -266,7 +265,7 @@ jobs:
           git push --force origin "v$VERSION"
           echo "Tag v$VERSION moved and re-pushed successfully!"
 
-      # Paused - CocoaPods Trunk decommission, see COCOAPODS_DEPRECATION.md
+      # Paused - CocoaPods Trunk decommission
       # - name: Publish pods to CocoaPods
         # run: |
           # VERSION="${{ steps.get_version.outputs.version }}"
