@@ -15,14 +15,15 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 - **IMA Ads Support** — Built-in Google IMA SDK ad tracking via dedicated ad tracker
 - **tvOS Support** — Auto-detection of Apple TV with optimized harvest cycles
 - **Multi-Player Support** — Track multiple simultaneous video players in the same application
-- **Easy Integration** — XCFrameworks, CocoaPods, or manual source import
+- **Easy Integration** — Swift Package Manager, XCFrameworks, manual source import, or CocoaPods (legacy)
 
 ## Table of Contents
 
 - [Installation](#installation)
-  - [Option 1: XCFrameworks (Recommended)](#option-1-install-via-xcframeworks-recommended)
-  - [Option 2: CocoaPods](#option-2-install-via-cocoapods)
+  - [Option 1: Swift Package Manager (Recommended)](#option-1-install-via-swift-package-manager-recommended)
+  - [Option 2: XCFrameworks](#option-2-install-via-xcframeworks)
   - [Option 3: Manual Build](#option-3-install-manually-using-source-code)
+  - [Option 4: CocoaPods (Legacy)](#option-4-install-via-cocoapods-legacy)
 - [Prerequisites](#prerequisites)
 - [Modules](#modules)
 - [Usage](#usage)
@@ -36,13 +37,54 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 
 ## Installation
 
-### Option 1: Install via XCFrameworks (Recommended)
+### Option 1: Install via Swift Package Manager (Recommended)
+
+In Xcode: **File > Add Package Dependencies...**, enter the repo URL, and pick the products you need:
+
+```
+https://github.com/newrelic/video-agent-iOS.git
+```
+
+Select `NewRelicVideoCore` and `NRAVPlayerTracker` (required for AVPlayer), plus `NRIMATracker`, `NRMediaTailorTracker`, or `NRTHEOplayerTracker` as optional ad/player support.
+
+Or declare it in your own `Package.swift`:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/newrelic/video-agent-iOS.git", from: "5.1.0")
+],
+targets: [
+    .target(
+        name: "YourApp",
+        dependencies: [
+            .product(name: "NewRelicVideoCore", package: "video-agent-iOS"),
+            .product(name: "NRAVPlayerTracker", package: "video-agent-iOS"),
+            // .product(name: "NRIMATracker", package: "video-agent-iOS"),        // Optional — Google IMA ads
+            // .product(name: "NRMediaTailorTracker", package: "video-agent-iOS"), // Optional — AWS MediaTailor SSAI
+            // .product(name: "NRTHEOplayerTracker", package: "video-agent-iOS"),  // Optional — THEOplayer (iOS 15.0+)
+        ]
+    )
+]
+```
+
+> **Note:** `NRTHEOplayerTracker` doesn't bundle THEOplayerSDK-core itself (like `NRIMATracker` and Google IMA, which also stay separate). You'll still need to add THEOplayerSDK-core to your project separately — e.g. via its own [xcframework zip](https://www.theoplayer.com/docs/theoplayer/ios/) — plus a valid THEOplayer license from Dolby.
+
+### Option 2: Install via XCFrameworks
 
 Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
-> **Note:** `NRTHEOplayerTracker.xcframework` is included in `XCFrameworks.zip` (and published on its own as `NRTHEOplayerTracker.xcframework.zip`), but — like `NRIMATracker` and Google IMA — it doesn't bundle THEOplayerSDK-core itself. You'll still need to add THEOplayerSDK-core to your project separately (e.g. via its own [xcframework zip](https://www.theoplayer.com/docs/theoplayer/ios/) or [CocoaPods](#option-2-install-via-cocoapods)) plus a valid THEOplayer license from Dolby.
+> **Note:** `NRTHEOplayerTracker.xcframework` is included in `XCFrameworks.zip` (and published on its own as `NRTHEOplayerTracker.xcframework.zip`), but doesn't bundle THEOplayerSDK-core itself — see the SPM note above for how to add it.
 
-### Option 2: Install via CocoaPods
+### Option 3: Install Manually Using Source Code
+
+1. Clone this repo.
+2. In Xcode, go to **File > Add Files to "YourProject"**.
+3. Select the module directory and click **Add**.
+4. Repeat for each module you need.
+
+### Option 4: Install via CocoaPods (Legacy)
+
+> **CocoaPods Trunk is being discontinued by its maintainers** — new pod versions can no longer be published after December 2, 2026. Already-pinned versions keep working indefinitely, but new installs and upgrades should use [Swift Package Manager](#option-1-install-via-swift-package-manager-recommended) above instead.
 
 Add the dependencies to your `Podfile`:
 
@@ -60,13 +102,6 @@ pod install
 ```
 
 > **Note:** Replace with the desired [release version](https://github.com/newrelic/video-agent-iOS/releases) if pinning.
-
-### Option 3: Install Manually Using Source Code
-
-1. Clone this repo.
-2. In Xcode, go to **File > Add Files to "YourProject"**.
-3. Select the module directory and click **Add**.
-4. Repeat for each module you need.
 
 For more details on all installation methods, see [INSTALLATION.md](INSTALLATION.md).
 
@@ -306,7 +341,7 @@ deinit {
 </p>
 </details>
 
-> **Note:** THEOplayer support requires `NRTHEOplayerTracker` (iOS 13.0+, via CocoaPods or `NRTHEOplayerTracker.xcframework` — see [Option 1](#option-1-install-via-xcframeworks-recommended) for what that does and doesn't bundle) and a valid THEOplayer license from Dolby. See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration.
+> **Note:** THEOplayer support requires `NRTHEOplayerTracker` (iOS 13.0+, via [Swift Package Manager](#option-1-install-via-swift-package-manager-recommended) or `NRTHEOplayerTracker.xcframework` — see [Option 1](#option-1-install-via-swift-package-manager-recommended) for what that does and doesn't bundle) and a valid THEOplayer license from Dolby. See the [`SimpleTheoplayerTest`](Examples/iOS/SimpleTheoplayerTest) sample app for a complete working integration.
 
 For comprehensive setup instructions and additional examples, see the [Developer Onboarding Guide](ONBOARDING.md).
 

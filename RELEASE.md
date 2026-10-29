@@ -104,22 +104,15 @@ The `ios-release.yml` workflow automatically:
 ### 4. Automated Publishing
 
 When the release PR is merged, `ios-publish.yml` automatically:
-- Validates all podspecs
-- Publishes to CocoaPods (in order: NewRelicVideoAgent → NRAVPlayerTracker → NRIMATracker)
+- Builds XCFrameworks and updates `Package.swift` (checksums + release tag) for Swift Package Manager
 - Creates GitHub Release
 - Verifies publication
-- Deletes release branch (cleanup)
+
+CocoaPods publishing (podspec validation, Trunk auth, `pod trunk push`) is currently paused — CocoaPods Trunk is being discontinued by its maintainers and stops accepting new pod versions permanently on December 2, 2026. Those steps are commented out in `ios-publish.yml` rather than deleted, for reference.
 
 ### 5. Release Complete! 
 
-Users can now install the new version:
-
-```ruby
-# In Podfile
-pod 'NewRelicVideoAgent', '~> X.Y.Z'
-pod 'NRAVPlayerTracker', '~> X.Y.Z'
-pod 'NRIMATracker', '~> X.Y.Z'
-```
+Users can now install the new version via Swift Package Manager (see [Package.swift](Package.swift) at the release tag), or by downloading `XCFrameworks.zip` from the GitHub Release.
 
 ## Manual Release (Emergency)
 
@@ -163,7 +156,7 @@ gh pr create --base master --head "release/${NEXT_VERSION}" \
 
 ### Option 3: Manual Publish (Bypass Automation)
 
-1. Go to Actions → "Publish to CocoaPods"
+1. Go to Actions → "Publish to CocoaPods" (name predates the CocoaPods pause — this now runs the SPM/GitHub Release path only)
 2. Click "Run workflow"
 3. Enter version (or leave blank to auto-detect)
 4. Click "Run workflow"
@@ -191,11 +184,9 @@ The workflow will then create a fresh release branch and PR.
 
 ### GitHub Secrets
 
-Ensure the following secret is configured in repository settings:
+- `COCOAPODS_TRUNK_TOKEN` - CocoaPods trunk authentication token. Currently unused — the steps that read it are commented out in `ios-publish.yml` while CocoaPods publishing is paused (see above). Kept configured for now in case we need to restore that path before CocoaPods Trunk goes fully read-only on December 2, 2026.
 
-- `COCOAPODS_TRUNK_TOKEN` - Your CocoaPods trunk authentication token
-
-To get your CocoaPods token:
+To get your CocoaPods token (if restoring the manual publish path):
 ```bash
 pod trunk me
 # Copy the token and add it to GitHub Secrets
@@ -236,15 +227,7 @@ pod trunk me
 
 ### CocoaPods publish failed
 
-**Possible causes:**
-1. `COCOAPODS_TRUNK_TOKEN` secret not set or invalid
-2. Podspec validation errors
-3. Version already published
-
-**Solution:** 
-1. Verify secret is set correctly
-2. Run `pod lib lint` locally to validate podspecs
-3. Check CocoaPods for existing version
+**N/A while CocoaPods publishing is paused** — the validation/auth/publish steps are commented out in `ios-publish.yml`, so this can't currently occur. Kept here for when that path is restored or fully removed; at that point either this section or the pause itself should be updated.
 
 ### Tag already exists error
 
@@ -261,12 +244,7 @@ git push origin :refs/tags/vX.Y.Z
 
 ### Dependent pods fail to publish
 
-**Cause:** `NewRelicVideoAgent` not yet indexed by CocoaPods.
-
-**Solution:** The workflow waits up to 10 minutes for indexing. If it still fails:
-1. Wait 5-10 more minutes
-2. Manually trigger "Publish to CocoaPods" workflow
-3. Or manually publish: `pod trunk push NRAVPlayerTracker.podspec --allow-warnings`
+**N/A while CocoaPods publishing is paused** — same as above.
 
 ## Version History
 
@@ -303,15 +281,11 @@ This release process follows the **"stable releases, one-shot PRs"** approach:
 
 1. **Always use conventional commits** for commits that should trigger releases
 2. **Review release PRs carefully** before merging
-3. **Test locally** before pushing to master:
-   ```bash
-   pod lib lint NewRelicVideoAgent.podspec --allow-warnings
-   ```
-4. **Use `[skip ci]`** in commit messages for non-release changes (docs, formatting)
-5. **Monitor workflow runs** in GitHub Actions after merging
-6. **Verify publication** on CocoaPods after release
-7. **Don't manually modify release branches** - they're auto-generated
-8. **Delete and retry** if you need to recreate a release (don't force push)
+3. **Use `[skip ci]`** in commit messages for non-release changes (docs, formatting)
+4. **Monitor workflow runs** in GitHub Actions after merging
+5. **Verify publication** — check the GitHub Release and that `Package.swift` resolves at the new tag
+6. **Don't manually modify release branches** - they're auto-generated
+7. **Delete and retry** if you need to recreate a release (don't force push)
 
 ## Support
 For issues with the release process:
