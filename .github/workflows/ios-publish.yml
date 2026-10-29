@@ -1,5 +1,10 @@
 name: Publish to CocoaPods
 
+# CocoaPods Trunk publish steps below are commented out as part of decommissioning
+# CocoaPods Trunk, which is going read-only permanently on Dec 2, 2026 (test blackout
+# Nov 1-7, 2026). SPM delivery (XCFrameworks + Package.swift + GitHub Release) now
+# runs unconditionally, no longer gated behind CocoaPods publishing succeeding.
+
 on:
   pull_request:
     types:
@@ -43,10 +48,11 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: false
 
-      - name: Install CocoaPods
-        run: |
-          gem install cocoapods
-          pod --version
+      # Paused - CocoaPods Trunk decommission
+      # - name: Install CocoaPods
+      #   run: |
+      #     gem install cocoapods
+      #     pod --version
 
       - name: Configure Git
         run: |
@@ -105,87 +111,89 @@ jobs:
           git push origin "v$VERSION"
           echo "Tag v$VERSION created and pushed successfully!"
 
-      - name: Validate podspecs
-        run: |
-          echo "Validating podspecs..."
+      # Paused - CocoaPods Trunk decommission
+      # - name: Validate podspecs
+        # run: |
+          # echo "Validating podspecs..."
 
-          validate_with_retry() {
-            local podspec=$1
-            local max_attempts=3
-            local attempt=1
+          # validate_with_retry() {
+            # local podspec=$1
+            # local max_attempts=3
+            # local attempt=1
 
-            while [ $attempt -le $max_attempts ]; do
-              echo "Validating $podspec (attempt $attempt/$max_attempts)..."
+            # while [ $attempt -le $max_attempts ]; do
+              # echo "Validating $podspec (attempt $attempt/$max_attempts)..."
 
-              set +e
-              pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
-              EXIT_CODE=${PIPESTATUS[0]}
-              set -e
+              # set +e
+              # pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
+              # EXIT_CODE=${PIPESTATUS[0]}
+              # set -e
 
-              if [ $EXIT_CODE -eq 0 ]; then
-                echo "$podspec validated successfully"
-                rm -f validation_output.log
-                return 0
-              else
-                if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up)" validation_output.log; then
-                  echo "Transient error detected for $podspec"
-                  if [ $attempt -lt $max_attempts ]; then
-                    echo "Retrying in 10 seconds..."
-                    sleep 10
-                    attempt=$((attempt + 1))
-                  else
-                    echo "Failed after $max_attempts attempts"
-                    cat validation_output.log
-                    rm -f validation_output.log
-                    return 1
-                  fi
-                else
-                  echo "Validation failed with non-retryable error"
-                  cat validation_output.log
-                  rm -f validation_output.log
-                  return 1
-                fi
-              fi
-            done
-          }
+              # if [ $EXIT_CODE -eq 0 ]; then
+                # echo "$podspec validated successfully"
+                # rm -f validation_output.log
+                # return 0
+              # else
+                # if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up)" validation_output.log; then
+                  # echo "Transient error detected for $podspec"
+                  # if [ $attempt -lt $max_attempts ]; then
+                    # echo "Retrying in 10 seconds..."
+                    # sleep 10
+                    # attempt=$((attempt + 1))
+                  # else
+                    # echo "Failed after $max_attempts attempts"
+                    # cat validation_output.log
+                    # rm -f validation_output.log
+                    # return 1
+                  # fi
+                # else
+                  # echo "Validation failed with non-retryable error"
+                  # cat validation_output.log
+                  # rm -f validation_output.log
+                  # return 1
+                # fi
+              # fi
+            # done
+          # }
 
-          # Validate each podspec with retry logic
-          validate_with_retry "NewRelicVideoAgent.podspec"
-          validate_with_retry "NRAVPlayerTracker.podspec"
-          validate_with_retry "NRIMATracker.podspec"
-          validate_with_retry "NRMediaTailorTracker.podspec"
-          validate_with_retry "NRTHEOplayerTracker.podspec"
+          # # Validate each podspec with retry logic
+          # validate_with_retry "NewRelicVideoAgent.podspec"
+          # validate_with_retry "NRAVPlayerTracker.podspec"
+          # validate_with_retry "NRIMATracker.podspec"
+          # validate_with_retry "NRMediaTailorTracker.podspec"
+          # validate_with_retry "NRTHEOplayerTracker.podspec"
 
-          echo ""
-          echo "All podspecs validated successfully!"
+          # echo ""
+          # echo "All podspecs validated successfully!"
 
 
 
-      - name: Setup CocoaPods trunk authentication
-        env:
-          COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        run: |
-          if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
-            echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
-            echo "Please add your CocoaPods trunk token to GitHub repository secrets"
-            exit 1
-          fi
+      # Paused - CocoaPods Trunk decommission
+      # - name: Setup CocoaPods trunk authentication
+        # env:
+          # COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
+        # run: |
+          # if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
+            # echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
+            # echo "Please add your CocoaPods trunk token to GitHub repository secrets"
+            # exit 1
+          # fi
 
-          cat > ~/.netrc <<EOF
-          machine trunk.cocoapods.org
-          login token
-          password ${COCOAPODS_TRUNK_TOKEN}
-          EOF
-          chmod 600 ~/.netrc
+          # cat > ~/.netrc <<EOF
+          # machine trunk.cocoapods.org
+          # login token
+          # password ${COCOAPODS_TRUNK_TOKEN}
+          # EOF
+          # chmod 600 ~/.netrc
 
-          # Verify the token actually works
-          echo "Verifying trunk authentication..."
-          if ! pod trunk me 2>&1; then
-            echo "Error: CocoaPods trunk token is invalid or expired"
-            echo "Please update COCOAPODS_TRUNK_TOKEN in GitHub repository secrets"
-            exit 1
-          fi
-          echo "CocoaPods trunk authentication verified"
+          # # Verify the token actually works
+          # echo "Verifying trunk authentication..."
+          # if ! pod trunk me 2>&1; then
+            # echo "Error: CocoaPods trunk token is invalid or expired"
+            # echo "Please update COCOAPODS_TRUNK_TOKEN in GitHub repository secrets"
+            # exit 1
+          # fi
+          # echo "CocoaPods trunk authentication verified"
 
       - name: Build XCFrameworks
         run: |
@@ -257,124 +265,125 @@ jobs:
           git push --force origin "v$VERSION"
           echo "Tag v$VERSION moved and re-pushed successfully!"
 
-      - name: Publish pods to CocoaPods
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
+      # Paused - CocoaPods Trunk decommission
+      # - name: Publish pods to CocoaPods
+        # run: |
+          # VERSION="${{ steps.get_version.outputs.version }}"
 
-          # Check if a pod version is published (CLI + API fallback)
-          check_published() {
-            local pod=$1
-            pod trunk info "$pod" 2>/dev/null | grep -q "- $VERSION" ||
-              curl -sf "https://trunk.cocoapods.org/api/v1/pods/$pod" 2>/dev/null | grep -q "\"$VERSION\""
-          }
+          # # Check if a pod version is published (CLI + API fallback)
+          # check_published() {
+            # local pod=$1
+            # pod trunk info "$pod" 2>/dev/null | grep -q "- $VERSION" ||
+              # curl -sf "https://trunk.cocoapods.org/api/v1/pods/$pod" 2>/dev/null | grep -q "\"$VERSION\""
+          # }
 
-          # Publish a single pod with retry logic
-          publish_pod() {
-            local pod=$1
-            local podspec=$2
-            local max_attempts=3
-            local attempt=1
+          # # Publish a single pod with retry logic
+          # publish_pod() {
+            # local pod=$1
+            # local podspec=$2
+            # local max_attempts=3
+            # local attempt=1
 
-            echo ""
-            echo "========== $pod =========="
+            # echo ""
+            # echo "========== $pod =========="
 
-            if check_published "$pod"; then
-              echo "$pod $VERSION is already published, skipping..."
-              return 0
-            fi
+            # if check_published "$pod"; then
+              # echo "$pod $VERSION is already published, skipping..."
+              # return 0
+            # fi
 
-            while [ $attempt -le $max_attempts ]; do
-              echo "Publishing $pod $VERSION (attempt $attempt/$max_attempts)..."
+            # while [ $attempt -le $max_attempts ]; do
+              # echo "Publishing $pod $VERSION (attempt $attempt/$max_attempts)..."
 
-              if [ "$DRY_RUN" = "true" ]; then
-                echo "[DRY RUN] Would run: pod trunk push $podspec --allow-warnings"
-                echo "$pod dry-run publish complete!"
-                rm -f publish_output.log
-                return 0
-              fi
+              # if [ "$DRY_RUN" = "true" ]; then
+                # echo "[DRY RUN] Would run: pod trunk push $podspec --allow-warnings"
+                # echo "$pod dry-run publish complete!"
+                # rm -f publish_output.log
+                # return 0
+              # fi
 
-              set +e
-              pod trunk push "$podspec" --allow-warnings 2>&1 | tee publish_output.log
-              local exit_code=${PIPESTATUS[0]}
-              set -e
+              # set +e
+              # pod trunk push "$podspec" --allow-warnings 2>&1 | tee publish_output.log
+              # local exit_code=${PIPESTATUS[0]}
+              # set -e
 
-              if [ $exit_code -eq 0 ]; then
-                echo "$pod published successfully!"
-                rm -f publish_output.log
-                return 0
-              fi
+              # if [ $exit_code -eq 0 ]; then
+                # echo "$pod published successfully!"
+                # rm -f publish_output.log
+                # return 0
+              # fi
 
-              if grep -q "Unable to accept duplicate entry" publish_output.log; then
-                echo "$pod was already published (duplicate entry)"
-                rm -f publish_output.log
-                return 0
-              fi
+              # if grep -q "Unable to accept duplicate entry" publish_output.log; then
+                # echo "$pod was already published (duplicate entry)"
+                # rm -f publish_output.log
+                # return 0
+              # fi
 
-              if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up|Unable to find a specification|not found in trunk|dependency.*not found)" publish_output.log; then
-                echo "Transient error detected."
-                sleep 10
-                if check_published "$pod"; then
-                  echo "$pod published successfully despite the error!"
-                  rm -f publish_output.log
-                  return 0
-                fi
-                if [ $attempt -lt $max_attempts ]; then
-                  echo "Retrying in 30 seconds..."
-                  sleep 30
-                  attempt=$((attempt + 1))
-                else
-                  echo "Failed after $max_attempts attempts:"
-                  cat publish_output.log
-                  rm -f publish_output.log
-                  return 1
-                fi
-              else
-                echo "Non-retryable error:"
-                cat publish_output.log
-                rm -f publish_output.log
-                return 1
-              fi
-            done
-          }
+              # if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up|Unable to find a specification|not found in trunk|dependency.*not found)" publish_output.log; then
+                # echo "Transient error detected."
+                # sleep 10
+                # if check_published "$pod"; then
+                  # echo "$pod published successfully despite the error!"
+                  # rm -f publish_output.log
+                  # return 0
+                # fi
+                # if [ $attempt -lt $max_attempts ]; then
+                  # echo "Retrying in 30 seconds..."
+                  # sleep 30
+                  # attempt=$((attempt + 1))
+                # else
+                  # echo "Failed after $max_attempts attempts:"
+                  # cat publish_output.log
+                  # rm -f publish_output.log
+                  # return 1
+                # fi
+              # else
+                # echo "Non-retryable error:"
+                # cat publish_output.log
+                # rm -f publish_output.log
+                # return 1
+              # fi
+            # done
+          # }
 
-          # Wait for a pod to be indexed
-          wait_for_indexing() {
-            local pod=$1
-            local max_wait=10
-            local wait_time=30
-            local i=0
+          # # Wait for a pod to be indexed
+          # wait_for_indexing() {
+            # local pod=$1
+            # local max_wait=10
+            # local wait_time=30
+            # local i=0
 
-            echo ""
-            echo "Waiting for $pod to be indexed..."
-            while [ $i -lt $max_wait ]; do
-              i=$((i + 1))
-              if pod search "$pod" 2>/dev/null | grep -q "$VERSION"; then
-                echo "$pod $VERSION is now indexed!"
-                return 0
-              fi
-              if [ $i -lt $max_wait ]; then
-                echo "  Attempt $i/$max_wait - not indexed yet, waiting ${wait_time}s..."
-                sleep $wait_time
-              fi
-            done
-            echo "Timeout waiting for indexing, proceeding with publish (retry will handle it)..."
-          }
+            # echo ""
+            # echo "Waiting for $pod to be indexed..."
+            # while [ $i -lt $max_wait ]; do
+              # i=$((i + 1))
+              # if pod search "$pod" 2>/dev/null | grep -q "$VERSION"; then
+                # echo "$pod $VERSION is now indexed!"
+                # return 0
+              # fi
+              # if [ $i -lt $max_wait ]; then
+                # echo "  Attempt $i/$max_wait - not indexed yet, waiting ${wait_time}s..."
+                # sleep $wait_time
+              # fi
+            # done
+            # echo "Timeout waiting for indexing, proceeding with publish (retry will handle it)..."
+          # }
 
-          # Publish NewRelicVideoAgent first (other pods depend on it)
-          publish_pod "NewRelicVideoAgent" "NewRelicVideoAgent.podspec"
-          if [ "$DRY_RUN" != "true" ]; then
-            wait_for_indexing "NewRelicVideoAgent"
-          fi
+          # # Publish NewRelicVideoAgent first (other pods depend on it)
+          # publish_pod "NewRelicVideoAgent" "NewRelicVideoAgent.podspec"
+          # if [ "$DRY_RUN" != "true" ]; then
+            # wait_for_indexing "NewRelicVideoAgent"
+          # fi
 
-          # Publish dependent pods — if the first succeeds, indexing is confirmed
-          # so the second doesn't need any additional wait
-          publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
-          publish_pod "NRIMATracker" "NRIMATracker.podspec"
-          publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
-          publish_pod "NRTHEOplayerTracker" "NRTHEOplayerTracker.podspec"
+          # # Publish dependent pods — if the first succeeds, indexing is confirmed
+          # # so the second doesn't need any additional wait
+          # publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
+          # publish_pod "NRIMATracker" "NRIMATracker.podspec"
+          # publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
+          # publish_pod "NRTHEOplayerTracker" "NRTHEOplayerTracker.podspec"
 
-          echo ""
-          echo "All pods published!"
+          # echo ""
+          # echo "All pods published!"
 
       - name: Extract changelog excerpt
         id: changelog
@@ -408,14 +417,7 @@ jobs:
           body: |
             ## Release v${{ steps.get_version.outputs.version }}
 
-            Published to CocoaPods:
-            - NewRelicVideoAgent `${{ steps.get_version.outputs.version }}`
-            - NRAVPlayerTracker `${{ steps.get_version.outputs.version }}`
-            - NRIMATracker `${{ steps.get_version.outputs.version }}`
-            - NRMediaTailorTracker `${{ steps.get_version.outputs.version }}`
-            - NRTHEOplayerTracker `${{ steps.get_version.outputs.version }}`
-
-            Also available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
+            Available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
 
             ### What's Changed
 
@@ -477,7 +479,7 @@ jobs:
             --base master \
             --head "$BRANCH" \
             --title "chore: update Package.swift for ${TAG}" \
-            --body "Syncs master's checked-in \`Package.swift\` with the checksums already tagged as \`${TAG}\`. Doesn't gate or affect the release itself - \`${TAG}\` is already tagged, published to CocoaPods, and live via SPM (which resolves the tag, not master's HEAD). Pure housekeeping so master's own copy isn't stuck on the placeholder."
+            --body "Syncs master's checked-in \`Package.swift\` with the checksums already tagged as \`${TAG}\`. Doesn't gate or affect the release itself - \`${TAG}\` is already tagged and live via SPM (which resolves the tag, not master's HEAD). Pure housekeeping so master's own copy isn't stuck on the placeholder."
 
       - name: Verify publication
         env:
@@ -493,45 +495,16 @@ jobs:
             echo ""
             echo "Steps validated:"
             echo "  - Version extraction: $VERSION"
-            echo "  - Podspec validation: passed"
-            echo "  - Trunk authentication: verified"
             echo "  - XCFramework build: passed"
             echo "  - Package.swift checksum computation + local commit: passed (see cat above)"
             echo ""
             echo "Steps skipped (dry run):"
             echo "  - Tag creation: v$VERSION"
-            echo "  - Pod publishing: NewRelicVideoAgent, NRAVPlayerTracker, NRIMATracker, NRMediaTailorTracker, NRTHEOplayerTracker"
             echo "  - XCFramework build"
             echo "  - GitHub release creation"
             exit 0
           fi
 
-          # Check published via CLI or API fallback, with retry
-          verify_pod() {
-            local pod=$1
-            local attempt=1
-            echo "=== $pod ==="
-            while [ $attempt -le 3 ]; do
-              if pod trunk info "$pod" 2>/dev/null | grep -q "- $VERSION" ||
-                 curl -sf "https://trunk.cocoapods.org/api/v1/pods/$pod" 2>/dev/null | grep -q "\"$VERSION\""; then
-                echo "$pod $VERSION - verified"
-                return 0
-              fi
-              echo "  Attempt $attempt/3 - not found, retrying in 15s..."
-              sleep 15
-              attempt=$((attempt + 1))
-            done
-            echo "WARNING: Could not verify $pod (publish step succeeded, likely published)"
-            return 0
-          }
-
-          verify_pod "NewRelicVideoAgent"
-          verify_pod "NRAVPlayerTracker"
-          verify_pod "NRIMATracker"
-          verify_pod "NRMediaTailorTracker"
-          verify_pod "NRTHEOplayerTracker"
-
-          echo ""
           echo "=== git tag v$VERSION ==="
           if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION"; then
             echo "tag v$VERSION - verified on remote"
@@ -561,9 +534,4 @@ jobs:
           echo "Release v$VERSION Complete!"
           echo "=================================="
           echo ""
-          echo "Users can now install with:"
-          echo "  pod 'NewRelicVideoAgent', '~> $VERSION'"
-          echo "  pod 'NRAVPlayerTracker', '~> $VERSION'"
-          echo "  pod 'NRIMATracker', '~> $VERSION'"
-          echo "  pod 'NRMediaTailorTracker', '~> $VERSION'"
-          echo "  pod 'NRTHEOplayerTracker', '~> $VERSION'"
+          echo "Users can now install v$VERSION via Swift Package Manager (see Package.swift)."
