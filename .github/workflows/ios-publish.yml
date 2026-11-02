@@ -1,4 +1,4 @@
-name: Publish to CocoaPods
+name: Publish to SPM
 
 # CocoaPods Trunk publish steps below are commented out as part of decommissioning
 # CocoaPods Trunk, which is going read-only permanently on Dec 2, 2026 (test blackout
