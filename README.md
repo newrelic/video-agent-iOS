@@ -15,7 +15,7 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
 - **IMA Ads Support** — Built-in Google IMA SDK ad tracking via dedicated ad tracker
 - **tvOS Support** — Auto-detection of Apple TV with optimized harvest cycles
 - **Multi-Player Support** — Track multiple simultaneous video players in the same application
-- **Easy Integration** — Swift Package Manager, XCFrameworks, manual source import, or CocoaPods (legacy)
+- **Easy Integration** — Swift Package Manager, XCFrameworks, manual source import, or CocoaPods (deprecated)
 
 ## Table of Contents
 
