@@ -8,8 +8,9 @@ The New Relic Video Agent for iOS provides comprehensive video analytics and mon
 
 See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions using either:
 
-- **CocoaPods** (recommended)
+- **Swift Package Manager** (recommended)
 - **XCFramework** (binary distribution)
+- **CocoaPods** (legacy — see [INSTALLATION.md](INSTALLATION.md#method-3-cocoapods-legacy))
 
 ## Dependencies
 
@@ -20,12 +21,12 @@ See [INSTALLATION.md](INSTALLATION.md) for detailed installation instructions us
 
 **Additional for IMA Ad Tracking:**
 
-- Google Interactive Media Ads SDK (automatically handled by CocoaPods)
+- Google Interactive Media Ads SDK (automatically handled by CocoaPods; added as a separate SPM/XCFramework dependency otherwise)
 
 **Additional for THEOplayer:**
 
 - iOS 13.0+ (THEOplayer's own minimum, higher than this SDK's overall iOS 12.0+ floor)
-- THEOplayerSDK-core (automatically handled by CocoaPods) and a valid THEOplayer license from Dolby
+- THEOplayerSDK-core (automatically handled by CocoaPods; added separately via its own xcframework zip for SPM/XCFramework installs) and a valid THEOplayer license from Dolby
 
 ## Import Statements
 
