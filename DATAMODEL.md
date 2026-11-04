@@ -161,6 +161,7 @@ QOE_AGGREGATE events carry all standard VideoAction attributes (viewId, viewSess
 | adPosition               | The position of the ad.                                                                                                                            |
 | adCreativeId             | The creative ID of the ad.                                                                                                                         |
 | adPartner                | The ad partner, e.g., ima, freewheel.                                                                                                              |
+| adStreamType             | Set to `DAI` for ads delivered by Google IMA Dynamic Ad Insertion (server-side stitched). Not set for client-side ads. Also present on `VideoErrorAction` for ad errors. |
 | isBackgroundEvent        | If the player is hidden by another window.                                                                                                         |
 | bufferType               | When buffer starts, i.e., initial, seek, pause & connection.                                                                                       |
 | asn                      | Autonomous System Number: a unique number identifying a group of IP networks that serves the content to the end user.                              |

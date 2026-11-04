@@ -123,7 +123,7 @@ The Video Agent is composed of five modules:
 |--------|-------------|----------|
 | **NewRelicVideoCore** | Base classes for tracker management, event generation, and data harvesting. Standalone — no New Relic iOS Agent dependency required. | Yes |
 | **NRAVPlayerTracker** | Video tracker for AVPlayer. Automatically hooks into player lifecycle events via KVO and notifications. | Yes (for AVPlayer) |
-| **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors. | Optional |
+| **NRIMATracker** | Ad tracker for the Google IMA SDK. Captures ad lifecycle events including quartiles, breaks, and errors, for client-side ads (`IMAAdsManager`) and Dynamic Ad Insertion (`IMAStreamManager`). | Optional |
 | **NRTHEOplayerTracker** | Video tracker for THEOplayer (Dolby OptiView Player). Wires real lifecycle, QoE/rendition, and error events via THEOplayer's own listener API. iOS only, iOS 13.0+. | Optional (for THEOplayer) |
 | **NRMediaTailorTracker** | Ad tracker for AWS MediaTailor server-side ad insertion (SSAI). Detects ads inside an `AVPlayer` HLS stream and emits the standard ad event vocabulary plus `AD_ERROR`. HLS-only in v1; DASH support is via a customer-supplied adapter. iOS 12 + tvOS 12. See [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md). | Optional |
 
@@ -249,7 +249,7 @@ let adTracker = NRVAVideo.adTracker(forId: trackerId) as? NRIMATracker
 
 ### Setup with `NRAdConfig` (Recommended)
 
-`adEnabled` above is a legacy boolean shortcut. The current API is `NRAdConfig` — the single place to select and configure the ad tracker for a player session: client-side ads (Google IMA/CSAI) or AWS MediaTailor server-side ad insertion.
+`adEnabled` above is a legacy boolean shortcut. The current API is `NRAdConfig` — the single place to select and configure the ad tracker for a player session: client-side ads (Google IMA/CSAI), Google IMA Dynamic Ad Insertion (DAI), or AWS MediaTailor server-side ad insertion.
 
 <details>
 <summary>Objective-C</summary>
@@ -261,6 +261,13 @@ NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration allo
     initWithPlayerName:@"MainVideoPlayer"
     player:yourAVPlayer
     adConfig:[NRAdConfig csai]
+    customAttributes:nil];
+
+// Google IMA Dynamic Ad Insertion (requires NRIMATracker)
+NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adConfig:[NRAdConfig dai]
     customAttributes:nil];
 
 // AWS MediaTailor server-side ad insertion (requires NRMediaTailorTracker)
@@ -294,6 +301,14 @@ let playerConfig = NRVAVideoPlayerConfiguration(
     customAttributes: nil
 )
 
+// Google IMA Dynamic Ad Insertion (requires NRIMATracker)
+let playerConfig = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adConfig: NRAdConfig.dai(),
+    customAttributes: nil
+)
+
 // AWS MediaTailor server-side ad insertion (requires NRMediaTailorTracker)
 let playerConfig = NRVAVideoPlayerConfiguration(
     playerName: "MainVideoPlayer",
@@ -313,6 +328,86 @@ let playerConfig = NRVAVideoPlayerConfiguration(
 
 </p>
 </details>
+
+### Google IMA Dynamic Ad Insertion (DAI)
+
+With DAI, ads are stitched into the stream by Google and played through an `IMAStreamManager` instead of an `IMAAdsManager`. Select `NRAdConfig.dai()`, then forward the `IMAStreamManagerDelegate` callbacks to `NRVAVideo`. Ad breaks come from the IMA `AD_BREAK_STARTED` and `AD_BREAK_ENDED` events (there is no content pause/resume callback for DAI), so do not call `sendAdBreakStart`/`sendAdBreakEnd` yourself.
+
+Register the player with `addPlayer` before you request the stream, so a stream request failure still reaches the tracker.
+
+<details>
+<summary>Objective-C</summary>
+<p>
+
+```objc
+// Register the player first.
+NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MainVideoPlayer"
+    player:yourAVPlayer
+    adConfig:[NRAdConfig dai]
+    customAttributes:nil];
+NSNumber *trackerId = @([NRVAVideo addPlayer:config]);
+
+// IMAAdsLoaderDelegate
+- (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
+    [NRVAVideo handleStreamAdError:trackerId error:adErrorData.adError];
+}
+
+// IMAStreamManagerDelegate
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
+    [NRVAVideo handleStreamAdEvent:trackerId event:event streamManager:streamManager];
+}
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdError:(IMAAdError *)error {
+    [NRVAVideo handleStreamAdError:trackerId error:error];
+}
+
+// Optional: gives the ad playhead (adPlayhead) for DAI.
+- (void)streamManager:(IMAStreamManager *)streamManager
+    adDidProgressToTime:(NSTimeInterval)time adDuration:(NSTimeInterval)adDuration
+             adPosition:(NSInteger)adPosition totalAds:(NSInteger)totalAds
+        adBreakDuration:(NSTimeInterval)adBreakDuration adPeriodDuration:(NSTimeInterval)adPeriodDuration {
+    [NRVAVideo handleStreamAdProgress:trackerId time:time adDuration:adDuration
+                           adPosition:adPosition totalAds:totalAds adBreakDuration:adBreakDuration];
+}
+```
+
+</p>
+</details>
+
+<details>
+<summary>Swift</summary>
+<p>
+
+```swift
+// Register the player first.
+let config = NRVAVideoPlayerConfiguration(
+    playerName: "MainVideoPlayer",
+    player: yourAVPlayer,
+    adConfig: NRAdConfig.dai(),
+    customAttributes: nil
+)
+let trackerId = NSNumber(value: NRVAVideo.addPlayer(config))
+
+// IMAAdsLoaderDelegate
+func adsLoader(_ loader: IMAAdsLoader, failedWith adErrorData: IMAAdLoadingErrorData) {
+    NRVAVideo.handleStreamAdError(trackerId, error: adErrorData.adError)
+}
+
+// IMAStreamManagerDelegate
+func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
+    NRVAVideo.handleStreamAdEvent(trackerId, event: event, streamManager: streamManager)
+}
+
+func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
+    NRVAVideo.handleStreamAdError(trackerId, error: error)
+}
+```
+
+</p>
+</details>
+
+DAI events are the same `AD_REQUEST`, `AD_START`, `AD_QUARTILE`, `AD_END`, `AD_CLICK`, `AD_BREAK_START`, `AD_BREAK_END` and `AD_ERROR` actions as client-side ads, plus the attribute `adStreamType` set to `DAI`. A skipped ad sends `AD_END` with `adSkipped` set to 1. A complete runnable example is in [`Examples/iOS/SimplePlayerWithDAI`](Examples/iOS/SimplePlayerWithDAI).
 
 For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides), see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
 
@@ -465,7 +560,7 @@ if shouldEnable {
 |-----------|------|-------------|
 | `playerName` | `String` | Unique identifier for the video player. |
 | `player` | `AVPlayer` or `THEOplayer` | The player instance to track. A real `AVPlayer`/`THEOplayer` instance is identified by class automatically. |
-| `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
+| `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA client-side ads, `NRAdConfig.dai()` for Google IMA Dynamic Ad Insertion, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
 | `adEnabled` | `Bool` | Legacy shortcut for `adConfig`. `true` → `NRAdConfig.csai()`; `false` → `nil`. |
 | `customAttributes` | `[String: Any]?` | Custom attributes to attach to all events from this player. |
 | `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. Left unset for such an object, `addPlayer` creates no tracker at all rather than guessing. |

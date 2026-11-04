@@ -1,3 +1,13 @@
+## Unreleased
+
+### Features
+
+- `NRIMATracker`: Added support for Google IMA Dynamic Ad Insertion (server-side stitched ads). Use `NRAdConfig.dai()` and forward the `IMAStreamManagerDelegate` callbacks with `NRVAVideo.handleStreamAdEvent`, `handleStreamAdError` and `handleStreamAdProgress`. DAI ads send the same ad actions as client-side ads, with `AD_BREAK_START` and `AD_BREAK_END` taken from the IMA ad-break events, and carry the new attribute `adStreamType` set to `DAI`. Client-side ad tracking is unchanged.
+
+### Bug fixes
+
+- `NRIMATracker`: `adSkipped` is now reset when the next ad starts. Previously it stayed at 1 for every later ad after one was skipped.
+
 ## [5.1.0](https://github.com/newrelic/video-agent-iOS/compare/v5.0.0...v5.1.0) (2026-10-15)
 
 ### Notes
