@@ -92,7 +92,7 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
 
 - (void)playLive {
     [self startWithRequestBuilder:^IMAStreamRequest *(IMAAdDisplayContainer *container, id<IMAVideoDisplay> display) {
-        return [[IMALiveStreamRequest alloc] initWithAssetKey:kLiveAssetKey
+        return [[IMALiveStreamRequest alloc] initWithAssetKey:(NSProcessInfo.processInfo.environment[@"NR_LIVE_ASSET_KEY"] ?: kLiveAssetKey)
                                            adDisplayContainer:container
                                                  videoDisplay:display
                                                   userContext:nil];
