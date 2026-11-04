@@ -466,7 +466,7 @@ static dispatch_once_t onceToken;
 /**
  * Creates the ad tracker whose class matches the ad config's type.
  * Uses dynamic class loading (no hard link) with graceful fallback:
- * CSAI → NRTrackerIMA (NRIMATracker pod), MediaTailor → NRTrackerMediaTailor
+ * CSAI and DAI → NRTrackerIMA (NRIMATracker pod), MediaTailor → NRTrackerMediaTailor
  * (NRMediaTailorTracker pod).
  */
 + (id)createAdTrackerForConfig:(NRAdConfig *)adConfig {
@@ -602,6 +602,52 @@ static dispatch_once_t onceToken;
     if (adTracker && [adTracker respondsToSelector:@selector(handleAdError:)]) {
         // Use performSelector to avoid compiler warnings about unknown methods
         [adTracker performSelector:@selector(handleAdError:) withObject:error];
+    }
+}
+
++ (void)handleStreamAdEvent:(NSNumber *)trackerId event:(IMAAdEvent *)event streamManager:(IMAStreamManager *)streamManager {
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(handleStreamAdEvent:streamManager:)]) {
+        NSMethodSignature *methodSignature = [adTracker methodSignatureForSelector:@selector(handleStreamAdEvent:streamManager:)];
+        if (methodSignature) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+            [invocation setTarget:adTracker];
+            [invocation setSelector:@selector(handleStreamAdEvent:streamManager:)];
+            [invocation setArgument:&event atIndex:2];
+            [invocation setArgument:&streamManager atIndex:3];
+            [invocation invoke];
+        }
+    }
+}
+
++ (void)handleStreamAdError:(NSNumber *)trackerId error:(IMAAdError *)error {
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
+    if (adTracker && [adTracker respondsToSelector:@selector(handleStreamAdError:)]) {
+        [adTracker performSelector:@selector(handleStreamAdError:) withObject:error];
+    }
+}
+
++ (void)handleStreamAdProgress:(NSNumber *)trackerId
+                          time:(NSTimeInterval)time
+                    adDuration:(NSTimeInterval)adDuration
+                    adPosition:(NSInteger)adPosition
+                      totalAds:(NSInteger)totalAds
+               adBreakDuration:(NSTimeInterval)adBreakDuration {
+    id adTracker = [[NewRelicVideoAgent sharedInstance] adTracker:trackerId];
+    SEL sel = @selector(handleStreamAdProgressToTime:adDuration:adPosition:totalAds:adBreakDuration:);
+    if (adTracker && [adTracker respondsToSelector:sel]) {
+        NSMethodSignature *methodSignature = [adTracker methodSignatureForSelector:sel];
+        if (methodSignature) {
+            NSInvocation *invocation = [NSInvocation invocationWithMethodSignature:methodSignature];
+            [invocation setTarget:adTracker];
+            [invocation setSelector:sel];
+            [invocation setArgument:&time atIndex:2];
+            [invocation setArgument:&adDuration atIndex:3];
+            [invocation setArgument:&adPosition atIndex:4];
+            [invocation setArgument:&totalAds atIndex:5];
+            [invocation setArgument:&adBreakDuration atIndex:6];
+            [invocation invoke];
+        }
     }
 }
 

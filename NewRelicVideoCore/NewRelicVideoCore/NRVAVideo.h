@@ -15,6 +15,7 @@
 @class IMAAdEvent;
 @class IMAAdError;
 @class IMAAdsManager;
+@class IMAStreamManager;
 @class NRAdConfig;
 
 /**
@@ -81,6 +82,32 @@
  * @param error The IMA ad error
  */
 + (void)handleAdError:(NSNumber *)trackerId error:(IMAAdError *)error;
+
+/**
+ * Handle a Google IMA DAI (IMAStreamManager) ad event. Call from `-streamManager:didReceiveAdEvent:`.
+ * No-op when the tracker does not exist or is not an NRTrackerIMA.
+ * @param trackerId The tracker ID
+ * @param event The IMA ad event
+ * @param streamManager The IMA stream manager (optional)
+ */
++ (void)handleStreamAdEvent:(NSNumber *)trackerId event:(IMAAdEvent *)event streamManager:(IMAStreamManager *)streamManager;
+
+/**
+ * Handle a Google IMA DAI ad error. Call from `-streamManager:didReceiveAdError:`.
+ * @param trackerId The tracker ID
+ * @param error The IMA ad error
+ */
++ (void)handleStreamAdError:(NSNumber *)trackerId error:(IMAAdError *)error;
+
+/**
+ * Forward DAI ad progress. Call from the optional `-streamManager:adDidProgressToTime:...` delegate method.
+ */
++ (void)handleStreamAdProgress:(NSNumber *)trackerId
+                          time:(NSTimeInterval)time
+                    adDuration:(NSTimeInterval)adDuration
+                    adPosition:(NSInteger)adPosition
+                      totalAds:(NSInteger)totalAds
+               adBreakDuration:(NSTimeInterval)adBreakDuration;
 
 /**
  * Send ad break start event - MUCH SIMPLER!
