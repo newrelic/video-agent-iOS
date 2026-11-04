@@ -65,8 +65,37 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
     [self streamAdEvent:event streamManager:manager];
 }
 
++ (NSString *)sanitizedErrorMessage:(NSString *)message {
+    static NSRegularExpression *urlRegex;
+    static dispatch_once_t once;
+    dispatch_once(&once, ^{
+        // Scheme, host and path, then an optional query/fragment up to whitespace or a quote.
+        urlRegex = [NSRegularExpression regularExpressionWithPattern:@"(https?://[^\\s?#\"'<>]*)[?#][^\\s\"'<>]*"
+                                                             options:0
+                                                               error:nil];
+    });
+    if (message.length == 0) {
+        return message;
+    }
+    return [urlRegex stringByReplacingMatchesInString:message
+                                              options:0
+                                                range:NSMakeRange(0, message.length)
+                                         withTemplate:@"$1?<redacted>"];
+}
+
+// Name for the errorName attribute, derived from the IMA error type.
+static NSString *NRIMAErrorName(IMAErrorType type) {
+    switch (type) {
+        case kIMAAdLoadingFailed: return @"IMA_AD_LOADING_FAILED";
+        case kIMAAdPlayingFailed: return @"IMA_AD_PLAYING_FAILED";
+        default: return @"IMA_AD_UNKNOWN_ERROR";
+    }
+}
+
 - (void)handleStreamAdError:(IMAAdError *)error {
-    NSString *message = error.message ?: @"Unknown IMA stream error";
+    NSString *message = [NRTrackerIMA sanitizedErrorMessage:error.message] ?: @"Unknown IMA stream error";
+    // Core's error event carries only message, domain and code, so attach the name to AD_ERROR here.
+    [self setAttribute:@"errorName" value:NRIMAErrorName(error.type) forAction:AD_ERROR];
     NSError *nsError = [[NSError alloc] initWithDomain:kNRIMAErrorDomain
                                                   code:(int)error.code
                                               userInfo:@{
@@ -148,6 +177,9 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
 }
 
 - (void)adError:(NSString *)message code:(int)code {
+    if (self.isDAI) {
+        message = [NRTrackerIMA sanitizedErrorMessage:message];
+    }
     NSError *error = [[NSError alloc] initWithDomain:kNRIMAErrorDomain
                                                 code:code
                                             userInfo:@{ NSLocalizedDescriptionKey:message }];

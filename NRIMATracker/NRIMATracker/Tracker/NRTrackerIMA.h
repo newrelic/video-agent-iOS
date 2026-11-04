@@ -57,6 +57,13 @@
  */
 - (void)handleAdError:(IMAAdError *)error;
 
+/**
+ Remove the query string of every http(s) URL in an error message. IMA stream errors embed the
+ full request URL, whose query carries device and session identifiers (rdid, idfv, correlator).
+ Scheme, host and path are kept and the query becomes `?<redacted>`.
+ */
++ (NSString *)sanitizedErrorMessage:(NSString *)message;
+
 #pragma mark - Dynamic Ad Insertion (IMAStreamManager)
 
 /**

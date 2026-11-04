@@ -288,6 +288,55 @@
     XCTAssertEqualObjects(r.attributes[@"adStreamType"], @"DAI");
 }
 
+static NSString *const kRealStreamInitMessage =
+    @"Stream initialization failed because either: \n1. Asset key was incorrect.\n2. The stream is inactive.\n"
+    @"HTTP status code: 404 with URL: https://pubads.g.doubleclick.net/ssai/event/invalid-asset-key/streams?ctv=0&ms=Ldhzc"
+    @"&js=ima-ios.3.33.0&correlator=2106536787911345&rdid=00000000-0000-0000-0000-000000000000"
+    @"&idfv=67484060-5DF5-44BF-A381-8B9C8DC8EFEC&sid=EF8EEF18-580D-4729-BC0F-87B5AC4C3A82&url=com.x.adsenseformobileapps.com%2F";
+
+- (void)testDaiErrorMessageDropsRequestUrlQuery {
+    RecordingIMATracker *t = [self daiTracker];
+    FakeError *err = [FakeError alloc];
+    err.fakeType = kIMAAdLoadingFailed;
+    err.fakeCode = kIMAError_STREAM_INITIALIZATION_FAILED;
+    err.fakeMessage = kRealStreamInitMessage;
+    [t handleStreamAdError:err];
+    NSString *msg = [t lastRecorded].attributes[@"errorMessage"];
+    XCTAssertTrue([msg containsString:@"https://pubads.g.doubleclick.net/ssai/event/invalid-asset-key/streams?<redacted>"]);
+    XCTAssertTrue([msg hasPrefix:@"Stream initialization failed because either:"]);
+    XCTAssertTrue([msg containsString:@"HTTP status code: 404"]);
+    XCTAssertFalse([msg containsString:@"rdid"]);
+    XCTAssertFalse([msg containsString:@"idfv"]);
+    XCTAssertFalse([msg containsString:@"correlator"]);
+}
+
+- (void)testSanitizerKeepsTextWithoutQueryAndHandlesMultipleUrls {
+    XCTAssertEqualObjects([NRTrackerIMA sanitizedErrorMessage:@"no url here"], @"no url here");
+    XCTAssertEqualObjects([NRTrackerIMA sanitizedErrorMessage:@"see https://a.com/x/y plain"], @"see https://a.com/x/y plain");
+    XCTAssertEqualObjects([NRTrackerIMA sanitizedErrorMessage:@"a https://a.com/p?id=1 b http://b.org/q?z=2#f c"],
+                          @"a https://a.com/p?<redacted> b http://b.org/q?<redacted> c");
+    XCTAssertNil([NRTrackerIMA sanitizedErrorMessage:nil]);
+}
+
+- (void)testCsaiErrorMessageIsNotSanitized {
+    RecordingIMATracker *t = [self csaiTracker];
+    [t adError:@"failed https://a.com/p?id=1" code:1];
+    XCTAssertEqualObjects([t lastRecorded].attributes[@"errorMessage"], @"failed https://a.com/p?id=1");
+}
+
+- (void)testDaiErrorCarriesErrorNameFromImaType {
+    RecordingIMATracker *t = [self daiTracker];
+    FakeError *err = [FakeError alloc];
+    err.fakeType = kIMAAdLoadingFailed;
+    err.fakeCode = kIMAError_STREAM_INITIALIZATION_FAILED;
+    err.fakeMessage = @"m";
+    [t handleStreamAdError:err];
+    XCTAssertEqualObjects([t lastRecorded].attributes[@"errorName"], @"IMA_AD_LOADING_FAILED");
+    err.fakeType = kIMAAdPlayingFailed;
+    [t handleStreamAdError:err];
+    XCTAssertEqualObjects([t lastRecorded].attributes[@"errorName"], @"IMA_AD_PLAYING_FAILED");
+}
+
 - (void)testDaiErrorWithNilMessageDoesNotCrash {
     RecordingIMATracker *t = [self daiTracker];
     FakeError *err = [FakeError alloc];
