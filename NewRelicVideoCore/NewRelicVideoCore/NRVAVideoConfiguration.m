@@ -34,6 +34,11 @@ static const NSInteger kMemoryOptimizedLiveBatchSizeBytes = 16 * 1024; // 16KB
 static const NSInteger kMemoryOptimizedMaxDeadLetterSize = 50;
 static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
+@interface NRVAVideoConfiguration ()
++ (NSString *)tryReadBaseAgentApplicationToken;
++ (NSString *)tryReadBaseAgentApplicationTokenAtPath:(NSString *)path;
+@end
+
 @implementation NRVAVideoConfiguration
 
 + (NRVAVideoConfigurationBuilder *)builder {
@@ -43,13 +48,22 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 - (instancetype)initWithBuilder:(NRVAVideoConfigurationBuilder *)builder {
     self = [super init];
     if (self) {
-        if (!builder.applicationToken || builder.applicationToken.length == 0) {
+        NSString *resolvedToken = builder.applicationToken;
+
+        // Fall back to the base New Relic iOS agent's licenseKey (bundled
+        // newrelic.json) when the caller omits an explicit applicationToken.
+        // See +tryReadBaseAgentApplicationToken for why this file specifically.
+        if (!resolvedToken || resolvedToken.length == 0) {
+            resolvedToken = [NRVAVideoConfiguration tryReadBaseAgentApplicationToken];
+        }
+
+        if (!resolvedToken || resolvedToken.length == 0) {
             @throw [NSException exceptionWithName:NSInvalidArgumentException
                                            reason:@"Application token cannot be nil or empty"
                                          userInfo:nil];
         }
-        
-        _applicationToken = [builder.applicationToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+        _applicationToken = [resolvedToken stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
         _region = [self identifyRegion:_applicationToken];
         _harvestCycleSeconds = builder.harvestCycleSeconds;
         _liveHarvestCycleSeconds = builder.liveHarvestCycleSeconds;
@@ -157,6 +171,71 @@ static const NSInteger kMemoryOptimizedMaxOfflineStorageSizeMB = 50; // 50MB
 
     // Default to US for standard tokens without region prefix
     return @"US";
+}
+
+/**
+ * Reads the base New Relic iOS agent's licenseKey from its bundled
+ * newrelic.json config file, if present, for use when the caller omits an
+ * explicit applicationToken.
+ *
+ * newrelic.json (at [NSBundle mainBundle]) is the base agent's ONLY
+ * credential storage location at runtime — confirmed by reading the base
+ * agent's own source: startAgent takes zero parameters, config loading has
+ * no branching/override (no Info.plist key, no env var, no alternate
+ * filename), and there is no Keychain/UserDefaults/remote-fetch/secondary
+ * cache of credentials anywhere. The only other config-setting path is a
+ * private, undocumented category (NewRelic+private.h createIAgent:) that is
+ * explicitly internal-only and deliberately not used here. So reading this
+ * file with public Foundation APIs is reading the same, and only, source of
+ * truth the base agent itself would have used — not reaching into anything
+ * private.
+ *
+ * "licenseKey" is the JSON key name the base agent's config file uses for
+ * what mobile terminology elsewhere calls "application token" — same
+ * AA...-NRMA token format as Android's applicationToken.
+ *
+ * Returns nil (not throwing) if the file is absent or malformed: that's
+ * treated identically to "no base agent configured", same graceful
+ * fallback-to-explicit-config behavior as the browser/Android equivalents.
+ */
++ (NSString *)tryReadBaseAgentApplicationToken {
+    NSString *path = [[NSBundle mainBundle] pathForResource:@"newrelic" ofType:@"json"];
+    if (!path) {
+        NRVA_DEBUG_LOG(@"No newrelic.json found in the main bundle; no base agent config to fall back to.");
+        return nil;
+    }
+    return [self tryReadBaseAgentApplicationTokenAtPath:path];
+}
+
+/**
+ * Same as +tryReadBaseAgentApplicationToken, but reads+parses an explicit
+ * file path instead of locating it via [NSBundle mainBundle] — so tests can
+ * point it at a real temp file without needing a bundle resource. Real
+ * callers always go through +tryReadBaseAgentApplicationToken; this exists
+ * for testability only.
+ */
++ (NSString *)tryReadBaseAgentApplicationTokenAtPath:(NSString *)path {
+    NSData *data = [NSData dataWithContentsOfFile:path];
+    if (!data) {
+        NRVA_ERROR_LOG(@"Found newrelic.json at %@ but could not read its contents.", path);
+        return nil;
+    }
+
+    NSError *jsonError = nil;
+    id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+    if (jsonError || ![json isKindOfClass:[NSDictionary class]]) {
+        NRVA_ERROR_LOG(@"newrelic.json is not valid JSON: %@", jsonError.localizedDescription);
+        return nil;
+    }
+
+    NSDictionary *config = (NSDictionary *)json;
+    NSString *licenseKey = config[@"licenseKey"];
+    if (![licenseKey isKindOfClass:[NSString class]] || licenseKey.length == 0) {
+        NRVA_ERROR_LOG(@"newrelic.json is missing a valid licenseKey.");
+        return nil;
+    }
+
+    return licenseKey;
 }
 
 @end
