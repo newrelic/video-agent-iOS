@@ -12,10 +12,20 @@
         token = @"YOUR_NEWRELIC_APP_TOKEN";
     }
 
+    // Optional: NR_COLLECTOR_ADDRESS in the scheme environment points the run at a non-default collector
+    // (e.g. a staging account's token needs the staging collector).
+    NSString *collector = NSProcessInfo.processInfo.environment[@"NR_COLLECTOR_ADDRESS"];
     NRVAVideoConfiguration *videoConfig = [[[[[NRVAVideoConfiguration builder]
         withApplicationToken:token]
         withHarvestCycle:60]
         withDebugLogging:YES] build];
+    if (collector.length > 0) {
+        videoConfig = [[[[[[NRVAVideoConfiguration builder]
+            withApplicationToken:token]
+            withHarvestCycle:60]
+            withCollectorAddress:collector]
+            withDebugLogging:YES] build];
+    }
     [[[NRVAVideo newBuilder] withConfiguration:videoConfig] build];
 
     self.window = [[UIWindow alloc] initWithFrame:UIScreen.mainScreen.bounds];

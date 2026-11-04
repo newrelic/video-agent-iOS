@@ -29,17 +29,20 @@
 @interface FakeAd : IMAAd
 @property (nonatomic, copy) NSString *fakeTitle;
 @property (nonatomic, copy) NSString *fakeCreativeId;
+@property (nonatomic, copy) NSString *fakeAdId;
+@property (nonatomic) NSInteger fakeBitrate;
 @property (nonatomic) NSTimeInterval fakeDuration;
 @property (nonatomic, strong) FakePodInfo *fakePod;
 @end
 @implementation FakeAd
 - (NSString *)adTitle { return self.fakeTitle; }
 - (NSString *)creativeID { return self.fakeCreativeId; }
+- (NSString *)adId { return self.fakeAdId; }
 - (NSTimeInterval)duration { return self.fakeDuration; }
 - (IMAAdPodInfo *)adPodInfo { return self.fakePod; }
 - (NSInteger)VASTMediaWidth { return 640; }
 - (NSInteger)VASTMediaHeight { return 360; }
-- (NSInteger)VASTMediaBitrate { return 800; }
+- (NSInteger)VASTMediaBitrate { return self.fakeBitrate; }
 @end
 
 @interface FakeEvent : IMAAdEvent
@@ -128,6 +131,8 @@
     FakeAd *ad = [FakeAd alloc];
     ad.fakeTitle = title;
     ad.fakeCreativeId = @"creative-1";
+    ad.fakeAdId = [@"ad-" stringByAppendingString:title];
+    ad.fakeBitrate = 800;
     ad.fakeDuration = 15;
     ad.fakePod = pod;
     return ad;
@@ -314,6 +319,32 @@
     [t streamAdEvent:[self event:kIMAAdEvent_COMPLETE ad:ad] streamManager:nil];
     [t streamAdEvent:[self event:kIMAAdEvent_AD_BREAK_ENDED ad:nil] streamManager:nil];
     XCTAssertEqualObjects([t lastRecorded].attributes[@"adTitle"], @"Ad A");
+}
+
+- (void)testDaiNewBreakDoesNotReportPreviousBreakMetadata {
+    RecordingIMATracker *t = [self daiTracker];
+    FakeAd *ad = [self adWithTitle:@"Ad A" timeOffset:0 podIndex:0];
+    [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:ad] streamManager:nil];
+    [t streamAdEvent:[self event:kIMAAdEvent_AD_BREAK_STARTED ad:nil] streamManager:nil];
+    XCTAssertEqualObjects([t getAdPosition], [NSNull null]);
+    XCTAssertEqualObjects([t getTitle], [NSNull null]);
+}
+
+- (void)testDaiAdIdComesFromImaAdAndDiffersPerAd {
+    RecordingIMATracker *t = [self daiTracker];
+    [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:[self adWithTitle:@"A" timeOffset:0 podIndex:0]] streamManager:nil];
+    XCTAssertEqualObjects([t getVideoId], @"ad-A");
+    [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:[self adWithTitle:@"B" timeOffset:0 podIndex:0]] streamManager:nil];
+    XCTAssertEqualObjects([t getVideoId], @"ad-B");
+}
+
+- (void)testDaiZeroBitrateIsNullButCsaiKeepsValue {
+    RecordingIMATracker *t = [self daiTracker];
+    FakeAd *ad = [self adWithTitle:@"A" timeOffset:0 podIndex:0];
+    ad.fakeBitrate = 0;
+    [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:ad] streamManager:nil];
+    XCTAssertEqualObjects([t getBitrate], [NSNull null]);
+    XCTAssertEqualObjects([t getRenditionWidth], @640);
 }
 
 - (void)testDaiAdPositionUsesPodTimeOffset {

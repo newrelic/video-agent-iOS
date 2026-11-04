@@ -61,6 +61,16 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
     [stack addArrangedSubview:self.statusLabel];
 }
 
+/// Lets a scripted run start a scenario without tapping: NR_AUTO_SCENARIO = vod | live | bad-key.
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if (self.trackerId) { return; }
+    NSString *auto_ = NSProcessInfo.processInfo.environment[@"NR_AUTO_SCENARIO"];
+    if ([auto_ isEqualToString:@"vod"]) { [self playVOD]; }
+    else if ([auto_ isEqualToString:@"live"]) { [self playLive]; }
+    else if ([auto_ isEqualToString:@"bad-key"]) { [self playBadKey]; }
+}
+
 - (UIButton *)buttonWithTitle:(NSString *)title action:(SEL)action {
     UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
     [b setTitle:title forState:UIControlStateNormal];
@@ -104,6 +114,7 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
     [self stopTracking];
 
     self.player = [[AVPlayer alloc] init];
+    self.player.muted = YES;
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = self.player;
 
@@ -116,6 +127,10 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
         customAttributes:@{ @"testRun": testRun, @"scenario": label, @"customTag": @"SimplePlayerWithDAI" }];
     // Registered before the stream request so a request failure still reaches a tracker.
     self.trackerId = @([NRVAVideo addPlayer:config]);
+    // customAttributes reach the content tracker only; mirror them on the ad tracker so ad events can be filtered too.
+    for (NSString *key in config.customAttributes) {
+        [NRVAVideo setAdAttribute:self.trackerId.integerValue key:key value:config.customAttributes[key]];
+    }
 
     [self presentViewController:self.playerController animated:YES completion:^{
         IMAAdDisplayContainer *container = [[IMAAdDisplayContainer alloc]

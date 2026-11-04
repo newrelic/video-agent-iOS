@@ -130,6 +130,8 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
             // DAI only: there is no adsManagerDidRequestContentPause/Resume for stitched ads.
             // sendAdBreakStart/End are state guarded, so an app that also calls them is not double counted.
             if (self.isDAI) {
+                // A new break has no ad yet; drop the previous break's ad so its position/title are not reported.
+                self.lastEvent = nil;
                 [self sendAdBreakStart];
             }
             break;
@@ -213,9 +215,24 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
     return @(YES);
 }
 
+// Stitched DAI ads have no VAST media file, so IMA reports 0 for size and bitrate; send null instead of 0.
+- (NSNumber *)nullIfDaiZero:(NSInteger)value {
+    if (self.isDAI && value == 0) {
+        return (NSNumber *)[NSNull null];
+    }
+    return @(value);
+}
+
+// The base implementation hashes getSrc, which this tracker does not provide, so every ad would
+// share the MD5 of the empty string. For DAI use IMA's own ad id.
+- (NSString *)getVideoId {
+    NSString *adId = self.isDAI ? self.lastEvent.ad.adId : nil;
+    return adId.length > 0 ? adId : [super getVideoId];
+}
+
 - (NSNumber *)getRenditionWidth {
     if (self.lastEvent) {
-        return @(self.lastEvent.ad.VASTMediaWidth);
+        return [self nullIfDaiZero:self.lastEvent.ad.VASTMediaWidth];
     }
     else {
         return (NSNumber *)[NSNull null];
@@ -224,7 +241,7 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
 
 - (NSNumber *)getRenditionHeight {
     if (self.lastEvent) {
-        return @(self.lastEvent.ad.VASTMediaHeight);
+        return [self nullIfDaiZero:self.lastEvent.ad.VASTMediaHeight];
     }
     else {
         return (NSNumber *)[NSNull null];
@@ -243,7 +260,7 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
 - (NSNumber *)getBitrate {
     if (self.lastEvent) {
         // VASTMediaBitrate returns kbps, convert to bps for consistency with AVPlayer's averageVideoBitrate
-        return @(self.lastEvent.ad.VASTMediaBitrate * 1000);
+        return [self nullIfDaiZero:self.lastEvent.ad.VASTMediaBitrate * 1000];
     }
     else {
         return (NSNumber *)[NSNull null];
