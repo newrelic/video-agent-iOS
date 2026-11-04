@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7A11DA10000000000000AA01 /* NewRelicVideoCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIM189B038CE77140FA98C1 /* NewRelicVideoCore.framework */; };
+		7A11DA10000000000000AA02 /* GoogleInteractiveMediaAds.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CIMEA5AEAB67A18479CA26F /* GoogleInteractiveMediaAds.xcframework */; };
 		9CBCBDB32BCD5DE000B205EE /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 9CBCBDB22BCD5DE000B205EE /* PrivacyInfo.xcprivacy */; };
 		9CEE254525EE737E000491C5 /* NRIMATracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9CEE253B25EE737D000491C5 /* NRIMATracker.framework */; };
 		9CEE254A25EE737E000491C5 /* NRIMATrackerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 9CEE254925EE737E000491C5 /* NRIMATrackerTests.m */; };
@@ -63,6 +65,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				9CEE254525EE737E000491C5 /* NRIMATracker.framework in Frameworks */,
+				7A11DA10000000000000AA01 /* NewRelicVideoCore.framework in Frameworks */,
+				7A11DA10000000000000AA02 /* GoogleInteractiveMediaAds.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -544,9 +548,16 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
+				);
 				INFOPLIST_FILE = NRIMATrackerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
@@ -561,9 +572,16 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = G8ZB8K99NL;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
+				);
 				INFOPLIST_FILE = NRIMATrackerTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(BUILT_PRODUCTS_DIR)",
+					"$(SRCROOT)",
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
