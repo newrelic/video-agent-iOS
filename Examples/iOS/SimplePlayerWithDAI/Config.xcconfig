@@ -1,0 +1,10 @@
+// Build settings shared by every configuration.
+//
+// NR_APP_TOKEN is read at runtime from Info.plist (key NRAppToken). Do not put a real
+// token in this file. Create Config.local.xcconfig next to it (gitignored) with:
+//
+//   NR_APP_TOKEN = <your New Relic mobile app token>
+//
+NR_APP_TOKEN = YOUR_NEWRELIC_APP_TOKEN
+
+#include? "Config.local.xcconfig"

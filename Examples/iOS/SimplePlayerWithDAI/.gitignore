@@ -1,0 +1,3 @@
+# Local secrets: the New Relic app token lives here, never in source control.
+Config.local.xcconfig
+Pods/

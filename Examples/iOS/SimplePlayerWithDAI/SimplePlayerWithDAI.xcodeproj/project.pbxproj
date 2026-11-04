@@ -1,0 +1,407 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		427970EDB5B38D543DB79575 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 2C85EBB6BA7C8C73EC7976DF /* AppDelegate.m */; };
+		8491F17A714AA14CCD85CDC6 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = B50BC44F789D4353D0FB5E1F /* main.m */; };
+		C332FA956F640EC00270D43C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 6146C8DB587060BF7A6E6884 /* ViewController.m */; };
+		E3135158797812E1394D736D /* Pods_SimplePlayerWithDAI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABBB354D7125971F224A8D32 /* Pods_SimplePlayerWithDAI.framework */; };
+		F22287162FE83D5C391A8269 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2B90D4545197F38315864864 /* Foundation.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2B90D4545197F38315864864 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		2C85EBB6BA7C8C73EC7976DF /* AppDelegate.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		449840EE667D217A2A5802A7 /* ViewController.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		4854A358AE473F7A85702350 /* SimplePlayerWithDAI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimplePlayerWithDAI.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6146C8DB587060BF7A6E6884 /* ViewController.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		8A240E4199EECEC1A81213F2 /* Pods-SimplePlayerWithDAI.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayerWithDAI.debug.xcconfig"; path = "Target Support Files/Pods-SimplePlayerWithDAI/Pods-SimplePlayerWithDAI.debug.xcconfig"; sourceTree = "<group>"; };
+		9ECF7FB215A724EA8CB94A1C /* Pods-SimplePlayerWithDAI.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SimplePlayerWithDAI.release.xcconfig"; path = "Target Support Files/Pods-SimplePlayerWithDAI/Pods-SimplePlayerWithDAI.release.xcconfig"; sourceTree = "<group>"; };
+		A13572BDFAF94865181ED815 /* AppDelegate.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		ABBB354D7125971F224A8D32 /* Pods_SimplePlayerWithDAI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SimplePlayerWithDAI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B50BC44F789D4353D0FB5E1F /* main.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CBC6535A52484AA9A5D47416 /* Config.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
+		D6A183606BA09DFB6470536C /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		195AF9943C68BDA7579C007F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F22287162FE83D5C391A8269 /* Foundation.framework in Frameworks */,
+				E3135158797812E1394D736D /* Pods_SimplePlayerWithDAI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0EC1157DFC7EA217AA647CBE /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				2B90D4545197F38315864864 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		2A505192BC5FE1C0CBD6BCFB /* SimplePlayerWithDAI */ = {
+			isa = PBXGroup;
+			children = (
+				B50BC44F789D4353D0FB5E1F /* main.m */,
+				2C85EBB6BA7C8C73EC7976DF /* AppDelegate.m */,
+				6146C8DB587060BF7A6E6884 /* ViewController.m */,
+				A13572BDFAF94865181ED815 /* AppDelegate.h */,
+				449840EE667D217A2A5802A7 /* ViewController.h */,
+				D6A183606BA09DFB6470536C /* Info.plist */,
+			);
+			name = SimplePlayerWithDAI;
+			path = SimplePlayerWithDAI;
+			sourceTree = "<group>";
+		};
+		31382ED3B9BA2A3A44450936 = {
+			isa = PBXGroup;
+			children = (
+				5E4E00C0CDFF3863C71AE69D /* Products */,
+				347E4A9A863C2F2FCA5ED9E2 /* Frameworks */,
+				CBC6535A52484AA9A5D47416 /* Config.xcconfig */,
+				2A505192BC5FE1C0CBD6BCFB /* SimplePlayerWithDAI */,
+				B66C993C4FA50E04D589D0F7 /* Pods */,
+			);
+			sourceTree = "<group>";
+		};
+		347E4A9A863C2F2FCA5ED9E2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				0EC1157DFC7EA217AA647CBE /* iOS */,
+				ABBB354D7125971F224A8D32 /* Pods_SimplePlayerWithDAI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		5E4E00C0CDFF3863C71AE69D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				4854A358AE473F7A85702350 /* SimplePlayerWithDAI.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B66C993C4FA50E04D589D0F7 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				9ECF7FB215A724EA8CB94A1C /* Pods-SimplePlayerWithDAI.release.xcconfig */,
+				8A240E4199EECEC1A81213F2 /* Pods-SimplePlayerWithDAI.debug.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		18307285947087B42920FF3D /* SimplePlayerWithDAI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8038AA9DC0B7322A063B1CEF /* Build configuration list for PBXNativeTarget "SimplePlayerWithDAI" */;
+			buildPhases = (
+				84FD9FE62E160E712769F455 /* [CP] Check Pods Manifest.lock */,
+				82C84E8F68E5AC0144250C21 /* Sources */,
+				195AF9943C68BDA7579C007F /* Frameworks */,
+				6B44A5C6FA5525F3F901C022 /* Resources */,
+				FBF8903855D0515363094CA7 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimplePlayerWithDAI;
+			productName = SimplePlayerWithDAI;
+			productReference = 4854A358AE473F7A85702350 /* SimplePlayerWithDAI.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8EA9116B48E89A3F4B376269 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+			};
+			buildConfigurationList = 1C8543BB45B563FC5D7D8314 /* Build configuration list for PBXProject "SimplePlayerWithDAI" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 31382ED3B9BA2A3A44450936;
+			minimizedProjectReferenceProxies = 0;
+			preferredProjectObjectVersion = 100;
+			productRefGroup = 5E4E00C0CDFF3863C71AE69D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				18307285947087B42920FF3D /* SimplePlayerWithDAI */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		6B44A5C6FA5525F3F901C022 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		84FD9FE62E160E712769F455 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-SimplePlayerWithDAI-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		FBF8903855D0515363094CA7 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SimplePlayerWithDAI/Pods-SimplePlayerWithDAI-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/NRAVPlayerTracker/NRAVPlayerTracker.framework",
+				"${BUILT_PRODUCTS_DIR}/NRIMATracker/NRIMATracker.framework",
+				"${BUILT_PRODUCTS_DIR}/NewRelicVideoAgent/NewRelicVideoCore.framework",
+				"${PODS_XCFRAMEWORKS_BUILD_DIR}/GoogleAds-IMA-iOS-SDK/GoogleInteractiveMediaAds.framework/GoogleInteractiveMediaAds",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NRAVPlayerTracker.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NRIMATracker.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/NewRelicVideoCore.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleInteractiveMediaAds.framework",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SimplePlayerWithDAI/Pods-SimplePlayerWithDAI-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		82C84E8F68E5AC0144250C21 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8491F17A714AA14CCD85CDC6 /* main.m in Sources */,
+				427970EDB5B38D543DB79575 /* AppDelegate.m in Sources */,
+				C332FA956F640EC00270D43C /* ViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		1205CFAB5330819C479DBADF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CBC6535A52484AA9A5D47416 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		3B67F3957A4404F36653C6C2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = CBC6535A52484AA9A5D47416 /* Config.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		3C9738B8AC274CBDAC19C80D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 9ECF7FB215A724EA8CB94A1C /* Pods-SimplePlayerWithDAI.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimplePlayerWithDAI/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimplePlayerWithDAI;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A33C8993F4381DDA820BF964 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8A240E4199EECEC1A81213F2 /* Pods-SimplePlayerWithDAI.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = SimplePlayerWithDAI/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.newrelic.SimplePlayerWithDAI;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1C8543BB45B563FC5D7D8314 /* Build configuration list for PBXProject "SimplePlayerWithDAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1205CFAB5330819C479DBADF /* Debug */,
+				3B67F3957A4404F36653C6C2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8038AA9DC0B7322A063B1CEF /* Build configuration list for PBXNativeTarget "SimplePlayerWithDAI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3C9738B8AC274CBDAC19C80D /* Release */,
+				A33C8993F4381DDA820BF964 /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8EA9116B48E89A3F4B376269 /* Project object */;
+}
