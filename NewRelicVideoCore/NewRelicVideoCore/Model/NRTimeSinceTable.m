@@ -43,9 +43,12 @@
 }
 
 - (void)resetAttributes:(NSArray<NSString *> *)attributes {
-    dispatch_barrier_sync(self.isolationQueue, ^{
+    // Async so the caller (often the main thread) is never blocked. Barrier blocks run in
+    // submission order, so the reset still completes before the next applyAttributes.
+    NSArray<NSString *> *names = [attributes copy];
+    dispatch_barrier_async(self.isolationQueue, ^{
         for (NRTimeSince *ts in self.timeSinceTable) {
-            if ([attributes containsObject:[ts attributeName]]) {
+            if ([names containsObject:[ts attributeName]]) {
                 [ts reset];
             }
         }
