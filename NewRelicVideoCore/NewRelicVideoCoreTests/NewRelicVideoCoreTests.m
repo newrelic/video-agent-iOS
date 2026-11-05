@@ -43,6 +43,13 @@
     XCTAssertNil(c.trackingUrl);
 }
 
+- (void)testAdConfigSsaiImaTypeAndDescription {
+    NRAdConfig *c = [NRAdConfig ssaiIma];
+    XCTAssertEqual(c.type, NRAdTrackerTypeSSAIIMA);
+    XCTAssertEqual((NSInteger)c.type, 2);
+    XCTAssertTrue([c.description containsString:@"type=SSAI_IMA"]);
+}
+
 - (void)testAdConfig_mediaTailor_defaults {
     NRAdConfig *c = [NRAdConfig mediaTailor];
     XCTAssertEqual(c.type, NRAdTrackerTypeMediaTailor);

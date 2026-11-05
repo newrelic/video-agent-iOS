@@ -389,7 +389,7 @@
     NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"DAIPlayer"
         player:player
-        adConfig:[NRAdConfig dai]
+        adConfig:[NRAdConfig ssaiIma]
         customAttributes:@{ @"customTag": @"SimplePlayerWithAds-DAI" }];
     self.trackerId = [NRVAVideo addPlayer:playerConfig];
     self.daiActive = YES;

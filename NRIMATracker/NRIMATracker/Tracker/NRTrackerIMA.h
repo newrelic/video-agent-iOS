@@ -20,7 +20,8 @@
 
  It tracks both client-side ads (`IMAAdsManager`, CSAI) and Dynamic Ad Insertion
  (`IMAStreamManager`, server-side stitched ads, DAI). A tracker created from
- `[NRAdConfig dai]` is in DAI mode and adds the attribute `adStreamType=DAI` to its events.
+ `[NRAdConfig ssaiIma]` is in DAI mode and sets `adStreamType=SSAI_IMA` on its events; a client-side
+ tracker sets `adStreamType=CSAI`.
  */
 @interface NRTrackerIMA : NRVideoTracker <NRAdTrackerConfigurable>
 

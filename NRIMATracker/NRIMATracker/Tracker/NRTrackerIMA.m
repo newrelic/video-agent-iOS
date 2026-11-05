@@ -38,6 +38,7 @@ static void *kNRIMATimeControlContext = &kNRIMATimeControlContext;
         self.quartile = nil;
         self.skipped = @(0);
         self.isDAI = NO;
+        [self setAttribute:kNRIMAStreamTypeAttribute value:@"CSAI"];
     }
     return self;
 }
@@ -45,9 +46,9 @@ static void *kNRIMATimeControlContext = &kNRIMATimeControlContext;
 #pragma mark - NRAdTrackerConfigurable
 
 - (void)configureWithAdConfig:(NRAdConfig *)adConfig player:(id)player {
-    if (adConfig.type == NRAdTrackerTypeDAI) {
+    if (adConfig.type == NRAdTrackerTypeSSAIIMA) {
         self.isDAI = YES;
-        [self setAttribute:kNRIMAStreamTypeAttribute value:@"DAI"];
+        [self setAttribute:kNRIMAStreamTypeAttribute value:@"SSAI_IMA"];
         // IMA does not always report PAUSE/RESUME for stitched ads (e.g. app backgrounded), so also
         // follow the shared player. The state machine ignores a pause that is already recorded.
         if ([player isKindOfClass:[AVPlayer class]]) {

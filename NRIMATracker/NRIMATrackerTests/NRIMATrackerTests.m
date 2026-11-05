@@ -152,7 +152,7 @@
 
 - (RecordingIMATracker *)daiTracker {
     RecordingIMATracker *t = [[RecordingIMATracker alloc] init];
-    [t configureWithAdConfig:[NRAdConfig dai] player:nil];
+    [t configureWithAdConfig:[NRAdConfig ssaiIma] player:nil];
     return t;
 }
 
@@ -200,7 +200,7 @@
     [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:ad] streamManager:nil];
 
     NSDictionary *attrs = [t lastRecorded].attributes;
-    XCTAssertEqualObjects(attrs[@"adStreamType"], @"DAI");
+    XCTAssertEqualObjects(attrs[@"adStreamType"], @"SSAI_IMA");
     XCTAssertEqualObjects(attrs[@"adTitle"], @"Ad A");
     XCTAssertEqualObjects(attrs[@"adCreativeId"], @"creative-1");
     XCTAssertEqualObjects(attrs[@"adDuration"], @15000);
@@ -336,7 +336,7 @@
     XCTAssertEqualObjects(r.attributes[@"errorDomain"], @"com.newrelic.video.IMA");
     XCTAssertEqualObjects(r.attributes[@"errorCode"], @(kIMAError_VAST_LOAD_TIMEOUT));
     XCTAssertEqualObjects(r.attributes[@"errorMessage"], @"stream request failed");
-    XCTAssertEqualObjects(r.attributes[@"adStreamType"], @"DAI");
+    XCTAssertEqualObjects(r.attributes[@"adStreamType"], @"SSAI_IMA");
 }
 
 static NSString *const kRealStreamInitMessage =
@@ -474,7 +474,7 @@ static NSString *const kRealStreamInitMessage =
     [t adEvent:[self event:kIMAAdEvent_COMPLETE ad:ad] adsManager:nil];
 
     XCTAssertEqualObjects([t actions], (@[@"AD_REQUEST", @"AD_START", @"AD_QUARTILE", @"AD_END"]));
-    XCTAssertNil([t lastRecorded].attributes[@"adStreamType"]);
+    XCTAssertEqualObjects([t lastRecorded].attributes[@"adStreamType"], @"CSAI");
 }
 
 - (void)testCsaiIgnoresAdBreakEvents {
@@ -503,19 +503,19 @@ static NSString *const kRealStreamInitMessage =
     RecordedAction *r = [t lastRecorded];
     XCTAssertEqualObjects(r.attributes[@"errorDomain"], @"com.newrelic.video.IMA");
     XCTAssertEqualObjects(r.attributes[@"errorMessage"], @"boom");
-    XCTAssertNil(r.attributes[@"adStreamType"]);
+    XCTAssertEqualObjects(r.attributes[@"adStreamType"], @"CSAI");
 }
 
 #pragma mark Core config
 
 - (void)testAdConfigDaiHasDaiType {
-    XCTAssertEqual([NRAdConfig dai].type, NRAdTrackerTypeDAI);
+    XCTAssertEqual([NRAdConfig ssaiIma].type, NRAdTrackerTypeSSAIIMA);
     XCTAssertEqual([NRAdConfig csai].type, NRAdTrackerTypeCSAI);
     XCTAssertEqual([NRAdConfig mediaTailor].type, NRAdTrackerTypeMediaTailor);
 }
 
 - (void)testCreateAdTrackerForDaiConfigReturnsIMATracker {
-    id tracker = [NRVAVideo createAdTrackerForConfig:[NRAdConfig dai]];
+    id tracker = [NRVAVideo createAdTrackerForConfig:[NRAdConfig ssaiIma]];
     XCTAssertNotNil(tracker);
     XCTAssertTrue([tracker isKindOfClass:[NRTrackerIMA class]]);
 }

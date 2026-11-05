@@ -118,6 +118,7 @@ static const NSTimeInterval kAccessLogDiscoveryTimeout = 20.0;
     if (self) {
         _trackingClient = [[MTTrackingClient alloc] init];
         _manifestFetcher = [[MTManifestFetcher alloc] init];
+        [self setAttribute:@"adStreamType" value:@"SSAI_MT"];
     }
     return self;
 }

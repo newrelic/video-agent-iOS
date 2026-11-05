@@ -24,9 +24,9 @@
     return c;
 }
 
-+ (instancetype)dai {
++ (instancetype)ssaiIma {
     NRAdConfig *c = [[NRAdConfig alloc] init];
-    c.type = NRAdTrackerTypeDAI;
+    c.type = NRAdTrackerTypeSSAIIMA;
     return c;
 }
 
@@ -50,7 +50,7 @@
 - (NSString *)description {
     return [NSString stringWithFormat:@"NRAdConfig: type=%@, adSegmentPrefix=%@, trackingUrl=%@",
             self.type == NRAdTrackerTypeMediaTailor ? @"MediaTailor"
-                : (self.type == NRAdTrackerTypeDAI ? @"DAI" : @"CSAI"),
+                : (self.type == NRAdTrackerTypeSSAIIMA ? @"SSAI_IMA" : @"CSAI"),
             self.adSegmentPrefix, self.trackingUrl];
 }
 

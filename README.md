@@ -267,7 +267,7 @@ NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration allo
 NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
     initWithPlayerName:@"MainVideoPlayer"
     player:yourAVPlayer
-    adConfig:[NRAdConfig dai]
+    adConfig:[NRAdConfig ssaiIma]
     customAttributes:nil];
 
 // AWS MediaTailor server-side ad insertion (requires NRMediaTailorTracker)
@@ -344,7 +344,7 @@ Register the player with `addPlayer` before you request the stream, so a stream 
 NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
     initWithPlayerName:@"MainVideoPlayer"
     player:yourAVPlayer
-    adConfig:[NRAdConfig dai]
+    adConfig:[NRAdConfig ssaiIma]
     customAttributes:nil];
 NSNumber *trackerId = @([NRVAVideo addPlayer:config]);
 
@@ -407,7 +407,7 @@ func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdErr
 </p>
 </details>
 
-DAI events are the same `AD_REQUEST`, `AD_START`, `AD_QUARTILE`, `AD_END`, `AD_CLICK`, `AD_BREAK_START`, `AD_BREAK_END` and `AD_ERROR` actions as client-side ads, plus the attribute `adStreamType` set to `DAI`. A skipped ad sends `AD_END` with `adSkipped` set to 1. A runnable example is the "DAI Sample" button in [`Examples/iOS/SimplePlayerWithAds`](Examples/iOS/SimplePlayerWithAds).
+DAI events are the same `AD_REQUEST`, `AD_START`, `AD_QUARTILE`, `AD_END`, `AD_CLICK`, `AD_BREAK_START`, `AD_BREAK_END` and `AD_ERROR` actions as client-side ads, plus the attribute `adStreamType` set to `SSAI_IMA` (client-side IMA ads send `CSAI`, MediaTailor sends `SSAI_MT`). A skipped ad sends `AD_END` with `adSkipped` set to 1. A runnable example is the "DAI Sample" button in [`Examples/iOS/SimplePlayerWithAds`](Examples/iOS/SimplePlayerWithAds).
 
 For MediaTailor-specific options (custom-CDN ad-segment prefixes, tracking-URL overrides), see [`NRMediaTailorTracker/README.md`](NRMediaTailorTracker/README.md).
 
