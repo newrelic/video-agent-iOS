@@ -212,7 +212,7 @@ static MTAdBreak *MakeBreak(NSString *availId, NSTimeInterval startMs, NSTimeInt
 }
 
 /// 5. Pod-level attributes flow through on AD_START.
-- (void)testAdStreamType_isSsaiMt {
+- (void)testAdStreamType_isAbsent {
     MTAdPod *pod = MakePod(@"cre-1", @"ad-1", 1000, 2000);
     MTAdBreak *brk = MakeBreak(@"avail-S", 1000, 2000, @[pod], NO);
     MergedSchedule *sched = [[MergedSchedule alloc] initWithBreaks:@[brk] pendingErrors:@[]];
@@ -221,7 +221,7 @@ static MTAdBreak *MakeBreak(NSString *availId, NSTimeInterval startMs, NSTimeInt
     [t.stateMachine tickAtPositionMs:1100];
     NSUInteger startIdx = [t.events indexOfObject:@"AD_START"];
     XCTAssertNotEqual(startIdx, NSNotFound);
-    XCTAssertEqualObjects(t.lastAttributesByEvent[startIdx][@"adStreamType"], @"SSAI_MT");
+    XCTAssertNil(t.lastAttributesByEvent[startIdx][@"adStreamType"]);
 }
 
 - (void)testPodAttributes_landOnAdStart {

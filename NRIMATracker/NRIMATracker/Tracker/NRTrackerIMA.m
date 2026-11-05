@@ -38,7 +38,6 @@ static void *kNRIMATimeControlContext = &kNRIMATimeControlContext;
         self.quartile = nil;
         self.skipped = @(0);
         self.isDAI = NO;
-        [self setAttribute:kNRIMAStreamTypeAttribute value:@"CSAI"];
     }
     return self;
 }

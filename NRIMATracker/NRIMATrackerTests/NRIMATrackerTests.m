@@ -474,7 +474,7 @@ static NSString *const kRealStreamInitMessage =
     [t adEvent:[self event:kIMAAdEvent_COMPLETE ad:ad] adsManager:nil];
 
     XCTAssertEqualObjects([t actions], (@[@"AD_REQUEST", @"AD_START", @"AD_QUARTILE", @"AD_END"]));
-    XCTAssertEqualObjects([t lastRecorded].attributes[@"adStreamType"], @"CSAI");
+    XCTAssertNil([t lastRecorded].attributes[@"adStreamType"]);
 }
 
 - (void)testCsaiIgnoresAdBreakEvents {
@@ -503,7 +503,7 @@ static NSString *const kRealStreamInitMessage =
     RecordedAction *r = [t lastRecorded];
     XCTAssertEqualObjects(r.attributes[@"errorDomain"], @"com.newrelic.video.IMA");
     XCTAssertEqualObjects(r.attributes[@"errorMessage"], @"boom");
-    XCTAssertEqualObjects(r.attributes[@"adStreamType"], @"CSAI");
+    XCTAssertNil(r.attributes[@"adStreamType"]);
 }
 
 #pragma mark Core config
