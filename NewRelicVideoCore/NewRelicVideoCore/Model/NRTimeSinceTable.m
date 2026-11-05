@@ -42,6 +42,16 @@
     });
 }
 
+- (void)resetAttributes:(NSArray<NSString *> *)attributes {
+    dispatch_barrier_sync(self.isolationQueue, ^{
+        for (NRTimeSince *ts in self.timeSinceTable) {
+            if ([attributes containsObject:[ts attributeName]]) {
+                [ts reset];
+            }
+        }
+    });
+}
+
 - (void)applyAttributes:(NSString *)action attributes:(NSMutableDictionary *)attr {
     // Use barrier for write access since [ts now] modifies state
     dispatch_barrier_sync(self.isolationQueue, ^{

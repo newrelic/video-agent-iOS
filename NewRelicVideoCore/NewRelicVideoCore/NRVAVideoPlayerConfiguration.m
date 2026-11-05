@@ -24,6 +24,12 @@
     return c;
 }
 
++ (instancetype)imaDai {
+    NRAdConfig *c = [[NRAdConfig alloc] init];
+    c.type = NRAdTrackerTypeIMADAI;
+    return c;
+}
+
 + (instancetype)mediaTailor {
     return [self mediaTailorWithSegmentPrefix:nil trackingUrl:nil];
 }
@@ -42,9 +48,14 @@
 }
 
 - (NSString *)description {
+    NSString *typeName;
+    switch (self.type) {
+        case NRAdTrackerTypeMediaTailor: typeName = @"MediaTailor"; break;
+        case NRAdTrackerTypeIMADAI:      typeName = @"IMADAI"; break;
+        default:                         typeName = @"CSAI"; break;
+    }
     return [NSString stringWithFormat:@"NRAdConfig: type=%@, adSegmentPrefix=%@, trackingUrl=%@",
-            self.type == NRAdTrackerTypeMediaTailor ? @"MediaTailor" : @"CSAI",
-            self.adSegmentPrefix, self.trackingUrl];
+            typeName, self.adSegmentPrefix, self.trackingUrl];
 }
 
 @end

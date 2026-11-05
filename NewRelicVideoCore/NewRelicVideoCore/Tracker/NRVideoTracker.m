@@ -309,6 +309,7 @@
         self.playtimeSinceLastEventTimestamp = 0;
         
         if (self.state.isAd) {
+            [self resetAdTimeSince];
             [self sendVideoAdEvent:AD_REQUEST];
         }
         else {
@@ -552,8 +553,18 @@
     if (self.state.isAd && [self.state goAdBreakStart]) {
         self.adBreakIdIndex++;
         self.totalAdPlaytime = 0;
+        [self resetAdTimeSince];
         [self sendVideoAdEvent:AD_BREAK_START];
     }
+}
+
+/// The per-ad timeSince values must not carry over from the previous ad, so a new ad
+/// (or break) starts with them null until its own request, start, heartbeat or quartile.
+- (void)resetAdTimeSince {
+    [self resetTimeSinceAttributes:@[@"timeSinceAdRequested",
+                                     @"timeSinceAdStarted",
+                                     @"timeSinceLastAdHeartbeat",
+                                     @"timeSinceLastAdQuartile"]];
 }
 
 - (void)sendAdBreakEnd {

@@ -466,8 +466,8 @@ static dispatch_once_t onceToken;
 /**
  * Creates the ad tracker whose class matches the ad config's type.
  * Uses dynamic class loading (no hard link) with graceful fallback:
- * CSAI → NRTrackerIMA (NRIMATracker pod), MediaTailor → NRTrackerMediaTailor
- * (NRMediaTailorTracker pod).
+ * CSAI and IMA DAI → NRTrackerIMA (NRIMATracker pod), MediaTailor →
+ * NRTrackerMediaTailor (NRMediaTailorTracker pod).
  */
 + (id)createAdTrackerForConfig:(NRAdConfig *)adConfig {
     NSString *className = (adConfig.type == NRAdTrackerTypeMediaTailor)

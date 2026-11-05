@@ -53,6 +53,11 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)now;
 
 /**
+ Clear the timestamp, so timeSince reports null until the action happens again.
+ */
+- (void)reset;
+
+/**
  Get current timeSince value.
  
  @return Time since.
