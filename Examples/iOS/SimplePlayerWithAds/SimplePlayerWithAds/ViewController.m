@@ -88,7 +88,7 @@
     [self presentViewController:sheet animated:YES completion:nil];
 }
 
-/// Google IMA Dynamic Ad Insertion (server-side stitched ads, IMAStreamManager). Uses `NRAdConfig.dai`
+/// Google IMA Dynamic Ad Insertion (server-side stitched ads, IMAStreamManager). Uses `NRAdConfig.ssaiIma`
 /// and forwards the IMAStreamManagerDelegate callbacks with `handleStreamAdEvent`/`handleStreamAdError`.
 - (IBAction)clickDAISample:(id)sender {
     UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"DAI Sample"

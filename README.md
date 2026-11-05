@@ -305,7 +305,7 @@ let playerConfig = NRVAVideoPlayerConfiguration(
 let playerConfig = NRVAVideoPlayerConfiguration(
     playerName: "MainVideoPlayer",
     player: yourAVPlayer,
-    adConfig: NRAdConfig.dai(),
+    adConfig: NRAdConfig.ssaiIma(),
     customAttributes: nil
 )
 
@@ -331,7 +331,7 @@ let playerConfig = NRVAVideoPlayerConfiguration(
 
 ### Google IMA Dynamic Ad Insertion (DAI)
 
-With DAI, ads are stitched into the stream by Google and played through an `IMAStreamManager` instead of an `IMAAdsManager`. Select `NRAdConfig.dai()`, then forward the `IMAStreamManagerDelegate` callbacks to `NRVAVideo`. Ad breaks come from the IMA `AD_BREAK_STARTED` and `AD_BREAK_ENDED` events (there is no content pause/resume callback for DAI), so do not call `sendAdBreakStart`/`sendAdBreakEnd` yourself.
+With DAI, ads are stitched into the stream by Google and played through an `IMAStreamManager` instead of an `IMAAdsManager`. Select `NRAdConfig.ssaiIma()`, then forward the `IMAStreamManagerDelegate` callbacks to `NRVAVideo`. Ad breaks come from the IMA `AD_BREAK_STARTED` and `AD_BREAK_ENDED` events (there is no content pause/resume callback for DAI), so do not call `sendAdBreakStart`/`sendAdBreakEnd` yourself.
 
 Register the player with `addPlayer` before you request the stream, so a stream request failure still reaches the tracker.
 
@@ -384,7 +384,7 @@ NSNumber *trackerId = @([NRVAVideo addPlayer:config]);
 let config = NRVAVideoPlayerConfiguration(
     playerName: "MainVideoPlayer",
     player: yourAVPlayer,
-    adConfig: NRAdConfig.dai(),
+    adConfig: NRAdConfig.ssaiIma(),
     customAttributes: nil
 )
 let trackerId = NSNumber(value: NRVAVideo.addPlayer(config))
@@ -560,7 +560,7 @@ if shouldEnable {
 |-----------|------|-------------|
 | `playerName` | `String` | Unique identifier for the video player. |
 | `player` | `AVPlayer` or `THEOplayer` | The player instance to track. A real `AVPlayer`/`THEOplayer` instance is identified by class automatically. |
-| `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA client-side ads, `NRAdConfig.dai()` for Google IMA Dynamic Ad Insertion, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
+| `adConfig` | `NRAdConfig?` | **Recommended.** Selects and configures the ad tracker: `NRAdConfig.csai()` for Google IMA client-side ads, `NRAdConfig.ssaiIma()` for Google IMA Dynamic Ad Insertion, `NRAdConfig.mediaTailor()` for AWS MediaTailor, or `nil` to disable ad tracking. |
 | `adEnabled` | `Bool` | Legacy shortcut for `adConfig`. `true` → `NRAdConfig.csai()`; `false` → `nil`. |
 | `customAttributes` | `[String: Any]?` | Custom attributes to attach to all events from this player. |
 | `playerType` | `NRPlayerType` | Optional override (`.avPlayer` / `.theOplayer` / `.unspecified`) — only needed for a custom/wrapped player object that automatic class detection can't see through. Left unset for such an object, `addPlayer` creates no tracker at all rather than guessing. |
