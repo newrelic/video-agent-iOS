@@ -22,6 +22,9 @@
 @property (nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property (nonatomic) IMAAdsLoader *adsLoader;
 @property (nonatomic) IMAAdsManager *adsManager;
+/// Google IMA Dynamic Ad Insertion: ads are stitched into the stream and played through an IMAStreamManager.
+@property (nonatomic) IMAStreamManager *streamManager;
+@property (nonatomic) BOOL daiActive;
 
 /// MediaTailor tracker for the `clickMediaTailorSample:` flow. Nil while
 /// any of the IMA buttons is the active flow.
@@ -85,6 +88,39 @@
     [self presentViewController:sheet animated:YES completion:nil];
 }
 
+/// Google IMA Dynamic Ad Insertion (server-side stitched ads, IMAStreamManager). Uses `NRAdConfig.dai`
+/// and forwards the IMAStreamManagerDelegate callbacks with `handleStreamAdEvent`/`handleStreamAdError`.
+- (IBAction)clickDAISample:(id)sender {
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"DAI Sample"
+                                                                     message:@"Choose a stream to test"
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"VOD (preroll + midroll)" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self playDAIVideo:^IMAStreamRequest *(IMAAdDisplayContainer *container, id<IMAVideoDisplay> display) {
+            return [[IMAVODStreamRequest alloc] initWithContentSourceID:@"2548831" videoID:@"tears-of-steel"
+                                                     adDisplayContainer:container videoDisplay:display userContext:nil];
+        }];
+    }]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Live" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self playDAIVideo:^IMAStreamRequest *(IMAAdDisplayContainer *container, id<IMAVideoDisplay> display) {
+            return [[IMALiveStreamRequest alloc] initWithAssetKey:@"c-rArva4ShKVIAkNfy6HUQ"
+                                               adDisplayContainer:container videoDisplay:display userContext:nil];
+        }];
+    }]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Bad asset key (AD_ERROR)" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self playDAIVideo:^IMAStreamRequest *(IMAAdDisplayContainer *container, id<IMAVideoDisplay> display) {
+            return [[IMALiveStreamRequest alloc] initWithAssetKey:@"invalid-asset-key"
+                                               adDisplayContainer:container videoDisplay:display userContext:nil];
+        }];
+    }]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+    sheet.popoverPresentationController.sourceView = [sender isKindOfClass:[UIView class]] ? sender : self.view;
+    if ([sender isKindOfClass:[UIView class]]) {
+        sheet.popoverPresentationController.sourceRect = ((UIView *)sender).bounds;
+    }
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -125,6 +161,7 @@
 }
 
 - (void)playVideo:(NSString *)videoURL {
+    self.daiActive = NO;
     AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = player;
@@ -339,6 +376,35 @@
     }];
 }
 
+/// DAI playback path. The stream is requested after `addPlayer`, so a request failure still reaches the tracker.
+- (void)playDAIVideo:(IMAStreamRequest *(^)(IMAAdDisplayContainer *, id<IMAVideoDisplay>))requestBuilder {
+    [NRVAVideo releaseTracker:self.trackerId];
+    [self releaseAds];
+
+    AVPlayer *player = [[AVPlayer alloc] init];
+    self.playerController = [[AVPlayerViewController alloc] init];
+    self.playerController.player = player;
+    self.playerController.showsPlaybackControls = YES;
+
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"DAIPlayer"
+        player:player
+        adConfig:[NRAdConfig dai]
+        customAttributes:@{ @"customTag": @"SimplePlayerWithAds-DAI" }];
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+    self.daiActive = YES;
+
+    [self presentViewController:self.playerController animated:YES completion:^{
+        IMAAdDisplayContainer *container = [[IMAAdDisplayContainer alloc]
+            initWithAdContainer:self.playerController.contentOverlayView
+                 viewController:self.playerController];
+        IMAAVPlayerVideoDisplay *display = [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:player];
+        self.adsLoader = [[IMAAdsLoader alloc] initWithSettings:nil];
+        self.adsLoader.delegate = self;
+        [self.adsLoader requestStreamWithRequest:requestBuilder(container, display)];
+    }];
+}
+
 - (void)setupAds:(AVPlayer *)player {
     // Set up IMA stuff
     self.contentPlayhead = [[IMAAVPlayerContentPlayhead alloc] initWithAVPlayer:player];
@@ -358,6 +424,8 @@
 }
 
 - (void)releaseAds {
+    [self.streamManager destroy];
+    self.streamManager = nil;
     [self.adsLoader contentComplete];
     if (self.adsManager != nil) {
         [self.adsManager destroy];
@@ -369,6 +437,12 @@
 #pragma mark - AdsLoader delegate
 
 - (void)adsLoader:(IMAAdsLoader *)loader adsLoadedWithData:(IMAAdsLoadedData *)adsLoadedData {
+    if (adsLoadedData.streamManager != nil) {
+        self.streamManager = adsLoadedData.streamManager;
+        self.streamManager.delegate = self;
+        [self.streamManager initializeWithAdsRenderingSettings:nil];
+        return;
+    }
     if (self.adsManager != nil) {
         [self.adsManager destroy];
         self.adsManager = nil;
@@ -382,6 +456,10 @@
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
     NSLog(@"Error loading ads: %@", adErrorData.adError.message);
 
+    if (self.daiActive) {
+        [NRVAVideo handleStreamAdError:@(self.trackerId) error:adErrorData.adError];
+        return;
+    }
     [NRVAVideo handleAdError:@(self.trackerId) error:adErrorData.adError];
 
     [self.playerController.player play];
@@ -422,6 +500,32 @@
     [NRVAVideo sendAdBreakEnd:@(self.trackerId)];
 
     [self.playerController.player play];
+}
+
+#pragma mark - StreamManager delegate (DAI)
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
+    [NRVAVideo handleStreamAdEvent:@(self.trackerId) event:event streamManager:streamManager];
+}
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdError:(IMAAdError *)error {
+    [NRVAVideo handleStreamAdError:@(self.trackerId) error:error];
+}
+
+// Optional: gives the ad playhead (adPlayhead) for DAI.
+- (void)streamManager:(IMAStreamManager *)streamManager
+    adDidProgressToTime:(NSTimeInterval)time
+             adDuration:(NSTimeInterval)adDuration
+             adPosition:(NSInteger)adPosition
+               totalAds:(NSInteger)totalAds
+        adBreakDuration:(NSTimeInterval)adBreakDuration
+       adPeriodDuration:(NSTimeInterval)adPeriodDuration {
+    [NRVAVideo handleStreamAdProgress:@(self.trackerId)
+                                 time:time
+                           adDuration:adDuration
+                           adPosition:adPosition
+                             totalAds:totalAds
+                      adBreakDuration:adBreakDuration];
 }
 
 @end
