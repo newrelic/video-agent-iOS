@@ -61,22 +61,6 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
     [stack addArrangedSubview:self.statusLabel];
 }
 
-/// Lets a scripted run start a scenario without tapping: NR_AUTO_SCENARIO = vod | live | bad-key.
-- (void)viewDidAppear:(BOOL)animated {
-    [super viewDidAppear:animated];
-    if (self.trackerId) { return; }
-    // NR_AUTO_RESUME=1: a scripted background run resumes playback when the app returns to the foreground.
-    if (NSProcessInfo.processInfo.environment[@"NR_AUTO_RESUME"].length > 0) {
-        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidBecomeActiveNotification
-                                                        object:nil queue:NSOperationQueue.mainQueue
-                                                    usingBlock:^(NSNotification *note) { [self.player play]; }];
-    }
-    NSString *auto_ = NSProcessInfo.processInfo.environment[@"NR_AUTO_SCENARIO"];
-    if ([auto_ isEqualToString:@"vod"]) { [self playVOD]; }
-    else if ([auto_ isEqualToString:@"live"]) { [self playLive]; }
-    else if ([auto_ isEqualToString:@"bad-key"]) { [self playBadKey]; }
-}
-
 - (UIButton *)buttonWithTitle:(NSString *)title action:(SEL)action {
     UIButton *b = [UIButton buttonWithType:UIButtonTypeSystem];
     [b setTitle:title forState:UIControlStateNormal];
@@ -98,7 +82,7 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
 
 - (void)playLive {
     [self startWithRequestBuilder:^IMAStreamRequest *(IMAAdDisplayContainer *container, id<IMAVideoDisplay> display) {
-        return [[IMALiveStreamRequest alloc] initWithAssetKey:(NSProcessInfo.processInfo.environment[@"NR_LIVE_ASSET_KEY"] ?: kLiveAssetKey)
+        return [[IMALiveStreamRequest alloc] initWithAssetKey:kLiveAssetKey
                                            adDisplayContainer:container
                                                  videoDisplay:display
                                                   userContext:nil];
@@ -120,23 +104,16 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
     [self stopTracking];
 
     self.player = [[AVPlayer alloc] init];
-    self.player.muted = YES;
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = self.player;
 
-    // Tag every event of a manual run so it can be isolated in NRQL: SET NR_TEST_RUN in the scheme environment.
-    NSString *testRun = NSProcessInfo.processInfo.environment[@"NR_TEST_RUN"] ?: @"dai-manual";
     NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
         initWithPlayerName:@"DAI_PLAYER"
         player:self.player
         adConfig:[NRAdConfig dai]
-        customAttributes:@{ @"testRun": testRun, @"scenario": label, @"customTag": @"SimplePlayerWithDAI" }];
+        customAttributes:@{ @"customTag": @"SimplePlayerWithDAI" }];
     // Registered before the stream request so a request failure still reaches a tracker.
     self.trackerId = @([NRVAVideo addPlayer:config]);
-    // customAttributes reach the content tracker only; mirror them on the ad tracker so ad events can be filtered too.
-    for (NSString *key in config.customAttributes) {
-        [NRVAVideo setAdAttribute:self.trackerId.integerValue key:key value:config.customAttributes[key]];
-    }
 
     [self presentViewController:self.playerController animated:YES completion:^{
         IMAAdDisplayContainer *container = [[IMAAdDisplayContainer alloc]
@@ -146,7 +123,7 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
         self.adsLoader = [[IMAAdsLoader alloc] initWithSettings:nil];
         self.adsLoader.delegate = self;
         [self.adsLoader requestStreamWithRequest:builder(container, display)];
-        self.statusLabel.text = [NSString stringWithFormat:@"Requested %@ stream, testRun=%@", label, testRun];
+        self.statusLabel.text = [NSString stringWithFormat:@"Requested %@ stream", label];
     }];
 }
 
