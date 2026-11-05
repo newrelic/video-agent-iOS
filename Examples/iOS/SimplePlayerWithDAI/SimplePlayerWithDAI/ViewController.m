@@ -65,6 +65,12 @@ static NSString *const kLiveAssetKey = @"c-rArva4ShKVIAkNfy6HUQ";
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     if (self.trackerId) { return; }
+    // NR_AUTO_RESUME=1: a scripted background run resumes playback when the app returns to the foreground.
+    if (NSProcessInfo.processInfo.environment[@"NR_AUTO_RESUME"].length > 0) {
+        [NSNotificationCenter.defaultCenter addObserverForName:UIApplicationDidBecomeActiveNotification
+                                                        object:nil queue:NSOperationQueue.mainQueue
+                                                    usingBlock:^(NSNotification *note) { [self.player play]; }];
+    }
     NSString *auto_ = NSProcessInfo.processInfo.environment[@"NR_AUTO_SCENARIO"];
     if ([auto_ isEqualToString:@"vod"]) { [self playVOD]; }
     else if ([auto_ isEqualToString:@"live"]) { [self playLive]; }
