@@ -11,6 +11,7 @@
 //
 
 #import <XCTest/XCTest.h>
+#import <AVFoundation/AVFoundation.h>
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 #import <NewRelicVideoCore/NewRelicVideoCore.h>
 #import "NRTrackerIMA.h"
@@ -120,6 +121,10 @@
 #pragma mark - Tests
 
 @interface NRIMATrackerTests : XCTestCase
+@end
+
+@interface NRTrackerIMA (TestAccess)
+- (void)daiPlayerTimeControlStatusChanged:(AVPlayerTimeControlStatus)status;
 @end
 
 @implementation NRIMATrackerTests
@@ -267,6 +272,52 @@
     RecordingIMATracker *t = [self daiTracker];
     [t streamAdEvent:[self event:kIMAAdEvent_AD_BREAK_ENDED ad:nil] streamManager:nil];
     XCTAssertEqual([t actions].count, 0u);
+}
+
+#pragma mark Pause and resume
+
+- (RecordingIMATracker *)daiTrackerInAd {
+    RecordingIMATracker *t = [self daiTracker];
+    [t streamAdEvent:[self event:kIMAAdEvent_STARTED ad:[self adWithTitle:@"A" timeOffset:0 podIndex:0]] streamManager:nil];
+    return t;
+}
+
+- (void)testDaiImaPauseResumeEventsEmitAdPauseResume {
+    RecordingIMATracker *t = [self daiTrackerInAd];
+    [t streamAdEvent:[self event:kIMAAdEvent_PAUSE ad:nil] streamManager:nil];
+    [t streamAdEvent:[self event:kIMAAdEvent_RESUME ad:nil] streamManager:nil];
+    XCTAssertEqualObjects([[t actions] subarrayWithRange:NSMakeRange(2, 2)], (@[@"AD_PAUSE", @"AD_RESUME"]));
+}
+
+- (void)testCsaiIgnoresImaPauseResume {
+    RecordingIMATracker *t = [self csaiTracker];
+    [t adEvent:[self event:kIMAAdEvent_STARTED ad:[self adWithTitle:@"A" timeOffset:0 podIndex:0]] adsManager:nil];
+    [t adEvent:[self event:kIMAAdEvent_PAUSE ad:nil] adsManager:nil];
+    XCTAssertFalse([[t actions] containsObject:@"AD_PAUSE"]);
+}
+
+- (void)testDaiAdFollowsPlayerPauseAndResume {
+    RecordingIMATracker *t = [self daiTrackerInAd];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusPaused];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusPlaying];
+    XCTAssertEqualObjects([[t actions] subarrayWithRange:NSMakeRange(2, 2)], (@[@"AD_PAUSE", @"AD_RESUME"]));
+}
+
+- (void)testDaiPlayerPauseAfterImaPauseIsNotDuplicated {
+    RecordingIMATracker *t = [self daiTrackerInAd];
+    [t streamAdEvent:[self event:kIMAAdEvent_PAUSE ad:nil] streamManager:nil];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusPaused];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusPaused];
+    XCTAssertEqual([[t actions] filteredArrayUsingPredicate:[NSPredicate predicateWithFormat:@"SELF == 'AD_PAUSE'"]].count, 1u);
+}
+
+- (void)testDaiBufferingIsNotAPauseAndPauseOutsideAdIsIgnored {
+    RecordingIMATracker *t = [self daiTrackerInAd];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusWaitingToPlayAtSpecifiedRate];
+    XCTAssertFalse([[t actions] containsObject:@"AD_PAUSE"]);
+    [t streamAdEvent:[self event:kIMAAdEvent_COMPLETE ad:nil] streamManager:nil];
+    [t daiPlayerTimeControlStatusChanged:AVPlayerTimeControlStatusPaused];
+    XCTAssertFalse([[t actions] containsObject:@"AD_PAUSE"]);
 }
 
 #pragma mark Errors

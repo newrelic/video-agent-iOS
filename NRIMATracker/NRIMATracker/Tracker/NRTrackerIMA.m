@@ -8,6 +8,7 @@
 
 #import "NRTrackerIMA.h"
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
+#import <AVFoundation/AVFoundation.h>
 
 @interface NRTrackerIMA ()
 
@@ -21,11 +22,14 @@
 @property (nonatomic) BOOL isDAI;
 // DAI only: latest ad playback time in seconds, from the stream manager delegate.
 @property (nonatomic) NSNumber *daiAdTime;
+// DAI only: the shared player whose pause state the stitched ad follows.
+@property (nonatomic, weak) AVPlayer *observedPlayer;
 
 @end
 
 static NSString *const kNRIMAErrorDomain = @"com.newrelic.video.IMA";
 static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
+static void *kNRIMATimeControlContext = &kNRIMATimeControlContext;
 
 @implementation NRTrackerIMA
 
@@ -44,6 +48,41 @@ static NSString *const kNRIMAStreamTypeAttribute = @"adStreamType";
     if (adConfig.type == NRAdTrackerTypeDAI) {
         self.isDAI = YES;
         [self setAttribute:kNRIMAStreamTypeAttribute value:@"DAI"];
+        // IMA does not always report PAUSE/RESUME for stitched ads (e.g. app backgrounded), so also
+        // follow the shared player. The state machine ignores a pause that is already recorded.
+        if ([player isKindOfClass:[AVPlayer class]]) {
+            self.observedPlayer = player;
+            [self.observedPlayer addObserver:self
+                                  forKeyPath:@"timeControlStatus"
+                                     options:NSKeyValueObservingOptionNew
+                                     context:kNRIMATimeControlContext];
+        }
+    }
+}
+
+- (void)dealloc {
+    [self.observedPlayer removeObserver:self forKeyPath:@"timeControlStatus" context:kNRIMATimeControlContext];
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
+    if (context != kNRIMATimeControlContext) {
+        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
+        return;
+    }
+    AVPlayerTimeControlStatus status = [change[NSKeyValueChangeNewKey] integerValue];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self daiPlayerTimeControlStatusChanged:status];
+    });
+}
+
+// waitingToPlayAtSpecifiedRate is buffering, not a pause, so it is ignored.
+- (void)daiPlayerTimeControlStatusChanged:(AVPlayerTimeControlStatus)status {
+    if (!self.isDAI) { return; }
+    if (status == AVPlayerTimeControlStatusPaused) {
+        [self sendPause];
+    }
+    else if (status == AVPlayerTimeControlStatusPlaying) {
+        [self sendResume];
     }
 }
 
@@ -150,6 +189,12 @@ static NSString *NRIMAErrorName(IMAErrorType type) {
         case kIMAAdEvent_THIRD_QUARTILE:
             self.quartile = @(3);
             [self sendAdQuartile];
+            break;
+        case kIMAAdEvent_PAUSE:
+            if (self.isDAI) { [self sendPause]; }
+            break;
+        case kIMAAdEvent_RESUME:
+            if (self.isDAI) { [self sendResume]; }
             break;
         case kIMAAdEvent_TAPPED:
         case kIMAAdEvent_CLICKED:
