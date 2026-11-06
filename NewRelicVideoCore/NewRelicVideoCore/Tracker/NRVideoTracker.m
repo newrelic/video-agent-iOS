@@ -161,6 +161,23 @@
     }
 }
 
+/// Stitched ads (IMA DAI) are part of the content stream, so the ad SDK cannot report their bitrate
+/// (IMA gives 0). Use the content player's current bitrate instead. Only replaces a value that is
+/// already present, it adds no attributes. Further stitched-ad fallbacks belong here.
+- (void)applyContentFallbacksToAdAttributes:(NSMutableDictionary *)attr {
+    if (!self.adsStitchedIntoContent || ![self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
+        return;
+    }
+    NSNumber *adBitrate = attr[@"adBitrate"];
+    if (![adBitrate isKindOfClass:[NSNumber class]] || adBitrate.longLongValue != 0) {
+        return;
+    }
+    NSNumber *contentBitrate = [(NRVideoTracker *)self.linkedTracker getBitrate];
+    if ([contentBitrate isKindOfClass:[NSNumber class]] && contentBitrate.longLongValue > 0) {
+        attr[@"adBitrate"] = contentBitrate;
+    }
+}
+
 - (NSMutableDictionary *)getAttributes:(NSString *)action attributes:(NSDictionary *)attributes {
     // Update totalPlaytime before assembling attributes
     [self updatePlayTime];
@@ -213,7 +230,8 @@
         [attr setObject:[self getVideoId] forKey:@"adId"];
         [attr setObject:[self getAdBreakId] forKey:@"adBreakId"];
         [attr setObject:[self getAdSkipped] forKey:@"adSkipped"];
-        
+        [self applyContentFallbacksToAdAttributes:attr];
+
         if ([action hasPrefix:@"AD_BREAK_"]) {
             if ([self.linkedTracker isKindOfClass:[NRVideoTracker class]]) {
                 long playhead = [(NRVideoTracker *)self.linkedTracker getPlayhead].longValue;

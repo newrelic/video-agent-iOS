@@ -114,6 +114,9 @@ static dispatch_once_t onceToken;
     id adTracker = nil;
     if (config.adConfig) {
         adTracker = [self createAdTrackerForConfig:config.adConfig];
+        if ([adTracker isKindOfClass:[NRVideoTracker class]]) {
+            ((NRVideoTracker *)adTracker).adsStitchedIntoContent = (config.adConfig.type == NRAdTrackerTypeIMADAI);
+        }
     }
 
     // Start tracking with NewRelicVideoAgent 
