@@ -82,7 +82,7 @@ xcodebuild -project NRAVPlayerTracker/NRAVPlayerTracker.xcodeproj \
   build
 ```
 
-**3. Build NRIMATracker** (optional, for Google IMA ads)
+**3. Build NRIMATracker** (optional, for Google IMA ads, client-side and Dynamic Ad Insertion)
 
 First, download Google IMA SDK:
 ```bash
@@ -188,7 +188,7 @@ use_frameworks!
 target 'YourApp' do
   pod 'NewRelicVideoAgent'
   pod 'NRAVPlayerTracker'
-  pod 'NRIMATracker'         # Optional, for Google IMA ads
+  pod 'NRIMATracker'         # Optional, for Google IMA ads (client-side and DAI)
   pod 'NRTHEOplayerTracker'  # Optional, for THEOplayer (Dolby OptiView Player)
 end
 ```

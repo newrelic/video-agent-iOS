@@ -183,6 +183,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)addTimeSinceEntry:(NRTimeSince *)ts;
 
 /**
+ Clear the timeSince values of the given attributes, so they report null until their action happens again.
+
+ @param attributes Attribute names.
+ */
+- (void)resetTimeSinceAttributes:(NSArray<NSString *> *)attributes;
+
+/**
  Generate table of timeSince attributes.
  */
 - (void)generateTimeSinceTable;
