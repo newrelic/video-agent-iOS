@@ -11,6 +11,16 @@
 @class NRVAVideoConfigurationBuilder;
 
 /**
+ * Minimum severity of the agent's buffer-capacity logs (INFO at 85% fill, WARNING at 90%,
+ * ERROR when events are dropped). A message is logged when its severity is at or above the level.
+ */
+typedef NS_ENUM(NSInteger, NRVALoggingLevel) {
+    NRVALoggingLevelInfo = 0,
+    NRVALoggingLevelWarning = 1,
+    NRVALoggingLevelError = 2
+};
+
+/**
  * Thread-safe, immutable configuration with iOS & tvOS optimizations
  */
 @interface NRVAVideoConfiguration : NSObject
@@ -25,6 +35,7 @@
 @property (nonatomic, readonly) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, readonly) BOOL memoryOptimized;
 @property (nonatomic, readonly) BOOL debugLoggingEnabled;
+@property (nonatomic, readonly) NRVALoggingLevel debugLoggingLevel;
 @property (nonatomic, readonly) BOOL isTV;
 @property (nonatomic, readonly) NSString *collectorAddress;
 @property (nonatomic, readonly) BOOL qoeAggregateEnabled;
@@ -70,6 +81,7 @@
 @property (nonatomic, assign) NSInteger maxOfflineStorageSizeMB;
 @property (nonatomic, assign) BOOL memoryOptimized;
 @property (nonatomic, assign) BOOL debugLoggingEnabled;
+@property (nonatomic, assign) NRVALoggingLevel debugLoggingLevel;
 @property (nonatomic, assign) BOOL isTV;
 @property (nonatomic, strong) NSString *collectorAddress;
 @property (nonatomic, assign) BOOL qoeAggregateEnabled;
@@ -99,9 +111,16 @@
 - (instancetype)withMemoryOptimization:(BOOL)memoryOptimized;
 
 /**
- * Enable debug logging
+ * Enable debug logging. Also turns on the event buffer capacity logs (INFO at 85% fill,
+ * WARNING at 90%, ERROR on every dropped event), emitted through os_log in release builds too.
+ * Equivalent to withDebugLogging:level: with NRVALoggingLevelInfo.
  */
 - (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled;
+
+/**
+ * Enable debug logging and set the minimum level of the event buffer capacity logs.
+ */
+- (instancetype)withDebugLogging:(BOOL)debugLoggingEnabled level:(NRVALoggingLevel)level;
 
 /**
  * Set harvest cycle in seconds (5-300 seconds, validated)
