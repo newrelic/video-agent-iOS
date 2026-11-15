@@ -202,17 +202,12 @@ jobs:
           chmod +x ./build-xcframeworks.sh
           ./build-xcframeworks.sh
 
-      - name: Write release manifest
-        env:
-          COMMIT: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
-          VERSION: ${{ steps.get_version.outputs.version }}
+      - name: Write release checksums
         run: |
-          # Lists exactly the files this job built; written outside the file list so it does not list itself.
-          for f in xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip; do
-            printf '{"name":"%s","size":%s,"sha256":"%s"}\n' "$f" "$(stat -f %z "$f")" "$(shasum -a 256 "$f" | cut -d' ' -f1)"
-          done | jq -s --arg v "$VERSION" --arg c "$COMMIT" '{version:$v,commit:$c,files:.}' > "$RUNNER_TEMP/manifest.json"
-          mv "$RUNNER_TEMP/manifest.json" manifest.json
-          cat manifest.json
+          # Lists exactly the files this job built; written outside the list so it does not list itself.
+          shasum -a 256 xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip > "$RUNNER_TEMP/SHA256SUMS"
+          mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
+          cat SHA256SUMS
 
       - name: Attest build provenance
         if: env.DRY_RUN != 'true'
@@ -225,7 +220,7 @@ jobs:
             NRIMATracker.xcframework.zip
             NRMediaTailorTracker.xcframework.zip
             NRTHEOplayerTracker.xcframework.zip
-            manifest.json
+            SHA256SUMS
 
       - name: Update Package.swift for SPM
         run: |
@@ -456,7 +451,7 @@ jobs:
             NRIMATracker.xcframework.zip
             NRMediaTailorTracker.xcframework.zip
             NRTHEOplayerTracker.xcframework.zip
-            manifest.json
+            SHA256SUMS
           draft: false
           prerelease: false
         env:
