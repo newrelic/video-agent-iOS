@@ -43,7 +43,7 @@ jobs:
           ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
 
       - name: Set up Ruby
-        uses: ruby/setup-ruby@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
+        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
         with:
           ruby-version: '3.2'
           bundler-cache: false
