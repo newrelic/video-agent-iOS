@@ -16,6 +16,10 @@
 @property (nonatomic, strong) NSMutableArray<NSDictionary<NSString *, id> *> *retryEvents;
 @property (nonatomic, strong) dispatch_queue_t deadLetterQueue_queue;
 @property (nonatomic, assign) NSInteger maxCapacity;
+// Threshold log latches (cleared once the buffer drains below the threshold) and the cumulative session drop count
+@property (nonatomic, assign) BOOL infoLogged;
+@property (nonatomic, assign) BOOL warningLogged;
+@property (nonatomic, assign) NSInteger totalDroppedEvents;
 
 @end
 
@@ -45,9 +49,24 @@
         // Simple add with capacity management - no callbacks, no scheduler triggers
         [self.retryEvents addObject:event];
         
+        double capacity = (double)self.retryEvents.count / self.maxCapacity;
+        if (capacity >= 0.85 && !self.infoLogged) {
+            self.infoLogged = YES;
+            NRVA_BUFFER_LOG(NRVALoggingLevelInfo, @"Dead letter (retry) buffer 85%% full (%ld of %ld events)",
+                            (long)self.retryEvents.count, (long)self.maxCapacity);
+        }
+        if (capacity >= 0.9 && !self.warningLogged) {
+            self.warningLogged = YES;
+            NRVA_BUFFER_LOG(NRVALoggingLevelWarning, @"Dead letter (retry) buffer 90%% full (%ld of %ld events)",
+                            (long)self.retryEvents.count, (long)self.maxCapacity);
+        }
+        
         // Simple overflow protection - remove oldest if over capacity
         while (self.retryEvents.count > self.maxCapacity) {
             [self.retryEvents removeObjectAtIndex:0];
+            self.totalDroppedEvents++;
+            NRVA_BUFFER_LOG(NRVALoggingLevelError, @"Dead letter (retry) buffer full (capacity %ld), oldest event dropped. Total dropped this session: %ld",
+                            (long)self.maxCapacity, (long)self.totalDroppedEvents);
         }
     });
 }
@@ -81,6 +100,7 @@
         }
         
         result = [batch copy];
+        [self resetCapacityLatches];
     });
     
     return result;
@@ -101,7 +121,15 @@
 - (void)cleanup {
     dispatch_sync(self.deadLetterQueue_queue, ^{
         [self.retryEvents removeAllObjects];
+        [self resetCapacityLatches];
     });
+}
+
+// Must run on deadLetterQueue_queue.
+- (void)resetCapacityLatches {
+    double capacity = (double)self.retryEvents.count / self.maxCapacity;
+    if (capacity < 0.85) self.infoLogged = NO;
+    if (capacity < 0.9) self.warningLogged = NO;
 }
 
 // Dead letter queues don't need callbacks - they're just retry storage

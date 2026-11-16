@@ -14,16 +14,18 @@
 @class IMAAdError;
 
 /**
- `NRTrackerIMA` is the base class to manage the ad events of the Google IMA library. 
+ `NRTrackerIMA` is the base class to manage the ad events of the Google IMA library,
+ for both client-side ads (`IMAAdsManager`) and Dynamic Ad Insertion (`IMAStreamManager`).
+ It only observes: the app keeps its IMA delegates and forwards events and errors here.
  It can be used directly or subclassed.
  */
-@interface NRTrackerIMA : NRVideoTracker
+@interface NRTrackerIMA : NRVideoTracker <NRAdTrackerConfigurable>
 
 /**
  Report an ad event to the tracker.
  
  @param event An IMAAdEvent.
- @param manager An IMAAdsManager.
+ @param manager An IMAAdsManager, or nil for Dynamic Ad Insertion.
  */
 - (void)adEvent:(IMAAdEvent *)event adsManager:(IMAAdsManager *)manager;
 

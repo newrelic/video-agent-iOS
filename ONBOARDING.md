@@ -163,7 +163,8 @@ let advancedConfig = NRVAVideoConfiguration.builder()
 | `withMaxOfflineStorageSize:` | NSInteger  | 100           | > 0 MB        | Maximum offline storage size limit     |
 | `withMemoryOptimization:`    | BOOL       | NO            | YES/NO        | Optimize for low-memory devices        |
 | `forTVOS:`                   | BOOL       | auto-detected | YES/NO        | Enable Apple TV optimizations          |
-| `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable detailed debug logging          |
+| `withDebugLogging:`          | BOOL       | NO            | YES/NO        | Enable debug logging, incl. buffer capacity logs |
+| `withDebugLogging:level:`    | BOOL, NRVALoggingLevel | NO, Info | Info/Warning/Error | Debug logging with a minimum level for buffer logs |
 | `withQoeAggregateEnabled:`   | BOOL       | NO            | YES/NO        | Enable QoE aggregate event reporting   |
 | `withQoeAggregateIntervalMultiplier:` | NSInteger | 1       | >= 1          | Send QoE every N harvest cycles        |
 
@@ -591,14 +592,13 @@ For video playback with Google IMA advertisements:
 - (void)adsManagerDidRequestContentPause:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request pause");
 
-    [NRVAVideo sendAdBreakStart:@(self.trackerId)];
+    // Ad break start/end are tracked from the ad events, no manual call needed.
     [self.player pause];
 }
 
 - (void)adsManagerDidRequestContentResume:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request resume");
 
-    [NRVAVideo sendAdBreakEnd:@(self.trackerId)];
     [self.player play];
 }
 
@@ -781,16 +781,58 @@ extension ViewController: IMAAdsManagerDelegate {
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
         print("Ads request pause")
 
-        NRVAVideo.sendAdBreakStart(NSNumber(value: trackerId))
+        // Ad break start/end are tracked from the ad events, no manual call needed.
         player?.pause()
     }
 
     func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager) {
         print("Ads request resume")
 
-        NRVAVideo.sendAdBreakEnd(NSNumber(value: trackerId))
         player?.play()
     }
+}
+```
+
+### Option 2b: Google IMA Dynamic Ad Insertion (DAI)
+
+With DAI the ads are stitched into the stream, so `IMAAdsLoader` returns an `IMAStreamManager` instead of an `IMAAdsManager`. Select the DAI tracker with `NRAdConfig.imaDai` and forward the stream manager's events and errors. There is no ads manager, so pass `nil`. Ad breaks are tracked automatically.
+
+#### Objective-C
+
+```objectivec
+NRVAVideoPlayerConfiguration *config = [[NRVAVideoPlayerConfiguration alloc]
+    initWithPlayerName:@"MyPlayer"
+                player:player
+              adConfig:[NRAdConfig imaDai]
+      customAttributes:nil];
+self.trackerId = [NRVAVideo addPlayer:config];
+
+// IMAStreamManagerDelegate
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
+    [NRVAVideo handleAdEvent:@(self.trackerId) event:event adsManager:nil];
+}
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdError:(IMAAdError *)error {
+    [NRVAVideo handleAdError:@(self.trackerId) error:error];
+}
+```
+
+#### Swift
+
+```swift
+let config = NRVAVideoPlayerConfiguration(playerName: "MyPlayer",
+                                          player: player,
+                                          adConfig: NRAdConfig.imaDai(),
+                                          customAttributes: nil)
+trackerId = NRVAVideo.addPlayer(config)
+
+// IMAStreamManagerDelegate
+func streamManager(_ streamManager: IMAStreamManager, didReceive event: IMAAdEvent) {
+    NRVAVideo.handleAdEvent(NSNumber(value: trackerId), event: event, adsManager: nil)
+}
+
+func streamManager(_ streamManager: IMAStreamManager, didReceive error: IMAAdError) {
+    NRVAVideo.handleAdError(NSNumber(value: trackerId), error: error)
 }
 ```
 
@@ -1029,7 +1071,7 @@ NRVAVideo.recordCustomEvent(
 
 ### Manual Ad Event Control
 
-For advanced ad implementations, you can manually control ad break events:
+Ad breaks are tracked automatically from the IMA ad events. For advanced ad implementations (or other ad SDKs), you can still control ad break events manually. Calling these alongside the automatic tracking is safe; a break that is already open is not opened twice:
 
 #### Objective-C
 
@@ -1580,14 +1622,11 @@ extension VideoPlayerViewController: IMAAdsManagerDelegate {
     }
 
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
-        // Ad break is starting
-        NRVAVideo.sendAdBreakStart(NSNumber(value: trackerId))
+        // Ad break start/end are tracked from the ad events, no manual call needed.
         player?.pause()
     }
 
     func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager) {
-        // Ad break is ending
-        NRVAVideo.sendAdBreakEnd(NSNumber(value: trackerId))
         player?.play()
     }
 }

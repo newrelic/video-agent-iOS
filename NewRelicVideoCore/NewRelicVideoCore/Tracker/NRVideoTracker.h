@@ -16,6 +16,12 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NRVideoTracker : NRTracker
 
 /**
+ YES when this ad tracker's ads are stitched into the content stream (e.g. IMA DAI), so
+ the content player's values can stand in for ad values the ad SDK does not provide.
+ */
+@property (nonatomic) BOOL adsStitchedIntoContent;
+
+/**
  Return tracker state.
  
  @return Tracker state..

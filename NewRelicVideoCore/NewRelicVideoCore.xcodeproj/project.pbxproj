@@ -160,7 +160,9 @@
 		BUFPAUS0001000000000001 /* NRTrackerStateBufferPauseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */; };
 		BUFPAUS0001000000000002 /* NRTrackerStateBufferPauseTests.m in Sources */ = {isa = PBXBuildFile; fileRef = BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */; };
 		VLDSAN0001000000000001 /* NREventAttributesValueSanitizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */; };
+		DROPLG0001000000000001 /* NRVABufferDropLoggingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DROPLG0001000000000003 /* NRVABufferDropLoggingTests.m */; };
 		VLDSAN0001000000000002 /* NREventAttributesValueSanitizationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */; };
+		DROPLG0001000000000002 /* NRVABufferDropLoggingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = DROPLG0001000000000003 /* NRVABufferDropLoggingTests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -280,6 +282,7 @@
 		PAIRTST0001000000000003 /* NRTrackerPairTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerPairTests.m; sourceTree = "<group>"; };
 		BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerStateBufferPauseTests.m; sourceTree = "<group>"; };
 		VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NREventAttributesValueSanitizationTests.m; sourceTree = "<group>"; };
+		DROPLG0001000000000003 /* NRVABufferDropLoggingTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRVABufferDropLoggingTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -514,6 +517,7 @@
 				PAIRTST0001000000000003 /* NRTrackerPairTests.m */,
 				BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */,
 				VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */,
+				DROPLG0001000000000003 /* NRVABufferDropLoggingTests.m */,
 				QOETEST0001000000000003 /* NRQoEAggregatorTests.m */,
 				QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */,
 				9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */,
@@ -812,6 +816,7 @@
 				PAIRTST0001000000000001 /* NRTrackerPairTests.m in Sources */,
 				BUFPAUS0001000000000001 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000001 /* NREventAttributesValueSanitizationTests.m in Sources */,
+				DROPLG0001000000000001 /* NRVABufferDropLoggingTests.m in Sources */,
 				QOETEST0001000000000001 /* NRQoEAggregatorTests.m in Sources */,
 				QOETEST0002000000000001 /* NRVAHarvestManagerQoETests.m in Sources */,
 				9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */,
@@ -864,6 +869,7 @@
 				PAIRTST0001000000000002 /* NRTrackerPairTests.m in Sources */,
 				BUFPAUS0001000000000002 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000002 /* NREventAttributesValueSanitizationTests.m in Sources */,
+				DROPLG0001000000000002 /* NRVABufferDropLoggingTests.m in Sources */,
 				QOETEST0001000000000002 /* NRQoEAggregatorTests.m in Sources */,
 				QOETEST0002000000000002 /* NRVAHarvestManagerQoETests.m in Sources */,
 			);

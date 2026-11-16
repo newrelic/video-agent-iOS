@@ -43,6 +43,10 @@
     self.timestamp = [[NSDate date] timeIntervalSince1970];
 }
 
+- (void)reset {
+    self.timestamp = 0;
+}
+
 - (NSNumber *)timeSince {
     if (self.timestamp > 0) {
         return @((long)(1000.0f * ([[NSDate date] timeIntervalSince1970] - self.timestamp)));
