@@ -1,0 +1,39 @@
+name: Release build check
+
+# Required check for pull requests to master. A normal PR passes straight away. A release/* PR
+# passes only when ios-release.yml has built and signed the PR's current head commit, so a release
+# PR cannot be merged while its build is missing or out of date (publishing refuses those anyway).
+#
+# ios-release.yml starts this workflow by hand on the release branch once it has pushed the
+# Package.swift commit, because pushes made with the workflow token do not start PR checks.
+
+on:
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  release-build-exists:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref || github.ref_name }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+      - name: Check a build exists for this head commit
+        run: |
+          case "$HEAD_REF" in
+            release/*) ;;
+            *) echo "Not a release PR: nothing to check."; exit 0 ;;
+          esac
+          RUN_ID=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=ios-release-$HEAD_SHA" --jq '[.artifacts[] | select(.expired | not)][0].workflow_run.id // empty')
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::No release build for $HEAD_SHA. Run the Version Bump PR workflow again to build the latest commit, then merge."
+            exit 1
+          fi
+          echo "Release build found for $HEAD_SHA (run $RUN_ID)."

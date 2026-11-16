@@ -1,9 +1,11 @@
 name: Publish to SPM
 
-# CocoaPods Trunk publish steps below are commented out as part of decommissioning
-# CocoaPods Trunk, which is going read-only permanently on Dec 2, 2026 (test blackout
-# Nov 1-7, 2026). SPM delivery (XCFrameworks + Package.swift + GitHub Release) now
-# runs unconditionally, no longer gated behind CocoaPods publishing succeeding.
+# Publishes the files that ios-release.yml built and signed on the release branch. Nothing is
+# rebuilt here: the release PR already contains Package.swift with the checksums of those files,
+# so the tag goes on the merged commit itself (no bot commit, no moved tag, no sync PR).
+#
+# CocoaPods Trunk is read-only from Dec 2, 2026, so only SPM (XCFramework zips + GitHub Release)
+# is published.
 
 on:
   pull_request:
@@ -14,73 +16,57 @@ on:
 
   workflow_dispatch:
     inputs:
+      head_sha:
+        description: 'Head commit of the release PR whose build to publish (the sha in the artifact name ios-release-<sha>)'
+        required: true
+        type: string
       dry_run:
-        description: 'Test run without publishing, tagging, or creating a release'
+        description: 'Run every check but do not create the release'
         type: boolean
         default: false
 
 permissions:
   contents: write
   actions: write
-  pull-requests: write
-  id-token: write
-  attestations: write
 
 jobs:
   publish:
-    runs-on: macos-latest
-    # Only run if PR was merged and has release label
+    runs-on: ubuntu-latest
+    # Only run if the PR was merged and has the release label, or when started by hand
     if: |
       github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release'))
 
     env:
       DRY_RUN: ${{ inputs.dry_run || 'false' }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha || inputs.head_sha }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout the merged commit
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@b3aaceaef7e0ee231b499e7b5f49c03fc1d32199 # v1.338.0
-        with:
-          ruby-version: '3.2'
-          bundler-cache: false
-
-      # Paused - CocoaPods Trunk decommission
-      # - name: Install CocoaPods
-      #   run: |
-      #     gem install cocoapods
-      #     pod --version
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
       - name: Extract version from podspec
         id: get_version
         run: |
           VERSION=$(grep "s.version" NewRelicVideoAgent.podspec | sed -E "s/.*s\.version[[:space:]]*=[[:space:]]*'([0-9]+\.[0-9]+\.[0-9]+)'.*/\1/")
-          echo "Extracted version from podspec: $VERSION"
-      
           if [ -z "$VERSION" ]; then
-            echo "Failed to extract version"
+            echo "::error::Failed to extract version"
             exit 1
           fi
-
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "MERGED=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
           echo "Publishing version: $VERSION"
 
       # A published release is immutable, so a re-run can only continue from a draft.
       - name: Stop if this version is already published
         if: env.DRY_RUN != 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: v${{ steps.get_version.outputs.version }}
+          TAG_NAME: ${{ steps.get_version.outputs.tag }}
         run: |
           EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate | jq -r --arg t "$TAG_NAME" '.[] | select(.tag_name == $t) | "\(.id) \(.draft)"')
           if [ -z "$EXISTING" ]; then
@@ -95,348 +81,56 @@ jobs:
           echo "Deleting the leftover draft for $TAG_NAME from an earlier failed run."
           gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$ID"
 
-      - name: Cleanup existing tag if present
-        if: env.DRY_RUN != 'true'
+      - name: Download the build made on the release PR
         run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          # Check if tag exists locally
-          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
-            echo "Tag v$VERSION exists locally, deleting..."
-            git tag -d "v$VERSION"
+          RUN_ID=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?name=ios-release-$HEAD_SHA" --jq '[.artifacts[] | select(.expired | not)][0].workflow_run.id // empty')
+          if [ -z "$RUN_ID" ]; then
+            echo "::error::No build found for release PR head $HEAD_SHA. Run the Version Bump PR workflow again to build the latest commit, then publish."
+            exit 1
           fi
+          echo "Using the build from run $RUN_ID"
+          gh run download "$RUN_ID" -R "$GITHUB_REPOSITORY" -n "ios-release-$HEAD_SHA" -D build
+          ls -l build
 
-          # Check if tag exists on remote
-          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION"; then
-            echo "Tag v$VERSION exists on remote, deleting..."
-            git push --delete origin "v$VERSION" || echo "Failed to delete remote tag (may not have permission)"
-          else
-            echo "Tag v$VERSION does not exist on remote"
-          fi
-
-      - name: Create and push git tag
-        if: env.DRY_RUN != 'true'
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          # Pushed before podspec validation, not after: every tracker podspec
-          # declares NewRelicVideoAgent as a dependency, and NewRelicVideoAgent's
-          # already-published spec sources from this exact tag. Validating any
-          # dependent podspec needs the tag to already resolve on the remote -
-          # creating it only at the end (the old order) works on a completely
-          # fresh release, but breaks every retry after a partial publish, since
-          # "Cleanup existing tag" above just deleted the tag the previous
-          # attempt's already-published pods depend on. It gets moved forward
-          # below once Package.swift's checksums are committed.
-          echo "Creating tag v$VERSION..."
-          git tag "v$VERSION"
-          git push origin "v$VERSION"
-          echo "Tag v$VERSION created and pushed successfully!"
-
-      # Paused - CocoaPods Trunk decommission
-      # - name: Validate podspecs
-        # run: |
-          # echo "Validating podspecs..."
-
-          # validate_with_retry() {
-            # local podspec=$1
-            # local max_attempts=3
-            # local attempt=1
-
-            # while [ $attempt -le $max_attempts ]; do
-              # echo "Validating $podspec (attempt $attempt/$max_attempts)..."
-
-              # set +e
-              # pod lib lint $podspec --allow-warnings 2>&1 | tee validation_output.log
-              # EXIT_CODE=${PIPESTATUS[0]}
-              # set -e
-
-              # if [ $EXIT_CODE -eq 0 ]; then
-                # echo "$podspec validated successfully"
-                # rm -f validation_output.log
-                # return 0
-              # else
-                # if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up)" validation_output.log; then
-                  # echo "Transient error detected for $podspec"
-                  # if [ $attempt -lt $max_attempts ]; then
-                    # echo "Retrying in 10 seconds..."
-                    # sleep 10
-                    # attempt=$((attempt + 1))
-                  # else
-                    # echo "Failed after $max_attempts attempts"
-                    # cat validation_output.log
-                    # rm -f validation_output.log
-                    # return 1
-                  # fi
-                # else
-                  # echo "Validation failed with non-retryable error"
-                  # cat validation_output.log
-                  # rm -f validation_output.log
-                  # return 1
-                # fi
-              # fi
-            # done
-          # }
-
-          # # Validate each podspec with retry logic
-          # validate_with_retry "NewRelicVideoAgent.podspec"
-          # validate_with_retry "NRAVPlayerTracker.podspec"
-          # validate_with_retry "NRIMATracker.podspec"
-          # validate_with_retry "NRMediaTailorTracker.podspec"
-          # validate_with_retry "NRTHEOplayerTracker.podspec"
-
-          # echo ""
-          # echo "All podspecs validated successfully!"
-
-
-
-      # Paused - CocoaPods Trunk decommission
-      # - name: Setup CocoaPods trunk authentication
-        # env:
-          # COCOAPODS_TRUNK_TOKEN: ${{ secrets.COCOAPODS_TRUNK_TOKEN }}
-        # run: |
-          # if [ -z "$COCOAPODS_TRUNK_TOKEN" ]; then
-            # echo "Error: COCOAPODS_TRUNK_TOKEN secret is not set"
-            # echo "Please add your CocoaPods trunk token to GitHub repository secrets"
-            # exit 1
-          # fi
-
-          # cat > ~/.netrc <<EOF
-          # machine trunk.cocoapods.org
-          # login token
-          # password ${COCOAPODS_TRUNK_TOKEN}
-          # EOF
-          # chmod 600 ~/.netrc
-
-          # # Verify the token actually works
-          # echo "Verifying trunk authentication..."
-          # if ! pod trunk me 2>&1; then
-            # echo "Error: CocoaPods trunk token is invalid or expired"
-            # echo "Please update COCOAPODS_TRUNK_TOKEN in GitHub repository secrets"
-            # exit 1
-          # fi
-          # echo "CocoaPods trunk authentication verified"
-
-      - name: Build XCFrameworks
-        run: |
-          chmod +x ./build-xcframeworks.sh
-          ./build-xcframeworks.sh
-
-      - name: Write release checksums and manifest
+      - name: Check the merged commit is exactly what was built
         env:
           VERSION: ${{ steps.get_version.outputs.version }}
         run: |
-          node .github/scripts/generate-integrity-manifest.mjs . "$VERSION" "$GITHUB_SHA" xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip
-          cat SHA256SUMS
+          jq -e --arg v "$VERSION" --arg h "$HEAD_SHA" '.version == $v and .headCommit == $h' build/build-info.json
+          BUILT=$(jq -r .builtCommit build/build-info.json)
+          git fetch -q origin "$HEAD_SHA" "$BUILT"
 
-      - name: Attest build provenance
-        if: env.DRY_RUN != 'true'
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: |
-            xcframeworks.zip
-            NewRelicVideoCore.xcframework.zip
-            NRAVPlayerTracker.xcframework.zip
-            NRIMATracker.xcframework.zip
-            NRMediaTailorTracker.xcframework.zip
-            NRTHEOplayerTracker.xcframework.zip
-            SHA256SUMS
-            integrity-manifest.json
+          # What was merged must be the release branch head, tree for tree.
+          if [ "$(git rev-parse "$MERGED^{tree}")" != "$(git rev-parse "$HEAD_SHA^{tree}")" ]; then
+            echo "::error::The merged commit differs from the build's commit $HEAD_SHA (more commits landed). Run the Version Bump PR workflow again to rebuild, then publish."
+            exit 1
+          fi
+          # The only change after the build is the Package.swift update.
+          CHANGED=$(git diff --name-only "$BUILT" "$HEAD_SHA")
+          if [ "$CHANGED" != "Package.swift" ]; then
+            echo "::error::Files changed between the built commit $BUILT and $HEAD_SHA besides Package.swift:"
+            echo "$CHANGED"
+            exit 1
+          fi
+          echo "OK: tag commit = merged commit = release branch head; built from $BUILT; only Package.swift changed."
 
-      - name: Verify checksums and attestations
-        if: env.DRY_RUN != 'true'
+      - name: Verify checksums, Package.swift and attestations
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.get_version.outputs.tag }}
         run: |
-          shasum -a 256 -c SHA256SUMS
-          for f in xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json; do
-            gh attestation verify "$f" --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/ios-publish.yml"
-          done
-
-      - name: Update Package.swift for SPM
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          TAG="v${VERSION}"
-
-          echo "Updating Package.swift release tag to $TAG..."
-          sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
-          rm -f Package.swift.bak
-
-          # Checksums are computed from the exact zips this job just built above -
-          # the same files "Create GitHub Release" attaches later in this job. Never
-          # recompute these against a separately-built zip: a fresh xcodebuild run
-          # produces different file mtimes, which changes the zip bytes and therefore
-          # the checksum, even when the compiled content is identical.
+          cd build
+          sha256sum -c SHA256SUMS
+          cd ..
+          grep -q "let releaseTag = \"$TAG_NAME\"" Package.swift
           for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker NRTHEOplayerTracker; do
-            CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
-            echo "${fw} checksum: ${CHECKSUM}"
-
-            FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
-              my $name = $ENV{FW_NAME};
-              my $checksum = $ENV{FW_CHECKSUM};
-              s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
-            ' Package.swift
+            SUM=$(sha256sum "build/$fw.xcframework.zip" | cut -d' ' -f1)
+            grep -q "checksum: \"$SUM\"" Package.swift
+            echo "$fw: Package.swift checksum matches the zip"
           done
-
-          if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
-            echo "Failed to update releaseTag in Package.swift"
-            exit 1
-          fi
-
-          if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
-            echo "Failed to update one or more checksums in Package.swift"
-            exit 1
-          fi
-
-          echo ""
-          echo "Package.swift after update:"
-          cat Package.swift
-
-          echo ""
-          echo "Verifying Package.swift resolves..."
-          swift package dump-package > /dev/null
-
-          # master is protected (PR + approval + FOSSA required), so this commit
-          # stays local - it's carried by the tag pushed next. Master's own copy
-          # is synced separately, non-blocking, by "Sync Package.swift to master
-          # via PR" later in this job.
-          git add Package.swift
-          git commit -m "chore: update Package.swift for ${TAG}"
-          echo "Package.swift committed locally - tagged next, never pushed to master"
-
-      - name: Move git tag to include Package.swift update
-        if: env.DRY_RUN != 'true'
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
-          # The tag was created earlier (before podspec validation) pointing at
-          # the pre-Package.swift-update commit. Move it forward now so SPM
-          # consumers resolving this tag see the checksums that actually match
-          # the XCFramework zips this same job attaches to the GitHub release.
-          echo "Moving tag v$VERSION to include Package.swift update..."
-          git tag -f "v$VERSION"
-          git push --force origin "v$VERSION"
-          echo "Tag v$VERSION moved and re-pushed successfully!"
-
-      # Paused - CocoaPods Trunk decommission
-      # - name: Publish pods to CocoaPods
-        # run: |
-          # VERSION="${{ steps.get_version.outputs.version }}"
-
-          # # Check if a pod version is published (CLI + API fallback)
-          # check_published() {
-            # local pod=$1
-            # pod trunk info "$pod" 2>/dev/null | grep -q "- $VERSION" ||
-              # curl -sf "https://trunk.cocoapods.org/api/v1/pods/$pod" 2>/dev/null | grep -q "\"$VERSION\""
-          # }
-
-          # # Publish a single pod with retry logic
-          # publish_pod() {
-            # local pod=$1
-            # local podspec=$2
-            # local max_attempts=3
-            # local attempt=1
-
-            # echo ""
-            # echo "========== $pod =========="
-
-            # if check_published "$pod"; then
-              # echo "$pod $VERSION is already published, skipping..."
-              # return 0
-            # fi
-
-            # while [ $attempt -le $max_attempts ]; do
-              # echo "Publishing $pod $VERSION (attempt $attempt/$max_attempts)..."
-
-              # if [ "$DRY_RUN" = "true" ]; then
-                # echo "[DRY RUN] Would run: pod trunk push $podspec --allow-warnings"
-                # echo "$pod dry-run publish complete!"
-                # rm -f publish_output.log
-                # return 0
-              # fi
-
-              # set +e
-              # pod trunk push "$podspec" --allow-warnings 2>&1 | tee publish_output.log
-              # local exit_code=${PIPESTATUS[0]}
-              # set -e
-
-              # if [ $exit_code -eq 0 ]; then
-                # echo "$pod published successfully!"
-                # rm -f publish_output.log
-                # return 0
-              # fi
-
-              # if grep -q "Unable to accept duplicate entry" publish_output.log; then
-                # echo "$pod was already published (duplicate entry)"
-                # rm -f publish_output.log
-                # return 0
-              # fi
-
-              # if grep -qiE "(internal server error|connection.*(timed out|refused|reset)|CDN:.*(trunk|URL)|SSL|502 Bad Gateway|503 Service|504 Gateway|ECONNRESET|ECONNREFUSED|network is unreachable|temporarily unavailable|rate limit|429 Too Many|couldn.t connect|socket hang up|Unable to find a specification|not found in trunk|dependency.*not found)" publish_output.log; then
-                # echo "Transient error detected."
-                # sleep 10
-                # if check_published "$pod"; then
-                  # echo "$pod published successfully despite the error!"
-                  # rm -f publish_output.log
-                  # return 0
-                # fi
-                # if [ $attempt -lt $max_attempts ]; then
-                  # echo "Retrying in 30 seconds..."
-                  # sleep 30
-                  # attempt=$((attempt + 1))
-                # else
-                  # echo "Failed after $max_attempts attempts:"
-                  # cat publish_output.log
-                  # rm -f publish_output.log
-                  # return 1
-                # fi
-              # else
-                # echo "Non-retryable error:"
-                # cat publish_output.log
-                # rm -f publish_output.log
-                # return 1
-              # fi
-            # done
-          # }
-
-          # # Wait for a pod to be indexed
-          # wait_for_indexing() {
-            # local pod=$1
-            # local max_wait=10
-            # local wait_time=30
-            # local i=0
-
-            # echo ""
-            # echo "Waiting for $pod to be indexed..."
-            # while [ $i -lt $max_wait ]; do
-              # i=$((i + 1))
-              # if pod search "$pod" 2>/dev/null | grep -q "$VERSION"; then
-                # echo "$pod $VERSION is now indexed!"
-                # return 0
-              # fi
-              # if [ $i -lt $max_wait ]; then
-                # echo "  Attempt $i/$max_wait - not indexed yet, waiting ${wait_time}s..."
-                # sleep $wait_time
-              # fi
-            # done
-            # echo "Timeout waiting for indexing, proceeding with publish (retry will handle it)..."
-          # }
-
-          # # Publish NewRelicVideoAgent first (other pods depend on it)
-          # publish_pod "NewRelicVideoAgent" "NewRelicVideoAgent.podspec"
-          # if [ "$DRY_RUN" != "true" ]; then
-            # wait_for_indexing "NewRelicVideoAgent"
-          # fi
-
-          # # Publish dependent pods — if the first succeeds, indexing is confirmed
-          # # so the second doesn't need any additional wait
-          # publish_pod "NRAVPlayerTracker" "NRAVPlayerTracker.podspec"
-          # publish_pod "NRIMATracker" "NRIMATracker.podspec"
-          # publish_pod "NRMediaTailorTracker" "NRMediaTailorTracker.podspec"
-          # publish_pod "NRTHEOplayerTracker" "NRTHEOplayerTracker.podspec"
-
-          # echo ""
-          # echo "All pods published!"
+          cd build
+          for f in xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json; do
+            gh attestation verify "$f" --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/ios-release.yml"
+          done
 
       - name: Extract changelog excerpt
         id: changelog
@@ -463,12 +157,12 @@ jobs:
       - name: Create GitHub Release
         if: env.DRY_RUN != 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: v${{ steps.get_version.outputs.version }}
+          TAG_NAME: ${{ steps.get_version.outputs.tag }}
           CHANGELOG: ${{ steps.changelog.outputs.changelog }}
         run: |
           # Draft first, upload every file, check them, then publish: files cannot be
-          # added or changed once published (immutable releases).
+          # added or changed once published (immutable releases). The tag is created at
+          # publish, on the merged commit.
           NOTES="## Release $TAG_NAME
 
           Available via Swift Package Manager — see [Package.swift](https://github.com/$GITHUB_REPOSITORY/blob/$TAG_NAME/Package.swift).
@@ -479,116 +173,34 @@ jobs:
 
           FILES="xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json"
 
-          gh release create "$TAG_NAME" --draft --title "$TAG_NAME" --notes "$NOTES" --target "$GITHUB_SHA"
-          gh release upload "$TAG_NAME" $FILES --clobber
+          gh release create "$TAG_NAME" --draft --title "$TAG_NAME" --notes "$NOTES" --target "$MERGED"
+          (cd build && gh release upload "$TAG_NAME" $FILES --clobber)
 
           # Check what is on the draft matches the verified files before publishing.
           gh api "repos/$GITHUB_REPOSITORY/releases" --paginate | jq -r --arg t "$TAG_NAME" '.[] | select(.tag_name == $t) | .assets[] | "\(.name) \(.digest // "")"' | sort > "$RUNNER_TEMP/uploaded.txt"
-          for f in $FILES; do echo "$f sha256:$(shasum -a 256 "$f" | cut -d' ' -f1)"; done | sort > "$RUNNER_TEMP/expected.txt"
-          # Older API responses have no digest; compare names only in that case.
-          if ! grep -q 'sha256:' "$RUNNER_TEMP/uploaded.txt"; then sed -i '' 's/ sha256:.*//' "$RUNNER_TEMP/expected.txt"; sed -i '' 's/ *$//' "$RUNNER_TEMP/uploaded.txt"; fi
+          (cd build && for f in $FILES; do echo "$f sha256:$(sha256sum "$f" | cut -d' ' -f1)"; done) | sort > "$RUNNER_TEMP/expected.txt"
           diff "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/uploaded.txt"
 
           gh release edit "$TAG_NAME" --draft=false
 
       - name: Trigger Release Notes Docs PR
         if: env.DRY_RUN != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh workflow run release-notes-docs-pr.yml --ref master --field tag="v${{ steps.get_version.outputs.version }}" --field dry_run=false
-          echo "Triggered release-notes-docs-pr.yml for v${{ steps.get_version.outputs.version }}"
-
-      - name: Sync Package.swift to master via PR
-        if: env.DRY_RUN != 'true'
-        continue-on-error: true
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-          TAG="v${VERSION}"
-          BRANCH="chore/package-swift-${TAG}"
-
-          # Housekeeping only - the release is already fully shipped by this
-          # point, so this just opens a small PR to sync master's own copy.
-          cp Package.swift /tmp/Package.swift.release
-
-          git fetch origin master --quiet
-          if git show "origin/master:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"${TAG}\""; then
-            echo "master's Package.swift already references ${TAG} - nothing to sync"
-            exit 0
-          fi
-
-          EXISTING=$(gh pr list --repo "${{ github.repository }}" --base master --head "$BRANCH" --state open --json number --jq 'length')
-          if [ "$EXISTING" != "0" ]; then
-            echo "A PR for ${BRANCH} is already open - not opening another"
-            exit 0
-          fi
-
-          git checkout -B "$BRANCH" origin/master
-          cp /tmp/Package.swift.release Package.swift
-          git add Package.swift
-          git commit -m "chore: update Package.swift for ${TAG}"
-          git push --force-with-lease origin "$BRANCH"
-
-          gh pr create \
-            --repo "${{ github.repository }}" \
-            --base master \
-            --head "$BRANCH" \
-            --title "chore: update Package.swift for ${TAG}" \
-            --body "Syncs master's checked-in \`Package.swift\` with the checksums already tagged as \`${TAG}\`. Doesn't gate or affect the release itself - \`${TAG}\` is already tagged and live via SPM (which resolves the tag, not master's HEAD). Pure housekeeping so master's own copy isn't stuck on the placeholder."
+          gh workflow run release-notes-docs-pr.yml --ref master --field tag="${{ steps.get_version.outputs.tag }}" --field dry_run=false
+          echo "Triggered release-notes-docs-pr.yml for ${{ steps.get_version.outputs.tag }}"
 
       - name: Verify publication
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.get_version.outputs.tag }}
         run: |
-          VERSION="${{ steps.get_version.outputs.version }}"
-
           if [ "$DRY_RUN" = "true" ]; then
-            echo ""
-            echo "=================================="
-            echo "DRY RUN v$VERSION Complete!"
-            echo "=================================="
-            echo ""
-            echo "Steps validated:"
-            echo "  - Version extraction: $VERSION"
-            echo "  - XCFramework build: passed"
-            echo "  - Package.swift checksum computation + local commit: passed (see cat above)"
-            echo ""
-            echo "Steps skipped (dry run):"
-            echo "  - Tag creation: v$VERSION"
-            echo "  - XCFramework build"
-            echo "  - GitHub release creation"
+            echo "DRY RUN $TAG_NAME: every check passed; the release was not created."
             exit 0
           fi
-
-          echo "=== git tag v$VERSION ==="
-          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION"; then
-            echo "tag v$VERSION - verified on remote"
-          else
-            echo "WARNING: tag v$VERSION not found on remote"
-          fi
-
-          echo ""
-          echo "=== GitHub Release v$VERSION ==="
-          if gh release view "v$VERSION" >/dev/null 2>&1; then
-            echo "GitHub Release v$VERSION - verified"
-          else
-            echo "WARNING: GitHub Release v$VERSION not found"
-          fi
-
-          echo ""
-          echo "=== Package.swift at tag v$VERSION (SPM) ==="
-          # Checked against the tag's tree, not master's - that's what SPM resolves.
-          if git show "v$VERSION:Package.swift" 2>/dev/null | grep -q "let releaseTag = \"v$VERSION\""; then
-            echo "Package.swift at tag v$VERSION - verified"
-          else
-            echo "WARNING: tag v$VERSION's Package.swift does not reference itself"
-          fi
-
-          echo ""
-          echo "=================================="
-          echo "Release v$VERSION Complete!"
-          echo "=================================="
-          echo ""
-          echo "Users can now install v$VERSION via Swift Package Manager (see Package.swift)."
+          git fetch -q --tags origin
+          echo "tag commit:    $(git rev-parse "$TAG_NAME^{commit}")"
+          echo "merged commit: $MERGED"
+          test "$(git rev-parse "$TAG_NAME^{commit}")" = "$MERGED"
+          gh release view "$TAG_NAME" >/dev/null && echo "GitHub Release $TAG_NAME - verified"
+          git show "$TAG_NAME:Package.swift" | grep -q "let releaseTag = \"$TAG_NAME\"" && echo "Package.swift at $TAG_NAME - verified"
+          echo "Users can now install $TAG_NAME via Swift Package Manager (see Package.swift)."

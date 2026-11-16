@@ -18,6 +18,10 @@ permissions:
 jobs:
   version-bump:
     runs-on: ubuntu-latest
+    outputs:
+      should_create_pr: ${{ steps.get_version.outputs.should_create_pr }}
+      release_branch: ${{ steps.get_version.outputs.release_branch }}
+      version: ${{ steps.get_version.outputs.next_version }}
     if: "!contains(github.event.head_commit.message, 'chore(release):')"    
     
     env:
@@ -415,3 +419,128 @@ jobs:
           echo "  BREAKING CHANGE: for breaking changes (major version bump)"
           echo "        Example: feat!: redesign tracking API"
           echo ""
+
+  # Builds the release files once, on the release branch, before the PR is merged. The zips are
+  # signed here and saved as an artifact named after the branch head. Publishing after the merge
+  # promotes exactly these files, so the tag can be the merged commit (no bot commit, no rebuild).
+  # To rebuild after more commits land on the release branch, run this workflow again.
+  build-release:
+    name: Build and attest release files
+    needs: version-bump
+    if: needs.version-bump.outputs.should_create_pr == 'true'
+    runs-on: macos-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+      actions: write
+    env:
+      VERSION: ${{ needs.version-bump.outputs.version }}
+      RELEASE_BRANCH: ${{ needs.version-bump.outputs.release_branch }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout the release branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.version-bump.outputs.release_branch }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Build XCFrameworks
+        run: |
+          echo "BUILT=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+          chmod +x ./build-xcframeworks.sh
+          ./build-xcframeworks.sh
+
+      - name: Write release checksums and manifest
+        run: |
+          node .github/scripts/generate-integrity-manifest.mjs . "$VERSION" "$BUILT" xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip
+          cat SHA256SUMS
+
+      - name: Update Package.swift for SPM
+        run: |
+          TAG="v${VERSION}"
+          sed -i.bak -E "s/(let releaseTag = \")[^\"]+(\")/\1${TAG}\2/" Package.swift
+          rm -f Package.swift.bak
+
+          # Checksums come from the exact zips built above. Never recompute them from a separate
+          # build: a fresh xcodebuild gives different bytes, and so a different checksum.
+          for fw in NewRelicVideoCore NRAVPlayerTracker NRIMATracker NRMediaTailorTracker NRTHEOplayerTracker; do
+            CHECKSUM=$(swift package compute-checksum "${fw}.xcframework.zip")
+            echo "${fw} checksum: ${CHECKSUM}"
+            FW_NAME="$fw" FW_CHECKSUM="$CHECKSUM" perl -0777 -pi -e '
+              my $name = $ENV{FW_NAME};
+              my $checksum = $ENV{FW_CHECKSUM};
+              s/(name: "\Q$name\E",\s*\n\s*url: "[^"]*",\s*\n\s*checksum: ")[0-9a-f]+(")/$1$checksum$2/;
+            ' Package.swift
+          done
+
+          if grep -q "REPLACED_ON_NEXT_RELEASE" Package.swift; then
+            echo "::error::Failed to update releaseTag in Package.swift"
+            exit 1
+          fi
+          if grep -q '"0000000000000000000000000000000000000000000000000000000000000000"' Package.swift; then
+            echo "::error::Failed to update one or more checksums in Package.swift"
+            exit 1
+          fi
+          swift package dump-package > /dev/null
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: |
+            xcframeworks.zip
+            NewRelicVideoCore.xcframework.zip
+            NRAVPlayerTracker.xcframework.zip
+            NRIMATracker.xcframework.zip
+            NRMediaTailorTracker.xcframework.zip
+            NRTHEOplayerTracker.xcframework.zip
+            SHA256SUMS
+            integrity-manifest.json
+
+      - name: Verify checksums and attestations
+        run: |
+          shasum -a 256 -c SHA256SUMS
+          for f in xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json; do
+            gh attestation verify "$f" --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/ios-release.yml"
+          done
+
+      - name: Commit Package.swift to the release branch
+        run: |
+          git add Package.swift
+          if git diff --cached --quiet; then
+            echo "Package.swift is already up to date on the release branch."
+          else
+            git commit -m "chore: update Package.swift for v${VERSION}"
+            git push origin "$RELEASE_BRANCH"
+          fi
+          echo "HEAD_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Write build info
+        run: |
+          jq -n --arg v "$VERSION" --arg b "$BUILT" --arg h "$HEAD_SHA" '{version:$v, builtCommit:$b, headCommit:$h}' > build-info.json
+          cat build-info.json
+
+      - name: Save the release files for publishing
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-release-${{ env.HEAD_SHA }}
+          retention-days: 30
+          if-no-files-found: error
+          path: |
+            xcframeworks.zip
+            NewRelicVideoCore.xcframework.zip
+            NRAVPlayerTracker.xcframework.zip
+            NRIMATracker.xcframework.zip
+            NRMediaTailorTracker.xcframework.zip
+            NRTHEOplayerTracker.xcframework.zip
+            SHA256SUMS
+            integrity-manifest.json
+            build-info.json
+
+      - name: Run the release build check on the release branch head
+        run: gh workflow run release-build-check.yml --ref "$RELEASE_BRANCH"
