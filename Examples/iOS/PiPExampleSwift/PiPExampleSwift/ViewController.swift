@@ -206,17 +206,17 @@ extension ViewController: IMAAdsManagerDelegate {
         playerController?.player?.play()
     }
 
+    // Ad break start/end are tracked by NRTrackerIMA from the ad events, so no
+    // sendAdBreakStart/sendAdBreakEnd calls are needed here.
     func adsManagerDidRequestContentPause(_ adsManager: IMAAdsManager) {
         print("Ads request pause")
 
-        NRVAVideo.sendAdBreakStart(NSNumber(value: trackerId))
         playerController?.player?.pause()
     }
 
     func adsManagerDidRequestContentResume(_ adsManager: IMAAdsManager) {
         print("Ads request resume")
 
-        NRVAVideo.sendAdBreakEnd(NSNumber(value: trackerId))
         playerController?.player?.play()
     }
 }

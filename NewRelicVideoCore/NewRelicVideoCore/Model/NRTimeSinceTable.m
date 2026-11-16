@@ -42,6 +42,19 @@
     });
 }
 
+- (void)resetAttributes:(NSArray<NSString *> *)attributes {
+    // Async so the caller (often the main thread) is never blocked. Barrier blocks run in
+    // submission order, so the reset still completes before the next applyAttributes.
+    NSArray<NSString *> *names = [attributes copy];
+    dispatch_barrier_async(self.isolationQueue, ^{
+        for (NRTimeSince *ts in self.timeSinceTable) {
+            if ([names containsObject:[ts attributeName]]) {
+                [ts reset];
+            }
+        }
+    });
+}
+
 - (void)applyAttributes:(NSString *)action attributes:(NSMutableDictionary *)attr {
     // Use barrier for write access since [ts now] modifies state
     dispatch_barrier_sync(self.isolationQueue, ^{

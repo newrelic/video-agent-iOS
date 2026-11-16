@@ -31,6 +31,15 @@ NS_ASSUME_NONNULL_BEGIN
  @param ts Model.
  */
 - (void)addEntry:(NRTimeSince *)ts;
+
+/**
+ Clear the timestamp of every entry for the given attributes, so they report null
+ until their action happens again.
+
+ @param attributes Attribute names.
+ */
+- (void)resetAttributes:(NSArray<NSString *> *)attributes;
+
 /**
  Apply timeSince attributes to a given action.
  

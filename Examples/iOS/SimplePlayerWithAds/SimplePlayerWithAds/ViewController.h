@@ -8,6 +8,6 @@
 #import <UIKit/UIKit.h>
 #import <GoogleInteractiveMediaAds/GoogleInteractiveMediaAds.h>
 
-@interface ViewController : UIViewController <IMAAdsLoaderDelegate, IMAAdsManagerDelegate>
+@interface ViewController : UIViewController <IMAAdsLoaderDelegate, IMAAdsManagerDelegate, IMAStreamManagerDelegate>
 
 @end

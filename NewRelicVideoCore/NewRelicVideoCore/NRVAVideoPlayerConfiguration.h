@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 typedef NS_ENUM(NSInteger, NRAdTrackerType) {
     NRAdTrackerTypeCSAI = 0,        ///< Client-side ads (Google IMA / any CSAI framework).
     NRAdTrackerTypeMediaTailor = 1, ///< AWS MediaTailor server-side ad insertion.
+    NRAdTrackerTypeIMADAI = 2,      ///< Google IMA Dynamic Ad Insertion (server-side stitched, driven by `IMAStreamManager`).
 };
 
 /**
@@ -32,6 +33,8 @@ typedef NS_ENUM(NSInteger, NRAdTrackerType) {
 
 /// Client-side ads (Google IMA). Equivalent to the legacy `adEnabled:YES`.
 + (instancetype)csai;
+/// Google IMA Dynamic Ad Insertion. Uses the same `NRTrackerIMA` (NRIMATracker pod) as `csai`.
++ (instancetype)imaDai;
 /// AWS MediaTailor with default AWS ad-segment detection.
 + (instancetype)mediaTailor;
 /// MediaTailor on a custom CDN whose ad segments don't use the default AWS paths.

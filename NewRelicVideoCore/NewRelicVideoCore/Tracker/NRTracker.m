@@ -142,6 +142,10 @@
     [self.timeSinceTable addEntry:ts];
 }
 
+- (void)resetTimeSinceAttributes:(NSArray<NSString *> *)attributes {
+    [self.timeSinceTable resetAttributes:attributes];
+}
+
 - (void)generateTimeSinceTable {
     self.timeSinceTable = [[NRTimeSinceTable alloc] init];
     [self addTimeSinceEntryWithAction:TRACKER_READY attribute:@"timeSinceTrackerReady" applyTo:@"[A-Z_]+"];

@@ -330,4 +330,38 @@
     XCTAssertLessThan(duration, 2.0, @"Concurrent reads should complete quickly");
 }
 
+#pragma mark - Reset
+
+/**
+ A reset attribute reports null until its action happens again, so a new ad
+ does not inherit the previous ad's timers.
+ */
+- (void)testResetAttributesReportsNullUntilActionRepeats {
+    [self.timeSinceTable addEntryWithAction:@"AD_START" attribute:@"timeSinceAdStarted" applyTo:@"^AD_[A-Z_]+$"];
+    [self.timeSinceTable addEntryWithAction:@"AD_REQUEST" attribute:@"timeSinceAdRequested" applyTo:@"^AD_[A-Z_]+$"];
+
+    NSMutableDictionary *attr = [NSMutableDictionary dictionary];
+    [self.timeSinceTable applyAttributes:@"AD_START" attributes:attr];
+    [NSThread sleepForTimeInterval:0.05];
+
+    attr = [NSMutableDictionary dictionary];
+    [self.timeSinceTable applyAttributes:@"AD_END" attributes:attr];
+    XCTAssertTrue([attr[@"timeSinceAdStarted"] isKindOfClass:[NSNumber class]], @"Set by the earlier AD_START");
+
+    [self.timeSinceTable resetAttributes:@[@"timeSinceAdStarted"]];
+
+    attr = [NSMutableDictionary dictionary];
+    [self.timeSinceTable applyAttributes:@"AD_REQUEST" attributes:attr];
+    XCTAssertEqualObjects(attr[@"timeSinceAdStarted"], [NSNull null], @"Reset until the next AD_START");
+
+    attr = [NSMutableDictionary dictionary];
+    [self.timeSinceTable applyAttributes:@"AD_START" attributes:attr];
+    XCTAssertEqualObjects(attr[@"timeSinceAdStarted"], [NSNull null], @"First AD_START after a reset has nothing to measure from");
+
+    [NSThread sleepForTimeInterval:0.05];
+    attr = [NSMutableDictionary dictionary];
+    [self.timeSinceTable applyAttributes:@"AD_END" attributes:attr];
+    XCTAssertTrue([attr[@"timeSinceAdStarted"] isKindOfClass:[NSNumber class]], @"Measured again from the new AD_START");
+}
+
 @end

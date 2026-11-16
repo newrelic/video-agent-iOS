@@ -19,9 +19,15 @@
 @property (nonatomic) AVPlayerViewController *playerController;
 @property (nonatomic) NSInteger trackerId;
 @property (nonatomic) NSString *multipleAdTagURL;
+/// Google's single skippable preroll sample tag.
+@property (nonatomic) NSString *skippableAdTagURL;
+/// Tag used by the client-side flow that is currently playing.
+@property (nonatomic) NSString *currentAdTagURL;
 @property (nonatomic) IMAAVPlayerContentPlayhead *contentPlayhead;
 @property (nonatomic) IMAAdsLoader *adsLoader;
 @property (nonatomic) IMAAdsManager *adsManager;
+/// Google IMA Dynamic Ad Insertion stream manager for the `clickImaDaiSample:` flow.
+@property (nonatomic) IMAStreamManager *streamManager;
 
 /// MediaTailor tracker for the `clickMediaTailorSample:` flow. Nil while
 /// any of the IMA buttons is the active flow.
@@ -41,6 +47,79 @@
 
 - (IBAction)clickAirshowLive:(id)sender {
     [self playVideo:@"https://cph-p2p-msl.akamaized.net/hls/live/2000341/test/master.m3u8"];
+}
+
+/// Google IMA Dynamic Ad Insertion (VOD). The ads are stitched into the stream,
+/// so `IMAAdsLoader` hands back an `IMAStreamManager` instead of an `IMAAdsManager`.
+/// The tracker is selected with `NRAdConfig.imaDai`; the app only forwards the
+/// stream manager's events and errors, same as the client-side flow.
+- (IBAction)clickImaDaiSample:(id)sender {
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"IMA DAI Sample"
+                                                                     message:@"Choose a stream type"
+                                                              preferredStyle:UIAlertControllerStyleActionSheet];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"VOD" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self playImaDaiLive:NO];
+    }]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Live" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self playImaDaiLive:YES];
+    }]];
+    [sheet addAction:[UIAlertAction actionWithTitle:@"Cancel" style:UIAlertActionStyleCancel handler:nil]];
+
+    sheet.popoverPresentationController.sourceView = [sender isKindOfClass:[UIView class]] ? sender : self.view;
+    if ([sender isKindOfClass:[UIView class]]) {
+        sheet.popoverPresentationController.sourceRect = ((UIView *)sender).bounds;
+    }
+    [self presentViewController:sheet animated:YES completion:nil];
+}
+
+/// Client-side ads with a single skippable preroll, to exercise the skip path.
+- (IBAction)clickSkippableAd:(id)sender {
+    [self playVideo:@"http://docs.evostream.com/sample_content/assets/hls-bunny-rangerequest/playlist.m3u8"
+           adTagURL:self.skippableAdTagURL];
+}
+
+- (void)playImaDaiLive:(BOOL)live {
+    AVPlayer *player = [[AVPlayer alloc] init];
+    self.playerController = [[AVPlayerViewController alloc] init];
+    self.playerController.player = player;
+    self.playerController.showsPlaybackControls = YES;
+
+    NRVAVideoPlayerConfiguration *playerConfig = [[NRVAVideoPlayerConfiguration alloc]
+        initWithPlayerName:@"TEST_ADS_DAI"
+        player:player
+        adConfig:[NRAdConfig imaDai]
+        customAttributes:@{ @"customTag": @"SimplePlayerWithAds-DAI" }];
+    self.trackerId = [NRVAVideo addPlayer:playerConfig];
+
+    [self presentViewController:self.playerController animated:YES completion:^{
+        IMAAdDisplayContainer *container = [[IMAAdDisplayContainer alloc]
+            initWithAdContainer:self.playerController.contentOverlayView
+                 viewController:self.playerController];
+        IMAAVPlayerVideoDisplay *display = [[IMAAVPlayerVideoDisplay alloc] initWithAVPlayer:player];
+        // Google's public DAI sample streams.
+        IMAStreamRequest *request;
+        if (live) {
+            // Google's "Big Buck Bunny (Live)" sample asset. The sample assets are network-less, so
+            // the request has no network code (the initialiser without one is deprecated, not removed).
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+            request = [[IMALiveStreamRequest alloc] initWithAssetKey:@"c-rArva4ShKVIAkNfy6HUQ"
+                                                  adDisplayContainer:container
+                                                        videoDisplay:display
+                                                         userContext:nil];
+#pragma clang diagnostic pop
+        } else {
+            request = [[IMAVODStreamRequest alloc] initWithContentSourceID:@"2548831"
+                                                                   videoID:@"tears-of-steel"
+                                                               networkCode:@"21775744923"
+                                                        adDisplayContainer:container
+                                                              videoDisplay:display
+                                                               userContext:nil];
+        }
+        self.adsLoader = [[IMAAdsLoader alloc] initWithSettings:nil];
+        self.adsLoader.delegate = self;
+        [self.adsLoader requestStreamWithRequest:request];
+    }];
 }
 
 /// MediaTailor server-side ad-insertion smoke path. Uses
@@ -90,6 +169,8 @@
 
     self.multipleAdTagURL = @"http://pubads.g.doubleclick.net/gampad/ads?sz=640x480&iu=/124319096/external/ad_rule_samples&ciu_szs=300x250&ad_rule=1&impl=s&gdfp_req=1&env=vp&output=xml_vmap1&unviewed_position_start=1&cust_params=sample_ar%3Dpremidpostpod%26deployment%3Dgmf-js&cmsid=496&vid=short_onecue&correlator=";
 
+    self.skippableAdTagURL = @"https://pubads.g.doubleclick.net/gampad/ads?iu=/21775744923/external/single_preroll_skippable&sz=640x480&ciu_szs=300x250%2C728x90&gdfp_req=1&output=vast&unviewed_position_start=1&env=vp&impl=s&correlator=";
+
     [[NSNotificationCenter defaultCenter] addObserver:self
                                             selector:@selector(appDidBecomeActive:)
                                                  name:UIApplicationDidBecomeActiveNotification
@@ -125,6 +206,11 @@
 }
 
 - (void)playVideo:(NSString *)videoURL {
+    [self playVideo:videoURL adTagURL:self.multipleAdTagURL];
+}
+
+- (void)playVideo:(NSString *)videoURL adTagURL:(NSString *)adTagURL {
+    self.currentAdTagURL = adTagURL;
     AVPlayer *player = [AVPlayer playerWithURL:[NSURL URLWithString:videoURL]];
     self.playerController = [[AVPlayerViewController alloc] init];
     self.playerController.player = player;
@@ -172,6 +258,12 @@
                      }];
 
     [self setupAds:player];
+
+    // IMA only plays the postroll once it is told the content has finished.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(contentDidFinishPlaying:)
+                                                 name:AVPlayerItemDidPlayToEndTimeNotification
+                                               object:player.currentItem];
 
     [self presentViewController:self.playerController animated:YES completion:^{
         [self.playerController.player play];
@@ -346,11 +438,15 @@
     self.adsLoader.delegate = self;
 }
 
+- (void)contentDidFinishPlaying:(NSNotification *)notification {
+    [self.adsLoader contentComplete];
+}
+
 - (void)requestAds {
     // Create ad display container for ad rendering.
     IMAAdDisplayContainer *adDisplayContainer = [[IMAAdDisplayContainer alloc] initWithAdContainer:self.playerController.view viewController:self.playerController];
     // Create an ad request with our ad tag, display container, and optional user context.
-    IMAAdsRequest *request = [[IMAAdsRequest alloc] initWithAdTagUrl:self.multipleAdTagURL
+    IMAAdsRequest *request = [[IMAAdsRequest alloc] initWithAdTagUrl:self.currentAdTagURL
                                                   adDisplayContainer:adDisplayContainer
                                                      contentPlayhead:self.contentPlayhead
                                                          userContext:nil];
@@ -363,12 +459,25 @@
         [self.adsManager destroy];
         self.adsManager = nil;
     }
+    if (self.streamManager != nil) {
+        [self.streamManager destroy];
+        self.streamManager = nil;
+    }
     self.adsLoader = nil;
 }
 
 #pragma mark - AdsLoader delegate
 
 - (void)adsLoader:(IMAAdsLoader *)loader adsLoadedWithData:(IMAAdsLoadedData *)adsLoadedData {
+    // Dynamic Ad Insertion: the loader returns a stream manager, not an ads manager.
+    if (adsLoadedData.streamManager != nil) {
+        self.streamManager = adsLoadedData.streamManager;
+        self.streamManager.delegate = self;
+        [self.streamManager initializeWithAdsRenderingSettings:nil];
+        NSLog(@"Ads Loader Loaded Stream Manager");
+        return;
+    }
+
     if (self.adsManager != nil) {
         [self.adsManager destroy];
         self.adsManager = nil;
@@ -380,7 +489,8 @@
 }
 
 - (void)adsLoader:(IMAAdsLoader *)loader failedWithErrorData:(IMAAdLoadingErrorData *)adErrorData {
-    NSLog(@"Error loading ads: %@", adErrorData.adError.message);
+    NSLog(@"Error loading ads: %@ (type %ld, code %ld)", adErrorData.adError.message,
+          (long)adErrorData.adError.type, (long)adErrorData.adError.code);
 
     [NRVAVideo handleAdError:@(self.trackerId) error:adErrorData.adError];
 
@@ -408,10 +518,10 @@
     [NRVAVideo handleAdError:@(self.trackerId) error:error adsManager:adsManager];
 }
 
+// Ad break start/end are tracked by NRTrackerIMA from the ad events, so no
+// `sendAdBreakStart`/`sendAdBreakEnd` calls are needed here.
 - (void)adsManagerDidRequestContentPause:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request pause");
-
-    [NRVAVideo sendAdBreakStart:@(self.trackerId)];
 
     [self.playerController.player pause];
 }
@@ -419,9 +529,22 @@
 - (void)adsManagerDidRequestContentResume:(IMAAdsManager *)adsManager {
     NSLog(@"Ads request resume");
 
-    [NRVAVideo sendAdBreakEnd:@(self.trackerId)];
-
     [self.playerController.player play];
+}
+
+#pragma mark - StreamManager delegate (Dynamic Ad Insertion)
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdEvent:(IMAAdEvent *)event {
+    NSLog(@"Stream Manager did receive event = %@", event.typeString);
+
+    // No ads manager exists for DAI, so pass nil.
+    [NRVAVideo handleAdEvent:@(self.trackerId) event:event adsManager:nil];
+}
+
+- (void)streamManager:(IMAStreamManager *)streamManager didReceiveAdError:(IMAAdError *)error {
+    NSLog(@"Stream Manager received error = %@", error.message);
+
+    [NRVAVideo handleAdError:@(self.trackerId) error:error];
 }
 
 @end
