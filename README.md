@@ -24,6 +24,7 @@ The New Relic Video Agent for iOS & tvOS provides comprehensive video analytics 
   - [Option 2: XCFrameworks](#option-2-install-via-xcframeworks)
   - [Option 3: Manual Build](#option-3-install-manually-using-source-code)
   - [Option 4: CocoaPods (Legacy)](#option-4-install-via-cocoapods-legacy)
+- [Verifying a release (security)](#verifying-a-release-security)
 - [Prerequisites](#prerequisites)
 - [Modules](#modules)
 - [Usage](#usage)
@@ -73,6 +74,8 @@ targets: [
 
 Download the latest pre-built XCFrameworks from the [Releases](https://github.com/newrelic/video-agent-iOS/releases/latest) page. Look for `XCFrameworks.zip`, extract it, and drag the `.xcframework` files into your Xcode project under **Frameworks, Libraries, and Embedded Content**, set to **"Embed & Sign"**.
 
+> **Security:** to check that the files you downloaded are the ones we built, see [Verifying a release](#verifying-a-release-security).
+
 > **Note:** `NRTHEOplayerTracker.xcframework` is included in `XCFrameworks.zip` (and published on its own as `NRTHEOplayerTracker.xcframework.zip`), but doesn't bundle THEOplayerSDK-core itself — see the SPM note above for how to add it.
 
 ### Option 3: Install Manually Using Source Code
@@ -104,6 +107,131 @@ pod install
 > **Note:** Replace with the desired [release version](https://github.com/newrelic/video-agent-iOS/releases) if pinning.
 
 For more details on all installation methods, see [INSTALLATION.md](INSTALLATION.md).
+
+## Verifying a release (security)
+
+Every release published by our release automation is **signed**, and ships with a list of file fingerprints. You can check that the files you downloaded are exactly the ones we built, and that they were built by this repository's release automation and not by someone else.
+
+> Releases published before this was added have no signatures. The **Build** section at the bottom of a release's notes tells you whether a release has them.
+
+### What we publish and sign
+
+Each release has eight files. **All eight are signed.**
+
+| File | What it is |
+| --- | --- |
+| `xcframeworks.zip` | All frameworks in one download |
+| `NewRelicVideoCore.xcframework.zip`, `NRAVPlayerTracker.xcframework.zip`, `NRIMATracker.xcframework.zip`, `NRMediaTailorTracker.xcframework.zip`, `NRTHEOplayerTracker.xcframework.zip` | One zip per framework (these are what Swift Package Manager downloads) |
+| `SHA256SUMS` | The fingerprint (SHA-256 checksum) of each zip |
+| `integrity-manifest.json` | The version, the commit the files were built from, and the fingerprints in a machine-readable form |
+
+**Fingerprint.** A short code worked out from a file. If even one byte of the file changes, the code changes.
+
+**Signature (GitHub calls it an attestation).** A tamper-proof stamp, made by GitHub when our release automation (`.github/workflows/ios-release.yml`) built the files. It says which repository and which automation produced a file with that exact fingerprint. It is recorded in a public log, and nobody can create a valid one for a file we did not build.
+
+### How to verify (3 steps)
+
+You need the [GitHub CLI](https://cli.github.com/) version 2.53 or newer (older versions miss some of the options below), logged in once with `gh auth login`.
+
+```bash
+# 1. Download the release (replace v5.1.2 with the version you use)
+gh release download v5.1.2 -R newrelic/video-agent-iOS -D release-files
+cd release-files
+
+# 2. Check the fingerprints: every line must say OK
+shasum -a 256 -c SHA256SUMS          # on Linux: sha256sum -c SHA256SUMS
+
+# 3. Check the signatures: every file must pass
+for f in *; do
+  gh attestation verify "$f" \
+    --repo newrelic/video-agent-iOS \
+    --signer-workflow newrelic/video-agent-iOS/.github/workflows/ios-release.yml \
+    || echo "FAILED: $f"
+done
+```
+
+- A passing file prints `Verification succeeded` and the command exits with code `0`. Any failure exits with a non-zero code, so you can use the check in a script.
+- `--signer-workflow` is important: it only accepts signatures made by our release automation, not by any other workflow in the repository.
+- To check only the files you use, run step 3 for those files (and for `SHA256SUMS`).
+
+If **any** check fails, do not use the files. Report it as described in [A note about vulnerabilities](#a-note-about-vulnerabilities).
+
+### See what the signature says
+
+```bash
+gh attestation verify NRIMATracker.xcframework.zip \
+  --repo newrelic/video-agent-iOS \
+  --signer-workflow newrelic/video-agent-iOS/.github/workflows/ios-release.yml \
+  --format json
+```
+
+The result lists the repository, the release automation that made the file, the commit that automation ran from, and the public log entry.
+
+### The manifest and the three commits
+
+`integrity-manifest.json` is signed too, so you can trust what it says:
+
+```json
+{
+  "version": "5.1.2",
+  "commit": "<commit the files were built from>",
+  "files": {
+    "NRIMATracker.xcframework.zip": {
+      "sha256": "<hex fingerprint>",
+      "sha384": "sha384-<base64 fingerprint>"
+    }
+  }
+}
+```
+
+A release mentions three commits, and they are not the same on purpose:
+
+| Commit | Where you see it | What it is |
+| --- | --- | --- |
+| Built from | `commit` in `integrity-manifest.json`, and the release notes | The code the files were built from |
+| Release automation | In the signature (`--format json`) | The commit of the automation itself, on `master`, when it ran |
+| Version label (tag) | The release's tag, for example `v5.1.2` | The merged commit. It holds the same code as "built from", plus the updated `Package.swift` (the new tag and fingerprints) |
+
+To check the last claim yourself, you can see that only `Package.swift` differs between the built commit and the tag:
+
+```bash
+BUILT=$(jq -r .commit integrity-manifest.json)
+git clone https://github.com/newrelic/video-agent-iOS.git && cd video-agent-iOS
+git fetch origin "$BUILT"
+git diff --name-only "$BUILT" v5.1.2        # should print only: Package.swift
+```
+
+### Swift Package Manager users
+
+Swift Package Manager downloads each framework zip and compares its fingerprint with the `checksum:` in our `Package.swift`, and refuses a file that does not match. To check by hand that the `Package.swift` on the tag matches the signed files:
+
+```bash
+swift package compute-checksum NRIMATracker.xcframework.zip
+curl -s https://raw.githubusercontent.com/newrelic/video-agent-iOS/v5.1.2/Package.swift \
+  | grep -A2 'name: "NRIMATracker"'      # the checksum: line must match
+```
+
+### Verifying without internet access
+
+On a connected machine, download the signature and the trusted keys. Then check on the offline machine:
+
+```bash
+# connected machine
+gh attestation download NRIMATracker.xcframework.zip -R newrelic/video-agent-iOS
+gh attestation trusted-root > trusted_root.jsonl
+
+# offline machine (the .jsonl file name starts with sha256:)
+gh attestation verify NRIMATracker.xcframework.zip \
+  --bundle sha256:<digest>.jsonl \
+  --custom-trusted-root trusted_root.jsonl \
+  --repo newrelic/video-agent-iOS \
+  --signer-workflow newrelic/video-agent-iOS/.github/workflows/ios-release.yml
+```
+
+### What a signature does and does not tell you
+
+- **It does:** the files are byte-for-byte what our release automation built, in this repository, and they were not swapped or changed afterwards.
+- **It does not:** say the code is free of bugs or vulnerabilities. It proves where the files came from, not that the code is safe.
 
 ## Prerequisites
 
