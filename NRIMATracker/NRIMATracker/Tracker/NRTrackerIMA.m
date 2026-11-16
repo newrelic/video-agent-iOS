@@ -240,6 +240,16 @@
     }
 }
 
+/// IMA's own id for the current ad, so each ad is distinguishable. The core default hashes the
+/// (empty) source, which gives the same id for every ad.
+- (NSString *)getVideoId {
+    NSString *adId = self.lastAd.adId;
+    if ([adId isKindOfClass:[NSString class]] && adId.length > 0) {
+        return adId;
+    }
+    return [super getVideoId];
+}
+
 - (NSNumber *)getBitrate {
     if (self.lastAd) {
         // VASTMediaBitrate returns kbps, convert to bps for consistency with AVPlayer's averageVideoBitrate

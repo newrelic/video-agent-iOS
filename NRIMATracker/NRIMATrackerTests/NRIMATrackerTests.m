@@ -25,6 +25,11 @@
 @property (nonatomic, strong) FakePodInfo *adPodInfo;
 @property (nonatomic, copy) NSString *adTitle;
 @property (nonatomic, copy) NSString *creativeID;
+@property (nonatomic, copy) NSString *adId;
+@property (nonatomic) NSTimeInterval duration;
+@property (nonatomic) NSInteger VASTMediaBitrate;
+@property (nonatomic) NSInteger VASTMediaWidth;
+@property (nonatomic) NSInteger VASTMediaHeight;
 @end
 @implementation FakeAd
 @end
@@ -355,6 +360,46 @@
     [self configureDAI];
     [self send:kIMAAdEvent_STARTED];
     XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+#pragma mark - Ad id
+
+- (NSDictionary *)adStartAttributes {
+    [self.tracker.state setIsAd:YES];
+    return [self.tracker getAttributes:@"AD_START" attributes:nil];
+}
+
+- (void)startAdWithId:(NSString *)adId bitrate:(NSInteger)bitrate {
+    FakeEvent *e = (FakeEvent *)[self eventOfType:kIMAAdEvent_STARTED];
+    e.ad.adId = adId;
+    e.ad.VASTMediaBitrate = bitrate;
+    [self.tracker adEvent:(IMAAdEvent *)e adsManager:nil];
+}
+
+- (void)testAdIdIsTheIMAAdId {
+    [self startAdWithId:@"ima-ad-1" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adId"], @"ima-ad-1");
+}
+
+- (void)testDifferentAdsHaveDifferentIds {
+    [self startAdWithId:@"ima-ad-1" bitrate:0];
+    NSString *first = [self adStartAttributes][@"adId"];
+    [self startAdWithId:@"ima-ad-2" bitrate:0];
+    XCTAssertNotEqualObjects(first, [self adStartAttributes][@"adId"]);
+}
+
+- (void)testAdIdFallsBackWhenNilOrEmpty {
+    NSString *fallback = [self adStartAttributes][@"adId"];
+    XCTAssertTrue(fallback.length > 0);
+    [self startAdWithId:nil bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adId"], fallback);
+    [self startAdWithId:@"" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adId"], fallback);
+}
+
+- (void)testAdBitrateKeptWhenPositive {
+    [self startAdWithId:@"a" bitrate:500];
+    XCTAssertEqualObjects([self adStartAttributes][@"adBitrate"], @500000);
 }
 
 @end
