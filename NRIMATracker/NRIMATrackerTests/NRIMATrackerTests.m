@@ -72,10 +72,20 @@
 - (NSString *)getSrc { return self.fakeSrc ?: (NSString *)[NSNull null]; }
 @end
 
+/// Content tracker whose playhead (ms) the test controls; nil means unavailable (NSNull).
+@interface PlayheadContentTracker : NRVideoTracker
+@property (nonatomic, strong) NSNumber *fakePlayhead;
+@end
+@implementation PlayheadContentTracker
+- (NSNumber *)getPlayhead { return self.fakePlayhead ?: (NSNumber *)[NSNull null]; }
+@end
+
 #pragma mark - Tests
 
 @interface NRIMATrackerTests : XCTestCase
 @property (nonatomic, strong) RecordingTracker *tracker;
+/// The tracker only holds its linked content tracker weakly, so the test keeps it alive.
+@property (nonatomic, strong) NRVideoTracker *keptContent;
 @end
 
 @implementation NRIMATrackerTests
@@ -366,6 +376,100 @@
 
 - (void)testPlayheadIsNullWithoutAdsManager {
     [self configureDAI];
+    [self send:kIMAAdEvent_STARTED];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+#pragma mark - DAI ad playhead
+
+- (PlayheadContentTracker *)linkPlayheadContentAt:(NSNumber *)ms {
+    PlayheadContentTracker *content = [[PlayheadContentTracker alloc] init];
+    content.fakePlayhead = ms;
+    self.keptContent = content;
+    [self.tracker setLinkedTracker:content];
+    return content;
+}
+
+/// Starts a DAI ad of the given duration (s) while the content is at `ms`.
+- (PlayheadContentTracker *)startDAIAdAt:(NSNumber *)ms duration:(NSTimeInterval)seconds {
+    PlayheadContentTracker *content = [self linkPlayheadContentAt:ms];
+    [self configureDAI];
+    FakeEvent *e = (FakeEvent *)[self eventOfType:kIMAAdEvent_STARTED];
+    e.ad.duration = seconds;
+    [self.tracker adEvent:(IMAAdEvent *)e adsManager:nil];
+    return content;
+}
+
+- (void)testDAIPlayheadIsZeroAtStart {
+    [self startDAIAdAt:@(60000) duration:10];
+    XCTAssertEqualObjects([self.tracker getPlayhead], @(0));
+}
+
+- (void)testDAIPlayheadAdvancesWithContentPlayhead {
+    PlayheadContentTracker *content = [self startDAIAdAt:@(60000) duration:10];
+    content.fakePlayhead = @(62500);
+    XCTAssertEqualObjects([self.tracker getPlayhead], @(2500));
+    content.fakePlayhead = @(67500);
+    XCTAssertEqualObjects([self.tracker getPlayhead], @(7500));
+}
+
+- (void)testDAIPlayheadClampsAtAdDuration {
+    PlayheadContentTracker *content = [self startDAIAdAt:@(60000) duration:10];
+    content.fakePlayhead = @(75000);
+    XCTAssertEqualObjects([self.tracker getPlayhead], @(10000));
+}
+
+- (void)testDAIPlayheadClampsAtZeroAfterBackwardSeek {
+    PlayheadContentTracker *content = [self startDAIAdAt:@(60000) duration:10];
+    content.fakePlayhead = @(30000);
+    XCTAssertEqualObjects([self.tracker getPlayhead], @(0));
+}
+
+- (void)testDAIPlayheadIsNullBeforeAdStarts {
+    [self linkPlayheadContentAt:@(60000)];
+    [self configureDAI];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullAfterAdEnds {
+    PlayheadContentTracker *content = [self startDAIAdAt:@(60000) duration:10];
+    content.fakePlayhead = @(70000);
+    [self send:kIMAAdEvent_COMPLETE];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullAfterBreakEnd {
+    [self startDAIAdAt:@(60000) duration:10];
+    [self.tracker adEvent:[self eventWithoutAdOfType:kIMAAdEvent_AD_BREAK_ENDED] adsManager:nil];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullAtNextBreakStart {
+    [self startDAIAdAt:@(60000) duration:10];
+    [self.tracker adEvent:[self eventWithoutAdOfType:kIMAAdEvent_AD_PERIOD_STARTED] adsManager:nil];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullWhenContentPlayheadUnavailable {
+    PlayheadContentTracker *content = [self startDAIAdAt:@(60000) duration:10];
+    content.fakePlayhead = nil;
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullWhenContentPlayheadUnavailableAtStart {
+    PlayheadContentTracker *content = [self startDAIAdAt:nil duration:10];
+    content.fakePlayhead = @(65000);
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testDAIPlayheadIsNullWithoutContentTracker {
+    [self configureDAI];
+    [self send:kIMAAdEvent_STARTED];
+    XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
+}
+
+- (void)testCSAIPlayheadStillComesFromAdsManagerNotContent {
+    [self linkPlayheadContentAt:@(60000)];
     [self send:kIMAAdEvent_STARTED];
     XCTAssertEqualObjects([self.tracker getPlayhead], [NSNull null]);
 }

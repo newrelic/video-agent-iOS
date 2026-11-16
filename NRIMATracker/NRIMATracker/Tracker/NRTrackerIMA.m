@@ -21,6 +21,8 @@
 @property (nonatomic) BOOL isDAI;
 /// The content tracker this ad tracker is linked to. The core keeps its own reference private.
 @property (nonatomic, weak) NRTracker *contentTracker;
+/// DAI: content playhead (stream time, ms) when the current ad started. nil while no ad is playing.
+@property (nonatomic, strong) NSNumber *adStartContentPlayhead;
 
 @end
 
@@ -62,6 +64,10 @@
             self.skipped = @(0);
             if (!self.isDAI) {
                 [self sendAdBreakStart];
+            }
+            else {
+                // Set before sendStart so AD_START reports 0.
+                self.adStartContentPlayhead = [self contentPlayhead];
             }
             [self sendRequest];
             [self sendStart];
@@ -118,6 +124,7 @@
                 // A new break must not report the previous break's ad.
                 self.lastAd = nil;
             }
+            self.adStartContentPlayhead = nil;
             [self sendAdBreakStart];
             break;
         case kIMAAdEvent_AD_BREAK_ENDED:
@@ -125,6 +132,7 @@
             // An ad cut short (seek, stream error) has no COMPLETE. Close it first: otherwise no
             // AD_END is sent and the core drops the next ad's AD_START. No-op when no ad is open.
             [self sendEnd];
+            self.adStartContentPlayhead = nil;
             [self sendAdBreakEnd];
             break;
         // Known IMA events that are not part of the ad lifecycle we report today.
@@ -145,6 +153,8 @@
 /// Ends the current ad, and for client-side ads also the break once its last ad is done.
 - (void)endAd {
     [self sendEnd];
+    // Reset after sendEnd so AD_END still carries the final playhead.
+    self.adStartContentPlayhead = nil;
     self.quartile = nil;
     if (!self.isDAI && [self isLastAdInPod]) {
         [self sendAdBreakEnd];
@@ -198,7 +208,23 @@
     return @"5.1.0";
 }
 
+/// The content player's playhead in ms, or nil when it is unavailable.
+- (NSNumber *)contentPlayhead {
+    NSNumber *playhead = [(NRVideoTracker *)self.contentTracker getPlayhead];
+    return [playhead isKindOfClass:[NSNumber class]] ? playhead : nil;
+}
+
 - (NSNumber *)getPlayhead {
+    if (self.isDAI) {
+        // DAI has no IMAAdsManager, so derive the ad playhead from the stitched stream's time.
+        NSNumber *now = [self contentPlayhead];
+        NSNumber *duration = self.lastAd ? @(self.lastAd.duration * 1000) : nil;
+        if (!self.adStartContentPlayhead || !now || !duration) {
+            return (NSNumber *)[NSNull null];
+        }
+        double elapsed = now.doubleValue - self.adStartContentPlayhead.doubleValue;
+        return @(MIN(MAX(elapsed, 0), duration.doubleValue));
+    }
     if (self.adsManager) {
         return @(self.adsManager.adPlaybackInfo.currentMediaTime * 1000);
     }
