@@ -177,9 +177,35 @@
 }
 
 - (void)testClickAndTapAreForwarded {
+    [self send:kIMAAdEvent_STARTED];
+    [self.tracker.calls removeAllObjects];
     [self send:kIMAAdEvent_CLICKED];
     [self send:kIMAAdEvent_TAPPED];
     XCTAssertEqualObjects(self.tracker.calls, (@[@"click", @"click"]));
+}
+
+- (void)testCSAIClickAndTapWithoutStartedAreDropped {
+    [self send:kIMAAdEvent_CLICKED];
+    [self send:kIMAAdEvent_TAPPED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testClickAfterCompleteIsDropped {
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_COMPLETE];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_CLICKED];
+    [self send:kIMAAdEvent_TAPPED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testNewStartedRearmsClicks {
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_COMPLETE];
+    [self send:kIMAAdEvent_STARTED];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_CLICKED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"click"]));
 }
 
 - (void)testNonLifecycleEventsAreIgnored {
@@ -268,6 +294,31 @@
     [self send:kIMAAdEvent_AD_PERIOD_ENDED];
     [self.tracker.calls removeAllObjects];
     [self send:kIMAAdEvent_FIRST_QUARTILE];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testDAIClickAndTapWithoutStartedAreDropped {
+    [self configureDAI];
+    [self send:kIMAAdEvent_CLICKED];
+    [self send:kIMAAdEvent_TAPPED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testDAIClickAndTapAfterStartedAreSent {
+    [self configureDAI];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_CLICKED];
+    [self send:kIMAAdEvent_TAPPED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"request", @"start", @"click", @"click"]));
+}
+
+- (void)testDAIClickAfterBreakEndWithOpenAdIsDropped {
+    [self configureDAI];
+    [self send:kIMAAdEvent_AD_BREAK_STARTED];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_AD_BREAK_ENDED];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_CLICKED];
     XCTAssertEqualObjects(self.tracker.calls, (@[]));
 }
 

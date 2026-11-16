@@ -66,8 +66,8 @@
         case kIMAAdEvent_COMPLETE:
             [self endAd];
             break;
-        // Quartiles need a started ad, as AD_END does: a live DAI join mid-ad sends them with no
-        // STARTED, which would give AD_QUARTILE with no AD_START or ad id.
+        // Quartiles and clicks need a started ad, as AD_END does: a live DAI join mid-ad sends them
+        // with no STARTED, which would give AD_QUARTILE or AD_CLICK with no AD_START or ad id.
         case kIMAAdEvent_FIRST_QUARTILE:
             if (self.state.isStarted) {
                 self.quartile = @(1);
@@ -94,7 +94,9 @@
             break;
         case kIMAAdEvent_TAPPED:
         case kIMAAdEvent_CLICKED:
-            [self sendAdClick];
+            if (self.state.isStarted) {
+                [self sendAdClick];
+            }
             break;
         case kIMAAdEvent_ALL_ADS_COMPLETED:
             if (!self.isDAI) {
