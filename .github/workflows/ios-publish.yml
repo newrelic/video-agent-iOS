@@ -75,6 +75,26 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Publishing version: $VERSION"
 
+      # A published release is immutable, so a re-run can only continue from a draft.
+      - name: Stop if this version is already published
+        if: env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: v${{ steps.get_version.outputs.version }}
+        run: |
+          EXISTING=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate | jq -r --arg t "$TAG_NAME" '.[] | select(.tag_name == $t) | "\(.id) \(.draft)"')
+          if [ -z "$EXISTING" ]; then
+            echo "No release for $TAG_NAME yet."
+            exit 0
+          fi
+          read -r ID DRAFT <<< "$EXISTING"
+          if [ "$DRAFT" != "true" ]; then
+            echo "::error::$TAG_NAME is already published and cannot be changed. Bump the version and release again."
+            exit 1
+          fi
+          echo "Deleting the leftover draft for $TAG_NAME from an earlier failed run."
+          gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$ID"
+
       - name: Cleanup existing tag if present
         if: env.DRY_RUN != 'true'
         run: |
@@ -202,11 +222,11 @@ jobs:
           chmod +x ./build-xcframeworks.sh
           ./build-xcframeworks.sh
 
-      - name: Write release checksums
+      - name: Write release checksums and manifest
+        env:
+          VERSION: ${{ steps.get_version.outputs.version }}
         run: |
-          # Lists exactly the files this job built; written outside the list so it does not list itself.
-          shasum -a 256 xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip > "$RUNNER_TEMP/SHA256SUMS"
-          mv "$RUNNER_TEMP/SHA256SUMS" SHA256SUMS
+          node .github/scripts/generate-integrity-manifest.mjs . "$VERSION" "$GITHUB_SHA" xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip
           cat SHA256SUMS
 
       - name: Attest build provenance
@@ -221,6 +241,17 @@ jobs:
             NRMediaTailorTracker.xcframework.zip
             NRTHEOplayerTracker.xcframework.zip
             SHA256SUMS
+            integrity-manifest.json
+
+      - name: Verify checksums and attestations
+        if: env.DRY_RUN != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shasum -a 256 -c SHA256SUMS
+          for f in xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json; do
+            gh attestation verify "$f" --repo "$GITHUB_REPOSITORY" --signer-workflow "$GITHUB_REPOSITORY/.github/workflows/ios-publish.yml"
+          done
 
       - name: Update Package.swift for SPM
         run: |
@@ -431,31 +462,34 @@ jobs:
 
       - name: Create GitHub Release
         if: env.DRY_RUN != 'true'
-        uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844 # v1
-        with:
-          tag_name: v${{ steps.get_version.outputs.version }}
-          target_commitish: ${{ github.sha }}
-          name: v${{ steps.get_version.outputs.version }}
-          body: |
-            ## Release v${{ steps.get_version.outputs.version }}
-
-            Available via Swift Package Manager — see [Package.swift](https://github.com/${{ github.repository }}/blob/v${{ steps.get_version.outputs.version }}/Package.swift).
-
-            ### What's Changed
-
-            ${{ steps.changelog.outputs.changelog }}
-          files: |
-            xcframeworks.zip
-            NewRelicVideoCore.xcframework.zip
-            NRAVPlayerTracker.xcframework.zip
-            NRIMATracker.xcframework.zip
-            NRMediaTailorTracker.xcframework.zip
-            NRTHEOplayerTracker.xcframework.zip
-            SHA256SUMS
-          draft: false
-          prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: v${{ steps.get_version.outputs.version }}
+          CHANGELOG: ${{ steps.changelog.outputs.changelog }}
+        run: |
+          # Draft first, upload every file, check them, then publish: files cannot be
+          # added or changed once published (immutable releases).
+          NOTES="## Release $TAG_NAME
+
+          Available via Swift Package Manager — see [Package.swift](https://github.com/$GITHUB_REPOSITORY/blob/$TAG_NAME/Package.swift).
+
+          ### What's Changed
+
+          $CHANGELOG"
+
+          FILES="xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json"
+
+          gh release create "$TAG_NAME" --draft --title "$TAG_NAME" --notes "$NOTES" --target "$GITHUB_SHA"
+          gh release upload "$TAG_NAME" $FILES --clobber
+
+          # Check what is on the draft matches the verified files before publishing.
+          gh api "repos/$GITHUB_REPOSITORY/releases" --paginate | jq -r --arg t "$TAG_NAME" '.[] | select(.tag_name == $t) | .assets[] | "\(.name) \(.digest // "")"' | sort > "$RUNNER_TEMP/uploaded.txt"
+          for f in $FILES; do echo "$f sha256:$(shasum -a 256 "$f" | cut -d' ' -f1)"; done | sort > "$RUNNER_TEMP/expected.txt"
+          # Older API responses have no digest; compare names only in that case.
+          if ! grep -q 'sha256:' "$RUNNER_TEMP/uploaded.txt"; then sed -i '' 's/ sha256:.*//' "$RUNNER_TEMP/expected.txt"; sed -i '' 's/ *$//' "$RUNNER_TEMP/uploaded.txt"; fi
+          diff "$RUNNER_TEMP/expected.txt" "$RUNNER_TEMP/uploaded.txt"
+
+          gh release edit "$TAG_NAME" --draft=false
 
       - name: Trigger Release Notes Docs PR
         if: env.DRY_RUN != 'true'
