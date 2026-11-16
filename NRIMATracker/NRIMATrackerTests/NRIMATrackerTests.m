@@ -47,9 +47,10 @@
     if (!_calls) { _calls = [NSMutableArray array]; }
     return _calls;
 }
-- (void)sendRequest { [self.calls addObject:@"request"]; }
-- (void)sendStart { [self.calls addObject:@"start"]; }
-- (void)sendEnd { [self.calls addObject:@"end"]; }
+// Request, start and end drive the real state, as the core does, so the quartile gate sees it.
+- (void)sendRequest { [self.state goRequest]; [self.calls addObject:@"request"]; }
+- (void)sendStart { [self.state goStart]; [self.calls addObject:@"start"]; }
+- (void)sendEnd { [self.state goEnd]; [self.calls addObject:@"end"]; }
 - (void)sendPause { [self.calls addObject:@"pause"]; }
 - (void)sendResume { [self.calls addObject:@"resume"]; }
 - (void)sendAdBreakStart { [self.calls addObject:@"breakStart"]; }
@@ -135,6 +136,8 @@
 }
 
 - (void)testQuartilesAreReported {
+    [self send:kIMAAdEvent_STARTED];
+    [self.tracker.calls removeAllObjects];
     [self send:kIMAAdEvent_FIRST_QUARTILE];
     XCTAssertEqualObjects([self.tracker getAdQuartile], @(1));
     [self send:kIMAAdEvent_MIDPOINT];
@@ -142,6 +145,35 @@
     [self send:kIMAAdEvent_THIRD_QUARTILE];
     XCTAssertEqualObjects([self.tracker getAdQuartile], @(3));
     XCTAssertEqual(self.tracker.calls.count, 3u);
+}
+
+- (void)sendAllQuartiles {
+    [self send:kIMAAdEvent_FIRST_QUARTILE];
+    [self send:kIMAAdEvent_MIDPOINT];
+    [self send:kIMAAdEvent_THIRD_QUARTILE];
+}
+
+- (void)testCSAIQuartilesWithoutStartedAreDropped {
+    [self sendAllQuartiles];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+    XCTAssertEqualObjects([self.tracker getAdQuartile], [NSNull null]);
+}
+
+- (void)testQuartileAfterCompleteIsDropped {
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_COMPLETE];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_FIRST_QUARTILE];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testNewStartedRearmsQuartiles {
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_COMPLETE];
+    [self send:kIMAAdEvent_STARTED];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_MIDPOINT];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"quartile"]));
 }
 
 - (void)testClickAndTapAreForwarded {
@@ -204,6 +236,39 @@
     [self send:kIMAAdEvent_STARTED];
     [self send:kIMAAdEvent_AD_PERIOD_ENDED];
     XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"request", @"start", @"end", @"breakEnd"]));
+}
+
+- (void)testDAIQuartilesWithoutStartedAreDropped {
+    [self configureDAI];
+    [self sendAllQuartiles];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testDAIQuartilesAfterStartedAreSent {
+    [self configureDAI];
+    [self send:kIMAAdEvent_STARTED];
+    [self sendAllQuartiles];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"request", @"start", @"quartile", @"quartile", @"quartile"]));
+}
+
+- (void)testDAIQuartileAfterBreakEndWithOpenAdIsDropped {
+    [self configureDAI];
+    [self send:kIMAAdEvent_AD_BREAK_STARTED];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_AD_BREAK_ENDED];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_THIRD_QUARTILE];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
+}
+
+- (void)testDAIQuartileAfterPeriodEndWithOpenAdIsDropped {
+    [self configureDAI];
+    [self send:kIMAAdEvent_AD_PERIOD_STARTED];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_AD_PERIOD_ENDED];
+    [self.tracker.calls removeAllObjects];
+    [self send:kIMAAdEvent_FIRST_QUARTILE];
+    XCTAssertEqualObjects(self.tracker.calls, (@[]));
 }
 
 - (void)testEventsWithoutAnAdYieldNullAttributesInsteadOfNil {
