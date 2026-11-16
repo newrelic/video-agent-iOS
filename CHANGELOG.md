@@ -1,3 +1,10 @@
+## [5.2.0](https://github.com/newrelic/video-agent-iOS/compare/v5.1.0...v5.2.0) (2026-11-16)
+
+### Features
+
+* IMA tracker ad lifecycle and Google IMA DAI support ([#255](https://github.com/newrelic/video-agent-iOS/issues/255)) ([53a4780](https://github.com/newrelic/video-agent-iOS/commit/53a47807890dc78a1e7a6af443ea36a34c9ce54b))
+* log event buffer capacity thresholds and dropped events ([637b276](https://github.com/newrelic/video-agent-iOS/commit/637b276e47fd17ea98f7433c01c335938afe1d24))
+
 ## [5.1.0](https://github.com/newrelic/video-agent-iOS/compare/v5.0.0...v5.1.0) (2026-10-15)
 
 ### Notes

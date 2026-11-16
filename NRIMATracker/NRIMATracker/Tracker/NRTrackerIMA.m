@@ -205,7 +205,7 @@
 }
 
 - (NSString *)getTrackerVersion {
-    return @"5.1.0";
+    return @"5.2.0";
 }
 
 /// The content player's playhead in ms, or nil when it is unavailable.
