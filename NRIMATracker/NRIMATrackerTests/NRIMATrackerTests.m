@@ -64,6 +64,14 @@
 - (void)sendAdClick { [self.calls addObject:@"click"]; }
 @end
 
+/// Stands in for the content player tracker, whose source is the stitched stream URL.
+@interface FakeContentTracker : NRVideoTracker
+@property (nonatomic, copy) NSString *fakeSrc;
+@end
+@implementation FakeContentTracker
+- (NSString *)getSrc { return self.fakeSrc ?: (NSString *)[NSNull null]; }
+@end
+
 #pragma mark - Tests
 
 @interface NRIMATrackerTests : XCTestCase
@@ -405,6 +413,55 @@
     [self startAdWithId:@"ima-ad-1" bitrate:0];
     [self.tracker.state setIsAd:YES];
     XCTAssertEqualObjects([self.tracker getAttributes:@"AD_BREAK_END" attributes:nil][@"adId"], @"ima-ad-1");
+}
+
+#pragma mark - Ad source and partner
+
+static NSString *const kStitchedURL = @"https://dai.example.com/stream/master.m3u8";
+
+- (FakeContentTracker *)linkContentTrackerWithSrc:(NSString *)src {
+    FakeContentTracker *content = [[FakeContentTracker alloc] init];
+    content.fakeSrc = src;
+    [self.tracker setLinkedTracker:content];
+    return content;
+}
+
+- (void)testDAIAdSrcIsTheContentStreamURL {
+    FakeContentTracker *content = [self linkContentTrackerWithSrc:kStitchedURL];
+    [self configureDAI];
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adSrc"], kStitchedURL);
+    (void)content;
+}
+
+- (void)testDAIAdSrcIsAbsentWhenContentHasNoSrc {
+    [self linkContentTrackerWithSrc:nil];
+    [self configureDAI];
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adSrc"], [NSNull null]);
+}
+
+- (void)testDAIAdSrcIsAbsentWithoutContentTracker {
+    [self configureDAI];
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adSrc"], [NSNull null]);
+}
+
+- (void)testCSAIAdSrcIsUnchanged {
+    [self linkContentTrackerWithSrc:kStitchedURL];
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adSrc"], [NSNull null]);
+}
+
+- (void)testDAIAdPartnerIsGoogleDai {
+    [self configureDAI];
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adPartner"], @"google-dai");
+}
+
+- (void)testCSAIAdPartnerIsUnchanged {
+    [self startAdWithId:@"a" bitrate:0];
+    XCTAssertEqualObjects([self adStartAttributes][@"adPartner"], [NSNull null]);
 }
 
 - (void)testAdBitrateKeptWhenPositive {

@@ -19,6 +19,8 @@
 @property (nonatomic) NSNumber *skipped;
 /// YES for Dynamic Ad Insertion: ad breaks come from the stream's own events instead of the ad pod.
 @property (nonatomic) BOOL isDAI;
+/// The content tracker this ad tracker is linked to. The core keeps its own reference private.
+@property (nonatomic, weak) NRTracker *contentTracker;
 
 @end
 
@@ -30,6 +32,11 @@
         self.skipped = @(0);
     }
     return self;
+}
+
+- (void)setLinkedTracker:(NRTracker *)linkedTracker {
+    [super setLinkedTracker:linkedTracker];
+    self.contentTracker = linkedTracker;
 }
 
 #pragma mark - NRAdTrackerConfigurable
@@ -297,6 +304,23 @@
     return self.skipped;
 }
 
-//TODO: - (NSString *)getAdPartner
+/// DAI ads are stitched into the content stream, so the stream URL the content player plays is the
+/// ad source, as on web. Raw, like web: it can carry a query string. CSAI keeps the core default.
+- (NSString *)getSrc {
+    if (self.isDAI) {
+        NRTracker *content = self.contentTracker;
+        if ([content isKindOfClass:[NRVideoTracker class]]) {
+            NSString *src = [(NRVideoTracker *)content getSrc];
+            if ([src isKindOfClass:[NSString class]] && src.length > 0) {
+                return src;
+            }
+        }
+    }
+    return [super getSrc];
+}
+
+- (NSString *)getAdPartner {
+    return self.isDAI ? @"google-dai" : [super getAdPartner];
+}
 
 @end
