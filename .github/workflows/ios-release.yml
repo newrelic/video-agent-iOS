@@ -22,6 +22,7 @@ jobs:
       should_create_pr: ${{ steps.get_version.outputs.should_create_pr }}
       release_branch: ${{ steps.get_version.outputs.release_branch }}
       version: ${{ steps.get_version.outputs.next_version }}
+      build: ${{ steps.decide.outputs.build }}
     if: "!contains(github.event.head_commit.message, 'chore(release):')"    
     
     env:
@@ -400,6 +401,22 @@ jobs:
             echo "   git push origin --delete $RELEASE_BRANCH"
           fi
 
+      # A merged release PR cannot be released again: its branch is done. Skip the build so no
+      # commit is pushed onto it, and tell the person running this to bump the version.
+      - name: Decide whether the release files need building
+        id: decide
+        if: steps.get_version.outputs.should_create_pr == 'true'
+        run: |
+          BRANCH="${{ steps.get_version.outputs.release_branch }}"
+          STATE=$(gh pr list --head "$BRANCH" --base master --state all --json state --jq '.[0].state // "NONE"')
+          echo "Release PR state for $BRANCH: $STATE"
+          if [ "$STATE" = "MERGED" ]; then
+            echo "::warning::The release PR for $BRANCH is already merged, so nothing is built. Bump the version to release again."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: No release needed
         if: steps.get_version.outputs.should_create_pr == 'false'
         run: |
@@ -427,7 +444,7 @@ jobs:
   build-release:
     name: Build and attest release files
     needs: version-bump
-    if: needs.version-bump.outputs.should_create_pr == 'true'
+    if: needs.version-bump.outputs.build == 'true'
     runs-on: macos-latest
     permissions:
       contents: write
@@ -529,7 +546,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: ios-release-${{ env.HEAD_SHA }}
-          retention-days: 30
+          retention-days: 90
           if-no-files-found: error
           path: |
             xcframeworks.zip

@@ -112,6 +112,7 @@ jobs:
             echo "$CHANGED"
             exit 1
           fi
+          echo "BUILT=$BUILT" >> "$GITHUB_ENV"
           echo "OK: tag commit = merged commit = release branch head; built from $BUILT; only Package.swift changed."
 
       - name: Verify checksums, Package.swift and attestations
@@ -169,7 +170,11 @@ jobs:
 
           ### What's Changed
 
-          $CHANGELOG"
+          $CHANGELOG
+
+          ### Build
+
+          The files were built and signed from commit $BUILT on the release branch. This tag's commit is $MERGED; the only difference is Package.swift (the release tag and checksums)."
 
           FILES="xcframeworks.zip NewRelicVideoCore.xcframework.zip NRAVPlayerTracker.xcframework.zip NRIMATracker.xcframework.zip NRMediaTailorTracker.xcframework.zip NRTHEOplayerTracker.xcframework.zip SHA256SUMS integrity-manifest.json"
 
