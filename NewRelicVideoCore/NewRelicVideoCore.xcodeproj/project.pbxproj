@@ -151,6 +151,8 @@
 		72BC6CA495AAC595919A0B84 /* NRTimeSinceTableThreadSafetyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */; };
 		QOETEST0001000000000001 /* NRQoEAggregatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = QOETEST0001000000000003 /* NRQoEAggregatorTests.m */; };
 		QOETEST0001000000000002 /* NRQoEAggregatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = QOETEST0001000000000003 /* NRQoEAggregatorTests.m */; };
+		FBKTEST0001000000000001 /* NRVAVideoConfigurationFallbackTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBKTEST0001000000000003 /* NRVAVideoConfigurationFallbackTests.m */; };
+		FBKTEST0001000000000002 /* NRVAVideoConfigurationFallbackTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FBKTEST0001000000000003 /* NRVAVideoConfigurationFallbackTests.m */; };
 		QOETEST0002000000000001 /* NRVAHarvestManagerQoETests.m in Sources */ = {isa = PBXBuildFile; fileRef = QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */; };
 		QOETEST0002000000000002 /* NRVAHarvestManagerQoETests.m in Sources */ = {isa = PBXBuildFile; fileRef = QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */; };
 		EATTRTS0001000000000001 /* NREventAttributesThreadSafetyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = EATTRTS0001000000000003 /* NREventAttributesThreadSafetyTests.m */; };
@@ -275,6 +277,7 @@
 		9CE7994325837D0B00157199 /* NewRelicVideoCore-tvOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "NewRelicVideoCore-tvOS.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B9B6605B2045E3744CF0325D /* NRTimeSinceTableThreadSafetyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTimeSinceTableThreadSafetyTests.m; sourceTree = "<group>"; };
 		QOETEST0001000000000003 /* NRQoEAggregatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRQoEAggregatorTests.m; sourceTree = "<group>"; };
+		FBKTEST0001000000000003 /* NRVAVideoConfigurationFallbackTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRVAVideoConfigurationFallbackTests.m; sourceTree = "<group>"; };
 		QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRVAHarvestManagerQoETests.m; sourceTree = "<group>"; };
 		EATTRTS0001000000000003 /* NREventAttributesThreadSafetyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NREventAttributesThreadSafetyTests.m; sourceTree = "<group>"; };
 		PAIRTST0001000000000003 /* NRTrackerPairTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NRTrackerPairTests.m; sourceTree = "<group>"; };
@@ -515,6 +518,7 @@
 				BUFPAUS0001000000000003 /* NRTrackerStateBufferPauseTests.m */,
 				VLDSAN0001000000000003 /* NREventAttributesValueSanitizationTests.m */,
 				QOETEST0001000000000003 /* NRQoEAggregatorTests.m */,
+				FBKTEST0001000000000003 /* NRVAVideoConfigurationFallbackTests.m */,
 				QOETEST0002000000000003 /* NRVAHarvestManagerQoETests.m */,
 				9CE7992825837C9400157199 /* NewRelicVideoCoreTests.m */,
 				9CE7992A25837C9400157199 /* Info.plist */,
@@ -813,6 +817,7 @@
 				BUFPAUS0001000000000001 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000001 /* NREventAttributesValueSanitizationTests.m in Sources */,
 				QOETEST0001000000000001 /* NRQoEAggregatorTests.m in Sources */,
+				FBKTEST0001000000000001 /* NRVAVideoConfigurationFallbackTests.m in Sources */,
 				QOETEST0002000000000001 /* NRVAHarvestManagerQoETests.m in Sources */,
 				9CE7992925837C9400157199 /* NewRelicVideoCoreTests.m in Sources */,
 			);
@@ -865,6 +870,7 @@
 				BUFPAUS0001000000000002 /* NRTrackerStateBufferPauseTests.m in Sources */,
 				VLDSAN0001000000000002 /* NREventAttributesValueSanitizationTests.m in Sources */,
 				QOETEST0001000000000002 /* NRQoEAggregatorTests.m in Sources */,
+				FBKTEST0001000000000002 /* NRVAVideoConfigurationFallbackTests.m in Sources */,
 				QOETEST0002000000000002 /* NRVAHarvestManagerQoETests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
