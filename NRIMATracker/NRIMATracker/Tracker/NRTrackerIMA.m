@@ -105,6 +105,9 @@
             break;
         case kIMAAdEvent_AD_BREAK_ENDED:
         case kIMAAdEvent_AD_PERIOD_ENDED:
+            // An ad cut short (seek, stream error) has no COMPLETE. Close it first: otherwise no
+            // AD_END is sent and the core drops the next ad's AD_START. No-op when no ad is open.
+            [self sendEnd];
             [self sendAdBreakEnd];
             break;
         // Known IMA events that are not part of the ad lifecycle we report today.

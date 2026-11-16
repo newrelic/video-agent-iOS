@@ -179,14 +179,31 @@
     [self configureDAI];
     [self send:kIMAAdEvent_AD_PERIOD_STARTED];
     [self send:kIMAAdEvent_AD_PERIOD_ENDED];
-    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"breakEnd"]));
+    // The stub records "end" even with no open ad; the real sendEnd is a no-op then.
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"end", @"breakEnd"]));
 }
 
 - (void)testDAIAdBreakEventsDriveTheBreak {
     [self configureDAI];
     [self send:kIMAAdEvent_AD_BREAK_STARTED];
     [self send:kIMAAdEvent_AD_BREAK_ENDED];
-    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"breakEnd"]));
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"end", @"breakEnd"]));
+}
+
+- (void)testDAIBreakEndClosesAnAdThatNeverCompleted {
+    [self configureDAI];
+    [self send:kIMAAdEvent_AD_BREAK_STARTED];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_AD_BREAK_ENDED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"request", @"start", @"end", @"breakEnd"]));
+}
+
+- (void)testDAIPeriodEndClosesAnAdThatNeverCompleted {
+    [self configureDAI];
+    [self send:kIMAAdEvent_AD_PERIOD_STARTED];
+    [self send:kIMAAdEvent_STARTED];
+    [self send:kIMAAdEvent_AD_PERIOD_ENDED];
+    XCTAssertEqualObjects(self.tracker.calls, (@[@"breakStart", @"request", @"start", @"end", @"breakEnd"]));
 }
 
 - (void)testEventsWithoutAnAdYieldNullAttributesInsteadOfNil {
