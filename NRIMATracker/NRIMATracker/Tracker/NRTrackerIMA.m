@@ -240,14 +240,15 @@
     }
 }
 
-/// IMA's own id for the current ad, so each ad is distinguishable. The core default hashes the
-/// (empty) source, which gives the same id for every ad.
+/// IMA's own id for the current ad, so each ad is distinguishable. Null when there is no ad yet,
+/// instead of the core default, which hashes the empty source.
 - (NSString *)getVideoId {
     NSString *adId = self.lastAd.adId;
     if ([adId isKindOfClass:[NSString class]] && adId.length > 0) {
         return adId;
     }
-    return [super getVideoId];
+    // No ad yet (AD_BREAK_START): the core default would hash the empty source, the same id for every ad.
+    return (NSString *)[NSNull null];
 }
 
 - (NSNumber *)getBitrate {

@@ -388,13 +388,23 @@
     XCTAssertNotEqualObjects(first, [self adStartAttributes][@"adId"]);
 }
 
-- (void)testAdIdFallsBackWhenNilOrEmpty {
-    NSString *fallback = [self adStartAttributes][@"adId"];
-    XCTAssertTrue(fallback.length > 0);
+- (void)testAdIdIsNullWhenThereIsNoAd {
+    XCTAssertEqualObjects([self.tracker getVideoId], [NSNull null]);
+    [self.tracker.state setIsAd:YES];
+    XCTAssertEqualObjects([self.tracker getAttributes:@"AD_BREAK_START" attributes:nil][@"adId"], [NSNull null]);
+}
+
+- (void)testAdIdIsNullWhenAdIdIsNilOrEmpty {
     [self startAdWithId:nil bitrate:0];
-    XCTAssertEqualObjects([self adStartAttributes][@"adId"], fallback);
+    XCTAssertEqualObjects([self adStartAttributes][@"adId"], [NSNull null]);
     [self startAdWithId:@"" bitrate:0];
-    XCTAssertEqualObjects([self adStartAttributes][@"adId"], fallback);
+    XCTAssertEqualObjects([self adStartAttributes][@"adId"], [NSNull null]);
+}
+
+- (void)testAdIdIsTheLastAdAtBreakEnd {
+    [self startAdWithId:@"ima-ad-1" bitrate:0];
+    [self.tracker.state setIsAd:YES];
+    XCTAssertEqualObjects([self.tracker getAttributes:@"AD_BREAK_END" attributes:nil][@"adId"], @"ima-ad-1");
 }
 
 - (void)testAdBitrateKeptWhenPositive {
