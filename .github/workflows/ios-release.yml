@@ -292,7 +292,8 @@ jobs:
           echo '{"version":"'${VERSION}'"}' > context.json
 
           # Generate changelog updates and save to files without tagging
-          npx conventional-changelog-cli -p conventionalcommits -i CHANGELOG.md -s --context context.json
+          # The config applies the flat release-notes template and sections from .releaserc.js
+          npx conventional-changelog-cli -n .github/changelog-config.mjs -i CHANGELOG.md -s --context context.json
 
           rm context.json
 
